@@ -1,0 +1,31 @@
+# Entorno virtual
+.venv/
+venv/
+
+# Caches Python
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+coverage.xml
+
+# Build de documentación y distribución
+site/
+build/
+dist/
+
+# Configuración local (no versionada)
+.claude/settings.local.json
+
+# Credenciales — prohibido versionar (defensa en profundidad: este proyecto no usa API keys)
+.env
+.env.*
+*.key
+*.pem
+secrets*
+
+# Sistema
+.DS_Store
+Thumbs.db

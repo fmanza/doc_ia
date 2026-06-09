@@ -1,0 +1,23 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -m ruff check scripts tests --quiet 2>&1 | head -15"
+          },
+          {
+            "type": "command",
+            "command": "python -m mypy scripts --no-error-summary 2>&1 | head -10"
+          },
+          {
+            "type": "command",
+            "command": "python -m pytest --collect-only -q tests 2>&1 | head -10"
+          }
+        ]
+      }
+    ]
+  }
+}

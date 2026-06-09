@@ -1,0 +1,26 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "docs: build",
+      "type": "shell",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe -m mkdocs build --strict",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "docs: serve",
+      "type": "shell",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe -m mkdocs serve",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "calidad: ruff + mypy + pytest",
+      "type": "shell",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe -m ruff check scripts tests && ${workspaceFolder}\\.venv\\Scripts\\python.exe -m mypy scripts && ${workspaceFolder}\\.venv\\Scripts\\python.exe -m pytest",
+      "group": "test",
+      "problemMatcher": []
+    }
+  ]
+}
