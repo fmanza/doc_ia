@@ -16,7 +16,17 @@
       "Bash(grep -n \"document.project\\\\|\\\\/document-project\\\\|punto de entrada\\\\|comando.*entrada\" GEMINI.md .cursorrules .github/copilot-instructions.md)",
       "Bash(python -c ' *)",
       "Bash(python -m ruff check scripts tests)",
-      "Bash(python -m mypy scripts)"
+      "Bash(python -m mypy scripts)",
+      "Bash(Test-Path \"C:\\\\Desarrollo\\\\python\\\\libs\\\\doc_ia\")",
+      "Bash(Test-Path \"C:\\\\Desarrollo\\\\python\\\\libs\\\\doc_ia\\\\docs\")",
+      "Bash(Test-Path \"C:\\\\Desarrollo\\\\python\\\\libs\\\\doc_ia\\\\mkdocs.yml\")",
+      "Bash(Get-ChildItem -Path \"C:\\\\Desarrollo\\\\python\\\\libs\\\\doc_ia\" -Recurse -File -Filter \"*.py\")",
+      "Bash(Get-ChildItem -Path \"C:\\\\Desarrollo\\\\python\\\\libs\\\\doc_ia\\\\docs\" -Recurse -File -Filter \"*.md\" -ErrorAction SilentlyContinue)",
+      "Bash(grep -rn \"\\\\.\\\\./CHANGELOG\\\\|\\\\.\\\\.\\\\/CONTRIBUTING\" docs/)",
+      "Bash(grep -v \"Material for MkDocs\\\\|mkdocs-material\\\\|squidfunk\\\\|backward\\\\|All plugins\\\\|All theme\\\\|No migration\\\\|Closed contribution\\\\|Currently unlicensed\\\\|Our full analysis\\\\|will introduce\\\\|unsuitable\\\\|community\\\\|framework\\\\|theming\\\\|existing\\\\|^\\\\s*$\\\\|^\\\\s*│\\\\s*$\")",
+      "Bash(python hooks/sync_root_docs.py)",
+      "Bash(python -m ruff check scripts tests hooks --quiet)",
+      "Bash(python -m mypy scripts --no-error-summary)"
     ]
   },
   "hooks": {
@@ -26,7 +36,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python -m ruff check scripts tests --quiet 2>&1 | head -15"
+            "command": "python hooks/sync_root_docs.py"
+          },
+          {
+            "type": "command",
+            "command": "python -m ruff check scripts tests hooks --quiet 2>&1 | head -15"
           },
           {
             "type": "command",

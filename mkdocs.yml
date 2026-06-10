@@ -44,6 +44,9 @@ plugins:
   - search:
       lang: es
 
+hooks:
+  - hooks/sync_root_docs.py
+
 markdown_extensions:
   - admonition
   - pymdownx.details
@@ -72,6 +75,7 @@ markdown_extensions:
 
 nav:
   - Inicio: index.md
+  - Quick Start: quickstart.md
   - Instalación: installation.md
   - 📥 Descargas: downloads.md
 
@@ -115,10 +119,17 @@ nav:
           - Guía de Claude Code: guides/claude_code_guide.md
           - Guía de Codex (OpenAI): guides/codex_guide.md
 
+  # ── Configuración de agentes IA ───────────────────────────────────────────
+  - Configuración IA:
+      - Claude Code: ai-config/claude.md
+
   # ── Contexto del proyecto ──────────────────────────────────────────────────
   - Arquitectura:
       - Visión del Sistema: architecture.md
       - ADR-001 — MkDocs Material por defecto: adr/ADR-001-mkdocs-material-por-defecto.md
+
+  - Changelog: changelog.md
+  - Contribuir: contributing.md
 
 extra:
   social:
