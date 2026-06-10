@@ -14,7 +14,9 @@
       "Bash(python -m pip install --force-reinstall mkdocs mkdocs-material)",
       "Bash(python -m pip show mkdocs-material)",
       "Bash(grep -n \"document.project\\\\|\\\\/document-project\\\\|punto de entrada\\\\|comando.*entrada\" GEMINI.md .cursorrules .github/copilot-instructions.md)",
-      "Bash(python -c ' *)"
+      "Bash(python -c ' *)",
+      "Bash(python -m ruff check scripts tests)",
+      "Bash(python -m mypy scripts)"
     ]
   },
   "hooks": {

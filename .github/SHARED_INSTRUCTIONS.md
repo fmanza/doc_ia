@@ -43,8 +43,9 @@ si una fase parece requerir generación vía API externa, la respuesta es no —
   (en Claude Code: `/document-project`). Valida inputs obligatorios — **origen(es) a documentar,
   destino de la documentación, generador e idioma** — y se detiene si faltan; después orquesta
   el flujo por fases del Documentation Generator y los arquetipos.
-- **Arquetipos documentales**: 7 prompts formales en `.github/prompts/` (funcional, técnica, guía,
-  ejemplos, ADR, navegación principal, onboarding) parametrizables por proyecto.
+- **Arquetipos documentales**: prompts formales en `.github/prompts/` (funcional, técnica, how-to,
+  tutorial, ejemplos, ADR/MADR 4.0, navegación principal, onboarding, changelog, config IA,
+  contribución) parametrizables por proyecto.
 - **Flujo de trabajo canónico**: `PLAN → AUDIT_PLAN → IMPLEMENT → AUDIT_CODE → VERSION` con
   agentes (`.github/agents/`) y slash commands (`.claude/commands/`).
 - **Bootstrap multiplataforma**: `.github/prompts/bootstrap_ai_config.prompt.md` replica este
@@ -65,7 +66,7 @@ doc_ia/
   .github/
     SHARED_INSTRUCTIONS.md   # Este fichero (canónico)
     agents/                  # 12 agentes del flujo de trabajo
-    prompts/                 # Prompts de método + 7 arquetipos documentales
+    prompts/                 # Prompts de método + arquetipos documentales (11 activos)
     instructions/            # Reglas por tipo de archivo (python, sync)
     workflows/               # CI: build y release del ZIP de docs
   .claude/              # Slash commands, hooks, plantillas Claude Code
@@ -163,8 +164,10 @@ python scripts/build_docs_zip.py      # Build + ZIP offline en dist/doc_ia-docs-
 #### Arquetipos documentales
 
 Toda la documentación pública sigue los **arquetipos formales** de
-`.github/DOCUMENTATION_STANDARD.md` (funcional, técnica, guía, ejemplos, ADR, navegación,
-onboarding). Los prompts están en `.github/prompts/*_doc.prompt.md` y `onboarding_dev.prompt.md`.
+`.github/DOCUMENTATION_STANDARD.md`. Arquetipos activos: funcional, técnica, how-to (3a),
+tutorial (3b), ejemplos, ADR/MADR 4.0, navegación + quick start (6), onboarding, trazabilidad
+normativa (condicional), changelog (9), config agente IA (10), guía de contribución (11).
+Los prompts están en `.github/prompts/*_doc.prompt.md`.
 
 ### 📦 Distribución de documentación offline
 

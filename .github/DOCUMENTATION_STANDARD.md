@@ -151,34 +151,40 @@ Si no existe ningún ejemplo del módulo: "Pendiente — crear ejemplo en docs/e
 
 ---
 
-### 3.3 Arquetipo 3 — Guías de Usuario o Configuración (`docs/guides/`)
+### 3.3 Arquetipo 3a — How-to (`docs/guides/`)
 
-**Propósito**: Responder "¿Cómo se usa/instala/opera?"
+**Propósito**: Responder "¿Cómo resuelvo este problema concreto?"
 
-**Audiencia**: usuarios finales, operadores y desarrolladores que necesitan una guía how-to.
+**Diátaxis**: cuadrante *How-to* — orientado a **tarea**, asume conocimiento base, no enseña por qué.
 
-**Ubicación**: `docs/guides/[nombre_guia].md` (siempre en `guides/`, nombre en minúsculas con guiones bajos)
+**Diferencia con Tutorial (Arquetipo 3b, §3.11)**: Un how-to resuelve un problema concreto en el menor número de pasos; no explica el contexto ni guía el aprendizaje. Un tutorial lleva al lector por una experiencia de aprendizaje progresiva donde aprende haciendo.
+
+**Audiencia**: usuarios finales, operadores y desarrolladores que quieren resolver una tarea específica.
+
+**Ubicación**: `docs/guides/[nombre]_howto.md` o `docs/guides/[nombre]_guide.md`
+
+**Prompt**: `.github/prompts/howto_doc.prompt.md`
 
 **Estructura obligatoria** (secciones numeradas, en este orden):
 
 ```
-# [Guía de X / Tutorial de Y]
+# Cómo [verbo + objeto concreto]
 
 ## 1. Objetivo
-Qué conseguirás al seguir esta guía (1 párrafo). Distingue how-to ("instalar X") vs tutorial ("entender X").
+Una frase: qué conseguirás. Verbos imperativos ("instala", "configura", "verifica").
 
 ## 2. Requisitos Previos
 Lista: herramientas, versiones, accesos o estado inicial requerido.
 
 ## 3. Pasos
-Procedimiento secuencial numerado con bloques de código. Cada paso atómico y verificable.
+Procedimiento secuencial numerado con bloques de código.
+Cada paso atómico, ejecutable y verificable de forma independiente.
 
 ## 4. Verificación
-Comando + output esperado para confirmar éxito.
+Comando exacto + output esperado para confirmar éxito.
 
 ## 5. Variantes y Solución de Problemas
 Tabla: | Escenario/Error | Causa probable | Solución |
-Incluye alternativas al flujo principal y configuraciones opcionales.
 Si no hay casos conocidos: "No aplica para este módulo."
 ```
 
@@ -226,13 +232,70 @@ Comando exacto + output esperado si determinista.
 
 **Propósito**: Responder "¿Por qué se decidió así?"
 
+**Diátaxis**: cuadrante *Explanation* — razonamiento y contexto de una decisión concreta.
+
+**Estándar**: **MADR 4.0** (Markdown Any Decision Records, septiembre 2024 — [adr.github.io/madr](https://adr.github.io/madr/)).
+
 **Audiencia**: arquitectos de software, tech leads, responsables de plataforma.
 
 **Ubicación**: `docs/adr/ADR-[NNN]-[nombre-kebab-case].md`
 
-**Prompt**: `.github/prompts/architecture_doc.prompt.md`.
+**Prompt**: `.github/prompts/architecture_doc.prompt.md`
 
-**Secciones obligatorias**: Contexto y Problema → Decisión → Consecuencias → Alternativas Consideradas → Estado y Revisión.
+**Formatos disponibles**:
+- **Full** (decisiones críticas con múltiples opciones y consecuencias complejas)
+- **Minimal** (decisiones pequeñas: solo Contexto, Decisión, Consecuencias)
+
+**Estructura obligatoria — formato Full**:
+
+```markdown
+---
+status: "PROPUESTO | ACEPTADO | OBSOLETO | REEMPLAZADO POR ADR-NNN"
+date: YYYY-MM-DD
+deciders: [nombres o roles]
+consulted: [nombres o roles]
+informed: [nombres o roles]
+---
+
+# Use [Solución] for [Contexto/Problema]   ← Título en forma "Use X for Y"
+
+## Contexto y Problema
+Estado anterior, problema identificado, fuerzas en conflicto.
+
+## Decisión
+Enunciado claro + justificación breve vs alternativas.
+
+## Consecuencias
+Tabla: | Tipo | Descripción |
+Tipos: Ventaja / Compromiso (trade-off) / Deuda técnica / Riesgo aceptado
+
+## Alternativas Consideradas
+Tabla: | Alternativa | Pros | Contras | Motivo rechazo |
+Si no documentadas: "No aplica para este módulo."
+
+## Estado y Revisión
+Estado explícito + fecha YYYY-MM-DD.
+Si reemplaza a otro ADR: enlazar con "Reemplaza a [ADR-NNN]".
+```
+
+**Estructura obligatoria — formato Minimal**:
+
+```markdown
+---
+status: "PROPUESTO | ACEPTADO | OBSOLETO"
+date: YYYY-MM-DD
+---
+
+# Use [Solución] for [Contexto/Problema]
+
+## Contexto y Problema
+## Decisión
+## Consecuencias
+```
+
+**Cuándo usar cada formato**:
+- Full: decisiones que afectan API pública, eligen entre ≥2 enfoques con trade-offs, introducen/eliminan dependencia significativa, o establecen patrón reutilizable.
+- Minimal: decisiones de alcance acotado, tiempo limitado para documentar, o como placeholder hasta completar el Full.
 
 Documenta **una decisión concreta con trade-offs**, no la visión global del sistema (esa es la Variante C del Arquetipo 6). Los documentos de planificación (roadmap, release plans) se marcan con `<!-- arquetipo: informativo-libre -->` y quedan exentos.
 
@@ -253,6 +316,7 @@ Estas páginas entran directamente en `nav:` (nivel raíz), no bajo `functional/
 - **Variante A — Inicio**: Identidad y Propósito → Capacidades → Quick Start → Mapa de la Documentación → Compatibilidad y Soporte.
 - **Variante B — Instalación**: Requisitos → Instalación del Paquete → Drivers por Motor → Verificación → Solución de Problemas.
 - **Variante C — Arquitectura** (modelo **arc42-lite + C4**): Visión General y Objetivos de Calidad (C4 nivel 1) → Mapa de Módulos / Building Blocks (C4 nivel 3) → Flujo en Ejecución (Runtime) → Conceptos Transversales y Estándares No Funcionales (checklist NFR) → Decisiones, Extensión y Límites (enlace a `docs/adr/`).
+- **Variante D — Quick Start**: Prerequisito mínimo → Primer comando → Primer resultado visible → Siguiente paso sugerido. Objetivo: tiempo hasta la primera experiencia exitosa < 5 min. Ubicación: `docs/quickstart.md`. Audiencia: visitante que llega por primera vez y quiere ver el producto funcionando antes de leer la documentación completa. No sustituye a la Variante B (instalación detallada); enlaza a ella al final.
 
 **Distinción con otros arquetipos**:
 - El Arquetipo 5 (`architecture_doc`) documenta **un ADR concreto** (decisión con trade-offs, formato MADR-lite); la Variante C es la **vista panorámica del sistema** (arc42-lite + C4) y enlaza al log de ADR. Ambas conviven bajo la sección "Arquitectura" del nav y forman un modelo único: panorámica + decisiones.
@@ -396,7 +460,9 @@ Esta sección define el contrato mínimo y las reglas de nomenclatura para **tod
 | Fichero | Arquetipo | Contenido | Mandatorio |
 |---|---|---|---|
 | `guides/onboarding_dev.md` | 7 | Incorporación: entorno, código, convenciones, verificación | ✅ Siempre |
-| `guides/troubleshooting.md` | 3 | Problemas frecuentes por categoría + solución verificable | ✅ Siempre |
+| `guides/troubleshooting.md` | 3a | Problemas frecuentes por categoría + solución verificable | ✅ Siempre |
+| `CONTRIBUTING.md` (raíz) | 11 | Proceso de contribución, convenciones, calidad | ✅ Si el proyecto acepta contribuciones externas |
+| `CHANGELOG.md` (raíz) | 9 | Historial de cambios por versión (Keep a Changelog) | ✅ Si el proyecto tiene releases versionados |
 
 #### Guías adicionales según tipo de proyecto
 
@@ -468,6 +534,236 @@ Cuando hay ≥2 orígenes de tipo `CÓDIGO`, el agente pregunta al usuario la es
 | `monorepo` | Un `mkdocs.yml` raíz agrupa secciones por proyecto | Monorepo, mismo equipo, mismo destino para todos |
 
 Con estrategia `hub+satélite`, el INVENTARIO genera un sub-inventario por proyecto; el PLAN_DOC indica qué secciones del `mkdocs.yml` del hub reciben las páginas de los satélites.
+
+---
+
+### 3.11 Arquetipo 3b — Tutorial Guiado (`docs/guides/`)
+
+**Propósito**: Responder "¿Cómo aprendo a usar esto paso a paso?"
+
+**Diátaxis**: cuadrante *Tutorial* — orientado a **aprendizaje**, el lector aprende haciendo bajo guía.
+
+**Diferencia con How-to (Arquetipo 3a, §3.3)**: Un tutorial lleva al lector por una experiencia de aprendizaje progresiva; incluye el "por qué funciona esto", permite y anticipa errores, y finaliza con reflexión sobre lo aprendido. No asume conocimiento previo del área.
+
+**Audiencia**: usuarios que se acercan a la funcionalidad por primera vez y necesitan ser guiados.
+
+**Ubicación**: `docs/guides/[nombre]_tutorial.md`
+
+**Prompt**: `.github/prompts/tutorial_doc.prompt.md`
+
+**Estructura obligatoria** (secciones numeradas, en este orden):
+
+```
+# Tutorial: [Qué aprenderás a hacer]
+
+## 1. Qué aprenderás
+Resultado concreto al final del tutorial (1 párrafo). Listado de habilidades adquiridas.
+
+## 2. Antes de empezar
+Herramientas, versiones, estado inicial. Nivel de conocimiento esperado.
+
+## 3. [Fase/Paso 1 — nombre descriptivo]
+Acción + explicación de por qué funciona. Código ejecutable.
+Subsección: "¿Qué ha pasado?" — reflexión sobre lo ocurrido.
+
+## 4. [Fase/Paso 2 — nombre descriptivo]
+(Repetir patrón: acción → por qué → reflexión)
+
+## N. Resumen y Siguientes Pasos
+Qué has aprendido. Enlace a guías how-to relacionadas (Arquetipo 3a) para uso en producción.
+```
+
+**Reglas**:
+- Cada fase termina con un estado verificable (el lector sabe que ha tenido éxito).
+- Anticipar y explicar errores frecuentes dentro de la fase donde ocurren, no en una sección al final.
+- Mantener un hilo narrativo: el lector construye algo a lo largo del tutorial.
+- Distinguir `guides/*_tutorial.md` (tutorial) de `guides/*_guide.md` / `guides/*_howto.md` (how-to) en el nombre de fichero.
+
+---
+
+### 3.12 Arquetipo 9 — Changelog / Release Notes (`CHANGELOG.md`)
+
+**Propósito**: Registrar cronológicamente los cambios significativos por versión para usuarios y mantenedores.
+
+**Estándar**: [Keep a Changelog](https://keepachangelog.com/) v1.1.0 + [Semantic Versioning](https://semver.org/).
+
+**Audiencia**: usuarios finales, QA, ops, decisores que necesitan saber qué cambió y cuándo.
+
+**Ubicación**: `CHANGELOG.md` (raíz del repositorio — fichero único). Enlazar desde `nav:` como entrada directa.
+
+**Prompt**: `.github/prompts/changelog.prompt.md`
+
+**Estructura obligatoria**:
+
+```markdown
+# Changelog
+
+Todos los cambios notables de este proyecto se documentan aquí.
+Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer](https://semver.org/)
+
+## [Unreleased]
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+### Security
+
+## [X.Y.Z] — YYYY-MM-DD
+### Added
+- Descripción de nueva funcionalidad.
+### Fixed
+- Descripción de bug corregido.
+
+[Unreleased]: https://github.com/[usuario]/[repo]/compare/vX.Y.Z...HEAD
+[X.Y.Z]: https://github.com/[usuario]/[repo]/compare/vX.Y.Z-1...vX.Y.Z
+```
+
+**Categorías permitidas** (en este orden dentro de cada versión):
+
+| Categoría | Cuándo usarla |
+|-----------|--------------|
+| `Added` | Nueva funcionalidad (retrocompatible) |
+| `Changed` | Cambio en funcionalidad existente |
+| `Deprecated` | Funcionalidad marcada para eliminación futura |
+| `Removed` | Funcionalidad eliminada |
+| `Fixed` | Corrección de bug |
+| `Security` | Corrección de vulnerabilidad |
+
+**Reglas**:
+- Mantener siempre una sección `[Unreleased]` al inicio.
+- Al hacer release: renombrar `[Unreleased]` a `[X.Y.Z] — YYYY-MM-DD` y crear nueva `[Unreleased]` vacía.
+- Entradas en pasado o forma nominal ("Añade X", "Corrige Y"); nunca "Vamos a añadir...".
+- No documentar cada commit; solo cambios con impacto para el usuario o integrador.
+- Actualizar en sincronía con `pyproject.toml` / `package.json` (ver `.github/instructions/sync.instructions.md`).
+
+**Sección MkDocs** (siempre presente si el proyecto tiene CHANGELOG.md):
+
+```yaml
+- Changelog: changelog.md   # Entrada directa en nav raíz o bajo "Proyecto"
+```
+
+---
+
+### 3.13 Arquetipo 10 — Configuración de Agente IA (`docs/ai-config/`)
+
+**Propósito**: Documentar las instrucciones de sistema, permisos, comandos y automatizaciones configuradas para cada plataforma de IA en el proyecto.
+
+**Origen**: Arquetipo propio de doc_ia — no existe estándar externo para este tipo de documento en 2024-2025. El proyecto lo define e implementa como referencia.
+
+**Audiencia**: desarrolladores que integran, configuran o auditan agentes IA en el proyecto; equipos que replican la configuración en otros proyectos.
+
+**Ubicación**: `docs/ai-config/[plataforma].md` (ej: `claude.md`, `gemini.md`, `copilot.md`)
+
+**Prompt**: `.github/prompts/ai_config_doc.prompt.md`
+
+**Estructura obligatoria** (secciones numeradas, en este orden):
+
+```
+# Configuración de [Nombre Plataforma IA]
+
+[Versión del modelo objetivo] [Fecha de revisión]
+
+## 1. Plataforma y Modelo
+Nombre, versión mínima del modelo, fichero de configuración fuente (CLAUDE.md, copilot-instructions.md, etc.).
+
+## 2. Contexto Obligatorio
+Lista de ficheros que el agente debe leer antes de actuar:
+- [fichero] — propósito
+
+## 3. Comandos y Slash Commands
+Tabla: | Comando | Propósito | Inputs obligatorios | Outputs |
+
+## 4. Permisos y Herramientas
+Tabla: | Herramienta/Acción | Permitida | Condición |
+Basada en el fichero de configuración real (settings.json, etc.).
+
+## 5. Hooks y Automatizaciones
+Tabla: | Evento | Comando ejecutado | Propósito |
+Si no hay hooks: "No aplica para esta configuración."
+
+## 6. Restricciones Explícitas
+Lista de lo que el agente nunca debe hacer en este proyecto (derivado de la sección prohibiciones del fichero fuente).
+
+## 7. Casos Límite Conocidos
+Lista de comportamientos inesperados documentados (de EDGE_CASES.md si existe).
+Si no hay: "No aplica para esta configuración."
+```
+
+**Reglas**:
+- Derivar el contenido del fichero fuente real (CLAUDE.md, copilot-instructions.md, etc.) — no inventar permisos ni comandos.
+- Actualizar cuando cambie el fichero fuente o se añadan hooks.
+- La sección §4 debe reflejar el estado real de `settings.json` o equivalente.
+
+**Sección MkDocs** (solo si el proyecto tiene ≥1 plataforma IA configurada):
+
+```yaml
+- Configuración IA:
+    - Claude Code: ai-config/claude.md
+    - GitHub Copilot: ai-config/copilot.md
+```
+
+---
+
+### 3.14 Arquetipo 11 — Guía de Contribución (`CONTRIBUTING.md`)
+
+**Propósito**: Explicar cómo contribuir al proyecto (issues, PRs, convenciones, proceso de release).
+
+**Diferencia con Arquetipo 7 (Onboarding Dev)**: El onboarding es para quien se incorpora al equipo y trabaja en el día a día; esta guía es para colaboradores externos o primeras contribuciones puntuales.
+
+**Audiencia**: contribuidores externos, colaboradores ocasionales, usuarios que quieren reportar bugs o proponer mejoras.
+
+**Ubicación**: `CONTRIBUTING.md` (raíz del repositorio — fichero único). Enlazar desde `README.md` y desde `nav:`.
+
+**Prompt**: `.github/prompts/contributing_doc.prompt.md`
+
+**Estructura obligatoria** (secciones numeradas, en este orden):
+
+```markdown
+# Cómo Contribuir a [Nombre Proyecto]
+
+## 1. Tipos de Contribución Aceptados
+Lista: reportar bugs, proponer mejoras, enviar PRs de código, mejorar documentación, etc.
+Enlace a la política de issues si existe.
+
+## 2. Antes de Contribuir
+Código de conducta (referencia externa si aplica). Requerimientos de CLA si aplica.
+
+## 3. Proceso de Contribución
+1. Fork / Clonar el repositorio
+2. Crear rama desde [rama-principal] (nombre: `feat/`, `fix/`, `docs/`, `chore/`)
+3. Implementar cambio + tests
+4. Verificar calidad (lint, tipos, tests)
+5. Abrir PR con descripción según la plantilla
+6. Proceso de review y merge
+
+## 4. Convenciones de Código y Commits
+Referencia a SHARED_INSTRUCTIONS.md / Conventional Commits.
+Tabla: | Tipo commit | Cuándo usar |
+
+## 5. Requisitos de Calidad
+Herramientas y comandos que deben pasar antes de abrir PR:
+```bash
+python -m ruff check scripts tests
+python -m mypy scripts
+python -m pytest
+```
+Sin errores: merge no procede.
+
+## 6. Proceso de Release y Versionado
+Referencia a SemVer. Quién tiene permisos de release. Enlace a CHANGELOG.md.
+```
+
+**Reglas**:
+- Derivar §4 de `SHARED_INSTRUCTIONS.md` (convenciones) y `.github/workflows/` (CI actual).
+- Mantener actualizado cuando cambien las herramientas de calidad.
+- Si el proyecto no acepta contribuciones externas: indicarlo explícitamente en §1.
+
+**Sección MkDocs**:
+
+```yaml
+- Contribuir: contributing.md   # Entrada directa en nav raíz o bajo "Proyecto"
+```
 
 ---
 
@@ -680,18 +976,21 @@ nav:
 
 ### 4.3 Secciones Opcionales (Agregar según necesidad)
 
-| Sección | Ubicación | Cuándo agregar |
-|---------|-----------|----------------|
-| **Seguridad** | `docs/security/` | Proyectos con auth, datos sensibles o auditoría |
-| **Tutoriales** | `docs/tutorials/` | Curvas de aprendizaje complejas |
-| **FAQ** | `docs/faq.md` | Preguntas frecuentes por módulo |
-| **Glosario** | `docs/glossary.md` | Dominio específico con muchos términos |
-| **Web Interface** | `docs/web-interface.md` | Si el proyecto tiene UI web |
-| **Arquitectura Web API** | `docs/architecture/web-api.md` | Si existe `src/**/web/` con FastAPI/Flask/etc. |
-| **Microservicios** | `docs/architecture/microservices.md` | Si el proyecto expone o consume múltiples servicios |
-| **Docker / Contenedores** | `docs/architecture/docker.md` | Si existe `Dockerfile` o `docker-compose.yml` en el repo |
-| **Contributing** | `docs/contributing.md` | Proyectos open source |
-| **Normativa** | `docs/normativa/` | **Solo** si el proyecto referencia leyes, decretos o normativas de obligado cumplimiento (Arquetipo 8) |
+| Sección | Ubicación | Arquetipo | Cuándo agregar |
+|---------|-----------|-----------|----------------|
+| **Quick Start** | `docs/quickstart.md` | 6 Variante D | Cuando la instalación completa supera 5 min y se quiere mostrar el producto de forma rápida |
+| **Tutorial Guiado** | `docs/guides/*_tutorial.md` | 3b (§3.11) | Curvas de aprendizaje complejas; usuarios que llegan al proyecto sin conocimiento previo |
+| **Changelog** | `CHANGELOG.md` + enlace nav | 9 (§3.12) | Siempre en proyectos con releases versionados |
+| **Contribución** | `CONTRIBUTING.md` + enlace nav | 11 (§3.14) | Proyectos open source o con colaboradores externos |
+| **Configuración IA** | `docs/ai-config/` | 10 (§3.13) | Proyectos con ≥1 plataforma IA configurada (CLAUDE.md, copilot, etc.) |
+| **Seguridad** | `docs/security/` | — | Proyectos con auth, datos sensibles o auditoría |
+| **FAQ** | `docs/faq.md` | — | Preguntas frecuentes por módulo |
+| **Glosario** | `docs/glossary.md` | — | Dominio específico con muchos términos |
+| **Web Interface** | `docs/web-interface.md` | — | Si el proyecto tiene UI web |
+| **Arquitectura Web API** | `docs/architecture/web-api.md` | — | Si existe `src/**/web/` con FastAPI/Flask/etc. |
+| **Microservicios** | `docs/architecture/microservices.md` | — | Si el proyecto expone o consume múltiples servicios |
+| **Docker / Contenedores** | `docs/architecture/docker.md` | — | Si existe `Dockerfile` o `docker-compose.yml` en el repo |
+| **Normativa** | `docs/normativa/` | 8 (§3.8) | **Solo** si el proyecto referencia leyes, decretos o normativas de obligado cumplimiento |
 
 ---
 
@@ -818,7 +1117,10 @@ La estandarización se considera **completa** cuando:
 - [ ] Las instrucciones IA (`CLAUDE.md`, `copilot-instructions.md`) son coherentes con el código real
 - [ ] Todos los documentos en `nav:` (excepto `legacy-versions.md`) tienen exactamente las secciones numeradas de su arquetipo asignado (`index.md`, `INSTALLATION.md` y `ARCHITECTURE.md` se rigen por el Arquetipo 6)
 - [ ] Las secciones vacías contienen `*No aplica para este módulo.*` en lugar de estar omitidas
-- [ ] Los prompts `.github/prompts/guide_doc.prompt.md` y `example_doc.prompt.md` existen y son coherentes con Arquetipos 3 y 4
+- [ ] Los prompts `.github/prompts/howto_doc.prompt.md`, `tutorial_doc.prompt.md` y `example_doc.prompt.md` existen y son coherentes con Arquetipos 3a, 3b y 4
+- [ ] Si hay releases: `CHANGELOG.md` sigue el estándar Keep a Changelog (Arquetipo 9) y tiene entrada `[Unreleased]`
+- [ ] Si hay ≥1 plataforma IA configurada: existe `docs/ai-config/[plataforma].md` derivado del fichero fuente real (Arquetipo 10)
+- [ ] Si el proyecto acepta contribuciones: `CONTRIBUTING.md` existe en raíz y enlaza desde README (Arquetipo 11)
 
 ---
 

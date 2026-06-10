@@ -113,9 +113,12 @@ Clasifica **cada** activo IA del origen en una de estas cuatro capas:
 - **PROMPTS DE ARQUETIPOS DOCUMENTALES** (si el destino publica documentación):
   - `.github/prompts/functional_doc.prompt.md` (Arquetipo 1: Documentación Funcional)
   - `.github/prompts/technical_doc.prompt.md` (Arquetipo 2: Documentación Técnica/API)
-  - `.github/prompts/guide_doc.prompt.md` (Arquetipo 3: Guías de Usuario)
+  - `.github/prompts/howto_doc.prompt.md` (Arquetipo 3a: How-to)
+  - `.github/prompts/tutorial_doc.prompt.md` (Arquetipo 3b: Tutorial Guiado)
   - `.github/prompts/example_doc.prompt.md` (Arquetipo 4: Ejemplos de Código)
-  - `.github/prompts/architecture_doc.prompt.md` (Arquetipo 5: Decisiones Arquitectónicas/ADR)
+  - `.github/prompts/architecture_doc.prompt.md` (Arquetipo 5: ADR / MADR 4.0)
+  - `.github/prompts/changelog.prompt.md` (Arquetipo 9: Changelog)
+  - `.github/prompts/contributing_doc.prompt.md` (Arquetipo 11: Guía de Contribución)
   - `.github/prompts/landing_doc.prompt.md` (Arquetipo 6: Páginas Navegación Principal)
 - **NUEVO**: `docs/downloads.md` (página de descarga offline si destino publica documentación)
 - **NUEVO**: `scripts/build_docs_zip.py` + `.github/workflows/docs-zip-release.yml` (si destino
@@ -194,10 +197,13 @@ búsqueda automática por IA. Cada uno responde una pregunta de usuario distinta
 |---|---|---|---|---|
 | **1** | Funcional | ¿Qué hace y por qué? | `docs/functional/` | `functional_doc.prompt.md` |
 | **2** | Técnica/API | ¿Cómo funciona internamente? | `docs/api/` | `technical_doc.prompt.md` |
-| **3** | Guía de Usuario | ¿Cómo se usa/instala? | `docs/` raíz | `guide_doc.prompt.md` |
+| **3a** | How-to | ¿Cómo resuelvo esta tarea? | `docs/guides/` | `howto_doc.prompt.md` |
+| **3b** | Tutorial | ¿Cómo aprendo esto? | `docs/guides/` | `tutorial_doc.prompt.md` |
 | **4** | Ejemplos de Código | ¿Cómo se implementa? | `docs/examples/` | `example_doc.prompt.md` |
-| **5** | Decisión Arquitectónica (ADR) | ¿Por qué se decidió así? | `docs/adr/` | `architecture_doc.prompt.md` |
-| **6** | Navegación Principal *(variante)* | Intro + instalación + visión | `docs/index.md`, `INSTALLATION.md`, `ARCHITECTURE.md` | `landing_doc.prompt.md` |
+| **5** | ADR / MADR 4.0 | ¿Por qué se decidió así? | `docs/adr/` | `architecture_doc.prompt.md` |
+| **6** | Navegación Principal *(variante A/B/C/D)* | Intro + instalación + visión + quick start | `docs/index.md`, `installation.md`, `architecture.md`, `quickstart.md` | `landing_doc.prompt.md` |
+| **9** | Changelog | ¿Qué cambió en cada versión? | `CHANGELOG.md` | `changelog.prompt.md` |
+| **11** | Guía de Contribución | ¿Cómo contribuyo? | `CONTRIBUTING.md` | `contributing_doc.prompt.md` |
 
 ### Adaptación de arquetipos al destino
 

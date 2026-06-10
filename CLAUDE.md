@@ -89,24 +89,32 @@ solo lectura. El lenguaje y la arquitectura del destino son **parámetros de ent
 
 ## 📐 Arquetipos Formales de Documentación
 
-Toda documentación sigue los **7 arquetipos formales** definidos en
-[`.github/DOCUMENTATION_STANDARD.md`](./.github/DOCUMENTATION_STANDARD.md):
+Toda documentación sigue los **arquetipos formales** definidos en
+[`.github/DOCUMENTATION_STANDARD.md`](./.github/DOCUMENTATION_STANDARD.md).
+Los arquetipos 1–8 son la base; 3b y 9–11 son las adiciones 2024-2025.
 
 | Arquetipo | Propósito | Ubicación | Prompt |
 |---|---|---|---|
 | **1. Funcional** | ¿Qué hace y por qué? | `docs/functional/` | `functional_doc.prompt.md` |
 | **2. Técnica/API** | ¿Cómo funciona internamente? | `docs/api/` | `technical_doc.prompt.md` |
-| **3. Guía de Usuario** | ¿Cómo se usa/instala? | `docs/guides/` | `guide_doc.prompt.md` |
+| **3a. How-to** | ¿Cómo resuelvo esta tarea concreta? | `docs/guides/*_howto.md` | `howto_doc.prompt.md` |
+| **3b. Tutorial** | ¿Cómo aprendo esto paso a paso? | `docs/guides/*_tutorial.md` | `tutorial_doc.prompt.md` |
 | **4. Ejemplos de Código** | ¿Cómo se implementa? | `docs/examples/` | `example_doc.prompt.md` |
-| **5. Decisión Arquitectónica** | ¿Por qué se decidió así? | `docs/adr/` | `architecture_doc.prompt.md` |
-| **6. Navegación Principal** *(variante)* | Intro + instalación + visión | `docs/index.md`, `installation.md`, `architecture.md` | `landing_doc.prompt.md` |
+| **5. ADR / MADR 4.0** | ¿Por qué se decidió así? | `docs/adr/` | `architecture_doc.prompt.md` |
+| **6. Navegación Principal** *(variante A/B/C/D)* | Intro + instalación + visión + quick start | `docs/index.md`, `installation.md`, `architecture.md`, `quickstart.md` | `landing_doc.prompt.md` |
 | **7. Onboarding Desarrolladores** | ¿Cómo me incorporo? | `docs/guides/onboarding_dev.md` | `onboarding_dev.prompt.md` |
+| **8. Trazabilidad Normativa** *(condicional)* | ¿Qué normativa cubre el sistema? | `docs/normativa/` | `normative_traceability.prompt.md` |
+| **9. Changelog** | ¿Qué cambió en cada versión? | `CHANGELOG.md` | `changelog.prompt.md` |
+| **10. Config Agente IA** | ¿Cómo está configurado el agente IA? | `docs/ai-config/` | `ai_config_doc.prompt.md` |
+| **11. Guía de Contribución** | ¿Cómo contribuyo al proyecto? | `CONTRIBUTING.md` | `contributing_doc.prompt.md` |
 
 **Características clave**:
 - ✅ Secciones fijas: estructura inmutable (nunca omitir; escribir "No aplica" si vacío)
 - ✅ Enlaces bidireccionales: Arquetipo 2 (§5) ↔ Arquetipo 4 (§5) obligatorios
 - ✅ Parametrizables: en doc_ia los arquetipos son además **producto** — se aplican a proyectos
   origen externos pasando origen y destino como parámetros
+- ✅ Arquetipo 5 sigue MADR 4.0 (frontmatter YAML + título "Use X for Y")
+- ✅ Arquetipos 3a/3b siguen cuadrantes Diátaxis (How-to / Tutorial claramente separados)
 
 ## Documentación con Claude Code
 

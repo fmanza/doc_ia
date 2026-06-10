@@ -1,4 +1,13 @@
-# Prompt: guide_doc — Guía de usuario o configuración (Arquetipo 3)
+# Prompt: guide_doc — Guía de usuario o configuración (Arquetipo 3) — HEREDADO
+
+> **Nota**: Este prompt ha sido dividido en dos arquetipos especializados:
+> - **Arquetipo 3a How-to** → usa `.github/prompts/howto_doc.prompt.md`
+> - **Arquetipo 3b Tutorial** → usa `.github/prompts/tutorial_doc.prompt.md`
+>
+> Este fichero se mantiene por compatibilidad con guías existentes generadas antes de la
+> separación. Para nuevas guías usar los prompts especializados.
+
+# Prompt: guide_doc — Guía de usuario o configuración (Arquetipo 3, heredado)
 
 Genera o actualiza guías de instalación, configuración y uso para **doc_ia** usando solo
 información verificable del código, README, `docs/` y configuración del proyecto.

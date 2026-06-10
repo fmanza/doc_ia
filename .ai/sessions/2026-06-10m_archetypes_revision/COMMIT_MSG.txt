@@ -1,0 +1,13 @@
+docs(standard): ampliar arquetipos — MADR 4.0, Diátaxis 3a/3b, Quick Start, Changelog, Config IA, Contribución
+
+- Arquetipo 3 dividido en 3a How-to y 3b Tutorial (Diátaxis cuadrantes separados)
+- Arquetipo 5 actualizado a MADR 4.0: frontmatter YAML, "Use X for Y", formatos Full/Minimal
+- Arquetipo 6 + Variante D Quick Start (objetivo: primer éxito < 5 min)
+- Arquetipo 9 Changelog (Keep a Changelog 1.1.0 + SemVer)
+- Arquetipo 10 Configuración de Agente IA (tipo propio de doc_ia)
+- Arquetipo 11 Guía de Contribución (diferente del Onboarding)
+- 5 prompts nuevos: howto_doc, tutorial_doc, changelog, ai_config_doc, contributing_doc
+- architecture_doc.prompt.md reescrito para MADR 4.0
+- guide_doc.prompt.md marcado como heredado con redirección a los nuevos prompts
+- CLAUDE.md, SHARED_INSTRUCTIONS.md y bootstrap_ai_config.prompt.md sincronizados
+- Build mkdocs --strict sin errores
