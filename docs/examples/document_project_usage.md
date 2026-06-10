@@ -70,12 +70,54 @@ Idioma:     es
 Tipo de cada origen: mi_api=CÓDIGO, ley_39.pdf=NORMATIVA, mockups=UI/PANTALLAS
 ```
 
+**Escenario 5 — Incluir Changelog y Guía de Contribución (opt-in explícito)**
+
+Changelog (9) y Contribución (11) **no se generan por defecto**. Para incluirlos
+hay que pedirlos explícitamente en el parámetro `Arquetipos`:
+
+```
+/document-project
+
+Origen:    c:\Desarrollo\python\libs\mi_libreria
+Destino:   c:\Desarrollo\python\libs\mi_libreria\docs
+Generador: mkdocs-material
+Idioma:    es
+Arquetipos: changelog
+```
+
+O solo el de contribución:
+
+```
+/document-project
+
+Origen:    c:\Desarrollo\python\libs\mi_libreria
+Destino:   c:\Desarrollo\python\libs\mi_libreria\docs
+Generador: mkdocs-material
+Idioma:    es
+Arquetipos: contribución
+```
+
+O ambos a la vez junto al resto del ciclo estándar:
+
+```
+/document-project
+
+Origen:    c:\Desarrollo\python\libs\mi_libreria
+Destino:   c:\Desarrollo\python\libs\mi_libreria\docs
+Generador: mkdocs-material
+Idioma:    es
+Arquetipos: changelog, contribución
+```
+
 ## 3. Explicación del Código
 
 - Los cuatro parámetros (`Origen`, `Destino`, `Generador`, `Idioma`) son **obligatorios**.
   Si falta alguno, el flujo se detiene antes del inventario y pide que se complete.
-- `Alcance` es opcional: restringe el inventario a un subconjunto de módulos o arquetipos.
+- `Alcance` es opcional: restringe el inventario a un subconjunto de módulos.
   Sin él, se inventarían todos los módulos detectados en `Origen`.
+- `Arquetipos` es opcional: lista los arquetipos a generar en esta ejecución. Por defecto
+  se aplican todos los arquetipos aplicables **excepto Changelog (9) y Contribución (11)**,
+  que son opt-in y deben solicitarse explícitamente (ver Escenario 5).
 - `--verify-build` ejecuta `python -m mkdocs build --strict` al final de la sesión y
   reporta errores de compilación (enlaces rotos, snippets faltantes, Mermaid inválido).
 - `Tipo de cada origen` activa la **Fase 0a** antes del inventario. Si se omite con

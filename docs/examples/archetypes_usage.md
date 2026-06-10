@@ -118,6 +118,10 @@ Idioma: es
   el autor debe añadir esos enlaces manualmente si los archivos se crean en sesiones distintas.
 - El Arquetipo 8 es **condicional**: solo se invoca si el proyecto origen referencia
   normativa de obligado cumplimiento (leyes, decretos, directivas); si no, se omite.
+- Los Arquetipos **9 (Changelog)** y **11 (Contribución)** son **opt-in**: `/document-project`
+  no los genera por defecto aunque el proyecto tenga releases o acepte contribuciones.
+  Para incluirlos se usan dos vías — parámetro en el flujo o invocación directa del prompt
+  (ambas se muestran en esta página y en [Documentar un Proyecto](document_project_usage.md)).
 - Antipatrón: no usar `/document-project` para un solo archivo — invoca el prompt
   de arquetipo directamente como se muestra aquí.
 

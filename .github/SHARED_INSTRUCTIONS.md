@@ -60,14 +60,19 @@ si una fase parece requerir generación vía API externa, la respuesta es no —
 ```text
 doc_ia/
   scripts/              # Tooling determinista: check_env.py, build_docs_zip.py
+  hooks/                # Hooks MkDocs + PostToolUse: sync_root_docs.py
   tests/                # Tests pytest del tooling
   docs/                 # Sitio MkDocs Material (es): index, downloads, guides/
+                        #   ⚠️  docs/changelog.md y docs/contributing.md son ARTEFACTOS GENERADOS
+                        #       por hooks/sync_root_docs.py — editar solo los ficheros raíz
   mkdocs.yml            # Fuente única de configuración del sitio
+  CHANGELOG.md          # Fuente de verdad → docs/changelog.md (sync automático)
+  CONTRIBUTING.md       # Fuente de verdad → docs/contributing.md (sync automático)
   .github/
     SHARED_INSTRUCTIONS.md   # Este fichero (canónico)
     agents/                  # 12 agentes del flujo de trabajo
     prompts/                 # Prompts de método + arquetipos documentales (11 activos)
-    instructions/            # Reglas por tipo de archivo (python, sync)
+    instructions/            # Reglas por tipo de archivo (python, sync, docs)
     workflows/               # CI: build y release del ZIP de docs
   .claude/              # Slash commands, hooks, plantillas Claude Code
   .ai/                  # Contexto persistente: product, architecture, runtime, glossary, standards
@@ -79,8 +84,9 @@ doc_ia/
 | Módulo | Responsabilidad |
 |---|---|
 | `scripts/` | Tooling determinista sin dependencias IA: validación de entorno, build + ZIP de docs |
+| `hooks/` | `sync_root_docs.py`: copia `CHANGELOG.md`/`CONTRIBUTING.md` a `docs/` antes del build y tras cada Edit/Write |
 | `tests/` | Tests unitarios del tooling (sin red, sin servicios externos) |
-| `docs/` | Documentación pública del propio proyecto (dogfooding de los arquetipos) |
+| `docs/` | Documentación pública del propio proyecto (dogfooding de los arquetipos); `docs/changelog.md` y `docs/contributing.md` son artefactos generados |
 | `.github/prompts/` | Instrucciones ejecutables en chat: método + arquetipos documentales |
 | `.github/agents/` | Definición de agentes especializados por fase del flujo |
 | `.claude/commands/` | Slash commands de Claude Code equivalentes a los prompts de método |
@@ -145,6 +151,15 @@ python scripts/build_docs_zip.py      # Build + ZIP offline en dist/doc_ia-docs-
 - ✅ Antes de cerrar versión → `python -m mkdocs build --strict` sin errores ni links rotos
 - ✅ Cambios en instrucciones IA → sincronizar todos los ficheros afectados (ver Gobernanza)
 - ✅ **Nueva versión (VERSION)** → revisar `.github/instructions/sync.instructions.md`
+
+#### Artefactos generados — nunca editar directamente
+
+`docs/changelog.md` y `docs/contributing.md` son **copias automáticas** generadas por
+`hooks/sync_root_docs.py`. Edita siempre los ficheros raíz (`CHANGELOG.md`, `CONTRIBUTING.md`);
+el hook propaga los cambios a `docs/` tras cada `Edit`/`Write` y antes de cada `mkdocs build`.
+
+Para añadir un nuevo fichero raíz al sync, registrar la tupla en `hooks/sync_root_docs.py → PAIRS`
+y la entrada de navegación en `mkdocs.yml`. Ver `.github/instructions/sync.instructions.md`.
 
 #### Configuración de documentación
 

@@ -25,6 +25,7 @@ aplicar de forma individual a un único módulo o sección, sin invocar el flujo
 | Ubicación canónica | Cada arquetipo tiene una carpeta de destino fija en `docs/` | Navegación rota, entradas de `mkdocs.yml` inconsistentes |
 | Enlace bidireccional | El Arquetipo 2 (técnica, §5) debe enlazar al Arquetipo 4 (ejemplos, §5) y viceversa | Rompe la trazabilidad entre la referencia técnica y los ejemplos ejecutables |
 | Arquetipo 8 condicional | La trazabilidad normativa solo se genera si el proyecto origen referencia normativa de obligado cumplimiento; si no, se omite | Generación innecesaria de páginas vacías o sin valor en proyectos sin normativa |
+| Arquetipos 9 y 11 opt-in | Changelog (9) y Guía de Contribución (11) **no se generan por defecto** en `/document-project`; deben solicitarse explícitamente con el parámetro `Arquetipos: changelog` o `Arquetipos: contribución` | Generación de CHANGELOG.md y CONTRIBUTING.md sin que el usuario los haya pedido |
 
 ## 3. Casos de Uso
 
@@ -46,14 +47,16 @@ flowchart TD
     Q8 -- Sí --> A8[Arquetipo 8: normative_traceability]
     Q8 -- No --> skip8[Omitir Arquetipo 8]
 
-    INV --> Q9{¿Existe CHANGELOG.md?}
-    Q9 -- No y hay releases --> A9[Arquetipo 9: changelog]
+    INV --> Q9{¿changelog en\nparam Arquetipos?}
+    Q9 -- Sí --> A9[Arquetipo 9: changelog\nopt-in explícito]
+    Q9 -- No --> skip9[Omitir Arquetipo 9]
 
     INV --> Q10{¿Hay agentes IA configurados?}
     Q10 -- Sí y sin docs --> A10[Arquetipo 10: ai_config_doc]
 
-    INV --> Q11{¿Acepta contribuciones externas?}
-    Q11 -- Sí y sin CONTRIBUTING --> A11[Arquetipo 11: contributing_doc]
+    INV --> Q11{¿contribución en\nparam Arquetipos?}
+    Q11 -- Sí --> A11[Arquetipo 11: contributing_doc\nopt-in explícito]
+    Q11 -- No --> skip11[Omitir Arquetipo 11]
 ```
 
 ### Arquetipos disponibles
@@ -69,9 +72,9 @@ flowchart TD
 | **6 — Navegación Principal** *(Var. A/B/C/D)* | Intro + instalación + visión + quick start | Todos | `docs/index.md`, `installation.md`, `architecture.md`, `quickstart.md` | `landing_doc.prompt.md` |
 | **7 — Onboarding** | ¿Cómo me incorporo como desarrollador? | Nuevos contribuidores | `docs/guides/onboarding_dev.md` | `onboarding_dev.prompt.md` |
 | **8 — Trazabilidad Normativa** | ¿Qué normativa aplica? (condicional) | Auditores, equipos de compliance | `docs/normativa/` | `normative_traceability.prompt.md` |
-| **9 — Changelog** | ¿Qué cambió en cada versión? | Usuarios, QA, ops | `CHANGELOG.md` (raíz) | `changelog.prompt.md` |
+| **9 — Changelog** *(opt-in)* | ¿Qué cambió en cada versión? | Usuarios, QA, ops | `CHANGELOG.md` (raíz) | `changelog.prompt.md` |
 | **10 — Config Agente IA** | ¿Cómo está configurado el agente IA? | Desarrolladores, auditores IA | `docs/ai-config/` | `ai_config_doc.prompt.md` |
-| **11 — Guía de Contribución** | ¿Cómo contribuyo al proyecto? | Contribuidores externos | `CONTRIBUTING.md` (raíz) | `contributing_doc.prompt.md` |
+| **11 — Guía de Contribución** *(opt-in)* | ¿Cómo contribuyo al proyecto? | Contribuidores externos | `CONTRIBUTING.md` (raíz) | `contributing_doc.prompt.md` |
 
 ### Flujos alternativos
 
@@ -89,9 +92,9 @@ flowchart TD
 | AC-02 | Un módulo con Arquetipo 2 generado | Se verifica la presencia del enlace bidireccional | La sección §5 del Arquetipo 2 enlaza a la página de ejemplos del módulo (o tiene el marcador de pendiente) |
 | AC-03 | Un proyecto sin normativa de referencia | Se ejecuta la Fase 0 del inventario | El Arquetipo 8 no se genera ni aparece en `mkdocs.yml` |
 | AC-04 | Cualquier arquetipo generado con sección vacía | Se revisa el documento | La sección vacía contiene `*No aplica para este módulo.*` y no se omite |
-| AC-05 | Proyecto con releases versionados | Se ejecuta el inventario | `CHANGELOG.md` existe en raíz y sigue Keep a Changelog v1.1.0 con sección `[Unreleased]` |
+| AC-05 | Arquetipo 9 solicitado explícitamente (`Arquetipos: ..., changelog`) | Se ejecuta `/document-project` | `CHANGELOG.md` existe en raíz con Keep a Changelog v1.1.0 y sección `[Unreleased]`; si **no** se solicita, no se genera aunque el proyecto tenga releases |
 | AC-06 | Proyecto con ≥1 plataforma IA configurada | Se ejecuta el inventario | Existe al menos un fichero en `docs/ai-config/` con las 7 secciones obligatorias del Arquetipo 10 |
-| AC-07 | Proyecto que acepta contribuciones externas | Se ejecuta el inventario | `CONTRIBUTING.md` existe en raíz con las 6 secciones obligatorias del Arquetipo 11 |
+| AC-07 | Arquetipo 11 solicitado explícitamente (`Arquetipos: ..., contribución`) | Se ejecuta `/document-project` | `CONTRIBUTING.md` existe en raíz con las 6 secciones obligatorias del Arquetipo 11; si **no** se solicita, no se genera aunque el proyecto acepte contribuciones |
 | AC-08 | Arquetipo 3a (how-to) vs. 3b (tutorial) | Se selecciona el arquetipo | El fichero de destino usa `_howto.md` o `_tutorial.md` según corresponda; nunca los dos tipos mezclados en el mismo fichero |
 
 Verificación: `python -m mkdocs build --strict` sin warnings tras generar cualquier arquetipo.

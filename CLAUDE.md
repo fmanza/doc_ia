@@ -71,19 +71,27 @@ solo lectura. El lenguaje y la arquitectura del destino son **parámetros de ent
 
 ```
 .claude/
-  settings.json           ← Configuración: ruff, mypy, pytest hooks (sobre scripts/ y tests/)
+  settings.json           ← Configuración: hooks PostToolUse (sync + ruff + mypy + pytest)
   settings.json.example   ← Plantilla de ejemplo
   settings.local.json     ← Personalización local (no versionado, git-ignored)
   commands/               ← Slash commands personalizados
   EDGE_CASES.md           ← Casos límite conocidos en el proyecto (se puebla con el tiempo)
   TESTING_GUIDE.md        ← Guía de testing con PostToolUse
+hooks/
+  sync_root_docs.py       ← Copia CHANGELOG.md y CONTRIBUTING.md a docs/ (y cualquier PAIRS)
 ```
 
-**Orden de ejecución automático típico** (hooks PostToolUse sobre Edit|Write):
+**Orden de ejecución automático** (hooks PostToolUse sobre Edit|Write):
 
-1. `python -m ruff check scripts tests` (linting)
-2. `python -m mypy scripts` (type-checking strict)
-3. `python -m pytest --collect-only -q tests` (validación de sintaxis de tests)
+1. `python hooks/sync_root_docs.py` — sincroniza ficheros raíz → `docs/` (**va primero**)
+2. `python -m ruff check scripts tests hooks --quiet` (linting)
+3. `python -m mypy scripts --no-error-summary` (type-checking strict)
+4. `python -m pytest --collect-only -q tests` (validación de sintaxis de tests)
+
+**Regla crítica de sync**: `docs/changelog.md` y `docs/contributing.md` son **artefactos
+generados** — nunca los edites directamente. Edita siempre `CHANGELOG.md` o `CONTRIBUTING.md`
+en la raíz; el hook propaga los cambios automáticamente. Para añadir un nuevo fichero raíz
+al sync, añadir su tupla a `PAIRS` en `hooks/sync_root_docs.py` y su entrada en `mkdocs.yml`.
 
 ---
 
@@ -104,9 +112,9 @@ Los arquetipos 1–8 son la base; 3b y 9–11 son las adiciones 2024-2025.
 | **6. Navegación Principal** *(variante A/B/C/D)* | Intro + instalación + visión + quick start | `docs/index.md`, `installation.md`, `architecture.md`, `quickstart.md` | `landing_doc.prompt.md` |
 | **7. Onboarding Desarrolladores** | ¿Cómo me incorporo? | `docs/guides/onboarding_dev.md` | `onboarding_dev.prompt.md` |
 | **8. Trazabilidad Normativa** *(condicional)* | ¿Qué normativa cubre el sistema? | `docs/normativa/` | `normative_traceability.prompt.md` |
-| **9. Changelog** | ¿Qué cambió en cada versión? | `CHANGELOG.md` | `changelog.prompt.md` |
+| **9. Changelog** *(opt-in)* | ¿Qué cambió en cada versión? | `CHANGELOG.md` | `changelog.prompt.md` |
 | **10. Config Agente IA** | ¿Cómo está configurado el agente IA? | `docs/ai-config/` | `ai_config_doc.prompt.md` |
-| **11. Guía de Contribución** | ¿Cómo contribuyo al proyecto? | `CONTRIBUTING.md` | `contributing_doc.prompt.md` |
+| **11. Guía de Contribución** *(opt-in)* | ¿Cómo contribuyo al proyecto? | `CONTRIBUTING.md` | `contributing_doc.prompt.md` |
 
 **Características clave**:
 - ✅ Secciones fijas: estructura inmutable (nunca omitir; escribir "No aplica" si vacío)

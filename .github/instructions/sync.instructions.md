@@ -1,10 +1,56 @@
 ---
-applyTo: "CHANGELOG.md,docs/**,COMPATIBILITY.md,.ai/**"
+applyTo: "CHANGELOG.md,CONTRIBUTING.md,docs/**,COMPATIBILITY.md,.ai/**,hooks/**"
 ---
-# Sincronización de versiones — CHANGELOG y COMPATIBILITY
+# Sincronización raíz → docs/ y cierre de versiones
 
-> **TL;DR** — Antes de cerrar una versión, verifica que CHANGELOG.md, docs/ y COMPATIBILITY.md
-> estén sincronizados. Ejecuta `mkdocs build` sin errores.
+> **TL;DR** — Los ficheros Markdown de la raíz (`CHANGELOG.md`, `CONTRIBUTING.md`, …) son la
+> fuente de verdad. Sus copias en `docs/` son **artefactos generados** por
+> `hooks/sync_root_docs.py`; **nunca se editan directamente en `docs/`**.
+> Antes de cerrar una versión, verifica también COMPATIBILITY.md y ejecuta `mkdocs build --strict`.
+
+---
+
+## Patrón de sincronización raíz → docs/ (`hooks/sync_root_docs.py`)
+
+### Regla general
+
+**Cualquier fichero Markdown de la raíz que deba aparecer en el sitio de documentación
+se registra en `hooks/sync_root_docs.py` → `PAIRS` y nunca se edita en `docs/` directamente.**
+
+| Fuente (raíz) | Copia generada (`docs/`) | Editar siempre en… |
+|---|---|---|
+| `CHANGELOG.md` | `docs/changelog.md` | `CHANGELOG.md` (raíz) |
+| `CONTRIBUTING.md` | `docs/contributing.md` | `CONTRIBUTING.md` (raíz) |
+
+### Cuándo se ejecuta el sync
+
+- **Automático tras Edit/Write**: el hook `PostToolUse` de Claude Code ejecuta
+  `python hooks/sync_root_docs.py` tras cada `Edit` o `Write`, sin acción manual.
+- **MkDocs build**: el hook `on_pre_build` del propio MkDocs ejecuta el mismo script
+  antes de compilar el sitio.
+- **Manual**: `python hooks/sync_root_docs.py` desde la raíz del proyecto.
+
+### Añadir un nuevo fichero al sync
+
+Para que un nuevo fichero raíz aparezca automáticamente en `docs/`:
+
+1. Añadir la tupla a `PAIRS` en `hooks/sync_root_docs.py`:
+   ```python
+   ("SECURITY.md", "security.md"),
+   ```
+2. Añadir la entrada en `nav:` de `mkdocs.yml`.
+3. Nunca crear el fichero en `docs/` manualmente — el sync lo escribe en el siguiente build.
+4. Si el fichero raíz usa enlaces relativos incompatibles con MkDocs (p.ej. a rutas fuera
+   de `docs/`), añadir la sustitución al diccionario `_LINK_FIXES` del mismo script.
+
+### Restricciones críticas
+
+- **Prohibido** editar `docs/changelog.md`, `docs/contributing.md` o cualquier copia gestionada
+  por `PAIRS`: el sync sobrescribirá los cambios en el siguiente build.
+- Los hipervínculos Markdown dentro de ficheros raíz **no pueden apuntar a rutas fuera de
+  `docs/`**: usa solo `code span` para referenciar paths del repositorio
+  (ej. `.github/templates/TEMPLATE_mkdocs.yml`). Si el enlace es necesario, añade la URL
+  absoluta al repo o mueve el recurso dentro de `docs/`.
 
 ---
 
@@ -28,10 +74,11 @@ Aplica este checklist en la fase **VERSION** de cualquier flujo:
 - [ ] Cada ítem referencia el módulo afectado: `scripts/`, `docs/`, `.github/prompts/`, `.claude/commands/`
 - [ ] No hay entradas bajo `Unreleased` que deban estar en la versión cerrada
 
-### 2. docs/CHANGELOG.md (si existe copia en docs/)
+### 2. docs/changelog.md y docs/contributing.md (copias generadas)
 
-- [ ] Contenido idéntico al CHANGELOG.md raíz
-- [ ] Si hay divergencia, prevalece el CHANGELOG.md raíz; actualiza docs/CHANGELOG.md
+- [ ] **No editar directamente** — son artefactos de `hooks/sync_root_docs.py`
+- [ ] Si hay divergencia con la raíz, ejecutar `python hooks/sync_root_docs.py` para regenerar
+- [ ] Verificar que el build no produzca warnings de links rotos en estas páginas
 
 ### 3. COMPATIBILITY.md / .ai/COMPATIBILITY.md
 

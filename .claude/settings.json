@@ -26,7 +26,8 @@
       "Bash(grep -v \"Material for MkDocs\\\\|mkdocs-material\\\\|squidfunk\\\\|backward\\\\|All plugins\\\\|All theme\\\\|No migration\\\\|Closed contribution\\\\|Currently unlicensed\\\\|Our full analysis\\\\|will introduce\\\\|unsuitable\\\\|community\\\\|framework\\\\|theming\\\\|existing\\\\|^\\\\s*$\\\\|^\\\\s*│\\\\s*$\")",
       "Bash(python hooks/sync_root_docs.py)",
       "Bash(python -m ruff check scripts tests hooks --quiet)",
-      "Bash(python -m mypy scripts --no-error-summary)"
+      "Bash(python -m mypy scripts --no-error-summary)",
+      "Bash(git checkout *)"
     ]
   },
   "hooks": {

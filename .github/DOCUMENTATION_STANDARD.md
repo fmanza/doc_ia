@@ -461,8 +461,8 @@ Esta sección define el contrato mínimo y las reglas de nomenclatura para **tod
 |---|---|---|---|
 | `guides/onboarding_dev.md` | 7 | Incorporación: entorno, código, convenciones, verificación | ✅ Siempre |
 | `guides/troubleshooting.md` | 3a | Problemas frecuentes por categoría + solución verificable | ✅ Siempre |
-| `CONTRIBUTING.md` (raíz) | 11 | Proceso de contribución, convenciones, calidad | ✅ Si el proyecto acepta contribuciones externas |
-| `CHANGELOG.md` (raíz) | 9 | Historial de cambios por versión (Keep a Changelog) | ✅ Si el proyecto tiene releases versionados |
+| `CONTRIBUTING.md` (raíz) | 11 | Proceso de contribución, convenciones, calidad | ⚙️ Opt-in — no generado por defecto |
+| `CHANGELOG.md` (raíz) | 9 | Historial de cambios por versión (Keep a Changelog) | ⚙️ Opt-in — no generado por defecto |
 
 #### Guías adicionales según tipo de proyecto
 
@@ -980,8 +980,8 @@ nav:
 |---------|-----------|-----------|----------------|
 | **Quick Start** | `docs/quickstart.md` | 6 Variante D | Cuando la instalación completa supera 5 min y se quiere mostrar el producto de forma rápida |
 | **Tutorial Guiado** | `docs/guides/*_tutorial.md` | 3b (§3.11) | Curvas de aprendizaje complejas; usuarios que llegan al proyecto sin conocimiento previo |
-| **Changelog** | `CHANGELOG.md` + enlace nav | 9 (§3.12) | Siempre en proyectos con releases versionados |
-| **Contribución** | `CONTRIBUTING.md` + enlace nav | 11 (§3.14) | Proyectos open source o con colaboradores externos |
+| **Changelog** | `CHANGELOG.md` + enlace nav | 9 (§3.12) | Opt-in explícito — proyectos con releases versionados |
+| **Contribución** | `CONTRIBUTING.md` + enlace nav | 11 (§3.14) | Opt-in explícito — proyectos open source o con colaboradores externos |
 | **Configuración IA** | `docs/ai-config/` | 10 (§3.13) | Proyectos con ≥1 plataforma IA configurada (CLAUDE.md, copilot, etc.) |
 | **Seguridad** | `docs/security/` | — | Proyectos con auth, datos sensibles o auditoría |
 | **FAQ** | `docs/faq.md` | — | Preguntas frecuentes por módulo |

@@ -101,7 +101,7 @@ En lugar de escribir `mkdocs.yml` desde cero, usa la plantilla estándar:
 cp .github/templates/TEMPLATE_mkdocs.yml <destino>/mkdocs.yml
 ```
 
-**Ubicación**: [`.github/templates/TEMPLATE_mkdocs.yml`](./.github/templates/TEMPLATE_mkdocs.yml)
+**Ubicación**: `.github/templates/TEMPLATE_mkdocs.yml`
 
 **Estructura de la plantilla**:
 - **BASE**: Configuración del sitio (site_name, repo_url, etc.) — [PERSONALIZAR]

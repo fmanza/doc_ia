@@ -19,7 +19,7 @@ Documentar un proyecto (origen → destino) orquestando los arquetipos formales.
 - [ ] **Tipo de cada origen** (opcional): `CÓDIGO` | `NORMATIVA` | `ESPECIFICACIÓN` | `UI/PANTALLAS` | `REFERENCIA` — autodetectado si se omite; el usuario confirma antes de continuar
 - [ ] **Estrategia** (solo con ≥2 orígenes CÓDIGO): `federado` | `hub+satélite` | `monorepo` — preguntar al usuario, nunca autodetectar
 - [ ] **Alcance** (opcional): módulos o subconjunto; por defecto proyecto completo
-- [ ] **Arquetipos** (opcional): subconjunto; por defecto todos los aplicables
+- [ ] **Arquetipos** (opcional): subconjunto; por defecto todos los aplicables **excepto 9 (Changelog) y 11 (Contribución)**, que son opt-in explícito
 - [ ] **Verificación** (opcional): `--verify-tools` y/o `--verify-build [--serve]`
 
 ### ⚠️ VALIDACIÓN
