@@ -18,6 +18,7 @@ dist/
 
 # Configuración local (no versionada)
 .claude/settings.local.json
+*.code-workspace
 
 # Credenciales — prohibido versionar (defensa en profundidad: este proyecto no usa API keys)
 .env

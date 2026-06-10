@@ -1,0 +1,112 @@
+# Cursor Rules — doc_ia Documentation Standards
+
+> **Fuente canónica**: `.github/SHARED_INSTRUCTIONS.md`. Estas reglas de Cursor solo añaden
+> especialización.
+>
+> **Bootstrap a otro proyecto**: para trasladar esta configuración IA (Claude / Gemini / Copilot /
+> Cursor / Codex) a otro proyecto, incluso de otro lenguaje y arquitectura, usa el prompt
+> `.github/prompts/bootstrap_ai_config.prompt.md` (modelo PULL: se invoca desde el proyecto destino).
+
+## Principios del proyecto (innegociables)
+
+* **Sin API keys**: ninguna credencial de servicios IA se configura ni se versiona.
+* **Sin componentes programáticos IA**: el código Python (`scripts/`) es tooling determinista.
+* **Ejecución en chat**: la generación documental ocurre en el chat de la plataforma IA.
+
+## Estándar de Documentación y Ejemplos de Código
+
+### 1. Principio de Única Fuente de Verdad (SSOT)
+
+* **NUNCA** escribas código Python extenso directamente dentro de los archivos Markdown de la documentación (`.md`).
+* Todo ejemplo de código funcional debe residir en un archivo `.py` real dentro de `docs/examples/` para permitir su posterior testeo automatizado.
+* En el Markdown, el código se incluye exclusivamente mediante la sintaxis de snippets de MkDocs:
+  ```python
+  --8<-- "examples/categoria/nombre_ejemplo.py"
+  ```
+
+### 2. Organización de Ejemplos por Categoría Técnica
+
+Los ejemplos se organizan bajo `docs/examples/` según su **área técnica**:
+
+```
+docs/examples/
+├── tooling/                 # Uso de scripts deterministas
+│   ├── check_env_usage.py   # Verificación del entorno de tooling
+│   └── build_zip_usage.py   # Generación del ZIP offline con SHA256
+└── workflows/               # Invocación de prompts/arquetipos desde los chats IA
+    └── (ficheros .md con los prompts de invocación, no .py)
+```
+
+| Categoría | Propósito | Módulos asociados |
+|---|---|---|
+| `tooling/` | Scripts deterministas de build y validación | `scripts/check_env.py`, `scripts/build_docs_zip.py` |
+| `workflows/` | Flujos de documentación en chat IA | `.github/prompts/*_doc.prompt.md` |
+
+### 3. Convención de Nombres para Archivos Ejemplo
+
+Cada archivo `.py` debe:
+* Tener un nombre **descriptivo y corto** (no genérico como `example.py`)
+* Incluir un docstring de módulo (1-2 líneas)
+* Ser **ejecutable standalone** (con `if __name__ == "__main__":` si es necesario)
+* Poder testearse con pytest si contiene lógica testeable
+
+### 4. Estructura del Markdown que Referencia Snippets
+
+1. **Introducción clara**: qué problema resuelve el ejemplo
+2. **Caso de uso**: contexto técnico
+3. **Bloque de snippet**: solo `--8<-- "examples/..."` dentro de ```` ```python ````
+4. **Puntos clave / explicación** tras el código
+
+### 5. Validación de Ejemplos Antes de Referenciar
+
+- [ ] ¿El archivo `.py` existe en la ruta correcta?
+- [ ] ¿Es sintácticamente válido? `python -m py_compile docs/examples/categoria/nombre.py`
+- [ ] ¿Tiene docstring de módulo?
+- [ ] ¿NO contiene credenciales ni rutas absolutas locales?
+- [ ] ¿La referencia `--8<-- "examples/..."` usa la ruta relativa correcta (sin prefijo `docs/`)?
+- [ ] ¿`python -m mkdocs build --strict` completa sin ERROR?
+
+**Validación rápida antes de commit**:
+```bash
+python -m compileall docs/examples/
+python -m mkdocs build --strict
+```
+
+### 6. Evitar Duplicación de Código — SSOT
+
+**CRÍTICO**: si un bloque de código aparece en 2+ documentos, extráelo a un `.py` en
+`docs/examples/` y referencialo desde ambos con `--8<--`.
+**Excepción**: fragmentos triviales de 1-3 líneas (p.ej. imports) pueden quedar inline.
+
+### 7. Build Validation
+
+Siempre que añadas o actualices referencias `--8<--`:
+
+```bash
+python -m mkdocs build --strict
+```
+
+Debe completar **sin ERROR**.
+
+### 8. Organización de mkdocs.yml — Registro de Nuevos Ejemplos
+
+Cuando crees un nuevo `.md` que documenta un ejemplo, actualiza `mkdocs.yml` bajo `Ejemplos`
+con subsecciones por categoría técnica (no lista plana) y labels descriptivos.
+
+### 9. Actualización de Referencias Cruzadas
+
+Cuando un `.py` de ejemplo se mueve o renombra:
+
+1. Encontrar referencias: `grep -r "nombre_antiguo.py" docs/`
+2. Actualizar cada referencia con la nueva ruta relativa
+3. Validar con `python -m mkdocs build --strict`
+
+## Estándares de código (scripts/ y tests/)
+
+* Python 3.12+, `mypy --strict`, `ruff` (config en `pyproject.toml`), f-strings.
+* Scripts ejecutables standalone con código de retorno (`0` éxito).
+* Tests deterministas: sin red, sin credenciales, sin servicios externos.
+
+---
+
+*Estándar adoptado en bootstrap: 2026-06-10*

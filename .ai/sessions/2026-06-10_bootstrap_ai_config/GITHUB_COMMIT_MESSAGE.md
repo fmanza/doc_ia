@@ -1,0 +1,39 @@
+# GitHub Commit Message
+
+```
+feat: bootstrap configuración IA multiplataforma desde util_bbdd (modelo PULL)
+
+Replica el sistema de instrucciones IA de util_bbdd en doc_ia, adaptado a
+Python tooling (scripts + docs) con MkDocs Material como builder por defecto.
+
+- Capa A (método): 12 agentes, 19 prompts, 8 slash commands, COMMAND_TEMPLATE,
+  .ai/sessions/TEMPLATE; comandos embebidos adaptados al destino.
+- Capa B (especialización): SHARED_INSTRUCTIONS.md (canónico) + 5 entry points
+  (CLAUDE.md, GEMINI.md, copilot-instructions.md, .cursorrules, codex_guide.md),
+  AGENTS.md, DOCUMENTATION_STANDARD.md, build_docs_zip.py (prefijo doc_ia),
+  workflows docs-zip-release.yml y docs-release.yml.
+- Capa C (contexto): .ai/{product,architecture,runtime,glossary,standards}.md
+  regenerados desde el árbol real; INTEGRATION_MAP.md; python.instructions.md.
+- Capa D excluida: sesiones fechadas del origen, CHANGELOG, caches,
+  settings.local.json y workflows con APIs de IA (prohibidos en doc_ia).
+- Integración: mkdocs.yml (nav Guías/Descargas), README (estado),
+  docs/downloads.md, EDGE_CASES.md y TESTING_GUIDE.md.
+
+Puertas de calidad: ruff=0, mypy=0, pytest 2/2, mkdocs build --strict OK,
+smoke test ZIP (dist/doc_ia-docs-0.1.0.zip + SHA256).
+
+Sesión: .ai/sessions/2026-06-10_bootstrap_ai_config/
+
+Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>
+```
+
+## Comandos sugeridos
+
+```bash
+git add -A -- ':!doc_ia.code-workspace'
+git commit -F .ai/sessions/2026-06-10_bootstrap_ai_config/COMMIT_MSG.txt
+git push origin main
+```
+
+> Nota: `doc_ia.code-workspace` es local del IDE y ajeno a la sesión
+> (ver 00_CONTEXT_SNAPSHOT.md). Excluirlo del commit o añadirlo a `.gitignore`.

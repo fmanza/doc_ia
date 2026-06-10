@@ -15,20 +15,20 @@ parámetros obligatorios de cada ejecución.
 
 ## Estado
 
-Esqueleto inicial (Fase 0). Pendiente de ejecutar el bootstrap de configuración IA
-(modelo PULL) desde este proyecto:
+**Bootstrap de configuración IA completado** (2026-06-10, modelo PULL desde
+`util_bbdd`). El sistema multiplataforma está operativo:
 
-```text
-# Abre ESTE proyecto en Claude Code y escribe:
+- **Canónico**: `.github/SHARED_INSTRUCTIONS.md`
+- **Entry points**: `CLAUDE.md`, `GEMINI.md`, `.github/copilot-instructions.md`,
+  `.cursorrules`, `docs/guides/codex_guide.md` (Codex)
+- **Método**: 12 agentes (`.github/agents/`), 19 prompts (`.github/prompts/`),
+  8 slash commands (`.claude/commands/`)
+- **Arquetipos documentales**: 7 formales (`.github/DOCUMENTATION_STANDARD.md`)
+- **Contexto IA**: `.ai/{product,architecture,runtime,glossary,standards}.md`
+- **Distribución offline**: `scripts/build_docs_zip.py` + workflows de release
 
-Lee y aplica .github/prompts/bootstrap_ai_config.prompt.md
-Origen (solo lectura): c:\Desarrollo\python\libs\util_bbdd
-Destino: C:\Desarrollo\Proyectos\doc_ia
-Lenguaje/arquitectura destino: Python tooling (scripts + docs, sin librería de negocio)
-Plataformas IA activas: Claude Code, Gemini, Copilot, Cursor, Codex
-Generador de documentación destino: Zensical/MkDocs Material
-Fase: completa
-```
+Pendiente (dogfooding): generar `docs/` completo con los propios arquetipos
+(installation, architecture, functional, api, examples, onboarding, troubleshooting).
 
 ## Entorno
 

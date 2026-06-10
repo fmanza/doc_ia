@@ -1,4 +1,10 @@
 {
+  "permissions": {
+    "allow": [
+      "Read(//c/Desarrollo/python/libs/util_bbdd/**)",
+      "PowerShell($root='c:\\\\Desarrollo\\\\python\\\\libs\\\\util_bbdd'; Get-ChildItem -Path \"$root\\\\.github\\\\SHARED_INSTRUCTIONS.md\",\"$root\\\\CLAUDE.md\",\"$root\\\\GEMINI.md\",\"$root\\\\.cursorrules\",\"$root\\\\.github\\\\copilot-instructions.md\",\"$root\\\\.github\\\\AGENTS.md\",\"$root\\\\.github\\\\DOCUMENTATION_STANDARD.md\",\"$root\\\\.github\\\\INTEGRATION_MAP.md\",\"$root\\\\docs\\\\guides\\\\codex_guide.md\",\"$root\\\\scripts\\\\build_docs_zip.py\",\"$root\\\\.github\\\\workflows\\\\docs-zip-release.yml\",\"$root\\\\docs\\\\downloads.md\" | Select-Object Name,Length; '--- agents/prompts/commands sizes ---'; Get-ChildItem \"$root\\\\.github\\\\agents\",\"$root\\\\.github\\\\prompts\",\"$root\\\\.claude\\\\commands\",\"$root\\\\.github\\\\instructions\" -File | Select-Object Name,Length)"
+    ]
+  },
   "hooks": {
     "PostToolUse": [
       {
