@@ -84,9 +84,12 @@ Diagrama Mermaid sequenceDiagram (actor → módulo → salida).
 ### Flujos alternativos y de error
 Variantes y casos de error verificables. Si no hay, "No aplica para este módulo."
 
-## 4. Criterios de Aceptación      ← PENDIENTE QA (placeholder hasta validación)
-Estructura prevista: Tabla | ID | Criterio | Verificable con |
-Redacción: "Dado X, cuando Y, entonces Z."
+## 4. Criterios de Aceptación      ← EJECUTABLE — derivar del código real
+Tabla: | ID | Dado | Cuando | Entonces |
+Derivar los criterios del código cuando sea posible (mismo formato que
+functional_doc.prompt.md §7). Cerrar con el comando de verificación real.
+Subsección "Pendiente de validación QA" SOLO para criterios no derivables
+del código (fallback, no primera opción); si no hay, omitirla.
 
 ## 5. Glosario y Términos
 Tabla: | Término | Definición |

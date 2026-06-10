@@ -48,11 +48,16 @@ sequenceDiagram
 - **Verificación de un conjunto distinto**: los flujos internos (pruebas) pueden verificar
   una lista alternativa de herramientas sin cambiar el comportamiento por defecto.
 
-## 4. Criterios de Aceptación      ← PENDIENTE QA — No añadir hasta validación
+## 4. Criterios de Aceptación
 
-[Esta sección se completará cuando el equipo QA valide los criterios.
-Estructura prevista: Tabla | ID | Criterio | Verificable con |
-Redacción: "Dado X, cuando Y, entonces Z."]
+| ID | Dado | Cuando | Entonces |
+|---|---|---|---|
+| AC-01 | Un entorno con las cuatro herramientas instaladas | Se ejecuta la verificación de entorno | Se informa "Entorno de tooling documental completo." y el proceso termina con éxito (código 0) |
+| AC-02 | Un entorno donde falta al menos una herramienta | Se ejecuta la verificación de entorno | Se informa "Faltan herramientas: " con la lista exacta de ausentes y el proceso termina con fallo (código 1) |
+| AC-03 | Una lista alternativa de herramientas a comprobar | Se solicita la verificación de ese conjunto | El resultado incluye solo las ausentes, preservando el orden de la lista |
+
+Verificación: `python scripts/check_env.py` (AC-01/AC-02) y
+`python -m pytest tests/test_check_env.py` (AC-03).
 
 ## 5. Glosario y Términos
 

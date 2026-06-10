@@ -52,11 +52,18 @@ sequenceDiagram
 - **Generador alternativo**: puede empaquetarse un sitio construido con el generador
   alternativo compatible (Zensical) si está instalado.
 
-## 4. Criterios de Aceptación      ← PENDIENTE QA — No añadir hasta validación
+## 4. Criterios de Aceptación
 
-[Esta sección se completará cuando el equipo QA valide los criterios.
-Estructura prevista: Tabla | ID | Criterio | Verificable con |
-Redacción: "Dado X, cuando Y, entonces Z."]
+| ID | Dado | Cuando | Entonces |
+|---|---|---|---|
+| AC-01 | Un entorno completo y la versión 0.1.0 declarada en el proyecto | Se solicita el empaquetado estándar | Se reconstruye el sitio en modo estricto y se crean `dist/doc_ia-docs-0.1.0.zip`, su `.zip.sha256` y la entrada en `CHECKSUMS.txt` |
+| AC-02 | Ningún sitio generado previamente | Se solicita empaquetar sin reconstruir (opción "sin build") | Se informa de un error explicativo y el proceso termina con fallo (código 1) sin crear ningún ZIP |
+| AC-03 | Documentación con un enlace roto o página huérfana | Se solicita el empaquetado estándar (build estricto) | El proceso se detiene con el código de error del generador y no se crea ningún ZIP |
+| AC-04 | Un ZIP ya generado con su huella `.sha256` | Se valida la integridad de la descarga | La huella calculada coincide con la registrada (`sha256sum -c` → OK) |
+
+Verificación: `python scripts/build_docs_zip.py` (AC-01/AC-03),
+`python scripts/build_docs_zip.py --no-build` sin `site/` previo (AC-02) y
+`sha256sum -c dist/*.sha256` (AC-04).
 
 ## 5. Glosario y Términos
 
