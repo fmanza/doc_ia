@@ -14,8 +14,8 @@ flowchart TD
     CURSOR[".cursorrules<br/>Cursor"]
     CODEX["docs/guides/codex_guide.md<br/>Codex (sin fichero propio)"]
     AGENTS[".github/agents/ (12)<br/>+ .github/AGENTS.md"]
-    PROMPTS[".github/prompts/ (19)"]
-    COMMANDS[".claude/commands/ (8)"]
+    PROMPTS[".github/prompts/ (20)"]
+    COMMANDS[".claude/commands/ (9)"]
     AI[".ai/*.md<br/>contexto persistente"]
 
     SHARED --> CLAUDE & GEMINI & COPILOT & CURSOR & CODEX
@@ -38,19 +38,20 @@ flowchart TD
 
 ## 3. Inventario de activos
 
-### Prompts (`.github/prompts/`, 19)
+### Prompts (`.github/prompts/`, 20)
 
 | Grupo | Ficheros |
 |---|---|
 | Método (11) | `new_feature`, `hotfix`, `refactor`, `audit_code`, `security_review`, `tech_debt`, `maturity_assessment`, `version_closure`, `config_review`, `documentation_review`, `normative_traceability` |
 | Arquetipos (7) | `functional_doc`, `technical_doc`, `guide_doc`, `example_doc`, `architecture_doc`, `landing_doc`, `onboarding_dev` |
+| Producto (1) | `document_project` — punto de entrada único para documentar un proyecto (valida origen/destino/generador/idioma; orquesta Documentation Generator + arquetipos) |
 | Cross-project (1) | `bootstrap_ai_config` |
 
-### Slash commands (`.claude/commands/`, 8)
+### Slash commands (`.claude/commands/`, 9)
 
 `new-feature`, `hotfix`, `refactor`, `audit-code`, `security-review`, `tech-debt`,
 `maturity-assessment`, `version-closure` — equivalentes 1:1 a los prompts de método
-del mismo nombre.
+del mismo nombre — y `document-project`, equivalente al prompt de producto `document_project`.
 
 ### Agentes (`.github/agents/`, 12)
 
@@ -64,6 +65,7 @@ y 1 interno (`workflow-director`).
 |---|---|---|
 | `python.instructions.md` | `scripts/**/*.py`, `tests/**/*.py` | Reglas del tooling determinista |
 | `sync.instructions.md` | `CHANGELOG.md`, `docs/**`, `.ai/**` | Checklist de sincronización en VERSION |
+| `docs.instructions.md` | `docs/**` | Reglas operativas de documentación (Mermaid, Markdown, snippets, autodoc) |
 
 ## 4. Reglas de sincronización
 

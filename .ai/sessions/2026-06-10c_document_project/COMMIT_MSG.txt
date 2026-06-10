@@ -1,0 +1,25 @@
+feat: comando de producto /document-project con validación obligatoria de inputs
+
+Fase 5 — pieza específica de doc_ia (no existe en el origen util_bbdd):
+
+- .github/prompts/document_project.prompt.md: punto de entrada único para
+  documentar un proyecto. Valida 4 inputs obligatorios — origen(es) a
+  documentar, destino de la documentación, generador, idioma — y se DETIENE
+  si faltan (mismo patrón que new_feature). Orquesta el flujo de fases del
+  Documentation Generator (0-7) y los arquetipos formales.
+- .claude/commands/document-project.md: slash command equivalente, conforme
+  a COMMAND_TEMPLATE (validación bloqueante, política de cambios, ejemplos
+  deterministas, troubleshooting).
+- SHARED_INSTRUCTIONS.md: principios innegociables explícitos (prohibido
+  incrustar API keys; la ejecución IA ocurre siempre en el chat; el código
+  Python nunca invoca servicios IA) con cláusula de aplicación a
+  document_project; nueva capacidad "punto de entrada único".
+- Gobernanza sincronizada: CLAUDE.md (tabla de comandos + flujo documental),
+  AGENTS.md (20 prompts, 9 commands, asimetría), INTEGRATION_MAP.md
+  (recuentos, grupo Producto, fila docs.instructions.md que faltaba).
+
+Puertas: mkdocs build --strict OK, ruff 0, pytest 2/2.
+
+Sesión: .ai/sessions/2026-06-10c_document_project/
+
+Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>

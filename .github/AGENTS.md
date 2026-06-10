@@ -131,11 +131,12 @@ arquitectura) usa el prompt `bootstrap_ai_config` y, como auditor del resultado,
 
 ## Configuración
 
-- **Prompts**: `.github/prompts/*.prompt.md` — 19 prompts: 11 de método (`new_feature`, `hotfix`,
+- **Prompts**: `.github/prompts/*.prompt.md` — 20 prompts: 11 de método (`new_feature`, `hotfix`,
   `refactor`, `audit_code`, `security_review`, `tech_debt`, `maturity_assessment`, `version_closure`,
   `config_review`, `documentation_review`, `normative_traceability`) + 7 arquetipos documentales
   (`functional_doc`, `technical_doc`, `guide_doc`, `example_doc`, `architecture_doc`, `landing_doc`,
-  `onboarding_dev`) + `bootstrap_ai_config`
+  `onboarding_dev`) + 1 de producto (`document_project` — punto de entrada único para documentar
+  un proyecto) + `bootstrap_ai_config`
 - **Instrucciones**: `.github/instructions/*.instructions.md` — reglas por tipo de archivo
 - **Hooks**: `.claude/settings.json` — comandos PostToolUse (lint, type-check, test collection)
 
@@ -145,10 +146,11 @@ Modificar un agente: editar su archivo `.agent.md` en `.github/agents/`.
 
 ## Nota: Asimetría slash commands ↔ agentes
 
-Los **slash commands** de Claude Code (`.claude/commands/`) cubren 8 flujos. Los **agentes**
-(`.github/agents/`) son 12: los 8 anteriores más `documentation-reviewer`,
-`documentation-generator`, `config-reviewer`, `explore` y `workflow-director` (interno).
-Los de documentación y `config-reviewer` no tienen slash command pero son invocables por
-lenguaje natural (Claude Code) o mediante sus prompts (Copilot Chat).
+Los **slash commands** de Claude Code (`.claude/commands/`) cubren 9 flujos: los 8 de método
+más `/document-project` (que orquesta al agente `documentation-generator`). Los **agentes**
+(`.github/agents/`) son 12: los anteriores más `documentation-reviewer`, `config-reviewer`,
+`explore` y `workflow-director` (interno). `documentation-reviewer` y `config-reviewer` no
+tienen slash command pero son invocables por lenguaje natural (Claude Code) o mediante sus
+prompts (Copilot Chat).
 
 Ver gobernanza completa en [`.github/INTEGRATION_MAP.md`](INTEGRATION_MAP.md).

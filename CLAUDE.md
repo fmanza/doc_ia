@@ -21,6 +21,7 @@ Usa estos comandos para activar flujos estructurados con automatización integra
 
 | Comando | Propósito | Entrada | Salida |
 |---|---|---|---|
+| `/document-project` | **Documentar un proyecto (producto doc_ia)** | Origen(es) + destino + generador + idioma (obligatorios; si faltan, se detiene) | VALIDACIÓN → INVENTARIO → PLAN_DOC → GENERACIÓN → SYNC NAV → REVISIÓN → RESUMEN |
 | `/new-feature` | Nueva funcionalidad | Descripción + módulos | PLAN → AUDIT_PLAN → IMPLEMENT → AUDIT_CODE → VERSION |
 | `/hotfix` | Bug P1/P2 mínimo | Descripción + impacto | RCA → FIX → AUDIT_CODE → VERSION |
 | `/refactor` | Refactor sin cambios funcionales | Área + objetivo | PLAN → AUDIT_PLAN → IMPLEMENT → AUDIT_CODE |
@@ -109,8 +110,10 @@ Toda documentación sigue los **7 arquetipos formales** definidos en
 
 ## Documentación con Claude Code
 
-Usa el **Documentation Generator** (agente) como **único punto de entrada** para crear o actualizar
-documentación. No uses un único prompt masivo: trabaja siempre por fases separadas.
+Usa **`/document-project`** como **comando de entrada único** para documentar un proyecto
+(origen externo o doc_ia mismo): valida los inputs obligatorios (origen(es), destino, generador,
+idioma) y orquesta internamente el flujo de fases del agente **Documentation Generator** y los
+arquetipos. No uses un único prompt masivo: trabaja siempre por fases separadas.
 
 ### Flujo por fases
 

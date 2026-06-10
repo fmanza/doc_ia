@@ -1,0 +1,123 @@
+# /document-project
+
+Documentar un proyecto (origen → destino) orquestando los arquetipos formales. Comando de entrada único del producto doc_ia.
+
+## Cuándo usar
+
+- Documentar un proyecto origen externo completo aplicando los arquetipos (funcional, técnica, ejemplos, guías, ADR, landing, onboarding, normativa)
+- Regenerar o actualizar la documentación propia de doc_ia (dogfooding)
+- Documentar un subconjunto de módulos de un origen manteniendo `mkdocs.yml` sincronizado
+- Antipatrón: NO usar para una única página suelta — aplica directamente el prompt de arquetipo correspondiente (`functional_doc`, `technical_doc`, etc.)
+- Antipatrón: NO usar para cambios de código o tooling — usa `/new-feature`, `/hotfix` o `/refactor`
+
+## Inputs requeridos (OBLIGATORIO completar TODOS)
+
+- [ ] **Origen(es) a documentar**: Ruta(s) raíz del/los proyecto(s) (ej. `c:\repos\mi_api`)
+- [ ] **Destino de la documentación**: Ruta donde se escribe (ej. `c:\repos\mi_api\docs`)
+- [ ] **Generador**: `mkdocs-material` (por defecto) | `zensical`
+- [ ] **Idioma**: `es` | `en` | otro
+- [ ] **Alcance** (opcional): módulos o subconjunto; por defecto proyecto completo
+- [ ] **Arquetipos** (opcional): subconjunto; por defecto todos los aplicables
+- [ ] **Verificación** (opcional): `--verify-tools` y/o `--verify-build [--serve]`
+
+### ⚠️ VALIDACIÓN
+
+Si **alguno** de los 4 campos obligatorios (Origen, Destino, Generador, Idioma) está vacío,
+es ambiguo o no es verificable en disco, **DETENTE AHORA**. Pide los datos al usuario antes
+de continuar. No inventes rutas ni elijas generador o idioma por el usuario. No emitas
+INVENTARIO hasta que los 4 estén completos (mismo patrón de validación que `/new-feature`).
+
+Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs/` del origen o en un repositorio aparte?"
+
+## Política de cambios para este comando
+
+**Obligatorio**:
+- Ejecutar el flujo por fases del Documentation Generator (Fases 0-6; Fase 7 solo opt-in)
+- Actualizar la navegación del generador (`mkdocs.yml`) por cada página creada, movida o retirada
+- Secciones de arquetipo completas; vacías → `*No aplica para este módulo.*`
+
+**Prohibido**:
+- Incrustar API keys o invocar servicios IA desde código (la generación ocurre en este chat)
+- Inventar módulos, APIs, salidas, errores o dependencias no presentes en el origen
+- Modificar código fuente del origen (solo se escribe documentación y navegación)
+
+**Recomendado**:
+- Iterar módulo a módulo dentro de cada fase; nunca un único prompt masivo
+- Cerrar con `python -m mkdocs build --strict` (o `--verify-build`) antes de publicar
+
+## Devuelve en este orden
+
+1. **VALIDACIÓN DE INPUTS**
+   - Tabla: | Parámetro | Valor | Estado (✅/❌) |
+   - Si hay ❌ → detenerse y preguntar
+
+2. **INVENTARIO** (Fases 0-1)
+   - Normativa de referencia (Arquetipo 8) si aplica
+   - Módulos del origen clasificados (sin doc / desactualizada / vigente)
+   - Arquetipo asignado por documento
+
+3. **PLAN_DOC**
+   - Orden de generación y páginas a crear/actualizar
+   - Impacto en navegación
+
+4. **GENERACIÓN** (Fases 2-4)
+   - Funcional → técnica → ejemplos → guías/landing según inventario
+
+5. **SYNC NAV** (Fase 5)
+   - Diff de `mkdocs.yml` del destino
+
+6. **REVISIÓN** (Fase 6)
+   - Markdown, enlaces, Mermaid, secciones de arquetipo
+
+7. **BUILD** (Fase 7, solo con `--verify-build`)
+
+8. **RESUMEN**
+   - Archivos generados/actualizados, entradas de nav, pendientes de verificación humana
+
+## Ejemplo de entrada
+
+```
+Origen(es): c:\Desarrollo\python\libs\doc_ia
+Destino: c:\Desarrollo\python\libs\doc_ia\docs
+Generador: mkdocs-material
+Idioma: es
+Alcance: scripts/ completo (check_env.py, build_docs_zip.py)
+Arquetipos: funcional, técnica, ejemplos
+Verificación: --verify-build
+```
+
+## Ejemplo de salida esperada (VALIDACIÓN + INVENTARIO)
+
+```markdown
+## VALIDACIÓN DE INPUTS
+
+| Parámetro | Valor | Estado |
+|---|---|---|
+| Origen(es) | c:\Desarrollo\python\libs\doc_ia | ✅ existe y es legible |
+| Destino | c:\Desarrollo\python\libs\doc_ia\docs | ✅ existe |
+| Generador | mkdocs-material | ✅ mkdocs.yml presente |
+| Idioma | es | ✅ |
+
+## INVENTARIO
+
+| Módulo | Estado doc | Arquetipos asignados |
+|---|---|---|
+| scripts/check_env.py | sin doc | funcional + técnica + ejemplo |
+| scripts/build_docs_zip.py | sin doc | funcional + técnica + ejemplo |
+
+Normativa de referencia: no detectada → Arquetipo 8 omitido.
+```
+
+## Qué hacer si falla
+
+- **"Origen no legible o fuera del workspace"** → pedir al usuario que añada el directorio como working dir adicional o confirme la ruta
+- **"mkdocs build --strict falla tras SYNC NAV"** → ver `.claude/TESTING_GUIDE.md`; revisar páginas huérfanas o rotas en `nav:`
+- **"Contexto perdido entre fases"** → ver `.claude/EDGE_CASES.md`; retomar desde el RESUMEN parcial de la última fase completada
+- **"El usuario pide generar vía API externa"** → rechazar: principio innegociable (SHARED_INSTRUCTIONS § Principios)
+
+## Referencias
+
+- `.github/prompts/document_project.prompt.md` → prompt equivalente multiplataforma
+- `.github/agents/documentation-generator.agent.md` → flujo por fases que orquesta este comando
+- `.github/DOCUMENTATION_STANDARD.md` → arquetipos formales (estructuras obligatorias)
+- `.github/instructions/docs.instructions.md` → reglas operativas (Mermaid, Markdown, snippets)

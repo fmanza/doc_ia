@@ -27,14 +27,22 @@ documentar** y el **destino de la documentación** son parámetros obligatorios 
 
 ### Principios innegociables
 
-1. **Sin API keys**: ninguna credencial de servicios IA se configura ni se versiona en este proyecto.
+1. **Sin API keys**: prohibido incrustar credenciales de servicios IA — no se configuran,
+   no se versionan ni se incrustan en código, prompts o workflows de este proyecto.
 2. **Sin componentes programáticos IA**: el código Python es exclusivamente tooling determinista
-   (build de documentación, ZIP offline, validaciones). Nunca invoca servicios IA.
-3. **Ejecución en chat**: la generación documental ocurre siempre en el chat de la plataforma IA,
-   guiada por las instrucciones de `.github/` y `.claude/`.
+   (build de documentación, ZIP offline, validaciones). **Nunca invoca servicios IA.**
+3. **Ejecución en chat**: la generación documental ocurre **siempre en el chat de la plataforma IA**,
+   guiada por las instrucciones de `.github/` y `.claude/` — nunca en componentes programáticos.
+
+Estos tres principios aplican a toda ejecución de `document_project` y de los arquetipos:
+si una fase parece requerir generación vía API externa, la respuesta es no — se genera en el chat.
 
 ### Capacidades principales
 
+- **Punto de entrada único para documentar**: `.github/prompts/document_project.prompt.md`
+  (en Claude Code: `/document-project`). Valida inputs obligatorios — **origen(es) a documentar,
+  destino de la documentación, generador e idioma** — y se detiene si faltan; después orquesta
+  el flujo por fases del Documentation Generator y los arquetipos.
 - **Arquetipos documentales**: 7 prompts formales en `.github/prompts/` (funcional, técnica, guía,
   ejemplos, ADR, navegación principal, onboarding) parametrizables por proyecto.
 - **Flujo de trabajo canónico**: `PLAN → AUDIT_PLAN → IMPLEMENT → AUDIT_CODE → VERSION` con
