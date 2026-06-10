@@ -2,11 +2,14 @@
 
 ## 1. Descripción General
 
-doc_ia define ocho arquetipos formales de documentación: plantillas con estructura
-fija, audiencia definida y ubicación establecida. Cada arquetipo responde a una
-pregunta diferente sobre el proyecto (qué hace, cómo funciona, cómo se usa, cómo se
-implementa, por qué se decidió así, etc.) y garantiza que cualquier proyecto
-documentado con doc_ia produce un conjunto de páginas coherente y auditable.
+doc_ia define once arquetipos formales de documentación (más la variante 3b): plantillas
+con estructura fija, audiencia definida y ubicación establecida. Cada arquetipo responde a
+una pregunta diferente sobre el proyecto (qué hace, cómo funciona, cómo se usa, cómo se
+implementa, por qué se decidió así, etc.) y garantiza que cualquier proyecto documentado
+con doc_ia produce un conjunto de páginas coherente y auditable.
+
+Los arquetipos 1–8 son la base; 3b y 9–11 son las adiciones de 2024-2025 (Diátaxis,
+Keep a Changelog, Config Agente IA, Guía de Contribución).
 
 Los arquetipos se aplican a través de prompts individuales en `.github/prompts/` y
 son orquestados por el flujo `/document-project`, que asigna automáticamente el
@@ -42,6 +45,15 @@ flowchart TD
     INV --> Q8{¿Hay normativa de referencia?}
     Q8 -- Sí --> A8[Arquetipo 8: normative_traceability]
     Q8 -- No --> skip8[Omitir Arquetipo 8]
+
+    INV --> Q9{¿Existe CHANGELOG.md?}
+    Q9 -- No y hay releases --> A9[Arquetipo 9: changelog]
+
+    INV --> Q10{¿Hay agentes IA configurados?}
+    Q10 -- Sí y sin docs --> A10[Arquetipo 10: ai_config_doc]
+
+    INV --> Q11{¿Acepta contribuciones externas?}
+    Q11 -- Sí y sin CONTRIBUTING --> A11[Arquetipo 11: contributing_doc]
 ```
 
 ### Arquetipos disponibles
@@ -50,12 +62,16 @@ flowchart TD
 |---|---|---|---|---|
 | **1 — Funcional** | ¿Qué hace y por qué? | Product Owner, QA | `docs/functional/` | `functional_doc.prompt.md` |
 | **2 — Técnica/API** | ¿Cómo funciona internamente? | Desarrolladores | `docs/api/` | `technical_doc.prompt.md` |
-| **3 — Guía de Usuario** | ¿Cómo se usa/instala/opera? | Usuarios, operadores | `docs/guides/` | `guide_doc.prompt.md` |
+| **3a — How-to** | ¿Cómo resuelvo esta tarea concreta? | Usuarios, operadores | `docs/guides/*_howto.md` | `howto_doc.prompt.md` |
+| **3b — Tutorial** | ¿Cómo aprendo esto paso a paso? | Usuarios nuevos en el área | `docs/guides/*_tutorial.md` | `tutorial_doc.prompt.md` |
 | **4 — Ejemplos de Código** | ¿Cómo se implementa? | Desarrolladores | `docs/examples/` | `example_doc.prompt.md` |
-| **5 — ADR** | ¿Por qué se decidió así? | Equipo técnico, arquitectos | `docs/adr/` | `architecture_doc.prompt.md` |
-| **6 — Navegación Principal** | Intro + instalación + visión | Todos | `docs/index.md`, `installation.md`, `architecture.md` | `landing_doc.prompt.md` |
+| **5 — ADR / MADR 4.0** | ¿Por qué se decidió así? | Equipo técnico, arquitectos | `docs/adr/` | `architecture_doc.prompt.md` |
+| **6 — Navegación Principal** *(Var. A/B/C/D)* | Intro + instalación + visión + quick start | Todos | `docs/index.md`, `installation.md`, `architecture.md`, `quickstart.md` | `landing_doc.prompt.md` |
 | **7 — Onboarding** | ¿Cómo me incorporo como desarrollador? | Nuevos contribuidores | `docs/guides/onboarding_dev.md` | `onboarding_dev.prompt.md` |
-| **8 — Trazabilidad Normativa** | ¿Qué normativa aplica? (condicional) | Auditores, equipos de compliance | `docs/` (posición variable) | `normative_traceability.prompt.md` |
+| **8 — Trazabilidad Normativa** | ¿Qué normativa aplica? (condicional) | Auditores, equipos de compliance | `docs/normativa/` | `normative_traceability.prompt.md` |
+| **9 — Changelog** | ¿Qué cambió en cada versión? | Usuarios, QA, ops | `CHANGELOG.md` (raíz) | `changelog.prompt.md` |
+| **10 — Config Agente IA** | ¿Cómo está configurado el agente IA? | Desarrolladores, auditores IA | `docs/ai-config/` | `ai_config_doc.prompt.md` |
+| **11 — Guía de Contribución** | ¿Cómo contribuyo al proyecto? | Contribuidores externos | `CONTRIBUTING.md` (raíz) | `contributing_doc.prompt.md` |
 
 ### Flujos alternativos
 
@@ -73,6 +89,10 @@ flowchart TD
 | AC-02 | Un módulo con Arquetipo 2 generado | Se verifica la presencia del enlace bidireccional | La sección §5 del Arquetipo 2 enlaza a la página de ejemplos del módulo (o tiene el marcador de pendiente) |
 | AC-03 | Un proyecto sin normativa de referencia | Se ejecuta la Fase 0 del inventario | El Arquetipo 8 no se genera ni aparece en `mkdocs.yml` |
 | AC-04 | Cualquier arquetipo generado con sección vacía | Se revisa el documento | La sección vacía contiene `*No aplica para este módulo.*` y no se omite |
+| AC-05 | Proyecto con releases versionados | Se ejecuta el inventario | `CHANGELOG.md` existe en raíz y sigue Keep a Changelog v1.1.0 con sección `[Unreleased]` |
+| AC-06 | Proyecto con ≥1 plataforma IA configurada | Se ejecuta el inventario | Existe al menos un fichero en `docs/ai-config/` con las 7 secciones obligatorias del Arquetipo 10 |
+| AC-07 | Proyecto que acepta contribuciones externas | Se ejecuta el inventario | `CONTRIBUTING.md` existe en raíz con las 6 secciones obligatorias del Arquetipo 11 |
+| AC-08 | Arquetipo 3a (how-to) vs. 3b (tutorial) | Se selecciona el arquetipo | El fichero de destino usa `_howto.md` o `_tutorial.md` según corresponda; nunca los dos tipos mezclados en el mismo fichero |
 
 Verificación: `python -m mkdocs build --strict` sin warnings tras generar cualquier arquetipo.
 

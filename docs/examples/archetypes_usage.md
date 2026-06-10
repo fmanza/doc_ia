@@ -19,14 +19,18 @@ Invocaciones directas de arquetipo (código inline — el flujo ocurre en el cha
 ```
 # Pregunta que responde cada arquetipo:
 #
-#  ¿Qué hace y por qué?         → Arquetipo 1: functional_doc.prompt.md
-#  ¿Cómo funciona internamente? → Arquetipo 2: technical_doc.prompt.md
-#  ¿Cómo se usa / instala?      → Arquetipo 3: guide_doc.prompt.md
-#  ¿Cómo se implementa?         → Arquetipo 4: example_doc.prompt.md
-#  ¿Por qué se decidió así?     → Arquetipo 5: architecture_doc.prompt.md
-#  ¿Qué es el proyecto?         → Arquetipo 6: landing_doc.prompt.md
-#  ¿Cómo me incorporo?          → Arquetipo 7: onboarding_dev.prompt.md
-#  ¿Qué normativa aplica?       → Arquetipo 8: normative_traceability.prompt.md (condicional)
+#  ¿Qué hace y por qué?                     → Arq. 1: functional_doc.prompt.md
+#  ¿Cómo funciona internamente?              → Arq. 2: technical_doc.prompt.md
+#  ¿Cómo resuelvo esta tarea concreta?       → Arq. 3a: howto_doc.prompt.md
+#  ¿Cómo aprendo esto paso a paso?           → Arq. 3b: tutorial_doc.prompt.md
+#  ¿Cómo se implementa?                      → Arq. 4: example_doc.prompt.md
+#  ¿Por qué se decidió así?                  → Arq. 5: architecture_doc.prompt.md (MADR 4.0)
+#  ¿Qué es el proyecto / cómo empiezo?       → Arq. 6: landing_doc.prompt.md (Var. A/B/C/D)
+#  ¿Cómo me incorporo?                       → Arq. 7: onboarding_dev.prompt.md
+#  ¿Qué normativa aplica?                    → Arq. 8: normative_traceability.prompt.md (condicional)
+#  ¿Qué cambió en cada versión?              → Arq. 9: changelog.prompt.md
+#  ¿Cómo está configurado el agente IA?      → Arq. 10: ai_config_doc.prompt.md
+#  ¿Cómo contribuyo al proyecto?             → Arq. 11: contributing_doc.prompt.md
 ```
 
 **Paso 2 — Invocar el prompt elegido (Arquetipo 1 sobre un módulo Python)**
@@ -58,6 +62,50 @@ Módulo a documentar: scripts/check_env.py
 Ejemplo a crear:     docs/examples/check_env_usage.md
 Archivo de soporte:  docs/examples/check_env_usage.py
 Idioma:              es
+```
+
+**Arquetipo 9 — Changelog** (crear o actualizar `CHANGELOG.md` tras un release)
+
+```
+Lee y aplica .github/prompts/changelog.prompt.md
+
+Proyecto: doc_ia
+Versión a cerrar: 0.1.0
+Fecha: 2026-06-10
+Destino: CHANGELOG.md
+Idioma: es
+```
+
+**Arquetipo 10 — Configuración de Agente IA** (documentar Claude Code en el proyecto)
+
+```
+Lee y aplica .github/prompts/ai_config_doc.prompt.md
+
+Plataforma: Claude Code
+Fichero fuente: CLAUDE.md + .claude/settings.json
+Destino: docs/ai-config/claude.md
+Idioma: es
+```
+
+**Arquetipo 11 — Guía de Contribución**
+
+```
+Lee y aplica .github/prompts/contributing_doc.prompt.md
+
+Proyecto: doc_ia
+Convenciones: .github/SHARED_INSTRUCTIONS.md
+Destino: CONTRIBUTING.md
+Idioma: es
+```
+
+**Arquetipo 3b — Tutorial** (experiencia de aprendizaje progresiva sobre un flujo)
+
+```
+Lee y aplica .github/prompts/tutorial_doc.prompt.md
+
+Módulo a documentar: flujo /document-project (primer uso)
+Destino: docs/guides/document_project_tutorial.md
+Idioma: es
 ```
 
 ## 3. Explicación del Código

@@ -1,23 +1,27 @@
 # archetypes
 
-Sistema de ocho plantillas de documentación con estructura fija, audiencia definida y ubicación establecida que garantiza coherencia y auditabilidad en todos los proyectos documentados con doc_ia.
+Sistema de once arquetipos de documentación (más variante 3b) con estructura fija, audiencia definida y ubicación establecida que garantiza coherencia y auditabilidad en todos los proyectos documentados con doc_ia. Los arquetipos 1–8 son la base; 3b y 9–11 son las adiciones 2024-2025.
 
 ## 1. Arquitectura y Diseño
 
 ```mermaid
 flowchart TD
-    DS[DOCUMENTATION_STANDARD.md\n§3 — define los 8 arquetipos] --> P[Prompts por arquetipo\n.github/prompts/]
+    DS[DOCUMENTATION_STANDARD.md\n§3 — define 11 arquetipos + 3b] --> P[Prompts por arquetipo\n.github/prompts/]
     P --> AG[Documentation Generator\nagent — orquesta los prompts]
     AG --> DP[document_project\nflujo de entrada único]
 
-    DS --> A1[Arquetipo 1 — Funcional\nfunctional_doc.prompt.md]
-    DS --> A2[Arquetipo 2 — Técnica\ntechnical_doc.prompt.md]
-    DS --> A3[Arquetipo 3 — Guía\nguide_doc.prompt.md]
-    DS --> A4[Arquetipo 4 — Ejemplos\nexample_doc.prompt.md]
-    DS --> A5[Arquetipo 5 — ADR\narchitecture_doc.prompt.md]
-    DS --> A6[Arquetipo 6 — Landing\nlanding_doc.prompt.md]
-    DS --> A7[Arquetipo 7 — Onboarding\nonboarding_dev.prompt.md]
-    DS --> A8[Arquetipo 8 — Normativa\nnormative_traceability.prompt.md\nCONDICIONAL]
+    DS --> A1[Arq. 1 — Funcional\nfunctional_doc.prompt.md]
+    DS --> A2[Arq. 2 — Técnica\ntechnical_doc.prompt.md]
+    DS --> A3a[Arq. 3a — How-to\nhowto_doc.prompt.md]
+    DS --> A3b[Arq. 3b — Tutorial\ntutorial_doc.prompt.md]
+    DS --> A4[Arq. 4 — Ejemplos\nexample_doc.prompt.md]
+    DS --> A5[Arq. 5 — ADR/MADR 4.0\narchitecture_doc.prompt.md]
+    DS --> A6[Arq. 6 — Landing A/B/C/D\nlanding_doc.prompt.md]
+    DS --> A7[Arq. 7 — Onboarding\nonboarding_dev.prompt.md]
+    DS --> A8[Arq. 8 — Normativa\nnormative_traceability.prompt.md\nCONDICIONAL]
+    DS --> A9[Arq. 9 — Changelog\nchangelog.prompt.md]
+    DS --> A10[Arq. 10 — Config IA\nai_config_doc.prompt.md]
+    DS --> A11[Arq. 11 — Contribución\ncontributing_doc.prompt.md]
 
     A2 <-->|enlace bidireccional §5| A4
 ```
@@ -30,12 +34,16 @@ flowchart TD
 |---|---|---|---|
 | **1 — Funcional** | `functional_doc.prompt.md` | `docs/functional/` | ¿Qué hace y por qué? |
 | **2 — Técnica/API** | `technical_doc.prompt.md` | `docs/api/` | ¿Cómo funciona internamente? |
-| **3 — Guía de Usuario** | `guide_doc.prompt.md` | `docs/guides/` | ¿Cómo se usa/instala/opera? |
+| **3a — How-to** | `howto_doc.prompt.md` | `docs/guides/*_howto.md` | ¿Cómo resuelvo esta tarea concreta? |
+| **3b — Tutorial** | `tutorial_doc.prompt.md` | `docs/guides/*_tutorial.md` | ¿Cómo aprendo esto paso a paso? |
 | **4 — Ejemplos de Código** | `example_doc.prompt.md` | `docs/examples/` | ¿Cómo se implementa? |
-| **5 — ADR** | `architecture_doc.prompt.md` | `docs/adr/` | ¿Por qué se decidió así? |
-| **6 — Navegación Principal** | `landing_doc.prompt.md` | `docs/` (raíz) | Intro + instalación + visión |
+| **5 — ADR / MADR 4.0** | `architecture_doc.prompt.md` | `docs/adr/` | ¿Por qué se decidió así? |
+| **6 — Navegación Principal** | `landing_doc.prompt.md` | `docs/` raíz (Var. A/B/C/D) | Intro + instalación + visión + quick start |
 | **7 — Onboarding** | `onboarding_dev.prompt.md` | `docs/guides/onboarding_dev.md` | ¿Cómo me incorporo al proyecto? |
-| **8 — Normativa** | `normative_traceability.prompt.md` | `docs/normativa/` | ¿Qué normativa aplica? |
+| **8 — Normativa** | `normative_traceability.prompt.md` | `docs/normativa/` | ¿Qué normativa aplica? (condicional) |
+| **9 — Changelog** | `changelog.prompt.md` | `CHANGELOG.md` (raíz) | ¿Qué cambió en cada versión? |
+| **10 — Config Agente IA** | `ai_config_doc.prompt.md` | `docs/ai-config/` | ¿Cómo está configurado el agente IA? |
+| **11 — Guía de Contribución** | `contributing_doc.prompt.md` | `CONTRIBUTING.md` (raíz) | ¿Cómo contribuyo al proyecto? |
 
 ### Contrato de entrada
 

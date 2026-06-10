@@ -1,0 +1,41 @@
+# Changelog
+
+Todos los cambios notables de este proyecto se documentan aquí.
+Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer](https://semver.org/)
+
+## [Unreleased]
+
+## [0.1.0] — 2026-06-10
+
+### Added
+
+- **Tooling determinista**: `scripts/check_env.py` (verificación de herramientas del entorno) y
+  `scripts/build_docs_zip.py` (ZIP offline con SHA256 y checksums).
+- **Bootstrap multiplataforma** (`.github/agents/`, `.github/prompts/`, `.claude/commands/`):
+  replica el sistema de instrucciones IA en proyectos destino mediante modelo PULL.
+- **Flujo `/document-project`** como comando de entrada único para documentar proyectos:
+  validación obligatoria de inputs, inventario por fases, orquestación de arquetipos.
+- **Soporte de orígenes heterogéneos** en `/document-project`: Fase 0a de clasificación
+  (`CÓDIGO`, `NORMATIVA`, `ESPECIFICACIÓN`, `UI/PANTALLAS`, `REFERENCIA`); estrategias
+  `federado`, `hub+satélite` y `monorepo` para múltiples orígenes de código.
+- **11 arquetipos formales** de documentación con estructura fija y audiencia definida:
+  - 1 — Funcional, 2 — Técnica/API, 3a — How-to (Diátaxis), 3b — Tutorial (Diátaxis),
+    4 — Ejemplos de Código, 5 — ADR/MADR 4.0, 6 — Navegación Principal (Variantes A–D),
+    7 — Onboarding Dev, 8 — Trazabilidad Normativa (condicional),
+    9 — Changelog, 10 — Config Agente IA, 11 — Guía de Contribución.
+- **Documentación completa de doc_ia** (dogfooding): 24 páginas en `docs/` cubriendo
+  funcional, técnica, ejemplos, guías, arquitectura y ADRs para todos los módulos.
+- **Descarga de documentación offline**: `dist/doc_ia-docs-{version}.zip` + SHA256; workflow
+  GitHub Actions `docs-zip-release.yml` publica automáticamente en cada release.
+- **UX del sitio**: márgenes, sidebar toggle, soporte Mermaid 11, tabs sticky.
+- **Estados A/B/C** en el inventario de `/document-project` para distinguir páginas
+  a crear, actualizar u omitir.
+
+### Fixed
+
+- Restauración de 10 ficheros de la Capa A corruptos durante el bootstrap inicial.
+- Restauración de `config-reviewer.agent.md` y creación de `docs.instructions.md`
+  tras corrupción del bootstrap.
+
+[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/fmanza/doc_ia/releases/tag/v0.1.0
