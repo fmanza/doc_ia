@@ -26,7 +26,27 @@ markdown_extensions:
 
 nav:
   - Inicio: index.md
+  - Instalación: installation.md
+  - Documentación Funcional:
+      - Tooling Determinista:
+          - Verificación de Entorno: functional/check_env.md
+          - ZIP de Documentación Offline: functional/build_docs_zip.md
+  - Referencia Técnica:
+      - Tooling Determinista:
+          - check_env: api/check_env.md
+          - build_docs_zip: api/build_docs_zip.md
+  - Ejemplos:
+      - Tooling Determinista:
+          - Verificar Entorno: examples/check_env_usage.md
+          - Generar ZIP Offline: examples/build_docs_zip_offline.md
   - Guías:
+      - Incorporación:
+          - Onboarding de Desarrolladores: guides/onboarding_dev.md
+      - Errores y Diagnóstico:
+          - Troubleshooting: guides/troubleshooting.md
       - Herramientas IA:
           - Guía de Codex (OpenAI): guides/codex_guide.md
+  - Arquitectura:
+      - Visión del Sistema: architecture.md
+      - ADR-001 — MkDocs Material por defecto: adr/ADR-001-mkdocs-material-por-defecto.md
   - Descargas: downloads.md

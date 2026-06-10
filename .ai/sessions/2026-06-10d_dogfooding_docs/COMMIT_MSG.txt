@@ -1,0 +1,27 @@
+docs: documentación completa de doc_ia vía /document-project (dogfooding)
+
+Primera ejecución real del comando de producto sobre el propio proyecto
+(origen: doc_ia, destino: docs/, mkdocs-material, es, --verify-build):
+
+- Arquetipo 1 (funcional): functional/check_env.md, functional/build_docs_zip.md
+- Arquetipo 2 (técnica): api/check_env.md, api/build_docs_zip.md — flowchart
+  Mermaid, contratos de entrada/salida y enlace bidireccional §5
+- Arquetipo 4 (ejemplos): examples/check_env_usage.md (+ .py vía snippet
+  --8<--, compilado y ejecutado), examples/build_docs_zip_offline.md
+- Arquetipo 7: guides/onboarding_dev.md (11 secciones)
+- Arquetipo 3: guides/troubleshooting.md
+- Arquetipo 6: index.md regenerada (A), installation.md (B), architecture.md
+  (C, arc42-lite + C4)
+- Arquetipo 5: adr/ADR-001-mkdocs-material-por-defecto.md
+- mkdocs.yml: nav completo con área "Tooling Determinista" consistente entre
+  Funcional/Técnica/Ejemplos y guías en subsecciones temáticas
+- DOCUMENTATION_STANDARD.md: §4.2 sincronizado con el nav real (guiones bajos
+  según canónico) y cierre de F4 (src/→scripts/, COMPATIBILITY.md retirado)
+
+Verificación (--verify-build Modo A): mkdocs build --strict sin warnings;
+snippet resuelto (sin "--8<--" literal en site/); Mermaid en 5 páginas;
+ejemplo .py valida con py_compile y produce el output documentado.
+
+Sesión: .ai/sessions/2026-06-10d_dogfooding_docs/
+
+Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>

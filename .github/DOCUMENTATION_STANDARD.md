@@ -550,36 +550,35 @@ los grupos principales como referencia rápida:
 ```yaml
 nav:
   - Inicio: index.md
-  - Instalación: installation.md           # pendiente de generar (Arquetipo 6, Variante B)
-
-  - Documentación Funcional:               # pendiente de generar (Arquetipo 1)
+  - Instalación: installation.md
+  - Documentación Funcional:
       - Tooling Determinista:
-          - Verificación de Entorno: functional/check-env.md
-          - ZIP de Documentación Offline: functional/docs-zip.md
-      - Flujos IA:
-          - Arquetipos Documentales: functional/archetypes.md
-          - Bootstrap de Configuración IA: functional/bootstrap.md
-
-  - Referencia Técnica:                    # pendiente de generar (Arquetipo 2)
-      - Verificación de Entorno: api/check-env.md
-      - Build de ZIP Offline: api/build-docs-zip.md
-
-  - Ejemplos:                              # subsecciones por área, igual que Referencia Técnica
-      - Tooling:
+          - Verificación de Entorno: functional/check_env.md
+          - ZIP de Documentación Offline: functional/build_docs_zip.md
+      # pendiente: Flujos IA (functional/archetypes.md, functional/bootstrap.md)
+  - Referencia Técnica:
+      - Tooling Determinista:
+          - check_env: api/check_env.md
+          - build_docs_zip: api/build_docs_zip.md
+  - Ejemplos:
+      - Tooling Determinista:
           - Verificar Entorno: examples/check_env_usage.md
-      # ... resto de ejemplos agrupados por área en mkdocs.yml
-
-  - Guías:                                 # subsecciones temáticas (how-tos transversales)
-      - Incorporación para Desarrolladores: guides/onboarding_dev.md
+          - Generar ZIP Offline: examples/build_docs_zip_offline.md
+  - Guías:
+      - Incorporación:
+          - Onboarding de Desarrolladores: guides/onboarding_dev.md
       - Errores y Diagnóstico:
           - Troubleshooting: guides/troubleshooting.md
       - Herramientas IA:
           - Guía de Codex (OpenAI): guides/codex_guide.md
-      - Descargas: downloads.md
+  - Arquitectura:
+      - Visión del Sistema: architecture.md
+      - ADR-001 — MkDocs Material por defecto: adr/ADR-001-mkdocs-material-por-defecto.md
+  - Descargas: downloads.md
 ```
 
-> **Nota**: las entradas marcadas "pendiente de generar" reflejan la estructura objetivo;
-> solo `index.md`, `downloads.md` y `guides/codex_guide.md` existen tras el bootstrap inicial.
+> **Nota**: implementado en el dogfooding 2026-06-10 (nombres con guiones bajos según el
+> canónico). Pendiente: páginas funcionales de Flujos IA (archetypes, bootstrap).
 
 ---
 
@@ -657,7 +656,7 @@ nav:
 
 4. **Build CI/CD**: `mkdocs build` validado en cada PR, detecta links rotos
 
-5. **Versionamiento**: Sincronizar CHANGELOG.md + COMPATIBILITY.md según `.github/instructions/sync.instructions.md`
+5. **Versionamiento**: Sincronizar CHANGELOG.md según `.github/instructions/sync.instructions.md`
 
 ---
 
@@ -674,14 +673,14 @@ Validar estructura docs/ vs mkdocs.yml real. Entregar PLAN + AUDIT_PLAN.
 ### Paso 2: Validar Configuración IA (30 min)
 ```text
 @config-reviewer
-Revisar coherencia propuesta vs código real en src/.
+Revisar coherencia propuesta vs código real en scripts/.
 Validar que estructura propuesta es implementable.
 ```
 
 ### Paso 3: Explorar Módulos (15 min)
 ```text
 @Explore
-Mapear módulos en src/ vs docs/. Identificar faltantes. Solo lectura.
+Mapear módulos en scripts/ vs docs/. Identificar faltantes. Solo lectura.
 ```
 
 ### Paso 4: Generar/Actualizar Documentación (1-2 h)
@@ -708,7 +707,7 @@ Ejecutar mkdocs build. Verificar links. Reportar errores de build.
 ### Paso 7: Sincronizar Versión (20 min)
 ```text
 @Version Closer
-Actualizar CHANGELOG.md, COMPATIBILITY.md.
+Actualizar CHANGELOG.md.
 Generar release notes.
 ```
 
@@ -717,9 +716,9 @@ Generar release notes.
 La estandarización se considera **completa** cuando:
 
 - [ ] `mkdocs build --strict` finaliza sin errores ni warnings de links rotos
-- [ ] Todos los módulos en `src/` tienen doc funcional (`docs/functional/`) y técnica (`docs/api/`)
+- [ ] Todos los módulos en `scripts/` tienen doc funcional (`docs/functional/`) y técnica (`docs/api/`)
 - [ ] Todos los archivos referenciados en `docs/examples/` existen en disco
-- [ ] `CHANGELOG.md` y `COMPATIBILITY.md` reflejan la versión actual de `pyproject.toml`
+- [ ] `CHANGELOG.md` (cuando exista) refleja la versión actual de `pyproject.toml`
 - [ ] Las instrucciones IA (`CLAUDE.md`, `copilot-instructions.md`) son coherentes con el código real
 - [ ] Todos los documentos en `nav:` (excepto `legacy-versions.md`) tienen exactamente las secciones numeradas de su arquetipo asignado (`index.md`, `INSTALLATION.md` y `ARCHITECTURE.md` se rigen por el Arquetipo 6)
 - [ ] Las secciones vacías contienen `*No aplica para este módulo.*` en lugar de estar omitidas
