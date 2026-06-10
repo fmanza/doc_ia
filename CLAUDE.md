@@ -21,7 +21,7 @@ Usa estos comandos para activar flujos estructurados con automatización integra
 
 | Comando | Propósito | Entrada | Salida |
 |---|---|---|---|
-| `/document-project` | **Documentar un proyecto (producto doc_ia)** | Origen(es) + destino + generador + idioma (obligatorios; si faltan, se detiene) | VALIDACIÓN → INVENTARIO → PLAN_DOC → GENERACIÓN → SYNC NAV → REVISIÓN → RESUMEN |
+| `/document-project` | **Documentar un proyecto (producto doc_ia)** | Origen(es) + destino + generador + idioma (obligatorios; si faltan, se detiene) | VALIDACIÓN → INVENTARIO → PLAN_DOC → GENERACIÓN → SYNC NAV → REVISIÓN → RESUMEN → CIERRE (sesión `.ai/` + commit) |
 | `/new-feature` | Nueva funcionalidad | Descripción + módulos | PLAN → AUDIT_PLAN → IMPLEMENT → AUDIT_CODE → VERSION |
 | `/hotfix` | Bug P1/P2 mínimo | Descripción + impacto | RCA → FIX → AUDIT_CODE → VERSION |
 | `/refactor` | Refactor sin cambios funcionales | Área + objetivo | PLAN → AUDIT_PLAN → IMPLEMENT → AUDIT_CODE |

@@ -42,7 +42,9 @@ si una fase parece requerir generación vía API externa, la respuesta es no —
 - **Punto de entrada único para documentar**: `.github/prompts/document_project.prompt.md`
   (en Claude Code: `/document-project`). Valida inputs obligatorios — **origen(es) a documentar,
   destino de la documentación, generador e idioma** — y se detiene si faltan; después orquesta
-  el flujo por fases del Documentation Generator y los arquetipos.
+  el flujo por fases del Documentation Generator y los arquetipos. **Cierre obligatorio**: crea
+  artefacto `.ai/sessions/YYYY-MM-DD/` en el destino y propone commit `docs(<scope>):` antes
+  de concluir la sesión.
 - **Arquetipos documentales**: prompts formales en `.github/prompts/` (funcional, técnica, how-to,
   tutorial, ejemplos, ADR/MADR 4.0, navegación principal, onboarding, changelog, config IA,
   contribución) parametrizables por proyecto.

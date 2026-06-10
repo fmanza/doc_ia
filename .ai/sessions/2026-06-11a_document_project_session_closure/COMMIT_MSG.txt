@@ -1,0 +1,8 @@
+docs(governance): /document-project añade cierre obligatorio con sesión .ai/ y commit
+
+- Paso 10 CIERRE DE SESIÓN en .claude/commands/document-project.md:
+  artefacto .ai/sessions/YYYY-MM-DD/ en destino (00_REQUEST, CONTEXT_SNAPSHOT,
+  TRACEABILITY) + commit docs(<scope>): con recuento páginas (confirmación usuario)
+- Propagado a .github/prompts/document_project.prompt.md (prompt multiplataforma)
+- CLAUDE.md: columna Salida actualizada con → CIERRE (sesión .ai/ + commit)
+- SHARED_INSTRUCTIONS.md: nota de cierre obligatorio en descripción /document-project

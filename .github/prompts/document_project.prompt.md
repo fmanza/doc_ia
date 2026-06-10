@@ -132,6 +132,9 @@ APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reg
 7. **REVISIÓN** (Fase 6) — checklist de validación + hallazgos.
 8. **BUILD** (Fase 7, solo opt-in) — resultado de `--verify-build`.
 9. **RESUMEN** — archivos generados/actualizados, entradas de nav, pendientes de verificación humana.
+10. **CIERRE DE SESIÓN** (siempre obligatorio) — crear artefacto `.ai/sessions/YYYY-MM-DD/` en el
+    destino (`00_REQUEST.md`, `00_CONTEXT_SNAPSHOT.md`, `TRACEABILITY.md`) y proponer commit
+    `docs(<scope>): <resumen>` con recuento de páginas creadas/actualizadas/omitidas.
 
 ## Ejemplo de entrada
 

@@ -49,6 +49,7 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 - Iterar módulo a módulo dentro de cada fase; nunca un único prompt masivo
 - Cerrar con `python -m mkdocs build --strict` (o `--verify-build`) antes de publicar
 - En Fase 0b, ejecutar validación de assets personalizados (ver sección "Sincronización de Configuración Visual")
+- Crear siempre el artefacto `.ai/sessions/YYYY-MM-DD/` en el destino antes del commit (paso 10)
 
 ## Sincronización de Configuración Visual (Fase 0b)
 
@@ -150,6 +151,40 @@ cp -r {origen}/docs/assets/* {destino}/docs/assets/
 
 9. **RESUMEN**
    - Archivos generados/actualizados, entradas de nav, pendientes de verificación humana
+
+10. **CIERRE DE SESIÓN** (siempre obligatorio)
+
+    **a) Artefacto `.ai/sessions/`** — crear en el **destino** (no en doc_ia), en la ruta
+    `{destino}/../.ai/sessions/YYYY-MM-DD/` con tres ficheros:
+
+    - `00_REQUEST.md` — inputs recibidos (origen, destino, generador, idioma, alcance,
+      arquetipos, verificación) + objetivo operativo de la sesión
+    - `00_CONTEXT_SNAPSHOT.md` — ficheros leídos antes de la primera fase, estado git
+      (rama, cambios pre-existentes, último commit), estado de build (si se ejecutó)
+    - `TRACEABILITY.md` — resumen cronológico de acciones, tabla de artefactos generados
+      (`| Artefacto | Ruta | Estado |`), directrices para IAs futuras, veredicto final
+      (`GO` / `GO_CONDICIONAL` / `NO_GO` / `CLOSED`)
+
+    Usar como plantilla los ficheros de `.ai/sessions/TEMPLATE/` de doc_ia.
+    Si `.ai/sessions/` no existe en el destino, crearlo (es el primer uso del sistema de sesiones
+    en ese proyecto).
+
+    **b) Commit** — una vez escritos los artefactos y verificado el build (si aplica), proponer
+    el siguiente commit en el repositorio **destino**:
+
+    ```
+    docs(<scope>): <resumen de lo documentado>
+
+    Sesión: .ai/sessions/YYYY-MM-DD/
+    Arquetipos: <lista de arquetipos generados/actualizados>
+    Páginas: <N> creadas · <M> actualizadas · <K> omitidas
+    ```
+
+    - `<scope>` = nombre corto del origen (ej. `util_bbdd`, `mi_api`)
+    - Conventional Commits: usar `docs:` para sesiones de documentación pura
+    - No hacer `git push`: solo proponer el mensaje y ejecutar `git add` + `git commit`
+      si el usuario confirma
+    - Si el destino es el propio doc_ia, hacer el commit en doc_ia
 
 ## Ejemplo de entrada — origen único
 
