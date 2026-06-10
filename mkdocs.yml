@@ -86,6 +86,7 @@ nav:
           - ZIP de Documentación Offline: functional/build_docs_zip.md
       - Flujos IA:
           - Documentar un Proyecto: functional/document_project.md
+          - Catálogo de Tipos de Origen: functional/origin_types.md
           - Arquetipos Formales: functional/archetypes.md
           - Bootstrap de Configuración IA: functional/bootstrap.md
 

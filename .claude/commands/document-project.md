@@ -16,7 +16,7 @@ Documentar un proyecto (origen → destino) orquestando los arquetipos formales.
 - [ ] **Destino de la documentación**: Ruta donde se escribe (ej. `c:\repos\mi_api\docs`)
 - [ ] **Generador**: `mkdocs-material` (por defecto) | `zensical`
 - [ ] **Idioma**: `es` | `en` | otro
-- [ ] **Tipo de cada origen** (opcional): `CÓDIGO` | `NORMATIVA` | `ESPECIFICACIÓN` | `UI/PANTALLAS` | `REFERENCIA` — autodetectado si se omite; el usuario confirma antes de continuar
+- [ ] **Tipo de cada origen** (opcional): `CÓDIGO` | `NORMATIVA` | `ESPECIFICACIÓN` | `UI/PANTALLAS` | `REFERENCIA` | `CONTRATO` | `INFRAESTRUCTURA` — autodetectado si se omite; el usuario confirma antes de continuar
 - [ ] **Estrategia** (solo con ≥2 orígenes CÓDIGO): `federado` | `hub+satélite` | `monorepo` — preguntar al usuario, nunca autodetectar
 - [ ] **Alcance** (opcional): módulos o subconjunto; por defecto proyecto completo
 - [ ] **Arquetipos** (opcional): subconjunto; por defecto todos los aplicables **excepto 9 (Changelog) y 11 (Contribución)**, que son opt-in explícito
@@ -109,11 +109,13 @@ cp -r {origen}/docs/assets/* {destino}/docs/assets/
 2. **CLASIFICACIÓN DE ORÍGENES** (solo con ≥2 orígenes, o si el único origen no es CÓDIGO)
    - Tabla: | Origen | Tipo detectado | Señales | Rol |
    - Tipos posibles:
-     - `CÓDIGO` — archivos fuente (`.py`, `.js`, `.ts`, `.cs`, `.java`, …), `pyproject.toml`, `package.json`, `pom.xml`, `src/`, `tests/` presentes → documentar como proyecto (arquetipos 1–7)
-     - `NORMATIVA` — PDFs/docs con nombres que contienen `ley`, `decreto`, `directiva`, `rgpd`, `une`, `iso`, `reglamento` → activar Arquetipo 8; enriquece §2 Arquetipo 1 del proyecto principal
-     - `ESPECIFICACIÓN` — Word/PDF de requisitos, user stories, pliego, casos de uso → enriquece Arquetipo 1 §2+§3+§4 del proyecto principal
-     - `UI/PANTALLAS` — wireframes, mockups, capturas (`.png`, `.jpg`, `.pdf` de diseño) → enriquece Arquetipo 1 §3 y Arquetipo 3
-     - `REFERENCIA` — manuales de terceros, RFCs, APIs externas → enriquece Arquetipo 2 §4 o Arquetipo 5
+     - `CÓDIGO` — archivos fuente (`.py`, `.js`, `.ts`, `.cs`, `.java`, `.go`, `.rs`, …), `pyproject.toml`, `package.json`, `pom.xml`, `src/`, `tests/` presentes → documentar como proyecto (arquetipos 1–7)
+     - `NORMATIVA` — PDFs/docs con nombres que contienen `ley`, `decreto`, `directiva`, `rgpd`, `gdpr`, `une`, `iso`, `reglamento` → activar Arquetipo 8; enriquece §2 Arquetipo 1 del proyecto principal
+     - `ESPECIFICACIÓN` — Word/PDF de requisitos, user stories, pliego, ficheros `.feature`; carpetas `specs/`, `requirements/`, `ux/` → enriquece Arquetipo 1 §2+§3+§4 del proyecto principal
+     - `UI/PANTALLAS` — wireframes, mockups, capturas (`.png`, `.jpg`, `.pdf` de diseño); carpetas `mockups/`, `figma-exports/` → enriquece Arquetipo 1 §3 y Arquetipo 3
+     - `REFERENCIA` — manuales de **terceros**, RFCs, especificaciones de protocolo **ajenas al proyecto** → enriquece Arquetipo 2 §4 o Arquetipo 5
+     - `CONTRATO` — especificaciones machine-readable del **propio proyecto**: `openapi:` / `asyncapi:` YAML, `.graphql`, `.proto`, `.sql` DDL, `.dbml`; carpetas `api/`, `schemas/`, `proto/` → enriquece Arquetipo 2 §1 (interfaces) y §2 (contratos/datos)
+     - `INFRAESTRUCTURA` — IaC y despliegue: `.tf`, `Dockerfile`, `docker-compose.yml`, K8s YAML en `k8s/`/`deploy/`/`helm/`, Ansible → enriquece Arquetipo 2 §4 y Arquetipo 6D (vista despliegue)
    - Si hay ≥2 orígenes `CÓDIGO` → preguntar estrategia (nunca autodetectar):
      - `federado`: cada proyecto documenta de forma independiente (docs/ propio, mkdocs.yml propio)
      - `hub+satélite`: un proyecto "hub" es el destino; los demás se documentan como secciones dentro de él

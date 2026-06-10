@@ -109,6 +109,39 @@ Idioma:    es
 Arquetipos: changelog, contribución
 ```
 
+**Escenario 6 — Proyecto con contrato OpenAPI e infraestructura Terraform**
+
+Cuando el repositorio incluye tanto código fuente como su especificación OpenAPI y sus
+ficheros Terraform, el flujo clasifica cada origen en su tipo y enriquece las secciones
+correctas del Arquetipo 2:
+
+```
+/document-project
+
+Origen(es):
+  - c:\repos\mi_api\src\            (código Python del servicio)
+  - c:\repos\mi_api\api\openapi.yaml  (especificación OpenAPI del propio proyecto)
+  - c:\repos\mi_api\infra\          (ficheros Terraform)
+Destino:    c:\repos\mi_api\docs
+Generador:  mkdocs-material
+Idioma:     es
+Tipo de cada origen: src=CÓDIGO, openapi.yaml=CONTRATO, infra=INFRAESTRUCTURA
+```
+
+El agente presentará la clasificación antes de continuar:
+
+```
+CLASIFICACIÓN DE ORÍGENES
+
+| Origen              | Tipo detectado  | Señales                       | Rol                                   |
+|---------------------|-----------------|-------------------------------|---------------------------------------|
+| src/                | CÓDIGO          | .py, pyproject.toml, tests/   | Proyecto principal → arquetipos 1–7   |
+| api/openapi.yaml    | CONTRATO        | clave `openapi:` en YAML      | MATERIAL → enriquece Arq. 2 §1 y §2   |
+| infra/              | INFRAESTRUCTURA | .tf, variables.tf             | MATERIAL → enriquece Arq. 2 §4 y 6D   |
+
+¿Confirmas esta clasificación antes de continuar con el inventario?
+```
+
 ## 3. Explicación del Código
 
 - Los cuatro parámetros (`Origen`, `Destino`, `Generador`, `Idioma`) son **obligatorios**.
@@ -125,6 +158,9 @@ Arquetipos: changelog, contribución
   Los orígenes de tipo MATERIAL (NORMATIVA, UI/PANTALLAS, etc.) nunca generan páginas
   propias: enriquecen secciones del proyecto CÓDIGO principal.
 - `Estrategia` solo aplica con ≥2 orígenes de tipo CÓDIGO y nunca se autodetecta.
+- Los tipos `CONTRATO` e `INFRAESTRUCTURA` son MATERIAL: no generan páginas propias sino que
+  enriquecen el Arquetipo 2 del proyecto CÓDIGO (§2 Contratos para `CONTRATO`; §4 Dependencias
+  y §6D vista de despliegue para `INFRAESTRUCTURA`). Ver [Catálogo de Tipos de Origen](../functional/origin_types.md).
 - La generación ocurre **en el chat**, no en componentes programáticos: ningún paso
   llama a APIs de IA externas ni ejecuta Python para generar el texto de los documentos.
 

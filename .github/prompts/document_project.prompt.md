@@ -19,7 +19,7 @@ sueltos para documentar un proyecto completo: invoca este flujo y deja que orque
 
 Opcionales:
 
-- **Tipo de cada origen**: `CÓDIGO` | `NORMATIVA` | `ESPECIFICACIÓN` | `UI/PANTALLAS` | `REFERENCIA` — autodetectado si se omite; se confirma con el usuario antes de continuar
+- **Tipo de cada origen**: `CÓDIGO` | `NORMATIVA` | `ESPECIFICACIÓN` | `UI/PANTALLAS` | `REFERENCIA` | `CONTRATO` | `INFRAESTRUCTURA` — autodetectado si se omite; se confirma con el usuario antes de continuar
 - **Estrategia** (solo con ≥2 orígenes CÓDIGO): `federado` | `hub+satélite` | `monorepo` — siempre preguntar al usuario, nunca autodetectar
 - **Alcance**: módulos o subconjunto a documentar (por defecto: proyecto completo)
 - **Arquetipos**: subconjunto a aplicar (por defecto: todos los aplicables según inventario)
@@ -56,14 +56,21 @@ Aplica el flujo por fases de `.github/agents/documentation-generator.agent.md` s
 ```
 Fase 0a — Clasificación de orígenes (solo con ≥2 orígenes, o si el único origen no es CÓDIGO):
          1. Para cada origen, detectar tipo por señales del sistema de ficheros:
-            - CÓDIGO      : archivos fuente (.py, .js, .ts, .cs, .java, …), pyproject.toml,
-                            package.json, pom.xml, Cargo.toml, src/, tests/ presentes
-            - NORMATIVA   : PDFs/docs con palabras clave en nombre de archivo o carpeta:
-                            ley, decreto, directiva, rgpd, une, iso, reglamento
-            - ESPECIFICACIÓN: Word/PDF de requisitos, user stories, pliego, casos de uso
-            - UI/PANTALLAS: wireframes, mockups, capturas (.png, .jpg, .pdf de diseño),
-                            carpetas nombradas mockups/, screens/, wireframes/
-            - REFERENCIA  : manuales de terceros, RFCs, APIs externas, especificaciones de protocolo
+            - CÓDIGO         : archivos fuente (.py, .js, .ts, .cs, .java, .go, .rs, …),
+                               pyproject.toml, package.json, pom.xml, Cargo.toml, go.mod,
+                               src/, tests/ presentes
+            - NORMATIVA      : PDFs/docs con palabras clave en nombre o carpeta:
+                               ley, decreto, directiva, rgpd, gdpr, une, iso, reglamento, compliance
+            - ESPECIFICACIÓN : Word/PDF de requisitos, user stories, pliego, ficheros .feature (BDD);
+                               carpetas specs/, requirements/, ux/, user-stories/
+            - UI/PANTALLAS   : wireframes, mockups, capturas (.png, .jpg, .pdf de diseño);
+                               carpetas mockups/, screens/, wireframes/, figma-exports/
+            - REFERENCIA     : manuales de TERCEROS, RFCs, especificaciones de protocolo AJENAS al proyecto
+            - CONTRATO       : especificaciones machine-readable del PROPIO proyecto:
+                               .yaml/.json con clave openapi: o asyncapi:; .graphql/.gql; .proto; .avsc;
+                               .sql DDL en db//migrations/; .dbml; carpetas api/, contracts/, schemas/, proto/
+            - INFRAESTRUCTURA: IaC y despliegue: .tf (Terraform); Dockerfile, docker-compose.yml;
+                               YAML en k8s/, deploy/, manifests/, helm/; playbooks Ansible en roles//ansible/
          2. Presentar tabla: | Origen | Tipo detectado | Señales encontradas | Rol propuesto |
          3. DETENER y pedir confirmación al usuario antes de continuar.
          4. Si hay ≥2 orígenes CÓDIGO → preguntar estrategia al usuario:
@@ -75,10 +82,12 @@ Fase 0a — Clasificación de orígenes (solo con ≥2 orígenes, o si el único
              un origen de tipo CÓDIGO. Para documentar solo normativa o especificación,
              usa directamente normative_traceability.prompt.md o functional_doc.prompt.md."
          Mapeo MATERIAL → arquetipos (para orígenes no-CÓDIGO):
-            NORMATIVA      → Arquetipo 8 + enriquece §2 (Reglas de Negocio) del Arquetipo 1
-            ESPECIFICACIÓN → enriquece Arquetipo 1 §2+§3+§4 del proyecto principal
-            UI/PANTALLAS   → enriquece Arquetipo 1 §3 (Casos de Uso) y Arquetipo 3
-            REFERENCIA     → enriquece Arquetipo 2 §4 (Dependencias) o Arquetipo 5 (ADR)
+            NORMATIVA        → Arquetipo 8 + enriquece §2 (Reglas de Negocio) del Arquetipo 1
+            ESPECIFICACIÓN   → enriquece Arquetipo 1 §2+§3+§4 del proyecto principal
+            UI/PANTALLAS     → enriquece Arquetipo 1 §3 (Casos de Uso) y Arquetipo 3
+            REFERENCIA       → enriquece Arquetipo 2 §4 (Dependencias) o Arquetipo 5 (ADR)
+            CONTRATO         → enriquece Arquetipo 2 §1 (Arquitectura/interfaces) y §2 (Modelo de Datos/Contratos)
+            INFRAESTRUCTURA  → enriquece Arquetipo 2 §4 (Dependencias) y Arquetipo 6D §3 (vista despliegue)
 
 Fase 0 — Detección de normativa: si el origen referencia normativa de obligado cumplimiento,
          ofrecer Arquetipo 8 (normative_traceability.prompt.md). Si no hay, omitir.

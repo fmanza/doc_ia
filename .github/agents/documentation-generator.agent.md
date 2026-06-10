@@ -78,11 +78,13 @@ Ejecutar siempre antes de cualquier otra fase cuando se reciben múltiples oríg
 
 | Tipo | Señales en el sistema de ficheros |
 |------|----------------------------------|
-| `CÓDIGO` | Archivos fuente (`.py`, `.js`, `.ts`, `.cs`, `.java`, …), `pyproject.toml`, `package.json`, `pom.xml`, `Cargo.toml`, directorio `src/` o `tests/` presente |
-| `NORMATIVA` | PDFs/docs cuyo nombre o carpeta contenga: `ley`, `decreto`, `directiva`, `rgpd`, `une`, `iso`, `reglamento` |
-| `ESPECIFICACIÓN` | Word/PDF de requisitos, user stories, pliego, casos de uso; carpetas `specs/`, `requirements/`, `ux/` |
-| `UI/PANTALLAS` | Wireframes, mockups, capturas (`.png`, `.jpg`, `.pdf` de diseño); carpetas `mockups/`, `screens/`, `wireframes/` |
-| `REFERENCIA` | Manuales de terceros, RFCs, APIs externas, especificaciones de protocolo |
+| `CÓDIGO` | Archivos fuente (`.py`, `.js`, `.ts`, `.cs`, `.java`, `.go`, `.rs`, …), `pyproject.toml`, `package.json`, `pom.xml`, `Cargo.toml`, `go.mod`, directorio `src/` o `tests/` presente |
+| `NORMATIVA` | PDFs/docs cuyo nombre o carpeta contenga: `ley`, `decreto`, `directiva`, `rgpd`, `gdpr`, `une`, `iso`, `reglamento`, `compliance` |
+| `ESPECIFICACIÓN` | Word/PDF de requisitos, user stories, pliego, casos de uso; ficheros `.feature` (BDD/Gherkin); carpetas `specs/`, `requirements/`, `ux/`, `user-stories/` |
+| `UI/PANTALLAS` | Wireframes, mockups, capturas (`.png`, `.jpg`, `.pdf` de diseño); carpetas `mockups/`, `screens/`, `wireframes/`, `figma-exports/`, `designs/` |
+| `REFERENCIA` | Manuales de terceros, RFCs, APIs externas, especificaciones de protocolo **ajenas al proyecto** |
+| `CONTRATO` | Especificaciones machine-readable de las APIs/datos del **propio proyecto**: `.yaml`/`.json` con clave `openapi:` o `asyncapi:`; `.graphql`/`.gql`; `.proto`; `.avsc`; `.sql` DDL en `db/`/`migrations/`; `.dbml`; carpetas `api/`, `contracts/`, `schemas/`, `proto/`, `graphql/` |
+| `INFRAESTRUCTURA` | IaC y despliegue: `.tf` (Terraform); `Dockerfile`, `docker-compose.yml`; YAML en `k8s/`, `deploy/`, `manifests/`, `helm/`; playbooks Ansible en `roles/`/`ansible/`; CloudFormation en `cloudformation/` |
 
 #### Mapeo tipo MATERIAL → arquetipos
 
@@ -92,6 +94,8 @@ Ejecutar siempre antes de cualquier otra fase cuando se reciben múltiples oríg
 | `ESPECIFICACIÓN` | Arquetipo 1 del proyecto principal | §2 Reglas de Negocio, §3 Casos de Uso, §4 Criterios de Aceptación |
 | `UI/PANTALLAS` | Arquetipo 1 + Arquetipo 3 | §3 Casos de Uso (Arq. 1); §3 Pasos (Arq. 3) |
 | `REFERENCIA` | Arquetipo 2 o Arquetipo 5 | §4 Dependencias (Arq. 2); Decisión (Arq. 5) |
+| `CONTRATO` | Arquetipo 2 del proyecto principal | §1 Arquitectura (interfaces publicadas); §2 Modelo de Datos / Contratos |
+| `INFRAESTRUCTURA` | Arquetipos 2 + 6 del proyecto principal | Arq. 2 §4 Dependencias y Requisitos; Arq. 6D §3 (vista de despliegue) |
 
 #### Estrategia para múltiples orígenes CÓDIGO
 
