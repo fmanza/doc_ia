@@ -112,6 +112,7 @@ nav:
       - Errores y Diagnóstico:
           - Troubleshooting: guides/troubleshooting.md
       - Herramientas IA:
+          - Guía de Claude Code: guides/claude_code_guide.md
           - Guía de Codex (OpenAI): guides/codex_guide.md
 
   # ── Contexto del proyecto ──────────────────────────────────────────────────

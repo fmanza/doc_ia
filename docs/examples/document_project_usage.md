@@ -2,14 +2,19 @@
 
 ## 1. Contexto del Ejemplo
 
-Cuando tienes un proyecto Python existente sin documentación (o con documentación
-desactualizada), el comando `/document-project` cubre el ciclo completo desde el
-inventario hasta la publicación del sitio: detecta qué módulos necesitan documentación
-nueva, qué páginas están desactualizadas y cuáles siguen vigentes, y genera los
-documentos siguiendo los arquetipos formales sin sobrescribir lo que ya es correcto.
+Cuando tienes un proyecto existente sin documentación (o con documentación desactualizada),
+el comando `/document-project` cubre el ciclo completo desde el inventario hasta la
+publicación del sitio: detecta qué módulos necesitan documentación nueva, qué páginas
+están desactualizadas y cuáles siguen vigentes, y genera los documentos siguiendo los
+arquetipos formales sin sobrescribir lo que ya es correcto.
 
-Este ejemplo muestra dos escenarios: documentar un proyecto **desde cero** (estado A)
-y actualizar la documentación de un proyecto **parcialmente documentado** (estados A+B).
+También cubre el caso donde la fuente documental incluye material heterogéneo: un PDF
+de normativa, capturas de pantalla o especificaciones de requisitos. En ese escenario,
+el flujo clasifica cada origen antes de inventariar y usa el material no-CÓDIGO para
+enriquecer secciones concretas de la documentación del proyecto principal.
+
+Este ejemplo muestra cuatro escenarios: sin documentación previa, actualización parcial,
+verificación de build y orígenes heterogéneos.
 
 ## 2. Implementación de Referencia
 
@@ -50,6 +55,21 @@ Idioma:    es
 Flags:     --verify-build
 ```
 
+**Escenario 4 — Orígenes heterogéneos (proyecto + normativa + pantallas)**
+
+```
+/document-project
+
+Origen(es):
+  - c:\repos\mi_api                       (proyecto principal Python)
+  - c:\docs\normativa\ley_39.pdf          (ley de referencia)
+  - c:\docs\pantallas\mockups\            (capturas de pantalla del flujo)
+Destino:    c:\repos\mi_api\docs
+Generador:  mkdocs-material
+Idioma:     es
+Tipo de cada origen: mi_api=CÓDIGO, ley_39.pdf=NORMATIVA, mockups=UI/PANTALLAS
+```
+
 ## 3. Explicación del Código
 
 - Los cuatro parámetros (`Origen`, `Destino`, `Generador`, `Idioma`) son **obligatorios**.
@@ -58,10 +78,31 @@ Flags:     --verify-build
   Sin él, se inventarían todos los módulos detectados en `Origen`.
 - `--verify-build` ejecuta `python -m mkdocs build --strict` al final de la sesión y
   reporta errores de compilación (enlaces rotos, snippets faltantes, Mermaid inválido).
-- La generación ocurre **en el chat**, no en componentes programáticos: ningun paso
+- `Tipo de cada origen` activa la **Fase 0a** antes del inventario. Si se omite con
+  múltiples orígenes, el flujo autodetecta el tipo y pide confirmación antes de continuar.
+  Los orígenes de tipo MATERIAL (NORMATIVA, UI/PANTALLAS, etc.) nunca generan páginas
+  propias: enriquecen secciones del proyecto CÓDIGO principal.
+- `Estrategia` solo aplica con ≥2 orígenes de tipo CÓDIGO y nunca se autodetecta.
+- La generación ocurre **en el chat**, no en componentes programáticos: ningún paso
   llama a APIs de IA externas ni ejecuta Python para generar el texto de los documentos.
 
 ## 4. Ejecución y Pruebas
+
+**Escenario 4 — Fase CLASIFICACIÓN DE ORÍGENES** (solo con múltiples orígenes):
+
+```
+CLASIFICACIÓN DE ORÍGENES
+
+| Origen | Tipo detectado | Señales | Rol |
+|---|---|---|---|
+| c:\repos\mi_api | CÓDIGO | pyproject.toml, src/, tests/ presentes | Proyecto principal → arquetipos 1-7 |
+| ley_39.pdf | NORMATIVA | PDF con "ley" en el nombre | MATERIAL → enriquece §2 Arquetipo 1 y activa Arquetipo 8 |
+| mockups/ | UI/PANTALLAS | carpeta con capturas .png | MATERIAL → enriquece §3 Arquetipo 1 y Arquetipo 3 |
+
+¿Confirmas esta clasificación antes de continuar con el inventario?
+```
+
+---
 
 **Fase VALIDACIÓN** — el agente confirma los cuatro parámetros antes de continuar:
 
