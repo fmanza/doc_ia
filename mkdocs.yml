@@ -87,6 +87,10 @@ nav:
 
   # ── Audiencia: Desarrolladores, mantenedores del proyecto ──────────────────
   - Referencia Técnica:
+      - Flujos IA:
+          - document_project: api/document_project.md
+          - archetypes: api/archetypes.md
+          - bootstrap: api/bootstrap.md
       - Tooling Determinista:
           - check_env: api/check_env.md
           - build_docs_zip: api/build_docs_zip.md
@@ -95,6 +99,8 @@ nav:
   - Ejemplos:
       - Flujos IA:
           - Documentar un Proyecto: examples/document_project_usage.md
+          - Aplicar Arquetipos Individualmente: examples/archetypes_usage.md
+          - Bootstrap de Configuración IA: examples/bootstrap_usage.md
       - Tooling Determinista:
           - Verificar Entorno: examples/check_env_usage.md
           - Generar ZIP Offline: examples/build_docs_zip_offline.md
