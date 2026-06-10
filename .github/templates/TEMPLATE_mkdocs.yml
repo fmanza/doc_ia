@@ -1,0 +1,207 @@
+# PLANTILLA: mkdocs.yml — Configuración Estándar MkDocs Material
+# 
+# Uso: Copiar este archivo como mkdocs.yml en el destino y personalizar
+# los campos marcados con [REEMPLAZAR].
+#
+# Secciones:
+# - BASE: Configuración mínima del sitio [PERSONALIZAR POR PROYECTO]
+# - THEME: Tema Material completamente configurado [REUTILIZABLE]
+# - PLUGINS: Plugins estándar [REUTILIZABLE, AÑADIR ESPECÍFICOS DEL PROYECTO]
+# - MARKDOWN: Extensions para Mermaid, código, emojis [REUTILIZABLE]
+# - NAV: Estructura de navegación [PERSONALIZAR POR PROYECTO]
+# - EXTRAS: Assets, sociales, versionado [PERSONALIZAR Y/O REUTILIZAR]
+
+# ────────────────────────────────────────────────────────────────────────────
+# BASE: Configuración del Sitio [PERSONALIZAR]
+# ────────────────────────────────────────────────────────────────────────────
+
+site_name: "[REEMPLAZAR: Nombre del proyecto]"
+site_description: "[REEMPLAZAR: Descripción breve del proyecto]"
+site_author: "[REEMPLAZAR: Autor/organización]"
+site_url: https://[REEMPLAZAR: user].github.io/[REEMPLAZAR: repo]/
+repo_url: https://github.com/[REEMPLAZAR: user]/[REEMPLAZAR: repo]
+repo_name: "[REEMPLAZAR: user]/[REEMPLAZAR: repo]"
+
+docs_dir: docs
+site_dir: site
+use_directory_urls: true
+
+# ────────────────────────────────────────────────────────────────────────────
+# THEME: Material for MkDocs [REUTILIZABLE]
+# ────────────────────────────────────────────────────────────────────────────
+
+theme:
+  name: material
+  language: es
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo                    # [OPCIONAL: personalizar color primario]
+      accent: blue                       # [OPCIONAL: personalizar color acento]
+      toggle:
+        icon: material/brightness-7
+        name: Cambiar a modo oscuro
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: blue
+      toggle:
+        icon: material/brightness-4
+        name: Cambiar a modo claro
+  features:
+    # Navegación
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - toc.follow
+    # Búsqueda
+    - search.suggest
+    - search.highlight
+    # Código y contenido
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  icon:
+    repo: fontawesome/brands/github
+
+# ────────────────────────────────────────────────────────────────────────────
+# PLUGINS: Búsqueda y Autodoc [REUTILIZABLE + ESPECÍFICOS]
+# ────────────────────────────────────────────────────────────────────────────
+
+plugins:
+  - search:
+      lang: es
+
+# [OPCIONAL] Descomentar si el proyecto tiene código Python a documentar
+# - mkdocstrings:
+#     handlers:
+#       python:
+#         paths: [src]
+#         options:
+#           docstring_style: google
+#           show_source: true
+#           show_root_heading: true
+#           show_root_full_path: false
+#           show_symbol_type_heading: true
+#           show_symbol_type_toc: true
+#           merge_init_into_class: true
+#           members_order: source
+#           filters: ["!^_"]
+
+# ────────────────────────────────────────────────────────────────────────────
+# MARKDOWN EXTENSIONS: Mermaid, Snippets, Emojis, etc. [REUTILIZABLE]
+# ────────────────────────────────────────────────────────────────────────────
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      base_path: [docs]
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - tables
+  - toc:
+      permalink: true
+  - attr_list
+  - md_in_html
+
+# ────────────────────────────────────────────────────────────────────────────
+# HOOKS: Sincronización automática [REUTILIZABLE]
+# ────────────────────────────────────────────────────────────────────────────
+
+# [OPCIONAL] Descomentar si el proyecto tiene un hook para sincronizar docs raíz
+# hooks:
+#   - hooks/sync_root_docs.py
+
+# ────────────────────────────────────────────────────────────────────────────
+# NAV: Estructura de Navegación [PERSONALIZAR POR PROYECTO]
+# ────────────────────────────────────────────────────────────────────────────
+
+nav:
+  - Inicio: index.md
+  # [REEMPLAZAR: Añadir secciones según el proyecto]
+  # Ejemplo:
+  # - Guía:
+  #     - Instalación: guides/installation.md
+  #     - Quick Start: guides/quickstart.md
+  # - API:
+  #     - Referencia: api/reference.md
+
+# ────────────────────────────────────────────────────────────────────────────
+# EXTRAS: Assets Personalizados, Sociales, Versionado [REUTILIZABLE]
+# ────────────────────────────────────────────────────────────────────────────
+
+extra:
+  # [OPCIONAL] Descomentar para versionado multi-versión (requiere: pip install mike)
+  # version:
+  #   provider: mike
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/[REEMPLAZAR: user]/[REEMPLAZAR: repo]
+    # [OPCIONAL] Añadir más redes sociales si aplica
+    # - icon: fontawesome/brands/twitter
+    #   link: https://twitter.com/[REEMPLAZAR: usuario]
+
+# ────────────────────────────────────────────────────────────────────────────
+# JAVASCRIPT PERSONALIZADO: Mermaid, Sidebar Toggle, etc. [REUTILIZABLE]
+# ────────────────────────────────────────────────────────────────────────────
+
+extra_javascript:
+  - https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js
+  - assets/js/mermaid.js
+  - assets/js/sidebar-toggle.js      # Botón para colapsar/expandir sidebar
+
+# ────────────────────────────────────────────────────────────────────────────
+# CSS PERSONALIZADO: Estilos de Navegación, Mermaid, etc. [REUTILIZABLE]
+# ────────────────────────────────────────────────────────────────────────────
+
+extra_css:
+  - assets/css/mermaid.css           # Estilos para diagramas Mermaid
+  - assets/css/nav.css               # Estilos personalizados de navegación
+
+# ────────────────────────────────────────────────────────────────────────────
+# NOTAS DE IMPLEMENTACIÓN
+# ────────────────────────────────────────────────────────────────────────────
+#
+# 1. CAMPOS A PERSONALIZAR:
+#    - site_name, site_description, site_author, site_url, repo_url
+#    - primary, accent (colores del tema)
+#    - nav (estructura de navegación del proyecto)
+#
+# 2. PLUGINS ESPECÍFICOS DEL PROYECTO:
+#    - Descomentar mkdocstrings si tienes código Python a documentar
+#    - Añadir otros plugins específicos (ej: minify, redirects, etc.)
+#
+# 3. ASSETS PERSONALIZADOS:
+#    - Verificar que docs/assets/js/sidebar-toggle.js existe
+#    - Verificar que docs/assets/css/nav.css existe
+#    - Copiar desde origen si es proyecto hermano: cp -r {origen}/docs/assets/* docs/assets/
+#
+# 4. HOOKS:
+#    - Descomentar si el proyecto tiene hooks/sync_root_docs.py
+#    - Copiar desde origen: cp {origen}/hooks/sync_root_docs.py hooks/
+#
+# 5. VERSIONADO:
+#    - Descomentar extra.version si usas versionado multi-versión (mike)
+#    - Requiere: pip install mike
+#    - Uso: mike deploy {version} --push
+#
+# 6. VALIDACIÓN:
+#    - python -m mkdocs build --strict
+#    - python -m mkdocs serve (para inspeccionar localmente)
+#

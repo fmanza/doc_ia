@@ -96,4 +96,4 @@ Solo los mantenedores del proyecto tienen permisos de release. El proceso:
 3. Crear tag `vX.Y.Z` en `main`; el workflow `docs-zip-release.yml` publica automáticamente
    el ZIP de documentación offline.
 
-Historial de cambios: [CHANGELOG.md](CHANGELOG.md).
+Historial de cambios: [CHANGELOG.md](changelog.md).

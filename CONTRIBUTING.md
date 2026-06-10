@@ -83,7 +83,82 @@ python -m mkdocs build --strict      # Build de docs (si hay cambios en docs/)
 
 Un PR que falle en cualquiera de estos comandos no será mergeado.
 
-## 6. Proceso de Release y Versionado
+## 6. Sincronización Visual de mkdocs.yml (para Nuevos Proyectos)
+
+### Contexto
+
+El comando `/document-project` documenta proyectos mediante **arquetipos formales** organizados en `docs/`. 
+Usa **MkDocs Material** como generador estándar. Sin embargo, la configuración visual (`mkdocs.yml`) 
+debe estar **correctamente sincronizada** entre origen y destino para que theme, plugins, extensions 
+y assets personalizados funcionen.
+
+### Plantilla Reutilizable
+
+En lugar de escribir `mkdocs.yml` desde cero, usa la plantilla estándar:
+
+```bash
+# Copiar plantilla como base (personalizar después)
+cp .github/templates/TEMPLATE_mkdocs.yml <destino>/mkdocs.yml
+```
+
+**Ubicación**: [`.github/templates/TEMPLATE_mkdocs.yml`](./.github/templates/TEMPLATE_mkdocs.yml)
+
+**Estructura de la plantilla**:
+- **BASE**: Configuración del sitio (site_name, repo_url, etc.) — [PERSONALIZAR]
+- **THEME**: Material completamente configurado (features, colores) — [REUTILIZABLE]
+- **PLUGINS**: Búsqueda + autodoc Python opcional — [REUTILIZABLE + ESPECÍFICOS]
+- **MARKDOWN**: Extensions para Mermaid, snippets, emojis — [REUTILIZABLE]
+- **NAV**: Estructura de navegación — [PERSONALIZAR]
+- **EXTRAS**: Assets personalizados (sidebar-toggle.js, nav.css) — [REUTILIZABLE]
+
+### Checklist de Sincronización Visual
+
+Cuando documentes un nuevo proyecto con `/document-project`, verifica:
+
+- [ ] **mkdocs.yml existe**: Si no, copiar desde `.github/templates/TEMPLATE_mkdocs.yml`
+- [ ] **extra_javascript**: Incluye `https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js`
+- [ ] **extra_javascript**: Incluye `assets/js/mermaid.js`
+- [ ] **extra_javascript**: Incluye `assets/js/sidebar-toggle.js`
+- [ ] **extra_css**: Incluye `assets/css/mermaid.css`
+- [ ] **extra_css**: Incluye `assets/css/nav.css`
+- [ ] **Archivos existen**: Verificar que los 2 archivos personalizados existen en `docs/assets/`:
+  ```bash
+  ls docs/assets/js/sidebar-toggle.js
+  ls docs/assets/css/nav.css
+  ```
+- [ ] **Build válido**: `python -m mkdocs build --strict` sin warnings
+- [ ] **Navegación funcional**: Verificar que sidebar toggle y estilos de nav funcionan
+
+### Si Faltan Assets Personalizados
+
+Si los archivos `sidebar-toggle.js` y `nav.css` no existen:
+
+```bash
+# Opción 1: Copiar desde proyecto hermano (si aplica)
+cp -r <origen>/docs/assets/* <destino>/docs/assets/
+
+# Opción 2: Crear vacíos (fallback)
+mkdir -p docs/assets/{js,css}
+touch docs/assets/js/sidebar-toggle.js
+touch docs/assets/css/nav.css
+```
+
+Luego, sincronizar las referencias en `mkdocs.yml`:
+```yaml
+extra_javascript:
+  - assets/js/sidebar-toggle.js
+extra_css:
+  - assets/css/nav.css
+```
+
+### Referencias
+
+- **Comando**: `/document-project` — orquesta generación de documentación con Fase 0b (sincronización visual)
+- **Especificación**: `.claude/commands/document-project.md` — sección "Sincronización de Configuración Visual"
+- **Análisis de caso**: `ANALYSIS_document-project-visual-sync.md` — validación y mejoras implementadas
+- **Arquetipos formales**: `.github/DOCUMENTATION_STANDARD.md` — estructura de cada tipo de documentación
+
+## 7. Proceso de Release y Versionado
 
 Este proyecto sigue [Semantic Versioning](https://semver.org/):
 - `MAJOR`: cambio incompatible en la API de los arquetipos o en los contratos de los scripts.

@@ -48,6 +48,41 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 **Recomendado**:
 - Iterar módulo a módulo dentro de cada fase; nunca un único prompt masivo
 - Cerrar con `python -m mkdocs build --strict` (o `--verify-build`) antes de publicar
+- En Fase 0b, ejecutar validación de assets personalizados (ver sección "Sincronización de Configuración Visual")
+
+## Sincronización de Configuración Visual (Fase 0b)
+
+**Cuándo aplica**: Si el destino tiene `mkdocs.yml` pero hereda de un generador estándar (ej. `util` heredó `mkdocs.yml` base).
+
+**Qué sincronizar** (universal, aplicable a todos los proyectos MkDocs):
+- `theme.features` — Navegación, accesibilidad, búsqueda
+- `markdown_extensions` críticas — `pymdownx.snippets` (para `--8<--`), `pymdownx.superfences` (Mermaid), `pymdownx.emoji`
+- `extra_javascript` y `extra_css` — Assets personalizados (ej. `sidebar-toggle.js`, `nav.css`)
+- `extra.social` — Enlaces de redes sociales (si aplica)
+
+**Qué NO sincronizar** (específico del proyecto, nunca copiar ciegamente):
+- `plugins` — Solo sincronizar si el destino lo necesita (ej: `mkdocstrings` es para proyectos con código; no para doc_ia)
+- `site_name`, `site_description`, `site_author`, `site_url`, `repo_url` — Específicos del proyecto
+- `site_dir`, `docs_dir` — Usar defaults o configuración destino
+
+**Proceso**:
+1. Si destino NO tiene `mkdocs.yml` → copiar completo de origen
+2. Si destino tiene `mkdocs.yml` incompleto → sincronizar secciones "universal" del origen
+3. Si destino tiene `mkdocs.yml` personalizado → verificar assets personalizados existen en disco
+
+**Validación de Assets**:
+```bash
+# Verificar que los archivos referenciados en extra_javascript y extra_css existen
+ls {destino}/docs/assets/js/*.js
+ls {destino}/docs/assets/css/*.css
+
+# Si faltan, copiar desde origen (si es proyecto hermano) o crear vacíos
+cp -r {origen}/docs/assets/* {destino}/docs/assets/
+```
+
+**Commit de referencia**: En doc_ia → origin, origen de la configuración visual
+
+---
 
 ## Devuelve en este orden
 
@@ -168,6 +203,7 @@ Normativa de referencia: no detectada → Arquetipo 8 omitido.
 ## Qué hacer si falla
 
 - **"Origen no legible o fuera del workspace"** → pedir al usuario que añada el directorio como working dir adicional o confirme la ruta
+- **"mkdocs build advierte sobre assets CSS/JS no encontrados"** → Verificar que `extra_javascript` y `extra_css` en `mkdocs.yml` referencian archivos existentes en `docs/assets/`. Si faltan, sincronizarlos desde origen o crearlos vacíos.
 - **"mkdocs build --strict falla tras SYNC NAV"** → ver `.claude/TESTING_GUIDE.md`; revisar páginas huérfanas o rotas en `nav:`
 - **"Contexto perdido entre fases"** → ver `.claude/EDGE_CASES.md`; retomar desde el RESUMEN parcial de la última fase completada
 - **"El usuario pide generar vía API externa"** → rechazar: principio innegociable (SHARED_INSTRUCTIONS § Principios)
