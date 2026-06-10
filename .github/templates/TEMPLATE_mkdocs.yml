@@ -52,7 +52,9 @@ theme:
     # Navegación
     - navigation.tabs
     - navigation.tabs.sticky
-    - navigation.sections
+    # ⚠️ navigation.sections es INCOMPATIBLE con nav.css (desactiva .md-nav__item--nested).
+    # Actívalo SOLO si no usas nav.css. Con nav.css presente: los grupos son colapsables.
+    # - navigation.sections
     - navigation.top
     - navigation.footer
     - toc.follow

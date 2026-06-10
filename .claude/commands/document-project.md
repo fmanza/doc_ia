@@ -55,10 +55,25 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 **Cuándo aplica**: Si el destino tiene `mkdocs.yml` pero hereda de un generador estándar (ej. `util` heredó `mkdocs.yml` base).
 
 **Qué sincronizar** (universal, aplicable a todos los proyectos MkDocs):
-- `theme.features` — Navegación, accesibilidad, búsqueda
+- `theme.features` — Ver tabla de compatibilidad más abajo; algunas requieren decisión
 - `markdown_extensions` críticas — `pymdownx.snippets` (para `--8<--`), `pymdownx.superfences` (Mermaid), `pymdownx.emoji`
 - `extra_javascript` y `extra_css` — Assets personalizados (ej. `sidebar-toggle.js`, `nav.css`)
 - `extra.social` — Enlaces de redes sociales (si aplica)
+
+**Tabla de `theme.features` — copiables vs decisión**:
+
+| Feature | Acción | Razón |
+|---|---|---|
+| `navigation.tabs`, `navigation.tabs.sticky` | ✅ Copiar | Universal |
+| `navigation.top`, `navigation.footer` | ✅ Copiar | Universal |
+| `search.suggest`, `search.highlight` | ✅ Copiar | Universal |
+| `content.code.copy`, `content.code.annotate`, `content.tabs.link` | ✅ Copiar | Universal |
+| `toc.follow` | ✅ Copiar | Universal |
+| **`navigation.sections`** | ⚠️ **NO copiar si `nav.css` presente** | Activa grupos estáticos: desactiva `.md-nav__item--nested` → sidebar sin colapso |
+| `navigation.expand` | ⚠️ Decisión | Expande todo por defecto; puede no ser deseado |
+| `navigation.prune` | ⚠️ Decisión | Solo recomendado en navs muy grandes |
+
+**Regla crítica**: Si `nav.css` está en `extra_css` → `navigation.sections` debe estar **ausente** de `theme.features`.
 
 **Qué NO sincronizar** (específico del proyecto, nunca copiar ciegamente):
 - `plugins` — Solo sincronizar si el destino lo necesita (ej: `mkdocstrings` es para proyectos con código; no para doc_ia)
