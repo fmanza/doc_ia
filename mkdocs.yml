@@ -93,6 +93,8 @@ nav:
 
   # ── Ejemplos de código ─────────────────────────────────────────────────────
   - Ejemplos:
+      - Flujos IA:
+          - Documentar un Proyecto: examples/document_project_usage.md
       - Tooling Determinista:
           - Verificar Entorno: examples/check_env_usage.md
           - Generar ZIP Offline: examples/build_docs_zip_offline.md

@@ -1,0 +1,17 @@
+docs(examples): ejemplo de uso de /document-project — 3 escenarios + nav sync
+
+docs/examples/document_project_usage.md (NUEVO — Arquetipo 4):
+- Escenario 1: proyecto sin documentación previa (estado A puro)
+- Escenario 2: actualización parcial con --alcance restringido
+- Escenario 3: flujo completo con --verify-build al final
+- Output esperado de las 6 fases: VALIDACIÓN → INVENTARIO → PLAN_DOC →
+  GENERACIÓN → SYNC NAV → RESUMEN
+- §5 con enlace bidireccional a functional/document_project.md y functional/archetypes.md
+
+mkdocs.yml:
+- Nueva subsección "Flujos IA" bajo "Ejemplos" (antes de "Tooling Determinista")
+  · Documentar un Proyecto → examples/document_project_usage.md
+
+Build: python -m mkdocs build --strict sin errores (0.45s)
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
