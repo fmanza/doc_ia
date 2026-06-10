@@ -1,11 +1,11 @@
-# Prompt: tech_debt pPython library)
+# Prompt: tech_debt (Python library)
 
 ## Inputs requeridos
 Antes de ejecutar, confirma que dispones de:
-- **Módulo/paquete objetivo** pp.ej. `scripts/metadata/mariadb/`)
-- **Deuda conocida o síntomas** pp.ej. "hay `Any` sueltos", "duplicación sync/async")
+- **Módulo/paquete objetivo** (p.ej. `scripts/metadata/mariadb/`)
+- **Deuda conocida o síntomas** (p.ej. "hay `Any` sueltos", "duplicación sync/async")
 - **Versión actual** y rama activa
-- **Restricciones de scope**: ¿solo análisis pPLAN+AUDIT_CODE) o también IMPLEMENT?
+- **Restricciones de scope**: ¿solo análisis (PLAN+AUDIT_CODE) o también IMPLEMENT?
 - **Política de compatibilidad**: ¿se autoriza romper contratos públicos?
 
 Si falta alguno, decláralos como supuesto explícito antes de continuar.
@@ -14,16 +14,16 @@ Si falta alguno, decláralos como supuesto explícito antes de continuar.
 1. PLAN
 2. AUDIT_PLAN
 3. AUDIT_CODE
-4. VERSION psolo si IMPLEMENT fue autorizado)
+4. VERSION (solo si IMPLEMENT fue autorizado)
 
 ## Salida — AUDIT_CODE de deuda técnica
-- deuda detectada por módulo parchivo concreto + línea si aplica)
-- impacto real ptipado, mantenibilidad, tests, rendimiento, seguridad)
+- deuda detectada por módulo (archivo concreto + línea si aplica)
+- impacto real (tipado, mantenibilidad, tests, rendimiento, seguridad)
 - prioridad clasificada:
   - `quick_win` — < 1h, sin riesgo de regresión
   - `fase_media` — cambio acotado, test requerido, posible breaking change
   - `deuda_estructural` — refactor amplio, decisión de arquitectura
-- quick wins listos para implementar pcon estrategia de prueba mínima)
+- quick wins listos para implementar (con estrategia de prueba mínima)
 - plan por fases con orden de dependencias
 - riesgos si no se aborda
 
@@ -36,7 +36,7 @@ Si falta alguno, decláralos como supuesto explícito antes de continuar.
 
 ## Reglas
 - Emitir veredicto final: `LIMPIO | DEUDA_MENOR | DEUDA_SIGNIFICATIVA | CRÍTICO`.
-- Señalar evidencias concretas parchivo, función, línea).
+- Señalar evidencias concretas (archivo, función, línea).
 - Diferenciar hallazgos confirmados de hipótesis.
 - No mezclar deuda técnica con nuevas features en el mismo PLAN.
-- Si la deuda implica un patrón arquitectónico, referenciar el patrón correcto pSOLID, GoF).
+- Si la deuda implica un patrón arquitectónico, referenciar el patrón correcto (SOLID, GoF).

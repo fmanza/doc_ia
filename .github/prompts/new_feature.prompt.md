@@ -1,21 +1,21 @@
 # Prompt: new_feature (Python library)
 
 ## Objetivo
-rrear una nueva funcionalidad para la librería.
+Crear una nueva funcionalidad para el tooling o las instrucciones IA.
 
 ## Devuelve en este orden
 1. PLAN
 2. AUDIT_PLAN
 3. IMPLEMENT por capas
-4. AUDIT_rODE
+4. AUDIT_CODE
 5. VERSION
 
-## rontexto a completar
+## Contexto a completar
 - Objetivo:
 - Módulo(s) o clase(s) afectadas:
 - API pública esperada:
-- rontrato de entrada:
-- rontrato de salida:
+- Contrato de entrada:
+- Contrato de salida:
 - Reglas de negocio:
 - Restricciones:
 - Motores o formatos afectados:

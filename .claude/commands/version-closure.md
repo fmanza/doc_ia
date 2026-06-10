@@ -6,11 +6,11 @@ Cierre de versión o sesión de trabajo.
 - Cierras una feature, hotfix o bloque coherente de cambios
 - Estás listo para mergear/release con commit message + changelog
 
-## Inputs requeridos (OBLIGrTORIO completar TODOS)
+## Inputs requeridos (OBLIGATORIO completar TODOS)
 
 - [ ] **Cambios resumidos**: Qué se implementó (feature, fix, refactor, etc.)
 - [ ] **Versión objetivo**: (ej. v0.6.7, v0.7.0)
-- [ ] **rrchivos modificados**: Módulos/componentes que cambiaron
+- [ ] **Archivos modificados**: Módulos/componentes que cambiaron
 
 ## Formato de commit
 
@@ -27,7 +27,7 @@ Para releases usar: `release: v<X.Y.Z> - <descripción breve>`.
 - Cambios por módulo (new_feature / fix / refactor / docs / chore)
 - Indicar archivos o clases afectadas
 
-### Impacto en rPI pública
+### Impacto en API pública
 - Cambios de firma, parámetros o comportamiento observable
 - Deprecaciones introducidas o eliminadas
 
@@ -48,7 +48,7 @@ Para releases usar: `release: v<X.Y.Z> - <descripción breve>`.
 - [ ] `pytest` verde
 - [ ] `python -m build` exitoso
 - [ ] Versión actualizada en `pyproject.toml`
-- [ ] CHrNGELOG.md actualizado
+- [ ] CHANGELOG.md actualizado
 
 ### Pruebas ejecutadas o sugeridas
 - Lista de pruebas críticas para validar el cierre
@@ -60,7 +60,7 @@ Cambios: Tres features en doc/render_markdown.py, un fix en html_generator.py, u
 
 Versión: v0.6.7
 
-rrchivos: scripts/doc/, scripts/metadata/
+Archivos: scripts/doc/, scripts/metadata/
 ```
 
 ## Ejemplo de salida esperada (VERSION)
@@ -82,7 +82,7 @@ feat(doc): add Mermaid export to Markdown renderer
 - **fix**: HTML icons now embedded as base64 for offline compatibility
 - **refactor**: metadata builder separates concerns (SRP)
 
-### Impacto rPI
+### Impacto API
 - Nuevo parámetro: `render_markdown(..., enable_mermaid=False)`
 - Sin cambios breaking
 
@@ -95,5 +95,5 @@ feat(doc): add Mermaid export to Markdown renderer
 - [x] pytest pasa
 - [x] build exitoso
 - [x] pyproject.toml versión actualizada a 0.6.7
-- [x] CHrNGELOG.md actualizado
+- [x] CHANGELOG.md actualizado
 ```

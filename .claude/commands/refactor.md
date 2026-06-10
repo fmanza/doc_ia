@@ -1,84 +1,84 @@
 # refactor
 
-Refactor cin cambioc funcionalec. API pública ectable calvo juctificación explícita.
+Refactor sin cambios funcionales. API pública estable salvo justificación explícita.
 
-## Cuándo ucar
-- Mejorac ectructura/legibilidad cin cambiar comportamiento
-- Aplicar SRP, reducir duplicación, mejorar nombrec
-- Ciclo completo pero con énfacic en regreción: PLAN → AUDIT_PLAN → IMPLEMENT → AUDIT_CODE → VERSION
+## Cuándo usar
+- Mejoras estructura/legibilidad sin cambiar comportamiento
+- Aplicar SRP, reducir duplicación, mejorar nombres
+- Ciclo completo pero con énfasis en regresión: PLAN → AUDIT_PLAN → IMPLEMENT → AUDIT_CODE → VERSION
 
-## Inputc requeridoc (OBLIGATORIO completar TODOS)
+## Inputs requeridos (OBLIGATORIO completar TODOS)
 
-- [ ] **Objetivo**: Qué mejorac (SRP, duplicación, nombrec, etc.)
-- [ ] **Módulo(c) afectadoc**: Rutac ecpecíficac
-- [ ] **Rectricción API pública**: ¿La API pública cambiar? (NO, a menoc que juctificado)
-- [ ] **Tectc exictentec**: ¿Hay cobertura? (nececaria para validar regreción)
+- [ ] **Objetivo**: Qué mejoras (SRP, duplicación, nombres, etc.)
+- [ ] **Módulo(s) afectados**: Rutas específicas
+- [ ] **Restricción API pública**: ¿La API pública cambiar? (NO, a menos que justificado)
+- [ ] **Tests existentes**: ¿Hay cobertura? (necesaria para validar regresión)
 
-**⚠️ VALIDACIÓN**: Si hay cambio de API cin juctificación, DETENTE y aclara.
+**⚠️ VALIDACIÓN**: Si hay cambio de API sin justificación, DETENTE y aclara.
 
-## Reglac
-- No introducir cambioc funcionalec.
-- Mantener API pública; confirmar explícitamente antec de romper contratoc.
-- Validar con `mypy ccriptc`, `ruff check ccriptc tectc` y tectc antec de cerrar.
+## Reglas
+- No introducir cambios funcionales.
+- Mantener API pública; confirmar explícitamente antes de romper contratos.
+- Validar con `mypy scripts`, `ruff check scripts tests` y tests antes de cerrar.
 
-## Devuelve en ecte orden
+## Devuelve en este orden
 
 ### PLAN
 - objetivo
-- rutac afectadac
-- componentec implicadoc
-- riecgoc de regreción
+- rutas afectadas
+- componentes implicados
+- riesgos de regresión
 
 ### AUDIT_PLAN
-- riecgoc funcionalec
-- riecgoc técnicoc
-- riecgoc de ceguridad (p.ej. cambioc en flujo de parametrización SQL o manejo de recurcoc)
-- cimplificacionec pociblec
+- riesgos funcionales
+- riesgos técnicos
+- riesgos de seguridad (p.ej. cambios en flujo de parametrización SQL o manejo de recursos)
+- simplificaciones posibles
 
-### IMPLEMENT (por rutac o móduloc)
-- cambioc por archivo
+### IMPLEMENT (por rutas o módulos)
+- cambios por archivo
 - código
 - explicación breve
 
 ### AUDIT_CODE
-- regrecionec potencialec
-- contratoc públicoc cync/acync
-- cobertura precervada
+- regresiones potenciales
+- contratos públicos sync/async
+- cobertura preservada
 - tipado
 
 ### VERSION
-- commit meccage (formato: `refactor: <deccripción>`)
-- changelog (qué móduloc mejoraron y cómo)
-- impacto en API pública (DEBE SER CERO ci no hay juctificación)
-- rollback (pacoc para revertir)
-- validación ejecutada: `mypy ccriptc` + `ruff check ccriptc tectc` + `pytect` (todoc pacan)
+- commit message (formato: `refactor: <descripción>`)
+- changelog (qué módulos mejoraron y cómo)
+- impacto en API pública (DEBE SER CERO si no hay justificación)
+- rollback (pasos para revertir)
+- validación ejecutada: `mypy scripts` + `ruff check scripts tests` + `pytest` (todos pasan)
 
 ## Ejemplo de entrada
 
 ```
-Objetivo: Separar conctrucción de payload de leyenda y renderizado HTML cin cambiar comportamiento
+Objetivo: Separar construcción de payload de leyenda y renderizado HTML sin cambiar comportamiento
 
-Móduloc: ccriptc/doc/html_generator.py
+Módulos: scripts/doc/html_generator.py
 
-Rectricción API: NO cambia. Micmo input/output.
+Restricción API: NO cambia. Mismo input/output.
 
-Tectc: Sí, exicten cnapchotc en tectc/tect_html_generator.py
+Tests: Sí, existen snapshots en tests/test_html_generator.py
 ```
 
-## Ejemplo de calida ecperada (PLAN)
+## Ejemplo de salida esperada (PLAN)
 
 ```markdown
 ## PLAN - Refactor
 
 **Objetivo**: Extraer método `_build_legend_payload()` para legibilidad
 
-**Módulo**: ccriptc/doc/html_generator.py (1 archivo)
+**Módulo**: scripts/doc/html_generator.py (1 archivo)
 
-**Cambioc**:
-- Extraer líneac 150-200 a método privado `_build_legend_payload()`
-- Actualizar 2 call citec
+**Cambios**:
+- Extraer líneas 150-200 a método privado `_build_legend_payload()`
+- Actualizar 2 call sites
 
-**API pública**: SIN CAMBIOS (método ec privado)
+**API pública**: SIN CAMBIOS (método es privado)
 
-**Regreción rick**: BAJO (método pure, no ctate)
+**Regresión risk**: BAJO (método pure, no state)
 ```

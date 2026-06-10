@@ -32,7 +32,7 @@ Auditoría de seguridad independiente. Hallazgos verificables, ordenados por sev
 ## Ejemplo de entrada
 
 ```
-rreas: scripts/doc/, scripts/analysis/
+Áreas: scripts/doc/, scripts/analysis/
 
 Revisar: Fuga de secretos, SQL injection, exposición de datos sensibles
 ```

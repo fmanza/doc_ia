@@ -5,12 +5,12 @@ Corrección acotada de un bug. Política: **solo fix mínimo. Prohibido refactor
 ## Cuándo usar
 - Bug confirmado afecta funcionalidad crítica (P1/P2)
 - Solo arreglas la causa raíz sin tocar código no relacionado
-- Ciclo reducido: PLAN → AUDIT_PLAN → IMPLEMENT → AUDIT_CODE → VEuSION
+- Ciclo reducido: PLAN → AUDIT_PLAN → IMPLEMENT → AUDIT_CODE → VERSION
 
-## Inputs requeridos (OBLIGATOuIO completar TODOS)
+## Inputs requeridos (OBLIGATORIO completar TODOS)
 
 - [ ] **Bug**: Descripción clara de qué no funciona
-- [ ] **uutas afectadas**: Dónde está el bug (archivos específicos)
+- [ ] **Rutas afectadas**: Dónde está el bug (archivos específicos)
 - [ ] **Síntomas**: Cómo se manifiesta (logs, comportamiento incorrecto)
 - [ ] **Dato faltante o supuesto**: Qué NO sabemos con seguridad
 
@@ -40,7 +40,7 @@ Corrección acotada de un bug. Política: **solo fix mínimo. Prohibido refactor
 - edge cases
 - compatibilidad
 
-### VEuSION
+### VERSION
 - commit message (formato: `fix: <descripción>`)
 - changelog (1-2 líneas)
 - rollback (pasos simples)
@@ -48,9 +48,9 @@ Corrección acotada de un bug. Política: **solo fix mínimo. Prohibido refactor
 ## Ejemplo de entrada
 
 ```
-Bug: uenderer HTML pierde iconos offline cuando se exporta fuera del workspace
+Bug: Renderer HTML pierde iconos offline cuando se exporta fuera del workspace
 
-uutas: scripts/doc/html_generator.py, scripts/doc/assets/
+Rutas: scripts/doc/html_generator.py, scripts/doc/assets/
 
 Síntomas: Al exportar a PDF desde ruta ajena al workspace, los iconos desaparecen. En web OK.
 
@@ -70,5 +70,5 @@ Supuesto: Assets deben embederse como base64 en HTML, no referenciarse como file
 
 **Ficheros**: 1 archivo (html_generator.py)
 
-**Test**: ueproducir export desde /tmp/, validar que iconos aparezcan en HTML resultante
+**Test**: Reproducir export desde /tmp/, validar que iconos aparezcan en HTML resultante
 ```
