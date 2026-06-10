@@ -20,13 +20,14 @@ y abrir en cualquier navegador sin conexión a Internet.
 
 ## 🔗 Descarga Actual
 
-Las versiones publicadas están disponibles en **GitHub Releases** del repositorio
-(tags `docs-vX.Y.Z`), cada una con el ZIP y su checksum adjuntos.
+| Versión | Tamaño | Checksum | Fecha |
+|---|---|---|---|
+| [doc_ia-docs-0.1.0.zip](https://github.com/fmanza/doc_ia/releases/tag/docs-v0.1.0) | ~0.6 MB | [.sha256](https://github.com/fmanza/doc_ia/releases/tag/docs-v0.1.0) | 2026-06-10 |
 
 **Cómo usar**
 
-1. Descarga el ZIP y su `.sha256` desde la release
-2. Extrae los archivos: `unzip doc_ia-docs-X.Y.Z.zip`
+1. Descarga el ZIP y su `.sha256` desde el link superior
+2. Extrae los archivos: `unzip doc_ia-docs-0.1.0.zip`
 3. Abre `index.html` en tu navegador
 
 > **Nota sobre la búsqueda offline**: los navegadores no permiten ejecutar Web Workers desde

@@ -27,7 +27,27 @@
       "Bash(python hooks/sync_root_docs.py)",
       "Bash(python -m ruff check scripts tests hooks --quiet)",
       "Bash(python -m mypy scripts --no-error-summary)",
-      "Bash(git checkout *)"
+      "Bash(git checkout *)",
+      "Bash(mkdir -p C:/Desarrollo/python/libs/util_bbdd/docs/ai-config)",
+      "Bash(python -c \"import mkdocs_documentation_zip_plugin\")",
+      "Bash(pip show *)",
+      "Bash(python -c \"from util_bbdd.docs_build_plugin import DocumentationZipPlugin; print\\('OK'\\)\")",
+      "Bash(python -m pip install -e .)",
+      "Bash(python -c \"import mkdocstrings\")",
+      "Bash(python -m pip show mkdocs)",
+      "Bash(./venv/Scripts/python -m mkdocs build --strict)",
+      "Bash(python -c \"import tomllib; f=open\\('pyproject.toml','rb'\\); d=tomllib.load\\(f\\); print\\(d['project']['version']\\)\")",
+      "PowerShell($f = \"C:\\\\Desarrollo\\\\python\\\\libs\\\\doc_ia\\\\dist\\\\doc_ia-docs-0.1.0.zip\"; $size = \\(Get-Item $f\\).Length; \"$\\([math]::Round\\($size/1MB, 1\\)\\) MB\")",
+      "PowerShell(\\(Get-Item \"C:\\\\Desarrollo\\\\python\\\\libs\\\\doc_ia\\\\dist\\\\doc_ia-docs-0.1.0.zip\"\\).LastWriteTime.ToString\\(\"yyyy-MM-dd\"\\))",
+      "Bash(git remote *)",
+      "PowerShell(New-Item -ItemType Directory -Path \"C:\\\\Desarrollo\\\\python\\\\libs\\\\doc_ia\\\\.ai\\\\sessions\\\\2026-06-11b_downloads_table_update\" -Force)"
+    ],
+    "additionalDirectories": [
+      "c:\\Desarrollo\\python\\libs\\util_bbdd\\docs\\functional",
+      "c:\\Desarrollo\\python\\libs\\util_bbdd\\docs\\api",
+      "c:\\Desarrollo\\python\\libs\\util_bbdd\\docs\\examples",
+      "C:\\Desarrollo\\python\\libs\\util_bbdd\\docs",
+      "c:\\Desarrollo\\python\\libs\\util_bbdd"
     ]
   },
   "hooks": {

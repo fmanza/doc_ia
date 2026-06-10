@@ -1,0 +1,11 @@
+docs(downloads): tabla Descarga Actual con datos reales v0.1.0 + instrucciones IA
+
+- docs/downloads.md: sección "Descarga Actual" reemplaza texto genérico por tabla
+  con versión, tamaño (~0.6 MB), link .sha256 y fecha real (2026-06-10, v0.1.0).
+  Formato alineado con el estándar de util_bbdd.
+
+- CLAUDE.md: nueva subsección "Actualizar tabla Descarga Actual" en §Descarga Offline
+  con plantilla de tabla y comandos PowerShell/bash para extraer versión, tamaño, hash
+  y fecha tras cada build de ZIP; regla: una sola fila (histórico en CHECKSUMS.txt).
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>

@@ -169,6 +169,37 @@ sha256sum -c dist/*.sha256              # Validar (Linux/Mac)
 El workflow `.github/workflows/docs-zip-release.yml` publica automáticamente una release
 `docs-vX.Y.Z` en cada push a `main` con cambios en `docs/`.
 
+### Actualizar tabla "Descarga Actual" en docs/downloads.md
+
+Después de generar el ZIP, **actualiza obligatoriamente** la tabla de `docs/downloads.md`
+con los valores reales del artefacto generado. La tabla debe tener este formato:
+
+```markdown
+| Versión | Tamaño | Checksum | Fecha |
+|---|---|---|---|
+| [doc_ia-docs-{version}.zip](https://github.com/fmanza/doc_ia/releases/tag/docs-v{version}) | ~{size} MB | [.sha256](https://github.com/fmanza/doc_ia/releases/tag/docs-v{version}) | {YYYY-MM-DD} |
+```
+
+**Cómo obtener los valores**:
+
+```bash
+# Versión (desde pyproject.toml)
+python -c "import tomllib; f=open('pyproject.toml','rb'); print(tomllib.load(f)['project']['version'])"
+
+# Tamaño del ZIP (PowerShell)
+$f = "dist/doc_ia-docs-{version}.zip"; [math]::Round((Get-Item $f).Length/1MB, 1)
+
+# Hash SHA256 (ya en el fichero .sha256)
+cat dist/doc_ia-docs-{version}.zip.sha256
+
+# Fecha de generación
+(Get-Item dist/doc_ia-docs-{version}.zip).LastWriteTime.ToString("yyyy-MM-dd")
+```
+
+**Regla**: la fila de la tabla siempre refleja la versión más reciente publicada. Al actualizar
+a una nueva versión, reemplaza la fila existente (no acumules filas — el histórico vive en
+GitHub Releases y en `dist/CHECKSUMS.txt`).
+
 ---
 
 ## Checklist de sincronización
