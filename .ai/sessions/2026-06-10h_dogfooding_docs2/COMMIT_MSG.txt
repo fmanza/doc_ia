@@ -1,0 +1,33 @@
+docs: dogfooding /document-project (2ª ejecución) — capacidades IA del producto
+
+Nuevas páginas funcionales (Arquetipo 1) para las tres capacidades principales:
+
+docs/functional/document_project.md (NUEVO):
+- 4 parámetros obligatorios, flujo de 7 fases, 5 criterios A/B/C
+- CAs ejecutables: AC-01 proyecto sin docs, AC-02 docs parcialmente vigentes,
+  AC-03 parámetro faltante, AC-04 módulo vigente omitido
+
+docs/functional/archetypes.md (NUEVO):
+- Tabla completa de los 8 arquetipos formales (propósito, audiencia, ubicación, prompt)
+- Flowchart de selección de arquetipo durante el inventario
+- Reglas de estructura fija, enlace bidireccional y condición del Arquetipo 8
+
+docs/functional/bootstrap.md (NUEVO):
+- Modelo PULL, tabla de capas A/B/C/D con ejemplos concretos
+- Flowchart del flujo completo hasta Config Reviewer
+- CAs: bootstrap TypeScript, generador Docusaurus, auditoría post-bootstrap
+
+Correcciones en guías (estado B → ACTUALIZADO):
+
+docs/guides/troubleshooting.md §5:
+- Fila --8<--: "raíz del repo (docs/examples/...)" → "desde docs/ (examples/...)"
+  Motivo: base_path:[docs] activo en mkdocs.yml desde sesión 2026-06-10f
+
+docs/guides/codex_guide.md §3:
+- check-env.md → check_env.md; build-docs-zip.md → build_docs_zip.md
+
+mkdocs.yml:
+- Nueva subsección "Flujos IA" bajo "Documentación Funcional":
+    · Documentar un Proyecto · Arquetipos Formales · Bootstrap de Configuración IA
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>

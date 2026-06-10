@@ -56,5 +56,5 @@ python -m mkdocs build --strict
 | Warning de MkDocs con `--strict` | Página en `nav:` inexistente, huérfana o enlace relativo roto | Corregir `mkdocs.yml` o el enlace; re-ejecutar el build |
 | `ERROR: …\site does not exist` (exit 1) | `--no-build` sin un `site/` generado previamente | Ejecutar sin `--no-build` al menos una vez |
 | El build con `--builder zensical` falla al arrancar | Zensical no está instalado (no es dependencia del proyecto) | Instalarlo aparte o usar el builder por defecto (`mkdocs`) |
-| La cadena `--8<--` aparece literal en el sitio | Ruta del snippet incorrecta para `pymdownx.snippets` | Usar ruta desde la raíz del repo (p. ej. `docs/examples/...py`) |
+| La cadena `--8<--` aparece literal en el sitio | Ruta del snippet incorrecta para `pymdownx.snippets` | Usar ruta relativa desde `docs/` (p. ej. `examples/foo.py`, NO `docs/examples/foo.py`) porque `base_path: [docs]` está activo en `mkdocs.yml` |
 | El hook PostToolUse falla tras editar un script | ruff/mypy/pytest detectan un problema real | Ejecutar el comando del hook manualmente y corregir el hallazgo |

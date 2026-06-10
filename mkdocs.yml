@@ -80,6 +80,10 @@ nav:
       - Tooling Determinista:
           - Verificación de Entorno: functional/check_env.md
           - ZIP de Documentación Offline: functional/build_docs_zip.md
+      - Flujos IA:
+          - Documentar un Proyecto: functional/document_project.md
+          - Arquetipos Formales: functional/archetypes.md
+          - Bootstrap de Configuración IA: functional/bootstrap.md
 
   # ── Audiencia: Desarrolladores, mantenedores del proyecto ──────────────────
   - Referencia Técnica:
