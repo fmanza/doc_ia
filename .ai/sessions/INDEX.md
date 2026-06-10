@@ -19,3 +19,4 @@ Cada sesión sigue la estructura de artefactos definida en `TEMPLATE/`.
 | Fecha      | Objetivo breve                                                                 | Rama | Skill                          | Estado | Trazabilidad                                       |
 |------------|--------------------------------------------------------------------------------|------|--------------------------------|--------|----------------------------------------------------|
 | 2026-06-10 | Bootstrap configuración IA multiplataforma desde util_bbdd (modelo PULL, capas A/B/C/D) | main | new_feature (bootstrap_ai_config) | CLOSED | `2026-06-10_bootstrap_ai_config/TRACEABILITY.md` |
+| 2026-06-10b | Auditoría post-bootstrap (Config Reviewer): agente corrupto d→o restaurado + docs.instructions.md creado | main | config_review | CLOSED | `2026-06-10b_config_review/TRACEABILITY.md` |

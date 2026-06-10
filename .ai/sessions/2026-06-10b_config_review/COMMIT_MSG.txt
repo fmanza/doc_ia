@@ -1,0 +1,21 @@
+fix: restaurar config-reviewer.agent.md corrupto y crear docs.instructions.md
+
+Auditoría post-bootstrap (Config Reviewer) sobre la configuración IA de a8ebf2c:
+
+- F1 (crítico): config-reviewer.agent.md llegó corrupto del bootstrap (todas
+  las "d" minúsculas sustituidas por "o", 48 líneas). Restaurado desde el
+  origen util_bbdd con adaptaciones doc_ia (ejemplo de commit, invocación vía
+  prompt al no existir slash command, criterios de auditoría del dominio).
+- F2 (alto): .github/instructions/docs.instructions.md no se copió en el
+  bootstrap pero estaba referenciado 7 veces (DOCUMENTATION_STANDARD.md,
+  documentation-generator.agent.md, technical_doc.prompt.md,
+  config_review.prompt.md). Creado adaptado a doc_ia: solo reglas operativas
+  (Mermaid, Markdown críticas, snippets --8<--, autodoc, verify-build);
+  los 8 arquetipos quedan delegados a DOCUMENTATION_STANDARD.md (DRY).
+
+Verificación: grep de corrupción y de referencias rotas = 0;
+mkdocs build --strict OK; ruff/mypy/pytest sin cambios (verde).
+
+Sesión: .ai/sessions/2026-06-10b_config_review/
+
+Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>
