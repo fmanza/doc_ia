@@ -16,7 +16,7 @@ Documentar un proyecto (origen → destino) orquestando los arquetipos formales.
 - [ ] **Destino de la documentación**: Ruta donde se escribe (ej. `c:\repos\mi_api\docs`)
 - [ ] **Generador**: `mkdocs-material` (por defecto) | `zensical`
 - [ ] **Idioma**: `es` | `en` | otro
-- [ ] **Tipo de cada origen** (opcional): `CÓDIGO` | `NORMATIVA` | `ESPECIFICACIÓN` | `UI/PANTALLAS` | `REFERENCIA` | `CONTRATO` | `INFRAESTRUCTURA` — autodetectado si se omite; el usuario confirma antes de continuar
+- [ ] **Tipo de cada origen** (opcional): `CÓDIGO` | `NORMATIVA` | `ESPECIFICACIÓN` | `UI/PANTALLAS` | `REFERENCIA` | `CONTRATO` | `INFRAESTRUCTURA` | `MANUAL` — autodetectado si se omite; el usuario confirma antes de continuar
 - [ ] **Estrategia** (solo con ≥2 orígenes CÓDIGO): `federado` | `hub+satélite` | `monorepo` — preguntar al usuario, nunca autodetectar
 - [ ] **Alcance** (opcional): módulos o subconjunto; por defecto proyecto completo
 - [ ] **Arquetipos** (opcional): subconjunto; por defecto todos los aplicables **excepto 9 (Changelog) y 11 (Contribución)**, que son opt-in explícito
@@ -116,6 +116,7 @@ cp -r {origen}/docs/assets/* {destino}/docs/assets/
      - `REFERENCIA` — manuales de **terceros**, RFCs, especificaciones de protocolo **ajenas al proyecto** → enriquece Arquetipo 2 §4 o Arquetipo 5
      - `CONTRATO` — especificaciones machine-readable del **propio proyecto**: `openapi:` / `asyncapi:` YAML, `.graphql`, `.proto`, `.sql` DDL, `.dbml`; carpetas `api/`, `schemas/`, `proto/` → enriquece Arquetipo 2 §1 (interfaces) y §2 (contratos/datos)
      - `INFRAESTRUCTURA` — IaC y despliegue: `.tf`, `Dockerfile`, `docker-compose.yml`, K8s YAML en `k8s/`/`deploy/`/`helm/`, Ansible → enriquece Arquetipo 2 §4 y Arquetipo 6D (vista despliegue)
+     - `MANUAL` — documentación narrativa del **propio proyecto**: `.pdf`/`.docx`/`.md` con `manual`/`guide`/`runbook`/`ayuda`/`help` en nombre; carpetas `manuals/`, `help/`, `user-docs/` → enriquece Arquetipos 3a §3, 3b §3, 6A/B §1 y 7 §3+§5
    - Si hay ≥2 orígenes `CÓDIGO` → preguntar estrategia (nunca autodetectar):
      - `federado`: cada proyecto documenta de forma independiente (docs/ propio, mkdocs.yml propio)
      - `hub+satélite`: un proyecto "hub" es el destino; los demás se documentan como secciones dentro de él

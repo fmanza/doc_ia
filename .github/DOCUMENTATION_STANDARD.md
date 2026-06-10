@@ -509,6 +509,7 @@ Cuando `/document-project` recibe más de un `Origen`, o cuando el único origen
 | `REFERENCIA` | Manuales de terceros, RFCs, especificaciones de protocolo **ajenas al proyecto** | Enriquece Arquetipo 2 §4 (Dependencias) o Arquetipo 5 (ADR) |
 | `CONTRATO` | Especificaciones machine-readable de las APIs/datos del **propio proyecto**: `.yaml`/`.json` con clave `openapi:` o `asyncapi:`; `.graphql`/`.gql`; `.proto`; `.avsc`; `.sql` DDL en `db/`/`migrations/`; `.dbml`; carpetas `api/`, `contracts/`, `schemas/`, `proto/` | Enriquece Arquetipo 2 §1 (Arquitectura) y §2 (Modelo de Datos / Contratos) |
 | `INFRAESTRUCTURA` | IaC y despliegue: `.tf`; `Dockerfile`, `docker-compose.yml`; YAML en `k8s/`, `deploy/`, `manifests/`, `helm/`; playbooks Ansible; CloudFormation en `cloudformation/` | Enriquece Arquetipo 2 §4 (Dependencias) y Arquetipo 6D (Arquitectura — vista despliegue) |
+| `MANUAL` | Documentación narrativa del **propio proyecto**: `.pdf`, `.docx`, `.md` con `manual`/`guide`/`runbook`/`ayuda`/`help` en nombre; carpetas `manuals/`, `help/`, `user-docs/`; `.chm` | Enriquece Arquetipos 3a §3, 3b §3, 6A/B §1 (Descripción) y 7 §3+§5 |
 
 **Regla**: la autodetección propone el tipo; el usuario confirma antes de continuar al INVENTARIO. Nunca se asume el tipo sin confirmación.
 
@@ -524,6 +525,7 @@ Cuando `/document-project` recibe más de un `Origen`, o cuando el único origen
 | `REFERENCIA` | 2 o 5 | Arq. 2 §4 Dependencias; o Arq. 5 (decisión ADR) |
 | `CONTRATO` | 2 (proyecto principal) | §1 Arquitectura (interfaces publicadas); §2 Modelo de Datos / Contratos |
 | `INFRAESTRUCTURA` | 2 + 6 | Arq. 2 §4 Dependencias y Requisitos; Arq. 6D §3 (vista despliegue) |
+| `MANUAL` | 3a · 3b · 6 · 7 | Arq. 3a §3 Pasos; Arq. 3b §3; Arq. 6A/B §1; Arq. 7 §3 y §5 |
 
 Los orígenes MATERIAL **no generan páginas propias** en `docs/`; su contenido enriquece las secciones indicadas de los arquetipos del proyecto principal.
 

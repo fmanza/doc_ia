@@ -85,6 +85,7 @@ Ejecutar siempre antes de cualquier otra fase cuando se reciben múltiples oríg
 | `REFERENCIA` | Manuales de terceros, RFCs, APIs externas, especificaciones de protocolo **ajenas al proyecto** |
 | `CONTRATO` | Especificaciones machine-readable de las APIs/datos del **propio proyecto**: `.yaml`/`.json` con clave `openapi:` o `asyncapi:`; `.graphql`/`.gql`; `.proto`; `.avsc`; `.sql` DDL en `db/`/`migrations/`; `.dbml`; carpetas `api/`, `contracts/`, `schemas/`, `proto/`, `graphql/` |
 | `INFRAESTRUCTURA` | IaC y despliegue: `.tf` (Terraform); `Dockerfile`, `docker-compose.yml`; YAML en `k8s/`, `deploy/`, `manifests/`, `helm/`; playbooks Ansible en `roles/`/`ansible/`; CloudFormation en `cloudformation/` |
+| `MANUAL` | Documentación narrativa del **propio proyecto**: `.pdf`, `.docx`, `.odt`, `.md` con nombres que contengan `manual`, `guia`, `guide`, `handbook`, `runbook`, `ayuda`, `help`, `user-guide`, `admin-guide`, `release-notes`; carpetas `manuals/`, `help/`, `user-docs/`, `documentation/`; `.chm` |
 
 #### Mapeo tipo MATERIAL → arquetipos
 
@@ -96,6 +97,7 @@ Ejecutar siempre antes de cualquier otra fase cuando se reciben múltiples oríg
 | `REFERENCIA` | Arquetipo 2 o Arquetipo 5 | §4 Dependencias (Arq. 2); Decisión (Arq. 5) |
 | `CONTRATO` | Arquetipo 2 del proyecto principal | §1 Arquitectura (interfaces publicadas); §2 Modelo de Datos / Contratos |
 | `INFRAESTRUCTURA` | Arquetipos 2 + 6 del proyecto principal | Arq. 2 §4 Dependencias y Requisitos; Arq. 6D §3 (vista de despliegue) |
+| `MANUAL` | Arquetipos 3a · 3b · 6 · 7 | Arq. 3a §3 Pasos; Arq. 3b §3 Contenido de aprendizaje; Arq. 6A/B §1 Descripción; Arq. 7 §3 y §5 |
 
 #### Estrategia para múltiples orígenes CÓDIGO
 
