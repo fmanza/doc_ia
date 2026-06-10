@@ -64,6 +64,29 @@ como plantilla de solo lectura; el lenguaje/arquitectura del destino es un **par
 
 ---
 
+## Documentar un proyecto completo
+
+Usa **`document_project.prompt.md`** como **punto de entrada único** para documentar cualquier proyecto
+(externo o el propio doc_ia). Orquesta automáticamente inventario, clasificación crear/actualizar/omitir,
+generación por arquetipos, sincronización de nav y revisión.
+
+```
+Lee y aplica `.github/prompts/document_project.prompt.md` con los siguientes parámetros:
+
+Origen(es): <ruta raíz del proyecto a documentar>
+Destino: <ruta donde se escribe la documentación>
+Generador: mkdocs-material
+Idioma: es
+```
+
+**Campos obligatorios**: Origen(es), Destino, Generador, Idioma — si falta alguno, el prompt se detiene
+y pide los datos antes de continuar.
+
+Para una página suelta usa directamente el prompt de arquetipo correspondiente
+(`functional_doc.prompt.md`, `technical_doc.prompt.md`, etc.).
+
+---
+
 ## Comandos de Desarrollo Rápidos
 
 ```bash

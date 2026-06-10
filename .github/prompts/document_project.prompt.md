@@ -54,8 +54,19 @@ Aplica el flujo por fases de `.github/agents/documentation-generator.agent.md` s
 ```
 Fase 0 — Detección de normativa: si el origen referencia normativa de obligado cumplimiento,
          ofrecer Arquetipo 8 (normative_traceability.prompt.md). Si no hay, omitir.
-Fase 1 — Inventariar: árbol real del origen, README, docs/ y configuración del generador;
-         clasificar módulos (sin doc / desactualizado / vigente) y asignar arquetipo a cada documento.
+Fase 1 — Inventariar y clasificar:
+         Leer árbol real del origen (README, código, docs/, mkdocs.yml del destino).
+         Para cada módulo del origen y cada página existente en el destino, asignar estado:
+           ESTADO A — sin doc: no existe página en docs/ para este módulo.
+           ESTADO B — desactualizado: página existe pero al menos uno de los siguientes:
+             · firma de función/clase pública cambiada (parámetro, nombre o tipo de retorno)
+             · nuevo símbolo público en el código no documentado en la página
+             · símbolo documentado ya no existe en el módulo actual
+             · tests actuales contradicen el comportamiento descrito en la documentación
+             · sección marcada "Pendiente de verificación" ya verificable en código actual
+           ESTADO C — vigente: página existe y código coincide con lo documentado.
+         Acción derivada: A → CREAR | B → ACTUALIZAR | C → OMITIR.
+         Prioridad de ejecución: A antes que B; C no se toca.
 Fase 2 — Mapeo funcional (functional_doc.prompt.md) → [destino]/functional/
 Fase 3 — Documentación técnica con Mermaid (technical_doc.prompt.md) → [destino]/api/
 Fase 4 — Ejemplos verificables (example_doc.prompt.md) → [destino]/examples/
@@ -65,6 +76,13 @@ Fase 6 — Revisión final: Markdown, enlaces relativos, sintaxis Mermaid, secci
 Fase 7 — Verificación de build (solo con --verify-build): build --strict del generador + lectura del HTML.
 ```
 
+**Protocolo ACTUALIZAR (estado B) — obligatorio en Fases 2-4:**
+1. Leer el documento existente completo antes de escribir cualquier línea.
+2. Comparar sección a sección con el código actual del origen.
+3. Actualizar solo las secciones afectadas; copiar verbatim las que siguen vigentes.
+4. Nunca eliminar una sección "Pendiente de verificación" sin haberla verificado en el código.
+5. Si un símbolo documentado ya no existe en el módulo: retirar su sección y documentar el reemplazo si lo hay.
+
 Reglas transversales: idioma indicado en todo el contenido generado; no inventar módulos,
 APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reglas operativas de
 `.github/instructions/docs.instructions.md`.
@@ -72,8 +90,8 @@ APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reg
 ## Devuelve en este orden
 
 1. **VALIDACIÓN DE INPUTS** — tabla: | Parámetro | Valor | Estado (✅/❌) | — si hay ❌, detenerse aquí.
-2. **INVENTARIO** (Fase 0+1) — módulos del origen, clasificación y arquetipo asignado por documento.
-3. **PLAN_DOC** — orden de generación, páginas a crear/actualizar, impacto en navegación.
+2. **INVENTARIO** (Fase 0+1) — tabla: | Módulo / Página | Estado (A/B/C) | Acción (CREAR/ACTUALIZAR/OMITIR) | Arquetipos / Secciones afectadas |
+3. **PLAN_DOC** — orden de generación con columnas CREAR / ACTUALIZAR (indicar secciones) / OMITIR; impacto en navegación.
 4. **GENERACIÓN** (Fases 2-4) — por fases e iterando módulo a módulo; nunca un único prompt masivo.
 5. **SYNC NAV** (Fase 5) — diff de `mkdocs.yml` (o config del generador) del destino.
 6. **REVISIÓN** (Fase 6) — checklist de validación + hallazgos.

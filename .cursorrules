@@ -101,6 +101,21 @@ Cuando un `.py` de ejemplo se mueve o renombra:
 2. Actualizar cada referencia con la nueva ruta relativa
 3. Validar con `python -m mkdocs build --strict`
 
+### 10. Documentar un proyecto completo
+
+Para generar o actualizar la documentación de un proyecto completo (externo o el propio doc_ia),
+usa el prompt unificado como punto de entrada:
+
+```
+Lee y aplica `.github/prompts/document_project.prompt.md` con los parámetros:
+Origen(es): <ruta>   Destino: <ruta>   Generador: mkdocs-material   Idioma: es
+```
+
+El prompt orquesta inventario (A sin doc / B desactualizado / C vigente) → arquetipos → nav sync → revisión.
+Para una página suelta usa directamente `functional_doc.prompt.md`, `technical_doc.prompt.md`, etc.
+
+---
+
 ## Estándares de código (scripts/ y tests/)
 
 * Python 3.12+, `mypy --strict`, `ruff` (config en `pyproject.toml`), f-strings.

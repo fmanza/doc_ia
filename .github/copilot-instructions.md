@@ -91,24 +91,37 @@ Si cambias reglas comunes, actualiza **en este orden**:
 
 ## Generación de Documentación
 
-Sigue el **flujo estándar de 7 fases** definido en
-[`DOCUMENTATION_STANDARD.md` §5](DOCUMENTATION_STANDARD.md) y los arquetipos de §3.
+### Proyecto completo — punto de entrada único
+
+Usa **`document_project.prompt.md`** para documentar cualquier proyecto (externo o el propio doc_ia).
+Orquesta inventario (crear/actualizar/omitir), arquetipos, nav sync y revisión:
 
 ```text
-# Módulo individual — funcional
+# Invocar con /runSubagent Documentation Generator + document_project.prompt.md
+Lee y aplica .github/prompts/document_project.prompt.md con los siguientes parámetros:
+
+Origen(es): <ruta raíz del proyecto a documentar>
+Destino: <ruta donde se escribe la documentación>
+Generador: mkdocs-material
+Idioma: es
+```
+
+Los 4 parámetros son obligatorios. Si falta alguno, el prompt pide los datos antes de continuar.
+
+### Módulo individual
+
+Para documentar un único módulo, aplica directamente el prompt de arquetipo:
+
+```text
+# Funcional
 Lee scripts/[modulo].py y genera la documentación funcional
 usando .github/prompts/functional_doc.prompt.md.
 Guarda en docs/functional/[nombre].md y actualiza mkdocs.yml.
 
-# Módulo individual — técnica
+# Técnica
 Lee scripts/[modulo].py y genera la documentación técnica
 usando .github/prompts/technical_doc.prompt.md.
 Guarda en docs/api/[nombre].md y actualiza mkdocs.yml.
-
-# Proyecto completo
-@Documentation Generator
-Genera la documentación completa del proyecto: scripts/ + prompts de arquetipo.
-Tipo: funcional + técnica. Actualiza mkdocs.yml al finalizar.
 ```
 
 Regla crítica: no inventar. Lee el código fuente antes de generar cualquier sección.

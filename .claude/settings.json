@@ -12,7 +12,9 @@
       "PowerShell(pip install --force-reinstall mkdocs 2>&1)",
       "PowerShell(pip install mkdocs 2>&1)",
       "Bash(python -m pip install --force-reinstall mkdocs mkdocs-material)",
-      "Bash(python -m pip show mkdocs-material)"
+      "Bash(python -m pip show mkdocs-material)",
+      "Bash(grep -n \"document.project\\\\|\\\\/document-project\\\\|punto de entrada\\\\|comando.*entrada\" GEMINI.md .cursorrules .github/copilot-instructions.md)",
+      "Bash(python -c ' *)"
     ]
   },
   "hooks": {

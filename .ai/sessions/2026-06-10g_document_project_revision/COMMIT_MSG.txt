@@ -1,0 +1,23 @@
+docs(ia): formalizar estados A/B/C en /document-project + exponer en todas las plataformas IA
+
+document_project.prompt.md + .claude/commands/document-project.md:
+- Fase 1 del inventario ampliada con 3 estados formales:
+    A (sin doc → CREAR) · B (desactualizado → ACTUALIZAR) · C (vigente → OMITIR)
+- 5 criterios de detección de estado B (firma cambiada, símbolo nuevo/retirado,
+  tests contradicen docs, "Pendiente de verificación" verificable ya)
+- Protocolo ACTUALIZAR en 5 pasos: leer completo → comparar → actualizar solo
+  secciones afectadas → conservar verbatim las vigentes → no borrar "Pendiente"
+  sin verificar
+- Ejemplo de salida INVENTARIO con los 3 estados
+
+Plataformas IA — exposición de /document-project:
+- GEMINI.md: nueva sección "Documentar un proyecto completo" con patrón de invocación
+- .github/copilot-instructions.md: sección "Generación de Documentación" reestructurada;
+  document_project como punto de entrada único
+- .cursorrules: §10 con patrón de invocación unificado
+
+.github/instructions/docs.instructions.md:
+- Criterios de detección estado B (5 condiciones)
+- Protocolo de actualización en 5 pasos
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>

@@ -35,6 +35,8 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 - Ejecutar el flujo por fases del Documentation Generator (Fases 0-6; Fase 7 solo opt-in)
 - Actualizar la navegación del generador (`mkdocs.yml`) por cada página creada, movida o retirada
 - Secciones de arquetipo completas; vacías → `*No aplica para este módulo.*`
+- **Al actualizar (estado B)**: leer el documento existente antes de escribir; conservar verbatim
+  las secciones que siguen vigentes; actualizar solo las afectadas por cambios en el código
 
 **Prohibido**:
 - Incrustar API keys o invocar servicios IA desde código (la generación ocurre en este chat)
@@ -53,15 +55,21 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 
 2. **INVENTARIO** (Fases 0-1)
    - Normativa de referencia (Arquetipo 8) si aplica
-   - Módulos del origen clasificados (sin doc / desactualizada / vigente)
-   - Arquetipo asignado por documento
+   - Tabla con 4 columnas: | Módulo / Página | Estado | Acción | Arquetipos / Secciones |
+     - Estado A — sin doc → CREAR
+     - Estado B — desactualizado → ACTUALIZAR (indicar qué secciones)
+     - Estado C — vigente → OMITIR
+   - Criterios estado B: firma cambiada · símbolo nuevo no documentado · símbolo retirado
+     del módulo · tests contradicen docs · sección "Pendiente de verificación" verificable ya
 
 3. **PLAN_DOC**
-   - Orden de generación y páginas a crear/actualizar
-   - Impacto en navegación
+   - Orden de ejecución: CREAR (A) antes que ACTUALIZAR (B); OMITIR (C) no se toca
+   - Por cada página: acción + secciones afectadas + impacto en navegación
 
 4. **GENERACIÓN** (Fases 2-4)
    - Funcional → técnica → ejemplos → guías/landing según inventario
+   - Para estado B: leer página existente completa → actualizar solo secciones afectadas
+     → conservar verbatim las vigentes → nunca borrar "Pendiente de verificación" sin verificar
 
 5. **SYNC NAV** (Fase 5)
    - Diff de `mkdocs.yml` del destino
@@ -100,10 +108,11 @@ Verificación: --verify-build
 
 ## INVENTARIO
 
-| Módulo | Estado doc | Arquetipos asignados |
-|---|---|---|
-| scripts/check_env.py | sin doc | funcional + técnica + ejemplo |
-| scripts/build_docs_zip.py | sin doc | funcional + técnica + ejemplo |
+| Módulo / Página | Estado | Acción | Arquetipos / Secciones |
+|---|---|---|---|
+| scripts/check_env.py | A — sin doc | CREAR | funcional + técnica + ejemplo |
+| scripts/build_docs_zip.py | B — desactualizado | ACTUALIZAR §3 §5 | técnica (firma `--builder` cambiada) |
+| docs/index.md | C — vigente | OMITIR | — |
 
 Normativa de referencia: no detectada → Arquetipo 8 omitido.
 ```

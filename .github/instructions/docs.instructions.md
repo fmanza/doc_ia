@@ -18,6 +18,16 @@ applyTo: "docs/**"
 - **NO inventes** módulos, clases, funciones, parámetros, comportamientos ni ejemplos que no estén en el código real. Si no puedes verificar un dato leyendo el código, indícalo como "pendiente de verificación".
 - Mantén la documentación actualizada con los cambios de código; no dejes secciones obsoletas.
 - **Unifica creación y actualización**: si el documento ya existe, actualiza sus secciones en lugar de crearlo de nuevo. El flujo de creación y el de actualización son idénticos.
+- **Criterios de detección de página desactualizada (estado B)** — al menos uno de los siguientes:
+  - Firma de función/clase pública cambiada (parámetro añadido/eliminado, nombre o tipo de retorno)
+  - Nuevo símbolo público en el código (función, clase, constante) no documentado en la página
+  - Símbolo documentado en la página ya no existe en el módulo actual
+  - Tests actuales contradicen el comportamiento descrito en la documentación
+  - Sección marcada "Pendiente de verificación" ya verificable leyendo el código actual
+- **Protocolo de actualización**: (1) leer el documento existente completo antes de escribir;
+  (2) comparar sección a sección con el código; (3) actualizar solo las secciones afectadas;
+  (4) conservar verbatim las secciones que siguen vigentes; (5) nunca eliminar "Pendiente de
+  verificación" sin haberlo verificado explícitamente en el código.
 - Los ejemplos de uso deben ser reproducibles con el código actual, sin credenciales reales.
 - **Sección vacía → `*No aplica para este módulo.*`**: nunca omitas una sección del arquetipo aunque no tenga contenido.
 - En doc_ia los arquetipos son además **producto**: se aplican a proyectos origen externos
