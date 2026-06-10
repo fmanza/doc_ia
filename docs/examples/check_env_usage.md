@@ -11,7 +11,7 @@ del proyecto).
 ## 2. Implementación de Referencia
 
 ```python
---8<-- "docs/examples/check_env_usage.py"
+--8<-- "examples/check_env_usage.py"
 ```
 
 ## 3. Explicación del Código

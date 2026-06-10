@@ -1,0 +1,37 @@
+feat: enriquecer mkdocs.yml + UX (márgenes, sidebar toggle, Mermaid)
+
+mkdocs.yml:
+- Metadatos completos: site_author, repo_url, repo_name, docs_dir, site_dir
+- Palette dark/light con toggle; 10 theme features (tabs, tabs.sticky,
+  footer, code.copy, code.annotate, tabs.link, search.suggest, toc.follow,
+  icon.repo); search.lang:es
+- 7 extensiones nuevas: pymdownx.highlight (anchor_linenums, line_spans,
+  pygments_lang_class), inlinehilite, tabbed, emoji, attr_list, md_in_html
+- pymdownx.snippets.base_path:[docs] — rutas --8<-- relativas a docs/
+- extra_javascript: CDN Mermaid 11 + mermaid.js + sidebar-toggle.js
+- extra_css: mermaid.css + nav.css
+- Nav: comentarios de audiencia por sección + emoji 📥 Descargas
+
+docs/assets/ (nuevo directorio):
+- js/mermaid.js — inicialización explícita (startOnLoad:false + mermaid.run)
+  Fix: diagramas ahora se renderizan en el browser (antes solo en HTML)
+- js/sidebar-toggle.js — botón ◀/▶ fijo, persiste en localStorage,
+  desactivado en móvil (< 76.1875em), accesible (aria-label/expanded)
+- css/mermaid.css — centrado y responsive de SVGs Mermaid
+- css/nav.css — grupos colapsables + .md-grid max-width min(90vw,1600px)
+  (reduce márgenes vacíos en pantallas ≥1400px) + CSS sidebar toggle
+
+docs/examples/check_env_usage.md:
+- Ruta snippet corregida: "docs/examples/..." → "examples/..." (base_path)
+
+.github/instructions/docs.instructions.md:
+- Nueva sección "mkdocs.yml — Base de referencia" con template completo
+- Regla rutas snippets con base_path:[docs]
+- Descripción de los 4 assets obligatorios
+
+.github/DOCUMENTATION_STANDARD.md:
+- §4.1: template enriquecido con palette, features completos, extensiones
+  correctas, base_path, extra_javascript/css, notas críticas
+- §4.2: nav con comentarios de audiencia y 📥 Descargas
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>

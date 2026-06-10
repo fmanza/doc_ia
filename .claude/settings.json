@@ -5,7 +5,14 @@
       "PowerShell($root='c:\\\\Desarrollo\\\\python\\\\libs\\\\util_bbdd'; Get-ChildItem -Path \"$root\\\\.github\\\\SHARED_INSTRUCTIONS.md\",\"$root\\\\CLAUDE.md\",\"$root\\\\GEMINI.md\",\"$root\\\\.cursorrules\",\"$root\\\\.github\\\\copilot-instructions.md\",\"$root\\\\.github\\\\AGENTS.md\",\"$root\\\\.github\\\\DOCUMENTATION_STANDARD.md\",\"$root\\\\.github\\\\INTEGRATION_MAP.md\",\"$root\\\\docs\\\\guides\\\\codex_guide.md\",\"$root\\\\scripts\\\\build_docs_zip.py\",\"$root\\\\.github\\\\workflows\\\\docs-zip-release.yml\",\"$root\\\\docs\\\\downloads.md\" | Select-Object Name,Length; '--- agents/prompts/commands sizes ---'; Get-ChildItem \"$root\\\\.github\\\\agents\",\"$root\\\\.github\\\\prompts\",\"$root\\\\.claude\\\\commands\",\"$root\\\\.github\\\\instructions\" -File | Select-Object Name,Length)",
       "PowerShell(git push -u origin main)",
       "PowerShell(gh run list --repo fmanza/doc_ia --limit 5)",
-      "Read(//c/Users/manza/AppData/Local/Temp/**)"
+      "Read(//c/Users/manza/AppData/Local/Temp/**)",
+      "PowerShell(python --version)",
+      "PowerShell(python -c \"import sys; print\\(sys.executable\\)\")",
+      "PowerShell(pip install --force-reinstall mkdocs mkdocs-material pymdown-extensions 2>&1)",
+      "PowerShell(pip install --force-reinstall mkdocs 2>&1)",
+      "PowerShell(pip install mkdocs 2>&1)",
+      "Bash(python -m pip install --force-reinstall mkdocs mkdocs-material)",
+      "Bash(python -m pip show mkdocs-material)"
     ]
   },
   "hooks": {

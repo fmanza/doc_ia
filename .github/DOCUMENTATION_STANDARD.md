@@ -435,112 +435,152 @@ Adapta los valores de `site_*`, `extra.version` y `nav` a cada proyecto; el rest
 
 ### 4.1 Configuración Completa (Referencia)
 
+> Basada en la experiencia de `util_bbdd` y `doc_ia` (actualizada 2026-06-10).
+> Ver la guía operativa completa en `docs.instructions.md` → "mkdocs.yml — Base de referencia".
+
 ```yaml
-# ── Metadatos del sitio ──────────────────────────────────────────────────────
 site_name: [Nombre del Proyecto]
 site_description: [Descripción breve del proyecto]
 site_author: [Autor / Equipo]
-site_url: https://[usuario].github.io/[repo]
+site_url: https://[usuario].github.io/[repo]/
+repo_url: https://github.com/[usuario]/[repo]
+repo_name: [usuario]/[repo]
+docs_dir: docs
+site_dir: site
 
-# ── Tema ─────────────────────────────────────────────────────────────────────
 theme:
   name: material
-  language: es
+  language: es  # o en
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: blue
+      toggle:
+        icon: material/brightness-7
+        name: Cambiar a modo oscuro
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: blue
+      toggle:
+        icon: material/brightness-4
+        name: Cambiar a modo claro
   features:
-    # Navegación
     - navigation.tabs           # Pestañas principales en la barra superior
-    - navigation.sections       # Agrupa entradas en secciones colapsables
+    - navigation.tabs.sticky    # Pestañas visibles al hacer scroll
     - navigation.top            # Botón "volver arriba"
-    - toc.follow                # TOC sigue el scroll
-    # Búsqueda
-    - search.suggest
-    - search.highlight
-    # Código
+    - navigation.footer         # Anterior / Siguiente en el footer
     - content.code.copy         # Botón copiar en bloques de código
     - content.code.annotate     # Anotaciones en código
     - content.tabs.link         # Tabs de código sincronizadas
+    - search.highlight
+    - search.suggest
+    - toc.follow
+  icon:
+    repo: fontawesome/brands/github
 
-# ── Plugins ──────────────────────────────────────────────────────────────────
 plugins:
   - search:
-      lang: es
+      lang: es  # o en
+  # Solo si el proyecto tiene código Python con docstrings a autodocumentar:
+  # - mkdocstrings:
+  #     handlers:
+  #       python:
+  #         paths: [src]
+  #         options:
+  #           docstring_style: google
+  #           show_source: true
+  #           show_root_heading: true
+  #           show_root_full_path: false
+  #           show_symbol_type_heading: true
+  #           show_symbol_type_toc: true
+  #           merge_init_into_class: true
+  #           members_order: source
+  #           filters: ["!^_"]
 
-  # Opcional: muestra fecha de última modificación
-  - git-revision-date-localized:  # pip install mkdocs-git-revision-date-localized
-      type: date
-
-  # Obligatorio si el proyecto es Python (docstrings → HTML)
-  - mkdocstrings:               # pip install mkdocstrings[python]
-      handlers:
-        python:
-          paths: [src]
-          options:
-            show_source: true
-            show_root_heading: true
-
-# ── Extensiones Markdown ─────────────────────────────────────────────────────
 markdown_extensions:
-  - admonition                  # Bloques de nota, warning, tip, etc.
-  - tables
-  - toc:
-      permalink: true           # Anclas en encabezados
-
-  # Resaltado de código
-  - pymdownx.highlight:
-      use_pygments: true
-      anchor_linenums: true
-  - pymdownx.inlinehilite
-
-  # Bloques de código con Mermaid
+  - admonition
+  - pymdownx.details
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      base_path: [docs]   # ← rutas --8<-- relativas a docs/, ej: "examples/foo.py"
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - tables
+  - toc:
+      permalink: true
+  - attr_list
+  - md_in_html
 
-  - pymdownx.snippets           # Incluir fragmentos de otros archivos
-  - pymdownx.emoji:             # Emojis :material-check:
-      emoji_index: !!python/name:pymdownx.emoji.twemoji
-      emoji_generator: !!python/name:pymdownx.emoji.to_svg
-
-# ── Extras ───────────────────────────────────────────────────────────────────
-extra:
-  version:
-    provider: mike              # pip install mike (versionado multi-versión)
-  # Publicar versión: mike deploy [X.Y.Z] latest --update-aliases
-  social:                       # Opcional
-    - icon: fontawesome/brands/github
-      link: https://github.com/[usuario]/[repo]
-
-# ── Navegación (Obligatoria) ─────────────────────────────────────────────────
 nav:
   - Inicio: index.md
+  - Instalación: installation.md
+  - 📥 Descargas: downloads.md   # si el proyecto genera artefactos descargables
 
-  - Guías:
-      - Inicio Rápido: [guia-rapida].md
-      - Próximos Pasos: NEXT_STEPS.md
-      - Arquitectura Visual: ARCHITECTURE_VISUAL.md
+  # ── Audiencia: Product Owner, QA, responsables de negocio ──────────────────
+  - Documentación Funcional:
+      - [Área de dominio]:
+          - [Nombre módulo]: functional/[modulo].md
 
-  - Funcional:
-      - Contratos Base: functional/base.md
-      - [Módulo 1]: functional/[modulo1].md
-      - [Módulo 2]: functional/[modulo2].md
+  # ── Audiencia: Desarrolladores, ingenieros, DBAs ────────────────────────────
+  - Referencia Técnica:
+      - [Área de dominio]:
+          - [Nombre módulo]: api/[modulo].md
 
+  # ── Ejemplos de código ──────────────────────────────────────────────────────
   - Ejemplos:
-      - Inicio: examples/README.md
-      - API y CLI:
-          - [Ejemplo 1]: examples/[ejemplo1].md
-      - Herramientas de IA:
-          - [Guía IA]: examples/[guia-ia].md
+      - [Área de dominio]:
+          - [Caso de uso]: examples/[caso].md
 
-  - API & Referencias:
-      - Técnica:
-          - Contratos Base: api/base.md
-          - [Módulo 1]: api/[modulo1].md
-      - Compatibilidad: COMPATIBILITY.md
-      - Changelog: CHANGELOG.md
-      - Troubleshooting: TROUBLESHOOTING.md
+  # ── Guías de uso y operación ────────────────────────────────────────────────
+  - Guías:
+      - Incorporación:
+          - Onboarding de Desarrolladores: guides/onboarding_dev.md
+      - Errores y Diagnóstico:
+          - Troubleshooting: guides/troubleshooting.md
+      - Herramientas IA:   # Si el proyecto usa herramientas IA
+          - [Nombre herramienta]: guides/[tool]_guide.md
+
+  # ── Contexto del proyecto ────────────────────────────────────────────────────
+  - Arquitectura:
+      - [Visión del Sistema]: architecture.md
+      - [ADR-NNN — Título]: adr/ADR-NNN-titulo.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/[usuario]/[repo]
+    # Solo si está en PyPI:
+    # - icon: fontawesome/brands/python
+    #   link: https://pypi.org/project/[nombre]/
+
+extra_javascript:
+  - https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js
+  - assets/js/mermaid.js   # ← copia desde doc_ia o util_bbdd
+
+extra_css:
+  - assets/css/mermaid.css  # ← copia desde doc_ia o util_bbdd
+  - assets/css/nav.css      # ← copia desde doc_ia o util_bbdd
 ```
+
+**Notas críticas:**
+- `!!python/name:` genera advertencias en linters YAML estándar — falso positivo; válido para MkDocs.
+- Sin `extra_javascript` (CDN Mermaid), los diagramas no se renderizan en el browser aunque el build pase.
+- `navigation.sections` y `navigation.tabs` son compatibles técnicamente, pero con tabs activados los grupos de área se muestran en la sidebar del tab activo; `navigation.sections` no aporta valor adicional. No incluir ambos.
+- Los assets `assets/js/mermaid.js`, `assets/css/mermaid.css` y `assets/css/nav.css` deben copiarse desde `doc_ia/docs/assets/` o `util_bbdd/docs/assets/` sin modificación.
 
 ---
 
@@ -554,19 +594,28 @@ los grupos principales como referencia rápida:
 nav:
   - Inicio: index.md
   - Instalación: installation.md
+  - 📥 Descargas: downloads.md
+
+  # ── Audiencia: Product Owner, responsables de documentación ────────────────
   - Documentación Funcional:
       - Tooling Determinista:
           - Verificación de Entorno: functional/check_env.md
           - ZIP de Documentación Offline: functional/build_docs_zip.md
       # pendiente: Flujos IA (functional/archetypes.md, functional/bootstrap.md)
+
+  # ── Audiencia: Desarrolladores, mantenedores del proyecto ──────────────────
   - Referencia Técnica:
       - Tooling Determinista:
           - check_env: api/check_env.md
           - build_docs_zip: api/build_docs_zip.md
+
+  # ── Ejemplos de código ─────────────────────────────────────────────────────
   - Ejemplos:
       - Tooling Determinista:
           - Verificar Entorno: examples/check_env_usage.md
           - Generar ZIP Offline: examples/build_docs_zip_offline.md
+
+  # ── Guías de uso y operación ───────────────────────────────────────────────
   - Guías:
       - Incorporación:
           - Onboarding de Desarrolladores: guides/onboarding_dev.md
@@ -574,10 +623,11 @@ nav:
           - Troubleshooting: guides/troubleshooting.md
       - Herramientas IA:
           - Guía de Codex (OpenAI): guides/codex_guide.md
+
+  # ── Contexto del proyecto ──────────────────────────────────────────────────
   - Arquitectura:
       - Visión del Sistema: architecture.md
       - ADR-001 — MkDocs Material por defecto: adr/ADR-001-mkdocs-material-por-defecto.md
-  - Descargas: downloads.md
 ```
 
 > **Nota**: implementado en el dogfooding 2026-06-10 (nombres con guiones bajos según el

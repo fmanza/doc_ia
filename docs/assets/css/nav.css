@@ -1,0 +1,81 @@
+/* Navegación lateral — rótulos de grupo de área (colapsables) con recuadro de fondo muy tenue.
+   Afecta a los grupos de área de Documentación Funcional, Referencia Técnica y Ejemplos
+   (p. ej. "Tooling Determinista"), que por defecto Material pinta en
+   gris tenue de baja opacidad y costaba distinguir. Con navigation.sections desactivado,
+   estos grupos son plegables (clic en la flecha) y se marcan como --nested. */
+.md-nav__item--nested > .md-nav__link {
+  font-weight: 700;
+  color: var(--md-primary-fg-color);
+  background-color: color-mix(in srgb, var(--md-primary-fg-color) 12%, transparent);
+  border-radius: 4px;
+  padding: 0.25rem 0.55rem;
+  margin: 0.25rem 0 0.15rem;
+  opacity: 1;
+  line-height: 1.3;
+}
+
+/* En modo oscuro (slate) subimos algo el tinte y usamos texto claro para que el
+   título mantenga contraste sobre el fondo oscuro. */
+[data-md-color-scheme="slate"] .md-nav__item--nested > .md-nav__link {
+  background-color: color-mix(in srgb, var(--md-primary-fg-color) 28%, transparent);
+  color: #fff;
+}
+
+/* ── Márgenes laterales ──────────────────────────────────────────────────────
+   Material centra el grid con max-width ~76rem. En pantallas anchas aparecen
+   márgenes vacíos grandes. min(90vw, 1600px) usa el 90 % del viewport con
+   tope de 1600px; en móvil las media queries de Material siguen activos. */
+.md-grid {
+  max-width: min(90vw, 1600px);
+}
+
+/* ── Sidebar toggle (Opción B) ───────────────────────────────────────────────
+   Botón fijo ◀/▶ para ocultar/mostrar la sidebar primaria.
+   El estado persiste en localStorage (ver sidebar-toggle.js). */
+#sidebar-toggle {
+  position: fixed;
+  top: 4rem;
+  left: 0.5rem;
+  z-index: 200;
+  background: var(--md-primary-fg-color);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.3rem 0.55rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+  opacity: 0.65;
+  transition: opacity 0.2s ease;
+}
+
+#sidebar-toggle:hover {
+  opacity: 1;
+}
+
+/* Ocultar botón en móvil (Material ya gestiona la sidebar con el drawer) */
+@media screen and (max-width: 76.1875em) {
+  #sidebar-toggle { display: none; }
+}
+
+/* Estado colapsado: sidebar ancho → 0, contenido recupera el espacio */
+body.sidebar-collapsed .md-sidebar--primary {
+  width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: width 0.25s ease, opacity 0.2s ease;
+}
+
+body.sidebar-collapsed .md-content {
+  margin-left: 0;
+  transition: margin-left 0.25s ease;
+}
+
+/* Estado expandido: transición suave al restaurar */
+body:not(.sidebar-collapsed) .md-sidebar--primary {
+  transition: width 0.25s ease, opacity 0.2s ease;
+}
+
+body:not(.sidebar-collapsed) .md-content {
+  transition: margin-left 0.25s ease;
+}

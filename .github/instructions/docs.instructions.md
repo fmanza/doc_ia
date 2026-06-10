@@ -43,6 +43,130 @@ El proyecto usa **MkDocs** con el tema **Material for MkDocs** como generador es
   está en `DOCUMENTATION_STANDARD.md` §4. No añadir secciones top-level fuera de ella.
 - No añadir plugins sin justificación documentada.
 
+### mkdocs.yml — Base de referencia
+
+Todo `mkdocs.yml` generado para un proyecto origen debe seguir esta estructura mínima
+(adaptar `site_name`, `site_description`, `site_url`, `repo_url`, `repo_name` al proyecto):
+
+```yaml
+site_name: <nombre>
+site_description: <descripción>
+site_author: <autor>
+site_url: https://<usuario>.github.io/<repo>/
+repo_url: https://github.com/<usuario>/<repo>
+repo_name: <usuario>/<repo>
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: material
+  language: <es|en|...>
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: blue
+      toggle:
+        icon: material/brightness-7
+        name: Cambiar a modo oscuro
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: blue
+      toggle:
+        icon: material/brightness-4
+        name: Cambiar a modo claro
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.top
+    - navigation.footer
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - search.highlight
+    - search.suggest
+    - toc.follow
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search:
+      lang: <es|en|...>
+  # Solo si el proyecto tiene código Python con docstrings a autodocumentar:
+  # - mkdocstrings:
+  #     handlers:
+  #       python:
+  #         paths: [src]
+  #         options:
+  #           docstring_style: google
+  #           show_source: true
+  #           show_root_heading: true
+  #           show_root_full_path: false
+  #           show_symbol_type_heading: true
+  #           show_symbol_type_toc: true
+  #           merge_init_into_class: true
+  #           members_order: source
+  #           filters: ["!^_"]
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      base_path: [docs]
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - tables
+  - toc:
+      permalink: true
+  - attr_list
+  - md_in_html
+
+nav:
+  # ... ver sección "Agrupación en subsecciones por área"
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/<usuario>/<repo>
+    # Solo si el proyecto está en PyPI:
+    # - icon: fontawesome/brands/python
+    #   link: https://pypi.org/project/<nombre>/
+
+extra_javascript:
+  - https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js
+  - assets/js/mermaid.js         # inicialización explícita de Mermaid
+  - assets/js/sidebar-toggle.js  # botón ◀/▶ para ocultar/mostrar sidebar
+
+extra_css:
+  - assets/css/mermaid.css
+  - assets/css/nav.css
+```
+
+**Notas críticas:**
+- `!!python/name:` genera advertencias en linters YAML estándar; es válido para MkDocs (falso positivo).
+- Sin `extra_javascript` (CDN Mermaid), los bloques mermaid se generan como `<code class="language-mermaid">` pero **no se renderizan en el browser**. Siempre incluir CDN + `assets/js/mermaid.js`.
+- `pymdownx.snippets.base_path: [docs]` → las rutas en `--8<--` son **relativas a `docs/`** (no a la raíz del repo). Ejemplo: `--8<-- "examples/mi_snippet.py"`, no `--8<-- "docs/examples/mi_snippet.py"`.
+- Los cuatro assets se copian íntegros desde `doc_ia/docs/assets/` sin modificación:
+  - `mermaid.js` — inicialización Mermaid (startOnLoad:false + mermaid.run)
+  - `sidebar-toggle.js` — botón ◀/▶ fijo en desktop para ocultar/mostrar la sidebar; persiste en `localStorage`; desactivado automáticamente en móvil (viewport < 76.1875em)
+  - `mermaid.css` — centrado y responsive de SVGs Mermaid
+  - `nav.css` — grupos colapsables + `.md-grid { max-width: min(90vw, 1600px) }` + CSS del toggle
+- `mkdocstrings` solo si el proyecto tiene código Python con docstrings; comentado por defecto.
+
 ### Agrupación en subsecciones por área
 
 `Documentación Funcional`, `Referencia Técnica`, `Ejemplos` y `Guías` **agrupan sus entradas en
@@ -347,6 +471,17 @@ Usa la sintaxis de snippets de MkDocs (`--8<--`, extensión `pymdownx.snippets` 
 **Regla principal:** la directiva `--8<--` debe ser el **ÚNICO contenido** dentro del bloque
 fenced ` ```python ` (u otro lenguaje). Nunca mezcles código inline con la directiva en el
 mismo bloque.
+
+**Rutas con `base_path: [docs]`:** las rutas en `--8<--` son relativas a `docs/`, no a la raíz
+del repo. Usar `"examples/mi_snippet.py"`, **no** `"docs/examples/mi_snippet.py"`.
+
+```markdown
+# ✅ CORRECTO — relativo a docs/
+--8<-- "examples/check_env_usage.py"
+
+# ❌ INCORRECTO — incluye el prefijo docs/
+--8<-- "docs/examples/check_env_usage.py"
+```
 
 ### Cuándo usar snippets vs. código inline
 
