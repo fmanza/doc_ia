@@ -1,6 +1,6 @@
 # Configuración de Claude Code
 
-Versión de modelo objetivo: claude-sonnet-4-6 · Fecha de revisión: 2026-06-10
+Versión de modelo objetivo: claude-sonnet-4-6 · Fecha de revisión: 2026-06-11
 
 ## 1. Plataforma y Modelo
 
@@ -35,7 +35,7 @@ Claude Code lee estos ficheros antes de actuar en el proyecto:
 
 | Comando | Propósito | Inputs obligatorios | Outputs |
 |---|---|---|---|
-| `/document-project` | Documentar un proyecto origen completo | Origen(es), Destino, Generador, Idioma | VALIDACIÓN → INVENTARIO → PLAN_DOC → GENERACIÓN → SYNC NAV → REVISIÓN → RESUMEN |
+| `/document-project` | Documentar un proyecto origen completo | Origen(es), Destino, Generador, Idioma | VALIDACIÓN → INVENTARIO → PLAN_DOC → GENERACIÓN → SYNC NAV → REVISIÓN → RESUMEN → CIERRE |
 | `/new-feature` | Nueva funcionalidad | Descripción + módulos afectados | PLAN → AUDIT_PLAN → IMPLEMENT → AUDIT_CODE → VERSION |
 | `/hotfix` | Bug P1/P2 urgente | Descripción del bug + impacto | RCA → FIX → AUDIT_CODE → VERSION |
 | `/refactor` | Refactor sin cambios funcionales | Área + objetivo | PLAN → AUDIT_PLAN → IMPLEMENT → AUDIT_CODE |

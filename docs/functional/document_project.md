@@ -47,6 +47,7 @@ flowchart TD
     G --> N[Sincronizar mkdocs.yml]
     N --> R[Revisión final<br/>Markdown · enlaces · Mermaid]
     R --> D[Documentación publicada]
+    D --> C[Cierre de sesión<br/>.ai/sessions/YYYY-MM-DD/ + commit]
 ```
 
 ### Flujos alternativos y de error
@@ -76,12 +77,13 @@ flowchart TD
 
 | ID | Dado | Cuando | Entonces |
 |---|---|---|---|
-| AC-01 | Un proyecto con código fuente sin documentación previa | Se invoca el flujo con los cuatro parámetros completos | Se genera documentación para cada módulo detectado, el sitio compila sin errores y la navegación está actualizada |
+| AC-01 | Un proyecto con código fuente sin documentación previa | Se invoca el flujo con los cuatro parámetros completos | Se genera documentación para cada módulo detectado, el sitio compila sin errores, la navegación está actualizada y existe el artefacto `.ai/sessions/YYYY-MM-DD/` en el destino |
 | AC-02 | Un proyecto con documentación existente, parte vigente y parte desactualizada | Se invoca el flujo | Se actualiza solo lo desactualizado; lo vigente se conserva verbatim; no se crea contenido duplicado |
 | AC-03 | Un flujo invocado con el parámetro Destino vacío | Se inicia la ejecución | El flujo se detiene, informa del campo faltante y pide al usuario que lo complete antes de continuar |
 | AC-04 | Un proyecto con un módulo ya documentado que no ha cambiado | Se ejecuta el inventario | El módulo recibe estado C (vigente) y no se genera ni modifica ninguna página para él |
 | AC-05 | Dos orígenes: un proyecto Python y un PDF de normativa | Se invoca el flujo | La Fase 0a presenta una tabla con los tipos detectados (CÓDIGO y NORMATIVA), el usuario confirma, y el PDF enriquece §2 del funcional sin generar página propia |
 | AC-06 | Todos los orígenes indicados son MATERIAL (sin ningún proyecto de código) | Se inicia la ejecución | El flujo se detiene con un mensaje que informa que se requiere al menos un origen de tipo CÓDIGO y orienta al prompt de arquetipo directo |
+| AC-07 | Cualquier sesión de `/document-project` completada | El flujo llega al RESUMEN | Existe el artefacto `.ai/sessions/YYYY-MM-DD/` con los tres ficheros obligatorios (`00_REQUEST.md`, `00_CONTEXT_SNAPSHOT.md`, `TRACEABILITY.md`) y se propone un commit Conventional Commits |
 
 Verificación: ejecutar `/document-project` (Claude Code) o
 `Lee y aplica .github/prompts/document_project.prompt.md` con los cuatro parámetros en
@@ -102,3 +104,4 @@ cualquier plataforma IA soportada.
 | MATERIAL | Término colectivo para orígenes que no son de tipo CÓDIGO (NORMATIVA, ESPECIFICACIÓN, UI/PANTALLAS, REFERENCIA); su contenido enriquece secciones de los arquetipos del proyecto CÓDIGO principal |
 | Fase 0a | Paso de clasificación de orígenes ejecutado antes del inventario cuando hay ≥2 orígenes o el único origen no es CÓDIGO; requiere confirmación del usuario antes de continuar |
 | Estrategia | Forma de documentar múltiples orígenes de tipo CÓDIGO: `federado` (cada proyecto independiente), `hub+satélite` (un proyecto concentra el destino), `monorepo` (un `mkdocs.yml` raíz agrupa secciones); nunca se autodetecta |
+| Cierre de sesión | Paso final obligatorio del flujo: crea los artefactos `.ai/sessions/YYYY-MM-DD/` en el destino y propone un commit Conventional Commits con el resumen de la sesión |

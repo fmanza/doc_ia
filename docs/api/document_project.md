@@ -50,7 +50,7 @@ flowchart TD
 
 ### Contrato de salida
 
-Nueve bloques en el chat, en este orden:
+Diez bloques en el chat, en este orden:
 1. `VALIDACIÓN DE INPUTS` — tabla de estado por parámetro; si hay ❌ el flujo se detiene.
 2. `CLASIFICACIÓN DE ORÍGENES` — solo con ≥2 orígenes o si el único no es CÓDIGO.
 3. `INVENTARIO` — tabla módulo × estado (A/B/C) × acción × arquetipos afectados.
@@ -60,6 +60,7 @@ Nueve bloques en el chat, en este orden:
 7. `REVISIÓN` — checklist de validación.
 8. `BUILD` — resultado de `--verify-build` (solo opt-in).
 9. `RESUMEN` — contadores de archivos creados/actualizados/omitidos y entradas de nav.
+10. `CIERRE DE SESIÓN` — siempre obligatorio: artefactos `.ai/sessions/YYYY-MM-DD/` en el destino + propuesta de commit Conventional Commits.
 
 ### Errores y casos especiales
 
@@ -70,6 +71,7 @@ Nueve bloques en el chat, en este orden:
 | Todos los orígenes son MATERIAL (sin CÓDIGO) | El flujo se detiene con mensaje orientativo hacia los prompts de arquetipo directo |
 | `--verify-build` falla | Se reportan errores del build MkDocs; el RESUMEN los lista como pendientes |
 | Estado B con secciones vigentes | Solo se actualizan las secciones afectadas; las vigentes se copian verbatim |
+| CIERRE omitido por el agente | Error del flujo: el cierre es siempre obligatorio; si falta, solicitar al agente que cree los artefactos `.ai/sessions/` y proponga el commit antes de cerrar la sesión |
 
 ## 3. Componentes y Clases
 

@@ -29,14 +29,15 @@ python scripts/check_env.py
 Si el entorno está completo verás:
 
 ```
-mkdocs  ✓
-ruff    ✓
-mypy    ✓
-pytest  ✓
 Entorno de tooling documental completo.
 ```
 
-Si alguna herramienta falta, `check_env.py` indica cuál y sale con código 1.
+Si alguna herramienta falta, `check_env.py` indica cuál y sale con código 1:
+
+```
+Faltan herramientas: ruff, mypy
+```
+
 Instala las dependencias que falten con `pip install -r requirements.txt`.
 
 ## 4. Siguiente Paso Sugerido
