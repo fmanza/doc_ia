@@ -16,6 +16,8 @@ Documentar un proyecto (origen → destino) orquestando los arquetipos formales.
 - [ ] **Destino de la documentación**: Ruta donde se escribe (ej. `c:\repos\mi_api\docs`)
 - [ ] **Generador**: `mkdocs-material` (por defecto) | `zensical`
 - [ ] **Idioma**: `es` | `en` | otro
+- [ ] **Tipo de cada origen** (opcional): `CÓDIGO` | `NORMATIVA` | `ESPECIFICACIÓN` | `UI/PANTALLAS` | `REFERENCIA` — autodetectado si se omite; el usuario confirma antes de continuar
+- [ ] **Estrategia** (solo con ≥2 orígenes CÓDIGO): `federado` | `hub+satélite` | `monorepo` — preguntar al usuario, nunca autodetectar
 - [ ] **Alcance** (opcional): módulos o subconjunto; por defecto proyecto completo
 - [ ] **Arquetipos** (opcional): subconjunto; por defecto todos los aplicables
 - [ ] **Verificación** (opcional): `--verify-tools` y/o `--verify-build [--serve]`
@@ -53,7 +55,22 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
    - Tabla: | Parámetro | Valor | Estado (✅/❌) |
    - Si hay ❌ → detenerse y preguntar
 
-2. **INVENTARIO** (Fases 0-1)
+2. **CLASIFICACIÓN DE ORÍGENES** (solo con ≥2 orígenes, o si el único origen no es CÓDIGO)
+   - Tabla: | Origen | Tipo detectado | Señales | Rol |
+   - Tipos posibles:
+     - `CÓDIGO` — archivos fuente (`.py`, `.js`, `.ts`, `.cs`, `.java`, …), `pyproject.toml`, `package.json`, `pom.xml`, `src/`, `tests/` presentes → documentar como proyecto (arquetipos 1–7)
+     - `NORMATIVA` — PDFs/docs con nombres que contienen `ley`, `decreto`, `directiva`, `rgpd`, `une`, `iso`, `reglamento` → activar Arquetipo 8; enriquece §2 Arquetipo 1 del proyecto principal
+     - `ESPECIFICACIÓN` — Word/PDF de requisitos, user stories, pliego, casos de uso → enriquece Arquetipo 1 §2+§3+§4 del proyecto principal
+     - `UI/PANTALLAS` — wireframes, mockups, capturas (`.png`, `.jpg`, `.pdf` de diseño) → enriquece Arquetipo 1 §3 y Arquetipo 3
+     - `REFERENCIA` — manuales de terceros, RFCs, APIs externas → enriquece Arquetipo 2 §4 o Arquetipo 5
+   - Si hay ≥2 orígenes `CÓDIGO` → preguntar estrategia (nunca autodetectar):
+     - `federado`: cada proyecto documenta de forma independiente (docs/ propio, mkdocs.yml propio)
+     - `hub+satélite`: un proyecto "hub" es el destino; los demás se documentan como secciones dentro de él
+     - `monorepo`: un mkdocs.yml raíz agrupa secciones por proyecto
+   - **Caso degenerado**: si no hay ningún origen `CÓDIGO` → **DETENER**: "No se detecta ningún proyecto de desarrollo. `/document-project` requiere al menos un origen de tipo CÓDIGO. Para documentar solo normativa o especificación, usa directamente `normative_traceability.prompt.md` o `functional_doc.prompt.md`."
+   - ⚠️ **Confirmar clasificación con el usuario antes de continuar al INVENTARIO.**
+
+3. **INVENTARIO** (Fases 0-1)
    - Normativa de referencia (Arquetipo 8) si aplica
    - Tabla con 4 columnas: | Módulo / Página | Estado | Acción | Arquetipos / Secciones |
      - Estado A — sin doc → CREAR
@@ -62,27 +79,29 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
    - Criterios estado B: firma cambiada · símbolo nuevo no documentado · símbolo retirado
      del módulo · tests contradicen docs · sección "Pendiente de verificación" verificable ya
 
-3. **PLAN_DOC**
+4. **PLAN_DOC**
    - Orden de ejecución: CREAR (A) antes que ACTUALIZAR (B); OMITIR (C) no se toca
    - Por cada página: acción + secciones afectadas + impacto en navegación
+   - Con múltiples orígenes CÓDIGO: indicar estrategia elegida y qué proyecto es el hub (si aplica)
 
-4. **GENERACIÓN** (Fases 2-4)
+5. **GENERACIÓN** (Fases 2-4)
    - Funcional → técnica → ejemplos → guías/landing según inventario
    - Para estado B: leer página existente completa → actualizar solo secciones afectadas
      → conservar verbatim las vigentes → nunca borrar "Pendiente de verificación" sin verificar
+   - Orígenes MATERIAL: usar como fuente de enriquecimiento de las secciones mapeadas (ver CLASIFICACIÓN); no crear páginas propias para ellos
 
-5. **SYNC NAV** (Fase 5)
+6. **SYNC NAV** (Fase 5)
    - Diff de `mkdocs.yml` del destino
 
-6. **REVISIÓN** (Fase 6)
+7. **REVISIÓN** (Fase 6)
    - Markdown, enlaces, Mermaid, secciones de arquetipo
 
-7. **BUILD** (Fase 7, solo con `--verify-build`)
+8. **BUILD** (Fase 7, solo con `--verify-build`)
 
-8. **RESUMEN**
+9. **RESUMEN**
    - Archivos generados/actualizados, entradas de nav, pendientes de verificación humana
 
-## Ejemplo de entrada
+## Ejemplo de entrada — origen único
 
 ```
 Origen(es): c:\Desarrollo\python\libs\doc_ia
@@ -94,7 +113,32 @@ Arquetipos: funcional, técnica, ejemplos
 Verificación: --verify-build
 ```
 
-## Ejemplo de salida esperada (VALIDACIÓN + INVENTARIO)
+## Ejemplo de entrada — múltiples orígenes heterogéneos
+
+```
+Origen(es):
+  - c:\repos\mi_api                  (proyecto principal)
+  - c:\docs\normativa\ley_39.pdf     (ley de referencia)
+  - c:\docs\pantallas\mockups\       (capturas de pantalla)
+Destino: c:\repos\mi_api\docs
+Generador: mkdocs-material
+Idioma: es
+Tipo de cada origen: mi_api=CÓDIGO, ley_39.pdf=NORMATIVA, mockups=UI/PANTALLAS
+```
+
+## Ejemplo de entrada — múltiples proyectos de código
+
+```
+Origen(es):
+  - c:\repos\mi_api    (backend Python)
+  - c:\repos\mi_web    (frontend React)
+Destino: c:\repos\mi_api\docs
+Generador: mkdocs-material
+Idioma: es
+Estrategia: hub+satélite  (mi_api es el hub)
+```
+
+## Ejemplo de salida esperada (VALIDACIÓN + CLASIFICACIÓN + INVENTARIO)
 
 ```markdown
 ## VALIDACIÓN DE INPUTS
@@ -105,6 +149,10 @@ Verificación: --verify-build
 | Destino | c:\Desarrollo\python\libs\doc_ia\docs | ✅ existe |
 | Generador | mkdocs-material | ✅ mkdocs.yml presente |
 | Idioma | es | ✅ |
+
+## CLASIFICACIÓN DE ORÍGENES
+
+(origen único — fase omitida; tipo detectado: CÓDIGO)
 
 ## INVENTARIO
 

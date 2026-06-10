@@ -70,6 +70,52 @@ Estructura mínima:
 
 ## Flujo de trabajo
 
+### Paso 0a — Clasificación de orígenes (solo con ≥2 orígenes, o si el único origen no es CÓDIGO)
+
+Ejecutar siempre antes de cualquier otra fase cuando se reciben múltiples orígenes.
+
+#### Tipos de origen y señales de detección
+
+| Tipo | Señales en el sistema de ficheros |
+|------|----------------------------------|
+| `CÓDIGO` | Archivos fuente (`.py`, `.js`, `.ts`, `.cs`, `.java`, …), `pyproject.toml`, `package.json`, `pom.xml`, `Cargo.toml`, directorio `src/` o `tests/` presente |
+| `NORMATIVA` | PDFs/docs cuyo nombre o carpeta contenga: `ley`, `decreto`, `directiva`, `rgpd`, `une`, `iso`, `reglamento` |
+| `ESPECIFICACIÓN` | Word/PDF de requisitos, user stories, pliego, casos de uso; carpetas `specs/`, `requirements/`, `ux/` |
+| `UI/PANTALLAS` | Wireframes, mockups, capturas (`.png`, `.jpg`, `.pdf` de diseño); carpetas `mockups/`, `screens/`, `wireframes/` |
+| `REFERENCIA` | Manuales de terceros, RFCs, APIs externas, especificaciones de protocolo |
+
+#### Mapeo tipo MATERIAL → arquetipos
+
+| Tipo origen | Arquetipo enriquecido | Sección(es) afectadas |
+|-------------|----------------------|----------------------|
+| `NORMATIVA` | Arquetipo 8 + Arquetipo 1 del proyecto principal | §2 Reglas de Negocio |
+| `ESPECIFICACIÓN` | Arquetipo 1 del proyecto principal | §2 Reglas de Negocio, §3 Casos de Uso, §4 Criterios de Aceptación |
+| `UI/PANTALLAS` | Arquetipo 1 + Arquetipo 3 | §3 Casos de Uso (Arq. 1); §3 Pasos (Arq. 3) |
+| `REFERENCIA` | Arquetipo 2 o Arquetipo 5 | §4 Dependencias (Arq. 2); Decisión (Arq. 5) |
+
+#### Estrategia para múltiples orígenes CÓDIGO
+
+Cuando hay ≥2 orígenes de tipo `CÓDIGO`, **preguntar al usuario** cuál estrategia usar (no autodetectar):
+
+| Estrategia | Descripción |
+|------------|-------------|
+| `federado` | Cada proyecto → su propio `docs/` + `mkdocs.yml` independiente |
+| `hub+satélite` | Un proyecto "hub" concentra el destino; los demás se documentan como secciones dentro de él |
+| `monorepo` | Un `mkdocs.yml` raíz agrupa secciones por proyecto |
+
+#### Caso degenerado
+
+Si no hay ningún origen de tipo `CÓDIGO`: **DETENER** con mensaje:
+> "No se detecta ningún proyecto de desarrollo. `/document-project` requiere al menos un origen de tipo CÓDIGO. Para documentar solo normativa o especificación, usa directamente `normative_traceability.prompt.md` o `functional_doc.prompt.md`."
+
+#### Protocolo de ejecución
+
+1. Listar el contenido del directorio raíz de cada origen.
+2. Detectar tipo por señales (tabla anterior).
+3. Presentar tabla de clasificación: `| Origen | Tipo detectado | Señales | Rol propuesto |`
+4. **DETENER y esperar confirmación del usuario** antes de continuar al Paso 0 / Fase 1.
+5. Si hay ≥2 orígenes CÓDIGO: preguntar estrategia al usuario y registrarla para el PLAN_DOC.
+
 ### Paso 0 — Verificación de herramientas (opcional, activar con `--verify-tools`)
 
 Solo ejecutar cuando el usuario solicite verificar compatibilidad de versiones o plugins:
@@ -171,10 +217,12 @@ Cuando el usuario pida documentar o actualizar todo el proyecto, usa este flujo 
 **No generes todo en un único paso**: itera módulo a módulo dentro de cada fase.
 
 ### Fase 1 — Inventario real
-- Lee `scripts/` y lista todos los módulos públicos (exportados en `__init__.py` o `__all__`).
+- Lee el árbol de cada origen de tipo `CÓDIGO` (aplicar Paso 0a si hay múltiples orígenes).
+- Lista todos los módulos públicos (exportados en `__init__.py` o `__all__`).
 - Contrasta cada módulo con `README.md`, `docs/`, `docs/examples/` y `mkdocs.yml`.
 - Clasifica: (A) sin documentación, (B) documentación desactualizada, (C) documentación vigente.
 - Prioriza: entry points > CLI > API pública > configuración > ejemplos reproducibles.
+- Con múltiples orígenes CÓDIGO: generar un sub-inventario por proyecto; indicar el hub si la estrategia es `hub+satélite`.
 
 ### Fase 2 — Mapeo funcional (Senior Product Owner)
 - Para cada módulo de tipo A o B, aplica `functional_doc.prompt.md`.

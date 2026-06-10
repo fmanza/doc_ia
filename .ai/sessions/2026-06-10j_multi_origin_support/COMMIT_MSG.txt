@@ -1,0 +1,31 @@
+feat(document-project): soporte de orígenes heterogéneos — Fase 0a de clasificación
+
+Extiende /document-project para detectar y gestionar múltiples orígenes de naturaleza
+diferente (código vs. material de entrada) antes de inventariar.
+
+Nuevos conceptos:
+- Tipos de origen: CÓDIGO | NORMATIVA | ESPECIFICACIÓN | UI/PANTALLAS | REFERENCIA
+- Autodetección por señales del sistema de ficheros; confirmación obligatoria del usuario
+- Estrategias para múltiples orígenes CÓDIGO: federado | hub+satélite | monorepo
+- Mapeo MATERIAL → arquetipos: qué secciones enriquece cada tipo de origen no-CÓDIGO
+- Caso degenerado: detención explícita si no hay ningún origen CÓDIGO
+
+.claude/commands/document-project.md:
+- + campos opcionales: "Tipo de cada origen" y "Estrategia"
+- + sección CLASIFICACIÓN DE ORÍGENES (paso 2 del flujo Devuelve)
+- Numeración de secciones actualizada: 2-8 → 3-9
+- 3 ejemplos de entrada: origen único, heterogéneos, múltiples CÓDIGO
+
+.github/prompts/document_project.prompt.md:
+- + Fase 0a en el flujo orquestado (antes de Fase 0 normativa)
+- + paso 2 CLASIFICACIÓN en Devuelve
+- Campos opcionales sincronizados con el comando Claude Code
+
+.github/agents/documentation-generator.agent.md:
+- + Paso 0a: tabla de señales, mapeo MATERIAL→arquetipos, estrategias, protocolo
+- Fase 1 actualizada para sub-inventarios en escenario multi-CÓDIGO
+
+.github/DOCUMENTATION_STANDARD.md:
+- + §3.10 "Documentación con Múltiples Orígenes": tipos, mapeo, estrategias
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>

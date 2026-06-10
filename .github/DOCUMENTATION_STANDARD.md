@@ -428,6 +428,49 @@ Esta sección define el contrato mínimo y las reglas de nomenclatura para **tod
 
 ---
 
+### 3.10 Documentación con Múltiples Orígenes
+
+Cuando `/document-project` recibe más de un `Origen`, o cuando el único origen no es un proyecto de código, es obligatorio ejecutar la **Fase 0a — Clasificación de orígenes** antes de inventariar.
+
+#### Tipos de origen
+
+| Tipo | Señales de detección | Tratamiento documental |
+|------|---------------------|----------------------|
+| `CÓDIGO` | Archivos fuente (`.py`, `.js`, `.ts`, `.cs`, `.java`, …), `pyproject.toml`, `package.json`, `pom.xml`, `Cargo.toml`, `src/`, `tests/` | Documentar como proyecto: inventario completo + arquetipos 1–7 |
+| `NORMATIVA` | PDFs/docs con palabras clave en nombre: `ley`, `decreto`, `directiva`, `rgpd`, `une`, `iso`, `reglamento` | Activar Arquetipo 8; enriquece §2 (Reglas de Negocio) del Arquetipo 1 del proyecto principal |
+| `ESPECIFICACIÓN` | Word/PDF de requisitos, user stories, pliego, casos de uso; carpetas `specs/`, `requirements/` | Enriquece Arquetipo 1 §2+§3+§4 del proyecto principal |
+| `UI/PANTALLAS` | Wireframes, mockups, capturas (`.png`, `.jpg`, `.pdf` de diseño); carpetas `mockups/`, `screens/`, `wireframes/` | Enriquece Arquetipo 1 §3 (Casos de Uso) y Arquetipo 3 (Guías) |
+| `REFERENCIA` | Manuales de terceros, RFCs, APIs externas, especificaciones de protocolo | Enriquece Arquetipo 2 §4 (Dependencias) o Arquetipo 5 (ADR) |
+
+**Regla**: la autodetección propone el tipo; el usuario confirma antes de continuar al INVENTARIO. Nunca se asume el tipo sin confirmación.
+
+**Caso degenerado**: si no hay ningún origen de tipo `CÓDIGO`, `/document-project` no aplica. Usar directamente el prompt de arquetipo correspondiente (`normative_traceability.prompt.md`, `functional_doc.prompt.md`, etc.).
+
+#### Mapeo MATERIAL → arquetipos (referencia rápida)
+
+| Tipo origen | Arquetipo | Sección(es) que enriquece |
+|-------------|-----------|--------------------------|
+| `NORMATIVA` | 8 + 1 (proyecto principal) | Arq. 8 completo; Arq. 1 §2 Reglas de Negocio |
+| `ESPECIFICACIÓN` | 1 (proyecto principal) | §2 Reglas de Negocio, §3 Casos de Uso, §4 Criterios de Aceptación |
+| `UI/PANTALLAS` | 1 + 3 | Arq. 1 §3 Casos de Uso; Arq. 3 §3 Pasos |
+| `REFERENCIA` | 2 o 5 | Arq. 2 §4 Dependencias; o Arq. 5 (decisión ADR) |
+
+Los orígenes MATERIAL **no generan páginas propias** en `docs/`; su contenido enriquece las secciones indicadas de los arquetipos del proyecto principal.
+
+#### Estrategia para múltiples orígenes CÓDIGO
+
+Cuando hay ≥2 orígenes de tipo `CÓDIGO`, el agente pregunta al usuario la estrategia (nunca la autodetecta):
+
+| Estrategia | Descripción | Cuándo elegir |
+|------------|-------------|---------------|
+| `federado` | Cada proyecto tiene su propio `docs/` y `mkdocs.yml` independientes | Repos separados, equipos distintos, sin destino compartido |
+| `hub+satélite` | Un proyecto "hub" concentra el destino; los demás se documentan como secciones dentro de él | Un destino claro, uno de los proyectos es el consumidor de los demás |
+| `monorepo` | Un `mkdocs.yml` raíz agrupa secciones por proyecto | Monorepo, mismo equipo, mismo destino para todos |
+
+Con estrategia `hub+satélite`, el INVENTARIO genera un sub-inventario por proyecto; el PLAN_DOC indica qué secciones del `mkdocs.yml` del hub reciben las páginas de los satélites.
+
+---
+
 ## 4. Configuración Recomendada mkdocs.yml
 
 La siguiente configuración es la **referencia estándar** para todos los proyectos.

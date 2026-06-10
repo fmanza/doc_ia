@@ -19,6 +19,8 @@ sueltos para documentar un proyecto completo: invoca este flujo y deja que orque
 
 Opcionales:
 
+- **Tipo de cada origen**: `CÓDIGO` | `NORMATIVA` | `ESPECIFICACIÓN` | `UI/PANTALLAS` | `REFERENCIA` — autodetectado si se omite; se confirma con el usuario antes de continuar
+- **Estrategia** (solo con ≥2 orígenes CÓDIGO): `federado` | `hub+satélite` | `monorepo` — siempre preguntar al usuario, nunca autodetectar
 - **Alcance**: módulos o subconjunto a documentar (por defecto: proyecto completo)
 - **Arquetipos**: subconjunto a aplicar (por defecto: todos los aplicables según inventario)
 - **Verificación**: `--verify-tools` y/o `--verify-build [--serve]` (opt-in, nunca automáticos)
@@ -52,8 +54,35 @@ Aplica el flujo por fases de `.github/agents/documentation-generator.agent.md` s
 **origen** indicado, escribiendo en el **destino** indicado:
 
 ```
+Fase 0a — Clasificación de orígenes (solo con ≥2 orígenes, o si el único origen no es CÓDIGO):
+         1. Para cada origen, detectar tipo por señales del sistema de ficheros:
+            - CÓDIGO      : archivos fuente (.py, .js, .ts, .cs, .java, …), pyproject.toml,
+                            package.json, pom.xml, Cargo.toml, src/, tests/ presentes
+            - NORMATIVA   : PDFs/docs con palabras clave en nombre de archivo o carpeta:
+                            ley, decreto, directiva, rgpd, une, iso, reglamento
+            - ESPECIFICACIÓN: Word/PDF de requisitos, user stories, pliego, casos de uso
+            - UI/PANTALLAS: wireframes, mockups, capturas (.png, .jpg, .pdf de diseño),
+                            carpetas nombradas mockups/, screens/, wireframes/
+            - REFERENCIA  : manuales de terceros, RFCs, APIs externas, especificaciones de protocolo
+         2. Presentar tabla: | Origen | Tipo detectado | Señales encontradas | Rol propuesto |
+         3. DETENER y pedir confirmación al usuario antes de continuar.
+         4. Si hay ≥2 orígenes CÓDIGO → preguntar estrategia al usuario:
+            - federado     : cada proyecto con docs/ y mkdocs.yml propios, independientes
+            - hub+satélite : un proyecto "hub" concentra el destino; los demás son secciones
+            - monorepo     : mkdocs.yml raíz único agrupa secciones por proyecto
+         5. Caso degenerado — ningún origen CÓDIGO → DETENER con mensaje:
+            "No se detecta ningún proyecto de desarrollo. /document-project requiere al menos
+             un origen de tipo CÓDIGO. Para documentar solo normativa o especificación,
+             usa directamente normative_traceability.prompt.md o functional_doc.prompt.md."
+         Mapeo MATERIAL → arquetipos (para orígenes no-CÓDIGO):
+            NORMATIVA      → Arquetipo 8 + enriquece §2 (Reglas de Negocio) del Arquetipo 1
+            ESPECIFICACIÓN → enriquece Arquetipo 1 §2+§3+§4 del proyecto principal
+            UI/PANTALLAS   → enriquece Arquetipo 1 §3 (Casos de Uso) y Arquetipo 3
+            REFERENCIA     → enriquece Arquetipo 2 §4 (Dependencias) o Arquetipo 5 (ADR)
+
 Fase 0 — Detección de normativa: si el origen referencia normativa de obligado cumplimiento,
          ofrecer Arquetipo 8 (normative_traceability.prompt.md). Si no hay, omitir.
+         Nota: si la Fase 0a ya clasificó un origen como NORMATIVA, este paso está cubierto.
 Fase 1 — Inventariar y clasificar:
          Leer árbol real del origen (README, código, docs/, mkdocs.yml del destino).
          Para cada módulo del origen y cada página existente en el destino, asignar estado:
@@ -90,13 +119,19 @@ APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reg
 ## Devuelve en este orden
 
 1. **VALIDACIÓN DE INPUTS** — tabla: | Parámetro | Valor | Estado (✅/❌) | — si hay ❌, detenerse aquí.
-2. **INVENTARIO** (Fase 0+1) — tabla: | Módulo / Página | Estado (A/B/C) | Acción (CREAR/ACTUALIZAR/OMITIR) | Arquetipos / Secciones afectadas |
-3. **PLAN_DOC** — orden de generación con columnas CREAR / ACTUALIZAR (indicar secciones) / OMITIR; impacto en navegación.
-4. **GENERACIÓN** (Fases 2-4) — por fases e iterando módulo a módulo; nunca un único prompt masivo.
-5. **SYNC NAV** (Fase 5) — diff de `mkdocs.yml` (o config del generador) del destino.
-6. **REVISIÓN** (Fase 6) — checklist de validación + hallazgos.
-7. **BUILD** (Fase 7, solo opt-in) — resultado de `--verify-build`.
-8. **RESUMEN** — archivos generados/actualizados, entradas de nav, pendientes de verificación humana.
+2. **CLASIFICACIÓN DE ORÍGENES** (Fase 0a) — solo con ≥2 orígenes o si el único no es CÓDIGO:
+   - Tabla: | Origen | Tipo detectado | Señales | Rol |
+   - Si hay ≥2 orígenes CÓDIGO: indicar estrategia elegida por el usuario.
+   - ⚠️ Confirmar con el usuario antes de continuar.
+3. **INVENTARIO** (Fase 0+1) — tabla: | Módulo / Página | Estado (A/B/C) | Acción (CREAR/ACTUALIZAR/OMITIR) | Arquetipos / Secciones afectadas |
+   - Con múltiples orígenes CÓDIGO: un sub-inventario por proyecto.
+4. **PLAN_DOC** — orden de generación con columnas CREAR / ACTUALIZAR (indicar secciones) / OMITIR; impacto en navegación.
+5. **GENERACIÓN** (Fases 2-4) — por fases e iterando módulo a módulo; nunca un único prompt masivo.
+   - Orígenes MATERIAL: usar como fuente de enriquecimiento de las secciones mapeadas (ver Fase 0a); no crear páginas propias para ellos.
+6. **SYNC NAV** (Fase 5) — diff de `mkdocs.yml` (o config del generador) del destino.
+7. **REVISIÓN** (Fase 6) — checklist de validación + hallazgos.
+8. **BUILD** (Fase 7, solo opt-in) — resultado de `--verify-build`.
+9. **RESUMEN** — archivos generados/actualizados, entradas de nav, pendientes de verificación humana.
 
 ## Ejemplo de entrada
 
