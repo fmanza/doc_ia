@@ -208,9 +208,13 @@ No modifica ningún fichero basándose solo en hallazgos del HTML; propone cambi
 - **Caracteres prohibidos en labels de nodos** (`[...]`, `(...)`, `{...}`): `@`, `#`, `"`, `{`, `}`.
   Sustituir con entidad HTML: `@` → `&#64;`, `#` → `&#35;`. El resto del Markdown (fuera del bloque
   mermaid) puede usar estos caracteres libremente.
-- **`subgraph` — título correcto**: solo `subgraph título` o `subgraph id[título]` (corchetes planos).
-  **Prohibido** `subgraph id[(título)]` — la notación `[(…)]` es exclusiva de nodos cilíndricos
-  y causa parse error dentro de una declaración `subgraph`.
+- **`/` al inicio de `[...]` — PROHIBIDO**: Mermaid 11 interpreta `[/texto/]` como nodo paralelogramo.
+  Si falta el `/` de cierre → lexical error en la línea siguiente. Sustituir rutas (`/opt/data`) por
+  nombres descriptivos (`data`) o usar `·` como separador. `<br/>` dentro de labels es seguro.
+- **`subgraph` — ID y título**: usar `subgraph id[título]` con ID alfanumérico sin hifens.
+  Si el título contiene `/` o `-`, usar `·` o guión bajo en su lugar.
+  **Prohibido** `subgraph id[(título)]` — `[(…)]` es exclusiva de nodos cilíndricos y causa
+  parse error dentro de una declaración `subgraph`.
 
 ### Tablas
 - API pública: solo lo exportado en `__all__` o `__init__.py`

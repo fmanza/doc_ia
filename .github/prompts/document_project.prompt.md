@@ -176,8 +176,11 @@ APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reg
 **Mermaid — sintaxis de nodos y subgrafos:**
 - Caracteres prohibidos en labels de nodo (`[...]`, `(...)`, `{...}`): `@`, `#`, `"`.
   Sustituir con entidad HTML: `@` → `&#64;`, `#` → `&#35;`.
-- `subgraph`: solo `subgraph título` o `subgraph id[título]`. Prohibido `subgraph id[(título)]`
-  — `[(…)]` es forma de nodo cilíndrico y causa parse error en declaraciones `subgraph`.
+- **`/` al inicio de `[...]` — PROHIBIDO**: `[/texto/]` es nodo paralelogramo en Mermaid 11.
+  Sin `/` de cierre → lexical error en la línea siguiente. Sustituir rutas UNIX/Windows por
+  nombres descriptivos o usar `·` como separador. `<br/>` dentro de labels es seguro.
+- `subgraph`: usar `subgraph id[título]` con ID alfanumérico sin hifens. Si el título contiene
+  `/` o `-`, usar `·` o guión bajo. Prohibido `subgraph id[(título)]` — parse error.
 - Estas reglas aplican solo dentro de bloques ` ```mermaid ``` `; fuera de ellos no hay restricción.
 
 ## Devuelve en este orden
