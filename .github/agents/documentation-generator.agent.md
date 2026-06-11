@@ -205,6 +205,12 @@ No modifica ningún fichero basándose solo en hallazgos del HTML; propone cambi
 - Sin nombres de variables internas, rutas de implementación ni puertos
 - Usar `sequenceDiagram` para flujos I/O, `flowchart TD` para lógica de decisión
 - Si el flujo no se puede inferir con seguridad, documentar la incertidumbre en vez de inventar pasos
+- **Caracteres prohibidos en labels de nodos** (`[...]`, `(...)`, `{...}`): `@`, `#`, `"`, `{`, `}`.
+  Sustituir con entidad HTML: `@` → `&#64;`, `#` → `&#35;`. El resto del Markdown (fuera del bloque
+  mermaid) puede usar estos caracteres libremente.
+- **`subgraph` — título correcto**: solo `subgraph título` o `subgraph id[título]` (corchetes planos).
+  **Prohibido** `subgraph id[(título)]` — la notación `[(…)]` es exclusiva de nodos cilíndricos
+  y causa parse error dentro de una declaración `subgraph`.
 
 ### Tablas
 - API pública: solo lo exportado en `__all__` o `__init__.py`

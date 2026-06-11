@@ -161,6 +161,12 @@ Fase 7b — ZIP offline y actualización de downloads.md
 Reglas transversales: idioma indicado en todo el contenido generado; no inventar módulos,
 APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reglas operativas de
 `.github/instructions/docs.instructions.md`.
+**Mermaid — sintaxis de nodos y subgrafos:**
+- Caracteres prohibidos en labels de nodo (`[...]`, `(...)`, `{...}`): `@`, `#`, `"`.
+  Sustituir con entidad HTML: `@` → `&#64;`, `#` → `&#35;`.
+- `subgraph`: solo `subgraph título` o `subgraph id[título]`. Prohibido `subgraph id[(título)]`
+  — `[(…)]` es forma de nodo cilíndrico y causa parse error en declaraciones `subgraph`.
+- Estas reglas aplican solo dentro de bloques ` ```mermaid ``` `; fuera de ellos no hay restricción.
 
 ## Devuelve en este orden
 
