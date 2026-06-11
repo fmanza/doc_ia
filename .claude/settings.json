@@ -57,7 +57,35 @@
       "Bash(Get-ChildItem -Path \"C:\\\\Desarrollo\\\\Proyectos\\\\dpss\" -Directory -ErrorAction SilentlyContinue)",
       "Bash(Select-Object -ExpandProperty Name)",
       "Bash(xargs -I {} basename {} .md)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(Test-Path \"C:\\\\Desarrollo\\\\Proyectos\\\\socyalpro\")",
+      "Bash(Test-Path \"C:\\\\Desarrollo\\\\Proyectos\\\\tmp\\\\Socyal\\\\Legales\\\\CA\")",
+      "Bash(Test-Path \"C:\\\\Desarrollo\\\\Proyectos\\\\tmp\\\\Socyal\\\\Legales\\\\ES\")",
+      "Bash(Test-Path \"C:\\\\Desarrollo\\\\Proyectos\\\\tmp\\\\Socyal\\\\Legales\\\\LC\")",
+      "Bash(Test-Path \"C:\\\\Desarrollo\\\\Proyectos\\\\tmp\\\\Socyal\\\\Manuales\")",
+      "Read(//c/Desarrollo/Proyectos/socyalpro/**)",
+      "Read(//c/Desarrollo/Proyectos/tmp/Socyal/Legales/CA/**)",
+      "Read(//c/Desarrollo/Proyectos/tmp/Socyal/Legales/ES/**)",
+      "Read(//c/Desarrollo/Proyectos/tmp/Socyal/Legales/LC/**)",
+      "Read(//c/Desarrollo/Proyectos/tmp/Socyal/Manuales/**)",
+      "PowerShell(pandoc --version 2>$null)",
+      "Read(//c//**)",
+      "PowerShell(winget list pandoc 2>&1)",
+      "PowerShell(New-Item -ItemType Directory -Force \"C:\\\\Desarrollo\\\\Proyectos\\\\socyalpro\\\\.ai\\\\sessions\\\\2026-06-12\")",
+      "Bash(git -C \"C:\\\\Desarrollo\\\\python\\\\libs\\\\doc_ia\" status)",
+      "Bash(git -C \"C:\\\\Desarrollo\\\\python\\\\libs\\\\doc_ia\" diff --stat HEAD)",
+      "Bash(git -C \"C:\\\\Desarrollo\\\\Proyectos\\\\socyalpro\" status)",
+      "Bash(git -C \"C:\\\\Desarrollo\\\\Proyectos\\\\socyalpro\" diff --stat HEAD)",
+      "Bash(git -C \"C:\\\\Desarrollo\\\\python\\\\libs\\\\doc_ia\" log --oneline -5)",
+      "Bash(git -C \"C:\\\\Desarrollo\\\\Proyectos\\\\socyalpro\" log --oneline -5)",
+      "Bash(git -C \"C:\\\\Desarrollo\\\\Proyectos\\\\socyalpro\" status --short)",
+      "Bash(git -C \"C:\\\\Desarrollo\\\\python\\\\libs\\\\doc_ia\" status --short)",
+      "Bash(git -C \"C:\\\\Desarrollo\\\\python\\\\libs\\\\doc_ia\" status --short --untracked-files=all)",
+      "Bash(git -C \"C:\\\\Desarrollo\\\\python\\\\libs\\\\doc_ia\" diff HEAD -- .github/DOCUMENTATION_STANDARD.md)",
+      "Bash(git -C \"C:\\\\Desarrollo\\\\python\\\\libs\\\\doc_ia\" log --oneline -3 -- .github/DOCUMENTATION_STANDARD.md)",
+      "Bash(git -C \"C:\\\\Desarrollo\\\\python\\\\libs\\\\doc_ia\" show 097d220 --stat)",
+      "Bash(dir /s /b .ai)",
+      "Bash(dir /s /b .ai\\\\sessions)"
     ],
     "additionalDirectories": [
       "c:\\Desarrollo\\python\\libs\\util_bbdd\\docs\\functional",
@@ -68,7 +96,8 @@
       "C:\\Desarrollo\\python\\libs\\util\\docs",
       "C:\\Desarrollo\\python\\libs\\util\\.ai\\sessions",
       "C:\\Desarrollo\\Proyectos\\dpss\\docs\\guides",
-      "C:\\Desarrollo\\Proyectos\\dpss"
+      "C:\\Desarrollo\\Proyectos\\dpss",
+      "C:\\Desarrollo\\Proyectos\\socyalpro"
     ]
   },
   "hooks": {

@@ -108,11 +108,13 @@ Fase 1 — Inventariar y clasificar:
            ESTADO C — vigente: página existe y código coincide con lo documentado.
          Acción derivada: A → CREAR | B → ACTUALIZAR | C → OMITIR.
          Prioridad de ejecución: A antes que B; C no se toca.
-         Detección de patrón ZIP offline (señales independientes — comprobar en el ORIGEN):
+         Detección de patrón ZIP offline y flag downloads.md (comprobar en el ORIGEN):
            · Si existe `scripts/build_docs_zip.py` → activar TIENE_ZIP_SCRIPT = true
-           · Si existe `docs/downloads.md` en el destino → activar TIENE_DOWNLOADS_PAGE = true
-           · Si TIENE_DOWNLOADS_PAGE = true → asignar estado B a esa página si los valores
-             (versión, tamaño, sha256, fecha) no corresponden al último artefacto en dist/
+           · `docs/downloads.md` es SIEMPRE OBLIGATORIO en el destino — nunca omitir:
+               TIENE_ZIP_SCRIPT = true  → Variante A: tabla de descarga real + SHA256 + build local
+               TIENE_ZIP_SCRIPT = false → Variante B: instrucciones build local MkDocs + tabla placeholder (—)
+           · Si ya existe `docs/downloads.md` → asignar estado B si no coincide con la variante
+             correcta o si la tabla tiene valores desactualizados (versión, tamaño, sha256, fecha)
 Fase 2 — Mapeo funcional (functional_doc.prompt.md) → [destino]/functional/
 Fase 3 — Documentación técnica con Mermaid (technical_doc.prompt.md) → [destino]/api/
 Fase 4 — Ejemplos verificables (example_doc.prompt.md) → [destino]/examples/
@@ -131,24 +133,34 @@ Fase 5 — Sincronizar navegación y verificar configuración estándar del gene
             indicarlo explícitamente en RESUMEN con la acción: "Copiar desde doc_ia/docs/assets/".
 Fase 6 — Revisión final: Markdown, enlaces relativos, sintaxis Mermaid, secciones de arquetipo completas.
 Fase 7 — Verificación de build (solo con --verify-build): build --strict del generador + lectura del HTML.
-Fase 7b — ZIP offline y actualización de downloads.md
-         (solo si TIENE_ZIP_SCRIPT = true o TIENE_DOWNLOADS_PAGE = true)
-         ⚠️  Guarda de orden: si Fase 7 no fue activada, advertir que site/ puede no estar
-             sincronizado con los últimos cambios y recomendar ejecutar el build antes del ZIP.
-         Pasos:
-           1. Si TIENE_ZIP_SCRIPT = true, proponer ejecutar en el directorio del ORIGEN:
+Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
+         Crear o actualizar `docs/downloads.md` en el destino según la variante:
+
+         VARIANTE A — TIENE_ZIP_SCRIPT = true:
+           ⚠️  Guarda de orden: si Fase 7 no fue activada, advertir que site/ puede no estar
+               sincronizado con los últimos cambios y recomendar ejecutar el build antes del ZIP.
+           1. Proponer ejecutar en el directorio del ORIGEN:
                 python scripts/build_docs_zip.py
               (o el equivalente declarado en el SHARED_INSTRUCTIONS del origen)
-           2. Si TIENE_DOWNLOADS_PAGE = true y el script fue ejecutado (o existe un ZIP reciente):
+           2. Si el script fue ejecutado (o existe un ZIP reciente en dist/):
                 a. Leer dist/{project}-docs-{version}.zip.sha256 para obtener el hash.
                 b. Calcular tamaño del ZIP en MB.
-                c. Actualizar la fila de la tabla en docs/downloads.md del DESTINO:
+                c. Actualizar la fila de la tabla en docs/downloads.md:
                      | versión | ~X MB | [.sha256](<enlace release>) | YYYY-MM-DD |
-                   Regla: reemplazar la fila existente — no acumular filas
-                   (el histórico vive en dist/CHECKSUMS.txt y en GitHub Releases).
-           3. Si solo TIENE_ZIP_SCRIPT = true (sin downloads.md): omitir el paso 2.
-           4. Si solo TIENE_DOWNLOADS_PAGE = true (sin script): marcar la página como
-              pendiente de verificación manual y registrarlo en RESUMEN.
+                   Regla: reemplazar la fila existente — no acumular filas.
+           3. Si el script no se ejecutó: marcar la fila como pendiente de verificación manual.
+
+         VARIANTE B — TIENE_ZIP_SCRIPT = false:
+           Crear docs/downloads.md con:
+             · Sección "Documentación offline (build local)": requisitos (Python, mkdocs-material),
+               comandos de instalación, `mkdocs serve` y `mkdocs build --strict`, cómo comprimir
+               el site/ generado para distribución interna.
+             · Sección "Versión descargable": tabla placeholder con fila `| — | — | — | — |`
+               y nota "*Pendiente — no existe aún un artefacto ZIP publicado automáticamente.*"
+             · Sección "Nota sobre búsqueda offline": limitación file:/// + solución http.server.
+             · Sección "Enlaces relacionados": quick start, instalación, onboarding.
+           Añadir entrada `- Descargas: downloads.md` en el nav de mkdocs.yml (tras "Inicio rápido"
+           si existe, o tras "Instalación").
 ```
 
 **Protocolo ACTUALIZAR (estado B) — obligatorio en Fases 2-4:**
@@ -183,7 +195,7 @@ APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reg
 6. **SYNC NAV** (Fase 5) — diff de `mkdocs.yml` (o config del generador) del destino.
 7. **REVISIÓN** (Fase 6) — checklist de validación + hallazgos.
 8. **BUILD** (Fase 7, solo opt-in) — resultado de `--verify-build`.
-8b. **ZIP OFFLINE** (Fase 7b, condicional) — resultado de `build_docs_zip.py` y tabla `downloads.md` actualizada; o pendientes si aplica.
+8b. **DOWNLOADS** (Fase 7b, siempre) — `downloads.md` creado/actualizado; indicar variante A (con ZIP) o B (sin script); entrada añadida al nav.
 9. **RESUMEN** — archivos generados/actualizados, entradas de nav, pendientes de verificación humana.
 10. **CIERRE DE SESIÓN** (siempre obligatorio) — crear artefacto `.ai/sessions/YYYY-MM-DD/` en el
     destino (`00_REQUEST.md`, `00_CONTEXT_SNAPSHOT.md`, `TRACEABILITY.md`) y proponer commit

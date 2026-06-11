@@ -248,10 +248,19 @@ Cuando el usuario pida documentar o actualizar todo el proyecto, usa este flujo 
   API pública, contratos entrada/salida, errores y ejemplo técnico mínimo.
 - Elige tipo de diagrama según patrón del módulo (ver `technical_doc.prompt.md`).
 
-### Fase 4 — Ejemplos verificables
+### Fase 4 — Ejemplos verificables y páginas estándar obligatorias
 - Para cada módulo sin ejemplo en `docs/examples/`, genera un ejemplo de uso real.
 - Código reproducible con datos ficticios seguros; resultado determinista.
 - Sin credenciales reales ni servicios externos obligatorios.
+
+**`docs/downloads.md` — SIEMPRE obligatorio** (estado A si no existe; B si existe pero no está al día):
+- Detectar si existe `scripts/build_docs_zip.py` en el ORIGEN → `TIENE_ZIP_SCRIPT`.
+- **Variante A** (`TIENE_ZIP_SCRIPT = true`): tabla de descarga real con versión/tamaño/SHA256/fecha,
+  sección de validación de integridad, instrucciones de build local, nota sobre búsqueda offline.
+- **Variante B** (`TIENE_ZIP_SCRIPT = false`): instrucciones de build local con MkDocs (requisitos,
+  comandos, cómo comprimir site/), tabla placeholder con fila `| — | — | — | — |`,
+  nota sobre búsqueda offline y enlaces relacionados.
+- Añadir `- Descargas: downloads.md` al nav tras "Inicio rápido" (o tras "Instalación" si no existe quickstart).
 
 ### Fase 5 — Sincronización y verificación estándar de mkdocs.yml
 

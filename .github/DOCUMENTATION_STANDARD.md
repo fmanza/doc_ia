@@ -468,7 +468,7 @@ Esta sección define el contrato mínimo y las reglas de nomenclatura para **tod
 
 | Tipo de proyecto | Guías recomendadas |
 |---|---|
-| Tooling de documentación (doc_ia) | guías de plataformas IA (`claude_code_guide.md`, `codex_guide.md`, …) + `downloads.md` (ZIP offline) |
+| Tooling de documentación (doc_ia) | guías de plataformas IA (`claude_code_guide.md`, `codex_guide.md`, …) — `downloads.md` es página estándar top-level, no una guía |
 | Aplicación con servidor (dpss) | `despliegue_docker.md` o `deployment_guide.md` |
 | Cualquier proyecto con herramientas IA | Subsección "Herramientas IA" en Guías: claude_code_guide.md, codex_guide.md, etc. |
 
@@ -873,7 +873,7 @@ markdown_extensions:
 nav:
   - Inicio: index.md
   - Instalación: installation.md
-  - 📥 Descargas: downloads.md   # si el proyecto genera artefactos descargables
+  - Descargas: downloads.md   # SIEMPRE obligatorio — Variante A (con build_docs_zip.py) o Variante B (sin script, build local + placeholder)
 
   # ── Audiencia: Product Owner, QA, responsables de negocio ──────────────────
   - Documentación Funcional:
