@@ -171,16 +171,16 @@ El workflow `.github/workflows/docs-zip-release.yml` publica automáticamente un
 
 ### Actualizar tabla "Descarga Actual" en docs/downloads.md
 
-Después de generar el ZIP, **actualiza obligatoriamente** la tabla de `docs/downloads.md`
-con los valores reales del artefacto generado. La tabla debe tener este formato:
+> La regla completa (detección de señales, pasos, guarda de orden con build) vive en
+> `.github/SHARED_INSTRUCTIONS.md` § *Artefactos generados — patrón build_docs_zip.py* y en
+> `.github/prompts/document_project.prompt.md` § *Fase 7b*. Esta sección añade solo los
+> comandos específicos del proyecto **doc_ia**.
 
-```markdown
-| Versión | Tamaño | Checksum | Fecha |
-|---|---|---|---|
-| [doc_ia-docs-{version}.zip](https://github.com/fmanza/doc_ia/releases/tag/docs-v{version}) | ~{size} MB | [.sha256](https://github.com/fmanza/doc_ia/releases/tag/docs-v{version}) | {YYYY-MM-DD} |
-```
+Después de generar el ZIP de doc_ia, actualiza la tabla de `docs/downloads.md` con los valores
+reales del artefacto. Reemplaza la fila existente; no acumules filas (el histórico vive en
+GitHub Releases y en `dist/CHECKSUMS.txt`).
 
-**Cómo obtener los valores**:
+**Comandos para obtener los valores (doc_ia)**:
 
 ```bash
 # Versión (desde pyproject.toml)
@@ -195,10 +195,6 @@ cat dist/doc_ia-docs-{version}.zip.sha256
 # Fecha de generación
 (Get-Item dist/doc_ia-docs-{version}.zip).LastWriteTime.ToString("yyyy-MM-dd")
 ```
-
-**Regla**: la fila de la tabla siempre refleja la versión más reciente publicada. Al actualizar
-a una nueva versión, reemplaza la fila existente (no acumules filas — el histórico vive en
-GitHub Releases y en `dist/CHECKSUMS.txt`).
 
 ---
 

@@ -163,6 +163,14 @@ el hook propaga los cambios a `docs/` tras cada `Edit`/`Write` y antes de cada `
 Para añadir un nuevo fichero raíz al sync, registrar la tupla en `hooks/sync_root_docs.py → PAIRS`
 y la entrada de navegación en `mkdocs.yml`. Ver `.github/instructions/sync.instructions.md`.
 
+**Patrón `build_docs_zip.py` (generalizable a proyectos origen externos)**:
+`dist/*.zip`, `dist/*.sha256` y `dist/CHECKSUMS.txt` son **artefactos generados** por
+`scripts/build_docs_zip.py`. Nunca editarlos a mano. La tabla en `docs/downloads.md` es el
+reflejo visual de estos artefactos: actualizarla siempre después de ejecutar el script.
+Cuando doc_ia documenta un proyecto origen externo que implementa este patrón, el flujo de
+`document_project.prompt.md` (Fase 7b) detecta las señales `scripts/build_docs_zip.py` y
+`docs/downloads.md` de forma independiente y propone los pasos de actualización.
+
 #### Configuración de documentación
 
 > **Fuente única**: `mkdocs.yml`. Lo consume MkDocs Material (por defecto) y, recíprocamente,
