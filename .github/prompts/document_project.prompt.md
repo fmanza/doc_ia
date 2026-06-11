@@ -117,7 +117,18 @@ Fase 2 — Mapeo funcional (functional_doc.prompt.md) → [destino]/functional/
 Fase 3 — Documentación técnica con Mermaid (technical_doc.prompt.md) → [destino]/api/
 Fase 4 — Ejemplos verificables (example_doc.prompt.md) → [destino]/examples/
          Guías y landing según inventario: guide_doc, landing_doc, onboarding_dev, architecture_doc.
-Fase 5 — Sincronizar navegación del generador (mkdocs.yml del destino): añadir/mover/retirar entradas.
+Fase 5 — Sincronizar navegación y verificar configuración estándar del generador (mkdocs.yml del destino):
+         a. Navegación: añadir/mover/retirar entradas de nav; indentación de 4 espacios extra por nivel.
+         b. Configuración estándar (DOCUMENTATION_STANDARD.md §4.1) — verificar y corregir si falta:
+            · palette: dos entradas (light con media+toggle, dark con scheme:slate+media+toggle)
+            · extra_javascript: CDN mermaid@11 + assets/js/mermaid.js + assets/js/sidebar-toggle.js
+            · extra_css: assets/css/mermaid.css + assets/css/nav.css
+            · markdown_extensions: attr_list, md_in_html, pymdownx.snippets (base_path:[docs]),
+              line_spans:__span y pygments_lang_class:true en pymdownx.highlight
+            · plugins: search con lang del idioma del proyecto
+         c. Assets: si alguno de los cuatro ficheros de docs/assets/ (js/mermaid.js,
+            js/sidebar-toggle.js, css/mermaid.css, css/nav.css) no existe en el destino,
+            indicarlo explícitamente en RESUMEN con la acción: "Copiar desde doc_ia/docs/assets/".
 Fase 6 — Revisión final: Markdown, enlaces relativos, sintaxis Mermaid, secciones de arquetipo completas.
 Fase 7 — Verificación de build (solo con --verify-build): build --strict del generador + lectura del HTML.
 Fase 7b — ZIP offline y actualización de downloads.md

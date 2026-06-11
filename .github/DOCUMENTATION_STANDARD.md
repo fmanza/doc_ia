@@ -914,18 +914,20 @@ extra:
 
 extra_javascript:
   - https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js
-  - assets/js/mermaid.js   # ← copia desde doc_ia o util_bbdd
+  - assets/js/mermaid.js        # ← copia desde doc_ia/docs/assets/
+  - assets/js/sidebar-toggle.js # ← copia desde doc_ia/docs/assets/
 
 extra_css:
-  - assets/css/mermaid.css  # ← copia desde doc_ia o util_bbdd
-  - assets/css/nav.css      # ← copia desde doc_ia o util_bbdd
+  - assets/css/mermaid.css  # ← copia desde doc_ia/docs/assets/
+  - assets/css/nav.css      # ← copia desde doc_ia/docs/assets/
 ```
 
 **Notas críticas:**
 - `!!python/name:` genera advertencias en linters YAML estándar — falso positivo; válido para MkDocs.
-- Sin `extra_javascript` (CDN Mermaid), los diagramas no se renderizan en el browser aunque el build pase.
+- Sin `extra_javascript` (CDN Mermaid + `assets/js/mermaid.js`), los diagramas no se renderizan en el browser aunque el build pase.
 - `navigation.sections` y `navigation.tabs` son compatibles técnicamente, pero con tabs activados los grupos de área se muestran en la sidebar del tab activo; `navigation.sections` no aporta valor adicional. No incluir ambos.
-- Los assets `assets/js/mermaid.js`, `assets/css/mermaid.css` y `assets/css/nav.css` deben copiarse desde `doc_ia/docs/assets/` o `util_bbdd/docs/assets/` sin modificación.
+- Los cuatro assets (`assets/js/mermaid.js`, `assets/js/sidebar-toggle.js`, `assets/css/mermaid.css`, `assets/css/nav.css`) deben copiarse desde `doc_ia/docs/assets/` sin modificación.
+- La indentación de `nav:` usa **4 espacios extra por nivel**: secciones a 2 espacios, ítems de primer nivel a 6, segundo nivel a 10.
 
 ---
 

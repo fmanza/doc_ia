@@ -247,10 +247,28 @@ Cuando el usuario pida documentar o actualizar todo el proyecto, usa este flujo 
 - Código reproducible con datos ficticios seguros; resultado determinista.
 - Sin credenciales reales ni servicios externos obligatorios.
 
-### Fase 5 — Sincronización de mkdocs.yml
+### Fase 5 — Sincronización y verificación estándar de mkdocs.yml
+
+**Navegación:**
 - Añade entradas de navegación para todas las páginas nuevas bajo las secciones correctas.
 - Retira entradas de páginas eliminadas o renombradas.
 - Verifica que no queden páginas huérfanas (en `docs/` pero no en `nav`) ni rotas (en `nav` pero no en disco).
+- Usa indentación de 4 espacios extra por nivel en el bloque `nav:`.
+
+**Configuración estándar (DOCUMENTATION_STANDARD.md §4.1) — verificar siempre, corregir si falta:**
+- `palette`: dos entradas con `media` + `toggle` (light: scheme `default`, dark: scheme `slate`).
+- `extra_javascript`: CDN `mermaid@11` + `assets/js/mermaid.js` + `assets/js/sidebar-toggle.js`.
+- `extra_css`: `assets/css/mermaid.css` + `assets/css/nav.css`.
+- `markdown_extensions`: `attr_list`, `md_in_html`, `pymdownx.snippets` (con `base_path: [docs]`),
+  `line_spans: __span` y `pygments_lang_class: true` en `pymdownx.highlight`.
+- `plugins`: `search` con `lang` del idioma del proyecto.
+
+**Assets** — si alguno de los cuatro ficheros no existe en `docs/assets/` del destino, indicarlo
+explícitamente en el RESUMEN con la acción: "Copiar desde `doc_ia/docs/assets/`":
+- `docs/assets/js/mermaid.js`
+- `docs/assets/js/sidebar-toggle.js`
+- `docs/assets/css/mermaid.css`
+- `docs/assets/css/nav.css`
 
 ### Fase 6 — Revisión y entrega
 - Valida Markdown, enlaces relativos y sintaxis Mermaid.
