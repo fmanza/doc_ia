@@ -206,27 +206,54 @@ Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
                   Añadir a pendientes de verificación humana.
 
          VARIANTE B — Las tres señales = false:
-           El proyecto no implementa distribución offline automática. Documentar el estado
-           actual y reportar el hueco completo:
+           ⚠️  ACCIÓN OBLIGATORIA: CREAR `scripts/build_docs_zip.py` antes de escribir
+               downloads.md. No documentar solo el gap — resolverlo.
+
+           **Paso B1 — CREAR `scripts/build_docs_zip.py` en el proyecto destino:**
+             Si no existe el directorio `scripts/` → crearlo.
+             Detectar fuente de versión según tipo de proyecto:
+               · `pyproject.toml` presente (Python)  → `tomllib.load(f)["project"]["version"]`
+               · `pom.xml` presente (Java/Maven)      → `xml.etree.ElementTree` + strip `-SNAPSHOT`
+                  Ejemplo: `re.sub(r"-(SNAPSHOT|RC\d*|BETA\d*)$", "", ver.text, flags=re.IGNORECASE)`
+               · `package.json` presente (Node.js)    → `json.load(f)["version"]`
+               · Ninguno                              → argumento `--version` requerido en CLI
+             Crear el script adaptando `doc_ia/scripts/build_docs_zip.py`:
+               · Cambiar `ZIP_PREFIX = "{nombre_proyecto}-docs"`
+               · Cambiar `_version()` según la fuente detectada arriba
+               · Mantener el resto del cuerpo sin cambios
+             Añadir `dist/` y `site/` al `.gitignore` del proyecto si no están ya.
+
+           **Paso B2 — Ejecutar el script y capturar valores:**
+             `python scripts/build_docs_zip.py`
+             Leer `dist/{nombre}-docs-{version}.zip.sha256` → hash SHA256.
+             Calcular tamaño del ZIP en MB.
+             Si el script falla (dependencias, build error) → indicarlo en RESUMEN y
+             dejar la tabla con valores reales hasta donde sea posible, marcando el resto
+             como "Pendiente de verificación manual".
+
+           **Paso B3 — Crear/actualizar `docs/downloads.md` con valores reales:**
+             · Sección "Versión descargable": tabla con valores reales del paso B2:
+               `| {versión} | ~{tamaño} MB | {sha256} | {fecha YYYY-MM-DD} |`
+               Eliminar nota "*Pendiente*". Si B2 falló, tabla con `—` y nota de error.
              · Sección "Documentación offline (build local)": requisitos (Python, mkdocs-material),
-               comandos de instalación, `mkdocs serve` y `mkdocs build --strict`, cómo comprimir
-               el site/ generado para distribución interna.
-             · Sección "Versión descargable": tabla placeholder con fila `| — | — | — | — |`
-               y nota "*Pendiente — no existe aún un artefacto ZIP publicado automáticamente.*"
+               comandos de instalación, `mkdocs serve` y `mkdocs build --strict`,
+               y `python scripts/build_docs_zip.py` como método oficial de empaquetado.
              · Sección "Nota sobre búsqueda offline": limitación file:/// + solución http.server.
              · Sección "Enlaces relacionados": quick start, instalación, onboarding.
-           Añadir entrada `- Descargas: downloads.md` en el nav de mkdocs.yml (tras "Inicio rápido"
-           si existe, o tras "Instalación").
-           Reportar Gap en RESUMEN:
-             "⚠️ El proyecto no tiene distribución offline automática. Para implementarla completa
-              (los tres componentes son necesarios):
-              1. Crear `scripts/build_docs_zip.py` — build local + ZIP versionado + SHA256 en dist/.
-                 Patrón de referencia: `doc_ia/scripts/build_docs_zip.py`.
-              2. Crear `{nombre}_docs/docs_build_plugin.py` + `setup.py` — plugin MkDocs que genera
-                 ZIP automáticamente en site/ durante cada `mkdocs build`.
-                 Patrón de referencia: `dpss/dpss_docs/docs_build_plugin.py`.
-              3. Crear `.github/workflows/docs-zip-release.yml` — auto-publicación en GitHub Releases.
-                 Patrón de referencia: `doc_ia/.github/workflows/docs-zip-release.yml`."
+             Añadir entrada `- Descargas: downloads.md` en el nav de mkdocs.yml (tras "Inicio rápido"
+             si existe, o tras "Instalación").
+
+           **Paso B4 — Reportar Gaps restantes** en RESUMEN:
+             ✅ `scripts/build_docs_zip.py` creado y ejecutado.
+             ⚠️ Plugin MkDocs no implementado (opcional; patrón: `dpss/dpss_docs/docs_build_plugin.py`).
+             Si el repositorio usa GitHub Actions y falta workflow:
+               "⚠️ Falta `.github/workflows/docs-zip-release.yml`. Crear siguiendo el
+                patrón de `doc_ia/.github/workflows/docs-zip-release.yml`."
+             Si el repositorio usa GitLab CI (`.gitlab-ci.yml` presente) y falta job:
+               "⚠️ Falta job GitLab CI. Añadir en `.gitlab-ci.yml` un job que ejecute
+                `python scripts/build_docs_zip.py` en cada push a la rama principal
+                y adjunte `dist/*.zip` como artefacto."
+             Añadir pendiente: "[ ] Publicación automática de ZIP en CI no implementada."
 ```
 
 **Protocolo ACTUALIZAR (estado B) — obligatorio en Fases 2-4:**
