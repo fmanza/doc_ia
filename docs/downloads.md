@@ -1,18 +1,17 @@
 # 📥 Descargas
 
-Descarga la documentación completa de **doc_ia** en formato offline (ZIP).
+Descarga la documentación completa de **doc_ia** en formato offline (ZIP) para acceder a toda la información sin conexión a Internet.
 
 ---
 
 ## 📦 Documentación Offline
 
-La documentación completa está disponible como un archivo ZIP comprimido que puedes descargar
-y abrir en cualquier navegador sin conexión a Internet.
+La documentación completa está disponible como un archivo ZIP comprimido que puedes descargar y abrir en cualquier navegador, incluso sin acceso a Internet.
 
 ### Características del ZIP
 
-- ✅ **Búsqueda offline** — Índice de búsqueda completo
-- ✅ **Navegación interactiva** — Menú y referencias cruzadas
+- ✅ **Búsqueda offline** — Índice de búsqueda completo en local
+- ✅ **Navegación interactiva** — Menú, referencias cruzadas, breadcrumbs
 - ✅ **Diagramas Mermaid** — Flujos y arquitectura
 - ✅ **Responsive** — Compatible con móvil, tablet y desktop
 
@@ -22,52 +21,83 @@ y abrir en cualquier navegador sin conexión a Internet.
 
 | Versión | Tamaño | Checksum | Fecha |
 |---|---|---|---|
-| [doc_ia-docs-0.1.0.zip](https://github.com/fmanza/doc_ia/releases/tag/docs-v0.1.0) | ~0.6 MB | [.sha256](https://github.com/fmanza/doc_ia/releases/tag/docs-v0.1.0) | 2026-06-10 |
+| <a href="../doc_ia-docs-latest.zip">doc_ia-docs-latest.zip</a> | ~1.0 MB | <a href="../doc_ia-docs-latest.zip.sha256">.sha256</a> | 2026-06-12 |
 
-**Cómo usar**
+**doc_ia 0.1.0** — Instrucciones IA y tooling para documentar proyectos de desarrollo
 
-1. Descarga el ZIP y su `.sha256` desde el link superior
-2. Extrae los archivos: `unzip doc_ia-docs-0.1.0.zip`
-3. Abre `index.html` en tu navegador
+---
 
-> **Nota sobre la búsqueda offline**: los navegadores no permiten ejecutar Web Workers desde
-> `file:///`. Si necesitas búsqueda completa, sirve la carpeta extraída con
-> `python -m http.server 8000` y navega a `http://localhost:8000`. Sin servidor, la navegación
-> funciona pero la búsqueda queda deshabilitada.
+## 🚀 Cómo usar el ZIP
+
+### Paso 1: Descargar
+
+Descarga el ZIP desde el link superior.
+
+### Paso 2: Extraer
+
+```bash
+# Windows (PowerShell)
+Expand-Archive doc_ia-docs-latest.zip -DestinationPath ./doc_ia-docs
+
+# Linux / macOS
+unzip doc_ia-docs-latest.zip -d ./doc_ia-docs
+```
+
+### Paso 3: Visualizar
+
+#### **Opción A (Recomendada — Búsqueda completa) ⭐**
+
+```bash
+cd doc_ia-docs
+python start-server.py
+```
+
+El ZIP incluye `start-server.py`. Al ejecutarlo, abre el navegador automáticamente en `http://localhost:8000`. Los navegadores no permiten Web Workers desde `file:///` por seguridad; el servidor HTTP local lo resuelve automáticamente.
+
+#### **Opción B (Navegación sin búsqueda)**
+
+Abre directamente `index.html` en tu navegador.
+
+- ✅ Todos los menús y referencias funcionan
+- ✅ Diagramas Mermaid visibles
+- ❌ Búsqueda deshabilitada (limitación de seguridad del navegador)
 
 ---
 
 ## 🔐 Validar Integridad (SHA256)
 
-El archivo `.sha256` adjunto contiene el hash de integridad del ZIP. Descarga ambos archivos
-y valida según tu plataforma.
-
-### Método 1: Terminal (Linux/macOS)
-
-```bash
-sha256sum -c doc_ia-docs-X.Y.Z.zip.sha256
-# Salida esperada: doc_ia-docs-X.Y.Z.zip: OK ✅
-```
-
-### Método 2: PowerShell (Windows)
+### Windows (PowerShell)
 
 ```powershell
-$hash = (Get-FileHash doc_ia-docs-X.Y.Z.zip -Algorithm SHA256).Hash
-$checksum = (Get-Content doc_ia-docs-X.Y.Z.zip.sha256).Split()[0]
-if ($hash -eq $checksum) { Write-Host "✅ Integridad verificada" } else { Write-Host "❌ Checksum no coincide" }
+$hash = (Get-FileHash doc_ia-docs-latest.zip -Algorithm SHA256).Hash
+Write-Host "SHA256 calculado: $hash"
+Get-Content doc_ia-docs-latest.zip.sha256
+# Deben coincidir exactamente ✅
 ```
 
-### Método 3: macOS (con shasum)
+### Linux / macOS
 
 ```bash
-shasum -a 256 -c doc_ia-docs-X.Y.Z.zip.sha256
+sha256sum -c doc_ia-docs-latest.zip.sha256
+# Salida esperada: doc_ia-docs-latest.zip: OK ✅
 ```
 
 ---
 
 ## 🛠️ Para Desarrolladores
 
-### Generar ZIP Localmente
+### ZIP automático (plugin)
+
+El plugin `doc_ia_documentation_zip` genera `doc_ia-docs-latest.zip` automáticamente en `site/`
+en cada `mkdocs build` / `mkdocs serve`. No requiere ningún comando adicional.
+
+Para registrar el plugin en un entorno nuevo (solo una vez):
+
+```bash
+python -m pip install -e .
+```
+
+### Generar ZIP versionado
 
 ```bash
 # Build (MkDocs Material) + ZIP + SHA256
@@ -83,34 +113,17 @@ python scripts/build_docs_zip.py --builder zensical
 **Output**: `dist/doc_ia-docs-{versión}.zip` + `dist/doc_ia-docs-{versión}.zip.sha256` +
 `dist/CHECKSUMS.txt` (histórico de hashes).
 
-### Publicación automática
+### Publicación automática (GitHub Releases)
 
 El workflow `.github/workflows/docs-zip-release.yml` publica una release `docs-vX.Y.Z`
 en cada push a `main` con cambios en `docs/`, adjuntando el ZIP y los checksums.
 
----
-
-## ❓ FAQ
-
-- **¿Cómo buscar en el ZIP offline?**
-  Sirve la carpeta con `python -m http.server` y usa el campo de búsqueda (requiere JavaScript).
-
-- **¿Puedo actualizar el ZIP?**
-  Sí. Descarga la última versión desde GitHub Releases o constrúyelo localmente.
-
-- **¿Incluye código fuente?**
-  No. El ZIP contiene solo documentación HTML/CSS/JS.
-
-- **¿Funcionan los links internos?**
-  Sí. Todos los links relativos funcionan dentro del ZIP.
+Releases publicadas: [github.com/fmanza/doc_ia/releases](https://github.com/fmanza/doc_ia/releases)
 
 ---
 
-## 🔗 Enlaces Relacionados
+## 📝 Información de versión
 
-- [Inicio](index.md) — Página principal de la documentación
-- [Guía de Codex](guides/codex_guide.md) — Uso de Codex (OpenAI) en este proyecto
-
----
-
-*Última actualización: 2026-06-10*
+- **Versión de doc_ia**: 0.1.0
+- **Generador**: MkDocs + Material for MkDocs + Mermaid.js
+- **Actualización**: 2026-06-12

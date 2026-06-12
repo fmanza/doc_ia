@@ -171,10 +171,10 @@ El patrón completo consta de **tres señales independientes**; el flujo de
 1. `scripts/build_docs_zip.py` — build local + artefacto versionado en `dist/*.zip` + SHA256.
    `dist/*.zip`, `dist/*.sha256` y `dist/CHECKSUMS.txt` son artefactos generados: nunca editarlos
    a mano. La tabla en `docs/downloads.md` refleja estos artefactos: actualizarla tras el script.
-2. `{nombre}_docs/docs_build_plugin.py` + `setup.py` + entrada en `mkdocs.yml` — plugin MkDocs
-   que genera automáticamente el ZIP en `site/` durante cada `mkdocs build`, permitiendo la
-   descarga directa desde la documentación navegable (enlace `../dpss-docs-latest.zip`).
-   Patrón de referencia: `dpss/dpss_docs/docs_build_plugin.py`.
+2. `{nombre}_docs/docs_build_plugin.py` + `pyproject.toml` + entrada en `mkdocs.yml` — plugin MkDocs
+   que genera automáticamente `{nombre}-docs-latest.zip` en `site/` durante cada `mkdocs build`.
+   Activar con `python -m pip install -e .` (una vez por entorno).
+   Patrón de referencia: `doc_ia/doc_ia_docs/docs_build_plugin.py`.
 3. `.github/workflows/docs-zip-release.yml` — auto-publicación en GitHub Releases en cada push
    a `main` con cambios en `docs/`.
 
@@ -203,18 +203,27 @@ Los prompts están en `.github/prompts/*_doc.prompt.md`.
 
 ### 📦 Distribución de documentación offline
 
-Las tres piezas siguientes son **obligatorias** en todo proyecto con documentación offline —
-deben existir siempre; son complementarias, no alternativas:
+Las cuatro piezas siguientes son **obligatorias** en todo proyecto con documentación offline —
+son complementarias, no alternativas:
 
 1. **Página de descargas** (`docs/downloads.md`) — tabla de versiones + instrucciones SHA256.
-2. **Script local** (`scripts/build_docs_zip.py`) — genera ZIP + `.sha256` + `dist/CHECKSUMS.txt`.
-   Permite empaquetar la documentación localmente sin depender de CI.
-3. **Workflow GitHub** (`.github/workflows/docs-zip-release.yml`) — auto-publica la release
-   `docs-vX.Y.Z` con los artefactos ZIP, `.sha256` y `CHECKSUMS.txt` en cada push a `main`.
+2. **Script local** (`scripts/build_docs_zip.py`) — genera ZIP versionado + `.sha256` + `dist/CHECKSUMS.txt`.
+   Permite empaquetar localmente sin depender de CI.
+3. **Plugin MkDocs** (`{nombre}_docs/docs_build_plugin.py` + `pyproject.toml` + `mkdocs.yml`) —
+   genera `{nombre}-docs-latest.zip` en `site/` automáticamente en cada build.
+   El ZIP incluye siempre `start-server.py` (desde `scripts/start-server.py` en la raíz del proyecto).
+   Activar: `python -m pip install -e .` una vez por entorno.
+   Patrón de referencia: `doc_ia/doc_ia_docs/docs_build_plugin.py` + `doc_ia/scripts/start-server.py`.
+   ⚠️ **Vinculado al venv**: el entry point queda en el `site-packages` del venv donde se instaló.
+   Si el terminal no tiene ese venv activo, `mkdocs build` falla con
+   `"plugin is not installed"`. Usar siempre `python -m mkdocs build` o activar el venv primero.
+   Ver `.claude/EDGE_CASES.md` § *Plugin ZIP no encontrado*.
+4. **Workflow CI** (`.github/workflows/docs-zip-release.yml` o job en `.gitlab-ci.yml`) —
+   auto-publica la release `docs-vX.Y.Z` con los artefactos en cada push a `main`.
 
-**Regla**: script local y workflow GitHub son complementarios, no alternativos. Si falta alguno
-la distribución offline está incompleta. Ver `document_project.prompt.md` §Fase 7b para la
-detección automática de huecos y las acciones de remediación.
+**Regla**: las cuatro piezas son complementarias; si falta alguna, la distribución offline
+está incompleta. Ver `document_project.prompt.md` §Fase 7b para detección automática y
+acciones de remediación (Gap A1, A2, A3).
 
 **Comandos locales**:
 ```bash

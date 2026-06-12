@@ -184,19 +184,60 @@ Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
            2. Verificar TIENE_MKDOCS_PLUGIN:
                 · true  → reportar en RESUMEN: "✅ Plugin MkDocs presente — ZIP generado
                     automáticamente en site/ en cada `mkdocs build`."
-                  Si el plugin aún no está instalado (setup.py existe pero no instalado):
-                    indicar: `pip install -e .` en el directorio del ORIGEN.
-                  El enlace de descarga en downloads.md apunta a `../{nombre}-docs-latest.zip`
-                  (relativo al directorio docs/ — es el ZIP que el plugin deja en site/, servido por MkDocs).
-                · false (Gap A2) → reportar en RESUMEN:
-                    "⚠️ Plugin MkDocs no detectado. Para generar el ZIP automáticamente en cada build:
-                     1. Crear `{nombre}_docs/docs_build_plugin.py` (clase on_post_build).
-                        Patrón de referencia: `dpss/dpss_docs/docs_build_plugin.py`.
-                     2. Crear/actualizar `setup.py` con entry_point `mkdocs.plugins`:
-                        `{nombre}_documentation_zip = {nombre}_docs.docs_build_plugin:DocumentationZipPlugin`.
-                     3. Añadir plugin en `mkdocs.yml` (sección plugins:).
-                     4. Ejecutar `pip install -e .` para activar."
-                  Añadir a pendientes de verificación humana.
+                  Si el plugin aún no está instalado (pyproject.toml/setup.py existe pero no instalado):
+                    indicar: `python -m pip install -e .` en el directorio del ORIGEN.
+                  Verificar que `docs/downloads.md` usa la estructura normalizada con enlace HTML:
+                    `<a href="../{nombre}-docs-latest.zip">{nombre}-docs-latest.zip</a>`
+                    `<a href="../{nombre}-docs-latest.zip.sha256">.sha256</a>`
+                  Si la tabla no tiene estos enlaces → actualizar siguiendo la estructura del Paso B3.
+                · false (Gap A2) → ⚠️ ACCIÓN OBLIGATORIA: CREAR el plugin antes de cerrar sesión.
+
+                  **Paso A2-0 — Crear `scripts/start-server.py`** (obligatorio):
+                    Adaptar `doc_ia/scripts/start-server.py` cambiando solo el nombre del proyecto
+                    en los mensajes `print`. Este script se incluirá dentro del ZIP para que los
+                    usuarios puedan lanzar un servidor local con un solo comando.
+
+                  **Paso A2-1 — Crear `{nombre}_docs/__init__.py`** (vacío) y
+                  **`{nombre}_docs/docs_build_plugin.py`**:
+                    Adaptar `doc_ia/doc_ia_docs/docs_build_plugin.py` cambiando solo:
+                      `zip_path = site_dir / "{nombre}-docs-latest.zip"`
+                    El plugin ya incluye el bloque que añade `start-server.py` al ZIP:
+                      ```python
+                      server_script = Path(__file__).parent.parent / "scripts" / "start-server.py"
+                      if server_script.exists():
+                          zipf.write(server_script, arcname="start-server.py")
+                      ```
+
+                  **Paso A2-2 — Crear/actualizar `pyproject.toml`** en la raíz:
+                    Si existe `pyproject.toml`: añadir secciones `[build-system]` y
+                    `[project.entry-points."mkdocs.plugins"]` si no existen.
+                    Si no existe: crear mínimo necesario:
+                    ```toml
+                    [build-system]
+                    requires = ["setuptools>=68"]
+                    build-backend = "setuptools.build_meta"
+
+                    [project]
+                    name = "{nombre}-docs"
+                    version = "{versión}"
+                    requires-python = ">=3.9"
+
+                    [project.entry-points."mkdocs.plugins"]
+                    {nombre}_documentation_zip = "{nombre}_docs.docs_build_plugin:DocumentationZipPlugin"
+
+                    [tool.setuptools.packages.find]
+                    include = ["{nombre}_docs*"]
+                    ```
+                    Si solo existe `setup.py` (proyecto legacy): añadir entry_point `mkdocs.plugins` ahí.
+
+                  **Paso A2-3 — Registrar en `mkdocs.yml`**:
+                    Añadir `- {nombre}_documentation_zip:` bajo `plugins:`.
+
+                  **Paso A2-4 — Instalar**:
+                    `python -m pip install -e .` (solo una vez por entorno).
+                    Verificar con: `python -c "from importlib.metadata import entry_points;
+                    print([e.name for e in entry_points(group='mkdocs.plugins')])"` — debe listar
+                    `{nombre}_documentation_zip`.
            3. Verificar TIENE_WORKFLOW_GITHUB:
                 · true  → reportar en RESUMEN: "✅ Workflow GitHub presente".
                 · false (Gap A3) → reportar Gap en RESUMEN:
@@ -231,21 +272,34 @@ Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
              dejar la tabla con valores reales hasta donde sea posible, marcando el resto
              como "Pendiente de verificación manual".
 
-           **Paso B3 — Crear/actualizar `docs/downloads.md` con valores reales:**
-             · Sección "Versión descargable": tabla con valores reales del paso B2:
-               `| {versión} | ~{tamaño} MB | {sha256} | {fecha YYYY-MM-DD} |`
-               Eliminar nota "*Pendiente*". Si B2 falló, tabla con `—` y nota de error.
-             · Sección "Documentación offline (build local)": requisitos (Python, mkdocs-material),
-               comandos de instalación, `mkdocs serve` y `mkdocs build --strict`,
-               y `python scripts/build_docs_zip.py` como método oficial de empaquetado.
-             · Sección "Nota sobre búsqueda offline": limitación file:/// + solución http.server.
+           **Paso B3 — Crear/actualizar `docs/downloads.md` con la estructura normalizada:**
+             Estructura canónica (idéntica en todos los proyectos):
+             1. **"Descarga Actual"** — tabla con enlace HTML directo al ZIP del plugin:
+                ```
+                | <a href="../{nombre}-docs-latest.zip">{nombre}-docs-latest.zip</a> | ~X MB | <a href="../{nombre}-docs-latest.zip.sha256">.sha256</a> | YYYY-MM-DD |
+                ```
+                El path `../` funciona porque con `use_directory_urls: true`,
+                `downloads.md` → `site/downloads/index.html` y el ZIP está en `site/`.
+                Línea de versión bajo la tabla: `**{Proyecto} {versión}** — descripción breve`.
+             2. **"Cómo usar el ZIP"** — extraer (Windows + Linux/macOS) + visualizar:
+                Opción A ⭐ (recomendada): `python start-server.py` — el script está incluido
+                en el ZIP y abre el navegador automáticamente en `http://localhost:8000`.
+                Opción B: abrir `index.html` directamente (sin búsqueda).
+             3. **"Validar Integridad (SHA256)"** — comandos Windows (PowerShell) + Linux/macOS.
+             4. **"Para Desarrolladores"** — `python scripts/build_docs_zip.py` + info CI.
+             5. **"Información de versión"** — generador, fecha.
+             Eliminar nota "*Pendiente*". Si B2 falló, usar `—` en tamaño/fecha con nota de error.
              · Sección "Enlaces relacionados": quick start, instalación, onboarding.
              Añadir entrada `- Descargas: downloads.md` en el nav de mkdocs.yml (tras "Inicio rápido"
              si existe, o tras "Instalación").
 
-           **Paso B4 — Reportar Gaps restantes** en RESUMEN:
+           **Paso B4 — CREAR plugin MkDocs** (ejecutar pasos A2-1 a A2-4 del Gap A2).
+             El plugin genera `{nombre}-docs-latest.zip` automáticamente en `site/`
+             en cada `mkdocs build` o `mkdocs serve`.
+
+           **Paso B5 — Reportar en RESUMEN:**
              ✅ `scripts/build_docs_zip.py` creado y ejecutado.
-             ⚠️ Plugin MkDocs no implementado (opcional; patrón: `dpss/dpss_docs/docs_build_plugin.py`).
+             ✅ Plugin MkDocs creado e instalado (ZIP en site/ automático).
              Si el repositorio usa GitHub Actions y falta workflow:
                "⚠️ Falta `.github/workflows/docs-zip-release.yml`. Crear siguiendo el
                 patrón de `doc_ia/.github/workflows/docs-zip-release.yml`."

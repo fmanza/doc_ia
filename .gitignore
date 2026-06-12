@@ -15,6 +15,7 @@ coverage.xml
 site/
 build/
 dist/
+*.egg-info/
 
 # Configuración local (no versionada)
 .claude/settings.local.json
