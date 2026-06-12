@@ -95,6 +95,26 @@ Fase 0a — Clasificación de orígenes (solo con ≥2 orígenes, o si el único
 Fase 0 — Detección de normativa: si el origen referencia normativa de obligado cumplimiento,
          ofrecer Arquetipo 8 (normative_traceability.prompt.md). Si no hay, omitir.
          Nota: si la Fase 0a ya clasificó un origen como NORMATIVA, este paso está cubierto.
+Fase 0b — Conversión de documentos no legibles (solo si existen ficheros binarios en el origen):
+         1. Detectar en el árbol del origen ficheros con extensiones no legibles directamente
+            por el agente: .pdf, .docx, .doc, .pptx, .odt, .epub, .rst, .html, .htm
+         2. Si se detectan → proponer al usuario ejecutar en el directorio del ORIGEN:
+                python scripts/convert_to_md.py <ruta_origen>
+            Esto crea una carpeta `md/` dentro del origen con las versiones Markdown convertidas,
+            reflejando la estructura de subdirectorios para evitar colisiones de nombres.
+            Si el origen no dispone del script (proyecto externo), usar directamente:
+                pandoc <fichero> -o <fichero_sin_ext>.md --wrap=none
+         3. Si pandoc no está instalado → mostrar instrucciones y esperar resolución del usuario
+            o que decida omitir:
+              Windows: winget install JohnMacFarlane.Pandoc
+              macOS:   brew install pandoc
+              Linux:   sudo apt install pandoc | sudo dnf install pandoc
+         4. Una vez convertidos, incluir los ficheros en `<origen>/md/` como fuente adicional
+            de contexto en las Fases 2-4, con el mismo tratamiento que ficheros .md nativos.
+         5. Si el usuario no instala pandoc o decide omitir → registrar en INVENTARIO (Fase 1)
+            los ficheros no convertidos con estado A y nota
+            "Pendiente: requiere pandoc para convertir [nombre_fichero]".
+         Nota: si no se detectan ficheros binarios en el origen, omitir esta fase completamente.
 Fase 1 — Inventariar y clasificar:
          Leer árbol real del origen (README, código, docs/, mkdocs.yml del destino).
          Para cada módulo del origen y cada página existente en el destino, asignar estado:
@@ -209,8 +229,9 @@ APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reg
    - Tabla: | Origen | Tipo detectado | Señales | Rol |
    - Si hay ≥2 orígenes CÓDIGO: indicar estrategia elegida por el usuario.
    - ⚠️ Confirmar con el usuario antes de continuar.
-3. **INVENTARIO** (Fase 0+1) — tabla: | Módulo / Página | Estado (A/B/C) | Acción (CREAR/ACTUALIZAR/OMITIR) | Arquetipos / Secciones afectadas |
+3. **INVENTARIO** (Fase 0+0b+1) — tabla: | Módulo / Página | Estado (A/B/C) | Acción (CREAR/ACTUALIZAR/OMITIR) | Arquetipos / Secciones afectadas |
    - Con múltiples orígenes CÓDIGO: un sub-inventario por proyecto.
+   - Si Fase 0b activa: indicar qué ficheros se convirtieron con pandoc y cuáles quedan pendientes.
 4. **PLAN_DOC** — orden de generación con columnas CREAR / ACTUALIZAR (indicar secciones) / OMITIR; impacto en navegación.
 5. **GENERACIÓN** (Fases 2-4) — por fases e iterando módulo a módulo; nunca un único prompt masivo.
    - Orígenes MATERIAL: usar como fuente de enriquecimiento de las secciones mapeadas (ver Fase 0a); no crear páginas propias para ellos.

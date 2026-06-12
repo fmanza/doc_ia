@@ -84,6 +84,7 @@ nav:
       - Tooling Determinista:
           - Verificación de Entorno: functional/check_env.md
           - ZIP de Documentación Offline: functional/build_docs_zip.md
+          - Conversión de Documentos a Markdown: functional/convert_to_md.md
       - Flujos IA:
           - Documentar un Proyecto: functional/document_project.md
           - Catálogo de Tipos de Origen: functional/origin_types.md

@@ -9,6 +9,25 @@
 Solo se instalan las dependencias declaradas en `requirements.txt`; el proyecto **no
 requiere API keys** de ningún servicio.
 
+### Pandoc (opcional — conversión de documentos no-Markdown)
+
+Pandoc convierte ficheros en formatos no legibles directamente (PDF, DOCX, PPTX, ODT, EPUB…)
+a Markdown antes de documentarlos. El script `scripts/convert_to_md.py` lo invoca y deposita
+el resultado en una carpeta `md/` dentro del directorio origen.
+
+| Sistema operativo | Comando de instalación |
+|---|---|
+| Windows | `winget install JohnMacFarlane.Pandoc` |
+| macOS | `brew install pandoc` |
+| Linux (Debian/Ubuntu) | `sudo apt install pandoc` |
+| Linux (Fedora/RHEL) | `sudo dnf install pandoc` |
+
+Verificar instalación: `pandoc --version`
+
+!!! note "Pandoc es opcional"
+    Si no se instala, `python scripts/check_env.py` muestra un aviso pero no falla.
+    Solo es necesario cuando el proyecto a documentar contiene ficheros binarios (PDF, DOCX, etc.).
+
 ## 2. Instalación del Entorno
 
 | Paso | Comando | Para qué |
