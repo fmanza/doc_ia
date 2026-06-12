@@ -11,7 +11,7 @@ flowchart TD
     F0a --> confirm[Confirmar con usuario]
     confirm --> F0
     CL -- No --> F0[Fase 0 — Normativa\nArquetipo 8 si aplica]
-    F0 --> F1[Fase 1 — Inventario\nEstado A · B · C]
+    F0 --> F1[Fase 1 — Inventario\nEstado A · B · C\nDetección ZIP offline]
     F1 --> PD[PLAN_DOC\nCREAR A · ACTUALIZAR B · OMITIR C]
     PD --> F2[Fase 2 — Funcional\nArquetipo 1]
     F2 --> F3[Fase 3 — Técnica\nArquetipo 2]
@@ -20,8 +20,9 @@ flowchart TD
     F5 --> F6[Fase 6 — Revisión\nMarkdown · enlaces · Mermaid]
     F6 --> F7{--verify-build}
     F7 -- Sí --> build[Fase 7 — Build estricto]
-    F7 -- No --> RES[RESUMEN]
-    build --> RES
+    F7 -- No --> F7b
+    build --> F7b[Fase 7b — downloads.md\nsiempre obligatorio]
+    F7b --> RES[RESUMEN]
 ```
 
 ## 2. Modelo de Datos / Contratos
@@ -50,17 +51,18 @@ flowchart TD
 
 ### Contrato de salida
 
-Diez bloques en el chat, en este orden:
+Once bloques en el chat, en este orden:
 1. `VALIDACIÓN DE INPUTS` — tabla de estado por parámetro; si hay ❌ el flujo se detiene.
 2. `CLASIFICACIÓN DE ORÍGENES` — solo con ≥2 orígenes o si el único no es CÓDIGO.
-3. `INVENTARIO` — tabla módulo × estado (A/B/C) × acción × arquetipos afectados.
+3. `INVENTARIO` — tabla módulo × estado (A/B/C) × acción × arquetipos afectados; incluye estado de las tres señales ZIP offline (`TIENE_ZIP_SCRIPT`, `TIENE_MKDOCS_PLUGIN`, `TIENE_WORKFLOW_GITHUB`).
 4. `PLAN_DOC` — orden de ejecución con secciones afectadas por módulo.
 5. `GENERACIÓN` — contenido de cada página, fase a fase.
 6. `SYNC NAV` — diff de `mkdocs.yml`.
 7. `REVISIÓN` — checklist de validación.
 8. `BUILD` — resultado de `--verify-build` (solo opt-in).
-9. `RESUMEN` — contadores de archivos creados/actualizados/omitidos y entradas de nav.
-10. `CIERRE DE SESIÓN` — siempre obligatorio: artefactos `.ai/sessions/YYYY-MM-DD/` en el destino + propuesta de commit Conventional Commits.
+9. `DOWNLOADS` — `docs/downloads.md` creado/actualizado (siempre obligatorio); indica variante A o B; reporta huecos de las señales ZIP que falten.
+10. `RESUMEN` — contadores de archivos creados/actualizados/omitidos y entradas de nav.
+11. `CIERRE DE SESIÓN` — siempre obligatorio: artefactos `.ai/sessions/YYYY-MM-DD/` en el destino + propuesta de commit Conventional Commits.
 
 ### Errores y casos especiales
 

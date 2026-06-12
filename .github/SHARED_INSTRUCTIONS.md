@@ -165,14 +165,18 @@ Para añadir un nuevo fichero raíz al sync, registrar la tupla en `hooks/sync_r
 y la entrada de navegación en `mkdocs.yml`. Ver `.github/instructions/sync.instructions.md`.
 
 **Patrón de distribución offline (generalizable a proyectos origen externos)**:
-`dist/*.zip`, `dist/*.sha256` y `dist/CHECKSUMS.txt` son **artefactos generados** por
-`scripts/build_docs_zip.py`. Nunca editarlos a mano. La tabla en `docs/downloads.md` es el
-reflejo visual de estos artefactos: actualizarla siempre después de ejecutar el script.
-El patrón completo requiere **dos señales** en el origen: `scripts/build_docs_zip.py` (build
-local) y `.github/workflows/docs-zip-release.yml` (auto-publicación en GitHub Releases).
-Cuando doc_ia documenta un proyecto externo, el flujo de `document_project.prompt.md`
-(Fase 1 y Fase 7b) detecta ambas señales de forma independiente y reporta los huecos si
-alguna falta.
+El patrón completo consta de **tres señales independientes**; el flujo de
+`document_project.prompt.md` (Fase 1 y Fase 7b) las detecta y reporta huecos si alguna falta:
+
+1. `scripts/build_docs_zip.py` — build local + artefacto versionado en `dist/*.zip` + SHA256.
+   `dist/*.zip`, `dist/*.sha256` y `dist/CHECKSUMS.txt` son artefactos generados: nunca editarlos
+   a mano. La tabla en `docs/downloads.md` refleja estos artefactos: actualizarla tras el script.
+2. `{nombre}_docs/docs_build_plugin.py` + `setup.py` + entrada en `mkdocs.yml` — plugin MkDocs
+   que genera automáticamente el ZIP en `site/` durante cada `mkdocs build`, permitiendo la
+   descarga directa desde la documentación navegable (enlace `../dpss-docs-latest.zip`).
+   Patrón de referencia: `dpss/dpss_docs/docs_build_plugin.py`.
+3. `.github/workflows/docs-zip-release.yml` — auto-publicación en GitHub Releases en cada push
+   a `main` con cambios en `docs/`.
 
 #### Configuración de documentación
 

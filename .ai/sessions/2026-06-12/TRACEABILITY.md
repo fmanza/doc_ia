@@ -1,72 +1,50 @@
 # TRACEABILITY
 
 ## Session metadata
-
 - id: 2026-06-12
 - fecha: 2026-06-12
 - rama: develop
-- skill: refactor
-- fase: IMPLEMENT
+- skill: document-project
+- fase: VALIDACIÓN → INVENTARIO → PLAN_DOC → GENERACIÓN → SYNC NAV → REVISIÓN → DOWNLOADS → RESUMEN → CIERRE
 
 ## Prompt issued
-
-> Disponemos de una funcionalidad en util_bbdd para la generación de ficheros ZIP y Checksum
-> SHA256 en el apartado "Descargas" de la documentación. Esta funcionalidad tiene que ser
-> implementada siempre en la generación de documentación en formato offline y disponer de
-> otra en GitHub; las dos deben existir. Se necesita actualizar las instrucciones IA de
-> generación de documentación para que se tenga en cuenta, tanto en la creación como en la revisión.
+<!-- Solicitud original tal como llegó al agente, sin editar. -->
 
 ## Context supplied
-
-- Exploración completa de `util_bbdd` (script, workflows, `docs/downloads.md`)
-- Exploración completa de `doc_ia` (script, workflows, `SHARED_INSTRUCTIONS.md`,
-  `document_project.prompt.md`, `CLAUDE.md`, `docs/downloads.md`)
+<!-- Lista de fuentes de contexto proporcionadas al agente antes de la primera respuesta. -->
+-
 
 ## AI output summary
 
-- Identificada la regla de negocio: script local (`scripts/build_docs_zip.py`) y workflow
-  GitHub (`.github/workflows/docs-zip-release.yml`) son siempre obligatorios y complementarios.
-- `SHARED_INSTRUCTIONS.md` actualizado:
-  - §Distribución de documentación offline: reescrito con regla explícita "complementarios,
-    no alternativos"; lista de las 3 piezas obligatorias con propósito diferenciado.
-  - §Patrón de distribución offline (renombrado): describe las dos señales del patrón y que
-    Fase 1 + Fase 7b las detectan de forma independiente.
-- `document_project.prompt.md` actualizado:
-  - Fase 1: añadida detección de `TIENE_WORKFLOW_GITHUB`; tabla de 4 combinaciones con
-    variante aplicable en Fase 7b.
-  - Fase 7b VARIANTE A: añadido paso 4 (verificar workflow; reportar gap si falta).
-  - Fase 7b VARIANTE B: ampliada con reporte de gap completo y patrones de referencia.
-  - §Devuelve 8b: actualizado para reflejar estado de las dos señales y huecos reportados.
-- `CLAUDE.md` actualizado:
-  - §Descarga de Documentación Offline: reescrito párrafo introductorio; nombra ambos
-    mecanismos con la regla "deben existir siempre".
-  - Referencia de sección corregida: "patrón build_docs_zip.py" → "Patrón de distribución offline".
+- Detectados parámetros Generador (`mkdocs-material`) e Idioma (`es`) desde `mkdocs.yml`
+- INVENTARIO: 2 páginas A (crear), 2 páginas B (actualizar), 25 páginas C (omitir)
+- Señales ZIP: TIENE_ZIP_SCRIPT ✅ · TIENE_MKDOCS_PLUGIN ❌ (por diseño) · TIENE_WORKFLOW_GITHUB ✅ → Variante A
+- CREADO `docs/api/convert_to_md.md` — Arquetipo 2 completo con diagrama, funciones, CLI, constantes, errores
+- CREADO `docs/examples/convert_to_md_usage.md` — Arquetipo 4 con 5 escenarios verificables
+- ACTUALIZADO `docs/api/document_project.md` — §1 diagrama añade Fase 7b; §2 salida pasa a 11 bloques (añade bloque 8b DOWNLOADS)
+- ACTUALIZADO `docs/functional/document_project.md` — §2 añade Regla "downloads.md siempre obligatorio"; §3 diagrama añade nodo Fase 7b
+- ACTUALIZADO `mkdocs.yml` — 2 entradas nuevas: `api/convert_to_md.md` y `examples/convert_to_md_usage.md`
 
 ## Artefactos generados
 
-| Artefacto              | Ruta                                                      | Estado     |
-|------------------------|-----------------------------------------------------------|------------|
-| SHARED_INSTRUCTIONS.md | `.github/SHARED_INSTRUCTIONS.md`                          | modificado |
-| document_project       | `.github/prompts/document_project.prompt.md`              | modificado |
-| CLAUDE.md              | `CLAUDE.md`                                               | modificado |
-| REQUEST                | `.ai/sessions/2026-06-12/00_REQUEST.md`                   | creado     |
-| CONTEXT_SNAPSHOT       | `.ai/sessions/2026-06-12/00_CONTEXT_SNAPSHOT.md`          | creado     |
-| TRACEABILITY           | `.ai/sessions/2026-06-12/TRACEABILITY.md`                 | creado     |
+| Artefacto | Ruta | Estado |
+|---|---|---|
+| Referencia técnica convert_to_md | `docs/api/convert_to_md.md` | CREADO |
+| Ejemplo convert_to_md | `docs/examples/convert_to_md_usage.md` | CREADO |
+| api/document_project.md | `docs/api/document_project.md` | ACTUALIZADO §1+§2 |
+| functional/document_project.md | `docs/functional/document_project.md` | ACTUALIZADO §2+§3 |
+| mkdocs.yml | `mkdocs.yml` | ACTUALIZADO (+2 nav) |
+| Sesión | `.ai/sessions/2026-06-12/` | CERRADO |
 
 ## Directrices para Futuras IAs
 
-- **[distribución offline]**: el patrón completo requiere SIEMPRE dos señales en el origen:
-  `scripts/build_docs_zip.py` (build local) y `.github/workflows/docs-zip-release.yml`
-  (auto-publicación GitHub Releases). Si solo existe una, hay un gap que reportar.
-- **[document_project Fase 1]**: la detección ZIP usa ahora dos flags independientes
-  (`TIENE_ZIP_SCRIPT`, `TIENE_WORKFLOW_GITHUB`); la tabla de combinaciones está en Fase 1,
-  no en Fase 7b — consultar ahí para la variante aplicable.
-- **[patrones de referencia]**: la implementación canónica vive en `doc_ia/scripts/build_docs_zip.py`
-  y `doc_ia/.github/workflows/docs-zip-release.yml`. `util_bbdd` tiene la misma estructura
-  pero con `zensical` como builder por defecto.
+- **[convert_to_md]**: `api/convert_to_md.md` y `examples/convert_to_md_usage.md` creados el 2026-06-12; verificar si el script evoluciona (nuevas extensiones, nuevos flags CLI).
+- **[document_project — salida]**: el contrato de salida tiene 11 bloques (no 10); el bloque 8b DOWNLOADS es siempre obligatorio y va entre BUILD y RESUMEN.
+- **[ZIP offline — doc_ia]**: TIENE_MKDOCS_PLUGIN=false en doc_ia es por diseño (usa script+workflow); no reportar como gap accionable en este proyecto.
 
 ## Veredicto final
 
 Veredicto: CLOSED
 Pendientes al cierre:
-- Commit + push a develop (preparado en esta sesión).
+- Ejecutar `python -m mkdocs build --strict` para validar el sitio con los cambios
+- Actualizar `downloads.md` cuando se publique la próxima release (post rebuild)

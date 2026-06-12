@@ -29,6 +29,7 @@ decidir manualmente qué arquetipo aplicar a cada módulo.
 | Generación en el chat | Toda la generación documental ocurre en el chat de la plataforma IA (Claude Code, Gemini, Copilot, Cursor, Codex); nunca en código Python ni en CI | Violaría el principio innegociable del proyecto de ejecución sin APIs externas |
 | Sin inventar | El contenido generado se basa únicamente en el código y la documentación real del origen; no se inventan módulos, APIs, salidas ni dependencias | Documentación incorrecta que no corresponde al proyecto real |
 | Preservación de lo vigente | Las páginas clasificadas como vigentes (estado C) no se modifican; las desactualizadas (B) se actualizan conservando las secciones aún correctas | Se perdería documentación válida o se introduciría regresión de contenido |
+| `downloads.md` siempre obligatorio | Cada sesión genera o actualiza `docs/downloads.md` en el destino (Fase 7b); el flujo detecta tres señales de distribución offline (`TIENE_ZIP_SCRIPT`, `TIENE_MKDOCS_PLUGIN`, `TIENE_WORKFLOW_GITHUB`) y reporta los huecos | El destino quedaría sin una página de descarga offline o con datos desactualizados |
 
 ## 3. Casos de Uso
 
@@ -41,12 +42,13 @@ flowchart TD
     V --> CL{¿≥2 orígenes o\nno es CÓDIGO?}
     CL -- Sí --> F0a[Fase 0a — Clasificar orígenes<br/>CÓDIGO · NORMATIVA · ESPECIFICACIÓN<br/>UI/PANTALLAS · REFERENCIA]
     F0a -- confirmar con usuario --> I
-    CL -- No --> I[Inventariar el origen<br/>clasificar A / B / C]
+    CL -- No --> I[Inventariar el origen<br/>clasificar A / B / C<br/>detectar señales ZIP offline]
     I --> P[PLAN_DOC<br/>CREAR A · ACTUALIZAR B · OMITIR C]
     P --> G[Generar por arquetipos<br/>funcional · técnica · ejemplos · guías]
     G --> N[Sincronizar mkdocs.yml]
     N --> R[Revisión final<br/>Markdown · enlaces · Mermaid]
-    R --> D[Documentación publicada]
+    R --> DL[Fase 7b — downloads.md<br/>Variante A o B · reportar huecos]
+    DL --> D[Documentación publicada]
     D --> C[Cierre de sesión<br/>.ai/sessions/YYYY-MM-DD/ + commit]
 ```
 

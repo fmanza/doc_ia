@@ -100,6 +100,7 @@ nav:
       - Tooling Determinista:
           - check_env: api/check_env.md
           - build_docs_zip: api/build_docs_zip.md
+          - convert_to_md: api/convert_to_md.md
 
   # ── Ejemplos de código ─────────────────────────────────────────────────────
   - Ejemplos:
@@ -110,6 +111,7 @@ nav:
       - Tooling Determinista:
           - Verificar Entorno: examples/check_env_usage.md
           - Generar ZIP Offline: examples/build_docs_zip_offline.md
+          - Convertir Documentos a Markdown: examples/convert_to_md_usage.md
 
   # ── Guías de uso y operación ───────────────────────────────────────────────
   - Guías:
