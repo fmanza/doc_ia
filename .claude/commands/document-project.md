@@ -48,17 +48,31 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 **Recomendado**:
 - Iterar módulo a módulo dentro de cada fase; nunca un único prompt masivo
 - Cerrar con `python -m mkdocs build --strict` (o `--verify-build`) antes de publicar
-- En Fase 0b, ejecutar validación de assets personalizados (ver sección "Sincronización de Configuración Visual")
-- Crear siempre el artefacto `.ai/sessions/YYYY-MM-DD/` en el destino antes del commit (paso 10)
 
-## Sincronización de Configuración Visual (Fase 0b)
+## Sincronización de Configuración Visual (Fase 0b) ← OBLIGATORIO
 
-**Cuándo aplica**: Si el destino tiene `mkdocs.yml` pero hereda de un generador estándar (ej. `util` heredó `mkdocs.yml` base).
+> ⚠️ **Este paso es OBLIGATORIO en toda sesión `/document-project`**, tanto en la creación inicial
+> de un destino como en cualquier actualización posterior. No omitir aunque el objetivo sea solo
+> actualizar contenido: los assets y `mkdocs.yml` pueden haberse desincronizado desde la última sesión.
+>
+> Caso real documentado: proyecto `dpss` tenía `navigation.sections` activo y carecía de
+> `nav.css` / `sidebar-toggle.js` → el menú lateral no era colapsable y los márgenes eran
+> excesivamente anchos. Detectado en sesión `.ai/sessions/2026-06-12/`.
+
+**Cuándo aplica**: En toda sesión `/document-project`, independientemente de si el destino ya tiene `mkdocs.yml`.
+
+**Checklist obligatorio** (ejecutar al inicio de CADA sesión, antes de cualquier otra fase):
+
+- [ ] `theme.features` verificado — sin `navigation.sections` si `nav.css` presente
+- [ ] `extra_css` incluye `assets/css/nav.css` y `assets/css/mermaid.css`
+- [ ] `extra_javascript` incluye CDN Mermaid + `assets/js/mermaid.js` + `assets/js/sidebar-toggle.js`
+- [ ] Los archivos `docs/assets/css/nav.css`, `docs/assets/css/mermaid.css`, `docs/assets/js/sidebar-toggle.js`, `docs/assets/js/mermaid.js` existen en disco
+- [ ] `markdown_extensions` incluye los universales (ver tabla abajo)
 
 **Qué sincronizar** (universal, aplicable a todos los proyectos MkDocs):
 - `theme.features` — Ver tabla de compatibilidad más abajo; algunas requieren decisión
-- `markdown_extensions` críticas — `pymdownx.snippets` (para `--8<--`), `pymdownx.superfences` (Mermaid), `pymdownx.emoji`
-- `extra_javascript` y `extra_css` — Assets personalizados (ej. `sidebar-toggle.js`, `nav.css`)
+- `markdown_extensions` críticas — `pymdownx.snippets` (para `--8<--`), `pymdownx.superfences` (Mermaid), `pymdownx.emoji`, `pymdownx.highlight`, `pymdownx.inlinehilite`, `attr_list`, `md_in_html`
+- `extra_javascript` y `extra_css` — Assets personalizados (`sidebar-toggle.js`, `nav.css`, `mermaid.js`, `mermaid.css`)
 - `extra.social` — Enlaces de redes sociales (si aplica)
 
 **Tabla de `theme.features` — copiables vs decisión**:

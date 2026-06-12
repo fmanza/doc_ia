@@ -16,6 +16,33 @@
 
 ## Casos registrados
 
+## [mkdocs.yml] — `navigation.sections` impide colapsar el menú lateral
+
+- **Síntoma**: En la documentación generada, los submenús del panel izquierdo no se pueden
+  colapsar con clic. Los grupos del nav aparecen como etiquetas estáticas en gris tenue,
+  no como elementos plegables. El botón ◀/▶ de sidebar tampoco aparece aunque
+  `sidebar-toggle.js` esté cargado.
+- **Causa**: `navigation.sections: true` en `theme.features` de `mkdocs.yml` activa el modo
+  de grupos estáticos de Material, que deshabilita `.md-nav__item--nested`. Esto hace que
+  `nav.css` (que aplica estilos a `--nested`) no tenga efecto sobre la colapsabilidad.
+  Simultáneamente, si faltan `extra_css` y `extra_javascript`, los assets de toggle y Mermaid
+  no se cargan en absoluto.
+- **Tratamiento**:
+  1. Eliminar `navigation.sections` de `theme.features` en `mkdocs.yml`.
+  2. Crear `docs/assets/css/nav.css`, `docs/assets/css/mermaid.css`,
+     `docs/assets/js/sidebar-toggle.js`, `docs/assets/js/mermaid.js`
+     (copiar desde `doc_ia/docs/assets/`; cambiar `STORAGE_KEY` en `sidebar-toggle.js`
+     al nombre del proyecto, ej. `dpss_sidebar_collapsed`).
+  3. Añadir `extra_css` y `extra_javascript` en `mkdocs.yml` referenciando esos assets.
+  4. Añadir features universales ausentes: `navigation.tabs.sticky`, `navigation.footer`,
+     `toc.follow`, `content.code.annotate`, `content.tabs.link`.
+  5. Añadir markdown extensions universales ausentes: `pymdownx.highlight`,
+     `pymdownx.inlinehilite`, `pymdownx.snippets`, `pymdownx.emoji`, `attr_list`, `md_in_html`.
+- **Prevención**: La sección "Sincronización de Configuración Visual (Fase 0b)" de
+  `/document-project` es ahora **OBLIGATORIA** al inicio de toda sesión (creación Y actualización).
+  Ver checklist en `.claude/commands/document-project.md`.
+- **Sesión**: `.ai/sessions/2026-06-12/` (dpss)
+
 ## [plugin MkDocs] — Plugin ZIP no encontrado al ejecutar `mkdocs build`
 
 - **Síntoma**: `ERROR - Config value 'plugins': The "{nombre}_documentation_zip" plugin is not installed.`

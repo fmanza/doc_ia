@@ -134,14 +134,23 @@ arquetipos. No uses un único prompt masivo: trabaja siempre por fases separadas
 ### Flujo por fases
 
 ```
-Fase 1 — Inventariar: leer scripts/, README, docs/, mkdocs.yml
-Fase 2 — Mapeo funcional (Senior Product Owner): objetivo, precondiciones, flujo, reglas
-Fase 3 — Documentación técnica: responsabilidad, Mermaid, API pública, contratos, errores
-Fase 4 — Ejemplos verificables: código real, resultado determinista, sin credenciales
-Fase 5 — Sincronizar mkdocs.yml: añadir/mover/retirar entradas de navegación
-Fase 6 — Revisión final: validar Markdown, enlaces relativos y sintaxis Mermaid
-Fase 7 — Verificación de build (opt-in --verify-build): python -m mkdocs build --strict + leer site/
+Fase 0b — Sincronización visual (OBLIGATORIO): verificar/aplicar assets + mkdocs.yml visual
+Fase 1  — Inventariar: leer scripts/, README, docs/, mkdocs.yml
+Fase 2  — Mapeo funcional (Senior Product Owner): objetivo, precondiciones, flujo, reglas
+Fase 3  — Documentación técnica: responsabilidad, Mermaid, API pública, contratos, errores
+Fase 4  — Ejemplos verificables: código real, resultado determinista, sin credenciales
+Fase 5  — Sincronizar mkdocs.yml: añadir/mover/retirar entradas de navegación
+Fase 6  — Revisión final: validar Markdown, enlaces relativos y sintaxis Mermaid
+Fase 7  — Verificación de build (opt-in --verify-build): python -m mkdocs build --strict + leer site/
 ```
+
+> **Fase 0b — Requisito OBLIGATORIO** (creación y actualización):
+> Verificar que el destino tiene los 4 assets (`nav.css`, `mermaid.css`, `sidebar-toggle.js`,
+> `mermaid.js`) en `docs/assets/`, que `mkdocs.yml` los referencia en `extra_css` /
+> `extra_javascript`, y que **`navigation.sections` está ausente** de `theme.features`
+> (su presencia desactiva el colapso del menú lateral e invalida `nav.css`).
+> Ver checklist completo en `.claude/commands/document-project.md § Sincronización de Configuración Visual`.
+> Ver caso real documentado en `.claude/EDGE_CASES.md § [mkdocs.yml] navigation.sections`.
 
 ### Contrato documental obligatorio
 
