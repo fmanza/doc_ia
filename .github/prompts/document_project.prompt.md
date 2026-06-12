@@ -108,11 +108,15 @@ Fase 1 — Inventariar y clasificar:
            ESTADO C — vigente: página existe y código coincide con lo documentado.
          Acción derivada: A → CREAR | B → ACTUALIZAR | C → OMITIR.
          Prioridad de ejecución: A antes que B; C no se toca.
-         Detección de patrón ZIP offline y flag downloads.md (comprobar en el ORIGEN):
-           · Si existe `scripts/build_docs_zip.py` → activar TIENE_ZIP_SCRIPT = true
-           · `docs/downloads.md` es SIEMPRE OBLIGATORIO en el destino — nunca omitir:
-               TIENE_ZIP_SCRIPT = true  → Variante A: tabla de descarga real + SHA256 + build local
-               TIENE_ZIP_SCRIPT = false → Variante B: instrucciones build local MkDocs + tabla placeholder (—)
+         Detección de patrón ZIP offline — comprobar en el ORIGEN (dos señales independientes):
+           · Si existe `scripts/build_docs_zip.py`                                → TIENE_ZIP_SCRIPT = true
+           · Si existe `.github/workflows/docs-zip-release.yml` (o equivalente)   → TIENE_WORKFLOW_GITHUB = true
+           Combinaciones y variante aplicable en Fase 7b:
+             TIENE_ZIP_SCRIPT=true  + TIENE_WORKFLOW_GITHUB=true  → Variante A (completo — sin huecos)
+             TIENE_ZIP_SCRIPT=true  + TIENE_WORKFLOW_GITHUB=false → Variante A + Gap: proponer crear workflow
+             TIENE_ZIP_SCRIPT=false + TIENE_WORKFLOW_GITHUB=false → Variante B: proponer crear ambos
+             TIENE_ZIP_SCRIPT=false + TIENE_WORKFLOW_GITHUB=true  → inconsistencia — investigar y reportar
+           · `docs/downloads.md` es SIEMPRE OBLIGATORIO en el destino — nunca omitir.
            · Si ya existe `docs/downloads.md` → asignar estado B si no coincide con la variante
              correcta o si la tabla tiene valores desactualizados (versión, tamaño, sha256, fecha)
 Fase 2 — Mapeo funcional (functional_doc.prompt.md) → [destino]/functional/
@@ -136,7 +140,7 @@ Fase 7 — Verificación de build (solo con --verify-build): build --strict del 
 Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
          Crear o actualizar `docs/downloads.md` en el destino según la variante:
 
-         VARIANTE A — TIENE_ZIP_SCRIPT = true:
+         VARIANTE A — TIENE_ZIP_SCRIPT = true (con o sin workflow GitHub):
            ⚠️  Guarda de orden: si Fase 7 no fue activada, advertir que site/ puede no estar
                sincronizado con los últimos cambios y recomendar ejecutar el build antes del ZIP.
            1. Proponer ejecutar en el directorio del ORIGEN:
@@ -149,9 +153,17 @@ Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
                      | versión | ~X MB | [.sha256](<enlace release>) | YYYY-MM-DD |
                    Regla: reemplazar la fila existente — no acumular filas.
            3. Si el script no se ejecutó: marcar la fila como pendiente de verificación manual.
+           4. Verificar workflow GitHub:
+                · TIENE_WORKFLOW_GITHUB = true  → reportar en RESUMEN: "✅ Workflow GitHub presente".
+                · TIENE_WORKFLOW_GITHUB = false → reportar Gap en RESUMEN:
+                    "⚠️ Falta `.github/workflows/docs-zip-release.yml`. El ZIP se genera localmente
+                     pero no se publica automáticamente en GitHub Releases. Crear el workflow
+                     siguiendo el patrón de `doc_ia/.github/workflows/docs-zip-release.yml`."
+                  Añadir a pendientes de verificación humana.
 
-         VARIANTE B — TIENE_ZIP_SCRIPT = false:
-           Crear docs/downloads.md con:
+         VARIANTE B — TIENE_ZIP_SCRIPT = false (y TIENE_WORKFLOW_GITHUB = false):
+           El proyecto no implementa distribución offline automática. Documentar el estado
+           actual y reportar el hueco completo:
              · Sección "Documentación offline (build local)": requisitos (Python, mkdocs-material),
                comandos de instalación, `mkdocs serve` y `mkdocs build --strict`, cómo comprimir
                el site/ generado para distribución interna.
@@ -161,6 +173,13 @@ Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
              · Sección "Enlaces relacionados": quick start, instalación, onboarding.
            Añadir entrada `- Descargas: downloads.md` en el nav de mkdocs.yml (tras "Inicio rápido"
            si existe, o tras "Instalación").
+           Reportar Gap en RESUMEN:
+             "⚠️ El proyecto no tiene distribución offline automática. Para implementarla
+              (ambos son necesarios):
+              1. Crear `scripts/build_docs_zip.py` — build local + ZIP + SHA256.
+                 Patrón de referencia: `doc_ia/scripts/build_docs_zip.py`.
+              2. Crear `.github/workflows/docs-zip-release.yml` — auto-publicación en GitHub Releases.
+                 Patrón de referencia: `doc_ia/.github/workflows/docs-zip-release.yml`."
 ```
 
 **Protocolo ACTUALIZAR (estado B) — obligatorio en Fases 2-4:**
@@ -198,7 +217,7 @@ APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reg
 6. **SYNC NAV** (Fase 5) — diff de `mkdocs.yml` (o config del generador) del destino.
 7. **REVISIÓN** (Fase 6) — checklist de validación + hallazgos.
 8. **BUILD** (Fase 7, solo opt-in) — resultado de `--verify-build`.
-8b. **DOWNLOADS** (Fase 7b, siempre) — `downloads.md` creado/actualizado; indicar variante A (con ZIP) o B (sin script); entrada añadida al nav.
+8b. **DOWNLOADS** (Fase 7b, siempre) — `downloads.md` creado/actualizado; indicar variante A o B; estado de las dos señales (TIENE_ZIP_SCRIPT, TIENE_WORKFLOW_GITHUB); huecos reportados si alguna falta; entrada añadida al nav.
 9. **RESUMEN** — archivos generados/actualizados, entradas de nav, pendientes de verificación humana.
 10. **CIERRE DE SESIÓN** (siempre obligatorio) — crear artefacto `.ai/sessions/YYYY-MM-DD/` en el
     destino (`00_REQUEST.md`, `00_CONTEXT_SNAPSHOT.md`, `TRACEABILITY.md`) y proponer commit

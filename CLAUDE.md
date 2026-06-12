@@ -157,8 +157,12 @@ Fase 7 — Verificación de build (opt-in --verify-build): python -m mkdocs buil
 
 ## 📦 Descarga de Documentación Offline
 
-doc_ia proporciona **documentación en ZIP offline** con SHA256 checksums y auto-publicación
-en GitHub Releases.
+doc_ia proporciona **documentación en ZIP offline** mediante dos mecanismos complementarios
+que **deben existir siempre** (no son alternativos):
+
+- **Script local** (`scripts/build_docs_zip.py`) — build + ZIP + SHA256 en `dist/`.
+- **Workflow GitHub** (`.github/workflows/docs-zip-release.yml`) — auto-publicación de la
+  release `docs-vX.Y.Z` en cada push a `main` con cambios en `docs/`.
 
 ```bash
 python scripts/build_docs_zip.py        # Build (mkdocs) + ZIP en dist/doc_ia-docs-{version}.zip
@@ -166,13 +170,10 @@ cat dist/doc_ia-docs-*.zip.sha256       # Ver checksum
 sha256sum -c dist/*.sha256              # Validar (Linux/Mac)
 ```
 
-El workflow `.github/workflows/docs-zip-release.yml` publica automáticamente una release
-`docs-vX.Y.Z` en cada push a `main` con cambios en `docs/`.
-
 ### Actualizar tabla "Descarga Actual" en docs/downloads.md
 
-> La regla completa (detección de señales, pasos, guarda de orden con build) vive en
-> `.github/SHARED_INSTRUCTIONS.md` § *Artefactos generados — patrón build_docs_zip.py* y en
+> La regla completa (detección de las dos señales, pasos, guarda de orden con build) vive en
+> `.github/SHARED_INSTRUCTIONS.md` § *Patrón de distribución offline* y en
 > `.github/prompts/document_project.prompt.md` § *Fase 7b*. Esta sección añade solo los
 > comandos específicos del proyecto **doc_ia**.
 

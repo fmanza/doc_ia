@@ -163,13 +163,15 @@ el hook propaga los cambios a `docs/` tras cada `Edit`/`Write` y antes de cada `
 Para añadir un nuevo fichero raíz al sync, registrar la tupla en `hooks/sync_root_docs.py → PAIRS`
 y la entrada de navegación en `mkdocs.yml`. Ver `.github/instructions/sync.instructions.md`.
 
-**Patrón `build_docs_zip.py` (generalizable a proyectos origen externos)**:
+**Patrón de distribución offline (generalizable a proyectos origen externos)**:
 `dist/*.zip`, `dist/*.sha256` y `dist/CHECKSUMS.txt` son **artefactos generados** por
 `scripts/build_docs_zip.py`. Nunca editarlos a mano. La tabla en `docs/downloads.md` es el
 reflejo visual de estos artefactos: actualizarla siempre después de ejecutar el script.
-Cuando doc_ia documenta un proyecto origen externo que implementa este patrón, el flujo de
-`document_project.prompt.md` (Fase 7b) detecta las señales `scripts/build_docs_zip.py` y
-`docs/downloads.md` de forma independiente y propone los pasos de actualización.
+El patrón completo requiere **dos señales** en el origen: `scripts/build_docs_zip.py` (build
+local) y `.github/workflows/docs-zip-release.yml` (auto-publicación en GitHub Releases).
+Cuando doc_ia documenta un proyecto externo, el flujo de `document_project.prompt.md`
+(Fase 1 y Fase 7b) detecta ambas señales de forma independiente y reporta los huecos si
+alguna falta.
 
 #### Configuración de documentación
 
@@ -196,10 +198,18 @@ Los prompts están en `.github/prompts/*_doc.prompt.md`.
 
 ### 📦 Distribución de documentación offline
 
+Las tres piezas siguientes son **obligatorias** en todo proyecto con documentación offline —
+deben existir siempre; son complementarias, no alternativas:
+
 1. **Página de descargas** (`docs/downloads.md`) — tabla de versiones + instrucciones SHA256.
-2. **SHA256 Checksums** (`scripts/build_docs_zip.py`) — genera `.sha256` + `dist/CHECKSUMS.txt`.
-3. **Auto-publish en GitHub Releases** (`.github/workflows/docs-zip-release.yml`) — trigger:
-   push a `main` con cambios en `docs/`; release con tag `docs-vX.Y.Z` y artifacts adjuntos.
+2. **Script local** (`scripts/build_docs_zip.py`) — genera ZIP + `.sha256` + `dist/CHECKSUMS.txt`.
+   Permite empaquetar la documentación localmente sin depender de CI.
+3. **Workflow GitHub** (`.github/workflows/docs-zip-release.yml`) — auto-publica la release
+   `docs-vX.Y.Z` con los artefactos ZIP, `.sha256` y `CHECKSUMS.txt` en cada push a `main`.
+
+**Regla**: script local y workflow GitHub son complementarios, no alternativos. Si falta alguno
+la distribución offline está incompleta. Ver `document_project.prompt.md` §Fase 7b para la
+detección automática de huecos y las acciones de remediación.
 
 **Comandos locales**:
 ```bash
