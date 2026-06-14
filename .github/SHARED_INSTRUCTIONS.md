@@ -85,7 +85,7 @@ doc_ia/
 
 | Módulo | Responsabilidad |
 |---|---|
-| `scripts/` | Tooling determinista sin dependencias IA: validación de entorno, build + ZIP de docs, conversión de documentos binarios (PDF/DOCX/…) a Markdown con pandoc |
+| `scripts/` | Tooling determinista sin dependencias IA: validación de entorno, build + ZIP de docs, conversión de documentos binarios a Markdown (`markitdown` para PDF; `pandoc` para DOCX/PPTX/ODT/…) |
 | `hooks/` | `sync_root_docs.py`: copia `CHANGELOG.md`/`CONTRIBUTING.md` a `docs/` antes del build y tras cada Edit/Write |
 | `tests/` | Tests unitarios del tooling (sin red, sin servicios externos) |
 | `docs/` | Documentación pública del propio proyecto (dogfooding de los arquetipos); `docs/changelog.md` y `docs/contributing.md` son artefactos generados |
@@ -132,7 +132,7 @@ python -m mkdocs build --strict       # Build de documentación (por defecto)
 python -m mkdocs serve                # Documentación local
 python scripts/check_env.py           # Verificación del entorno de tooling
 python scripts/build_docs_zip.py      # Build + ZIP offline en dist/doc_ia-docs-{version}.zip
-python scripts/convert_to_md.py <ruta> # Convierte PDF/DOCX/… a Markdown en <ruta>/md/
+python scripts/convert_to_md.py <ruta> # Convierte a Markdown en <ruta>/md/ (PDF→markitdown; DOCX/PPTX/…→pandoc)
 # Onboarding: aplicar .github/prompts/onboarding_dev.prompt.md → docs/guides/onboarding_dev.md
 ```
 

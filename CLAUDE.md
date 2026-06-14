@@ -229,11 +229,11 @@ python -m mypy scripts               # Type-checking (strict)
 python -m pytest                     # Tests
 python -m mkdocs build --strict      # Build de documentación
 python -m mkdocs serve               # Documentación local
-python scripts/check_env.py          # Verificación del entorno (Python + pandoc)
+python scripts/check_env.py          # Verificación del entorno (Python + markitdown + pandoc)
 python scripts/build_docs_zip.py     # ZIP offline con SHA256
-python scripts/convert_to_md.py <ruta> # Convierte PDF/DOCX/… a Markdown en <ruta>/md/
+python scripts/convert_to_md.py <ruta> # Convierte a Markdown en <ruta>/md/ (PDF→markitdown; DOCX/PPTX/…→pandoc)
 ```
 
 ---
 
-*Actualizado: 2026-06-10*
+*Actualizado: 2026-06-15*

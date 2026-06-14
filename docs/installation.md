@@ -9,11 +9,28 @@
 Solo se instalan las dependencias declaradas en `requirements.txt`; el proyecto **no
 requiere API keys** de ningún servicio.
 
-### Pandoc (opcional — conversión de documentos no-Markdown)
+### Conversión de documentos binarios a Markdown (opcional)
 
-Pandoc convierte ficheros en formatos no legibles directamente (PDF, DOCX, PPTX, ODT, EPUB…)
-a Markdown antes de documentarlos. El script `scripts/convert_to_md.py` lo invoca y deposita
-el resultado en una carpeta `md/` dentro del directorio origen.
+El script `scripts/convert_to_md.py` convierte ficheros no legibles directamente (PDF, DOCX,
+PPTX…) a Markdown, depositando el resultado en `<origen>/md/`. Usa la herramienta correcta
+según la extensión:
+
+| Formato | Herramienta | Rol |
+|---|---|---|
+| PDF, DOCX, PPTX, HTML, EPUB… | `markitdown` (Python) | **Dependencia principal** — un solo `pip install` cubre la mayoría de formatos |
+| ODT, RST, DOCX complejos | `pandoc` (binario externo) | Complemento — mejor calidad para documentos con estructura avanzada |
+
+#### markitdown — dependencia principal
+
+Cubre PDF, DOCX, PPTX, HTML, EPUB, CSV, JSON y más con una sola instalación Python:
+
+```bash
+pip install markitdown
+```
+
+#### pandoc — complemento para ODT, RST y DOCX complejos
+
+Necesario solo si el origen contiene `.odt`, `.rst` o DOCX con estructura avanzada (tablas complejas, notas al pie, referencias cruzadas):
 
 | Sistema operativo | Comando de instalación |
 |---|---|
@@ -22,11 +39,9 @@ el resultado en una carpeta `md/` dentro del directorio origen.
 | Linux (Debian/Ubuntu) | `sudo apt install pandoc` |
 | Linux (Fedora/RHEL) | `sudo dnf install pandoc` |
 
-Verificar instalación: `pandoc --version`
-
-!!! note "Pandoc es opcional"
-    Si no se instala, `python scripts/check_env.py` muestra un aviso pero no falla.
-    Solo es necesario cuando el proyecto a documentar contiene ficheros binarios (PDF, DOCX, etc.).
+!!! note "Ambas herramientas son opcionales"
+    `python scripts/check_env.py` avisa si falta alguna (markitdown primero), pero no falla.
+    Si el origen solo contiene PDF, DOCX y PPTX habituales, markitdown es suficiente.
 
 ## 2. Instalación del Entorno
 
