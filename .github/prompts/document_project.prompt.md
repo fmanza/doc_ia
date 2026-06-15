@@ -138,14 +138,14 @@ Fase 1 — Inventariar y clasificar:
          Prioridad de ejecución: A antes que B; C no se toca.
          Detección de patrón ZIP offline — comprobar en el ORIGEN (tres señales independientes):
            · Si existe `scripts/build_docs_zip.py`                                → TIENE_ZIP_SCRIPT = true
-           · Si mkdocs.yml del ORIGEN tiene un plugin `*_documentation_zip`        → TIENE_MKDOCS_PLUGIN = true
-             (señales alternativas: directorio `{nombre}_docs/` con `docs_build_plugin.py`
-              y `setup.py` o `pyproject.toml` con entry_point `mkdocs.plugins`)
+           · Si mkdocs.yml del ORIGEN tiene `hooks: [mkdocs_hooks.py]`              → TIENE_MKDOCS_PLUGIN = true
+             (señales alternativas: plugin `*_documentation_zip` en mkdocs.yml,
+              o directorio `{nombre}_docs/` con `docs_build_plugin.py`)
            · Si existe `.github/workflows/docs-zip-release.yml` (o equivalente)   → TIENE_WORKFLOW_GITHUB = true
            Variante aplicable en Fase 7b:
              Al menos TIENE_ZIP_SCRIPT=true o TIENE_MKDOCS_PLUGIN=true            → Variante A
                · TIENE_ZIP_SCRIPT=false     → Gap A1: proponer crear script (patrón: doc_ia/scripts/build_docs_zip.py)
-               · TIENE_MKDOCS_PLUGIN=false  → Gap A2: proponer crear plugin (patrón: dpss/dpss_docs/docs_build_plugin.py)
+               · TIENE_MKDOCS_PLUGIN=false  → Gap A2: crear hook MkDocs (patrón: socyalpro/mkdocs_hooks.py)
                · TIENE_WORKFLOW_GITHUB=false → Gap A3: proponer crear workflow (patrón: doc_ia/.github/workflows/docs-zip-release.yml)
              Las tres señales = false                                              → Variante B: proponer crear los tres
              TIENE_ZIP_SCRIPT=false + TIENE_WORKFLOW_GITHUB=true (con o sin plugin) → inconsistencia — investigar y reportar
@@ -190,62 +190,37 @@ Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
                 Reportar en RESUMEN: "⚠️ Falta `scripts/build_docs_zip.py`. Crear siguiendo el
                 patrón de `doc_ia/scripts/build_docs_zip.py` para generar artefactos versionados en dist/."
            2. Verificar TIENE_MKDOCS_PLUGIN:
-                · true  → reportar en RESUMEN: "✅ Plugin MkDocs presente — ZIP generado
-                    automáticamente en site/ en cada `mkdocs build`."
-                  Si el plugin aún no está instalado (pyproject.toml/setup.py existe pero no instalado):
-                    indicar: `python -m pip install -e .` en el directorio del ORIGEN.
+                · true  → reportar en RESUMEN: "✅ Hook MkDocs presente — ZIP generado
+                    automáticamente en site/ en cada `mkdocs build`. Sin instalación requerida."
                   Verificar que `docs/downloads.md` usa la estructura normalizada con enlace HTML:
                     `<a href="../{nombre}-docs-latest.zip">{nombre}-docs-latest.zip</a>`
                     `<a href="../{nombre}-docs-latest.zip.sha256">.sha256</a>`
                   Si la tabla no tiene estos enlaces → actualizar siguiendo la estructura del Paso B3.
-                · false (Gap A2) → ⚠️ ACCIÓN OBLIGATORIA: CREAR el plugin antes de cerrar sesión.
+                · false (Gap A2) → ⚠️ ACCIÓN OBLIGATORIA: CREAR el hook antes de cerrar sesión.
 
                   **Paso A2-0 — Crear `scripts/start-server.py`** (obligatorio):
                     Adaptar `doc_ia/scripts/start-server.py` cambiando solo el nombre del proyecto
                     en los mensajes `print`. Este script se incluirá dentro del ZIP para que los
                     usuarios puedan lanzar un servidor local con un solo comando.
 
-                  **Paso A2-1 — Crear `{nombre}_docs/__init__.py`** (vacío) y
-                  **`{nombre}_docs/docs_build_plugin.py`**:
-                    Adaptar `doc_ia/doc_ia_docs/docs_build_plugin.py` cambiando solo:
+                  **Paso A2-1 — Crear `mkdocs_hooks.py`** en la raíz del destino:
+                    Adaptar `doc_ia/mkdocs_hooks.py` cambiando solo:
                       `zip_path = site_dir / "{nombre}-docs-latest.zip"`
-                    El plugin ya incluye el bloque que añade `start-server.py` al ZIP:
+                    El hook ya incluye el bloque que añade `start-server.py` al ZIP:
                       ```python
-                      server_script = Path(__file__).parent.parent / "scripts" / "start-server.py"
+                      server_script = Path(__file__).parent / "scripts" / "start-server.py"
                       if server_script.exists():
                           zipf.write(server_script, arcname="start-server.py")
                       ```
+                    No crear `{nombre}_docs/` ni `pyproject.toml` — el hook no requiere instalación.
 
-                  **Paso A2-2 — Crear/actualizar `pyproject.toml`** en la raíz:
-                    Si existe `pyproject.toml`: añadir secciones `[build-system]` y
-                    `[project.entry-points."mkdocs.plugins"]` si no existen.
-                    Si no existe: crear mínimo necesario:
-                    ```toml
-                    [build-system]
-                    requires = ["setuptools>=68"]
-                    build-backend = "setuptools.build_meta"
-
-                    [project]
-                    name = "{nombre}-docs"
-                    version = "{versión}"
-                    requires-python = ">=3.9"
-
-                    [project.entry-points."mkdocs.plugins"]
-                    {nombre}_documentation_zip = "{nombre}_docs.docs_build_plugin:DocumentationZipPlugin"
-
-                    [tool.setuptools.packages.find]
-                    include = ["{nombre}_docs*"]
+                  **Paso A2-2 — Registrar en `mkdocs.yml`**:
+                    Añadir antes de `plugins:`:
+                    ```yaml
+                    hooks:
+                      - mkdocs_hooks.py
                     ```
-                    Si solo existe `setup.py` (proyecto legacy): añadir entry_point `mkdocs.plugins` ahí.
-
-                  **Paso A2-3 — Registrar en `mkdocs.yml`**:
-                    Añadir `- {nombre}_documentation_zip:` bajo `plugins:`.
-
-                  **Paso A2-4 — Instalar**:
-                    `python -m pip install -e .` (solo una vez por entorno).
-                    Verificar con: `python -c "from importlib.metadata import entry_points;
-                    print([e.name for e in entry_points(group='mkdocs.plugins')])"` — debe listar
-                    `{nombre}_documentation_zip`.
+                    Verificar el build: `python -m mkdocs build --strict` desde el directorio del destino.
            3. Verificar TIENE_WORKFLOW_GITHUB:
                 · true  → reportar en RESUMEN: "✅ Workflow GitHub presente".
                 · false (Gap A3) → reportar Gap en RESUMEN:

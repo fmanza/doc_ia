@@ -171,10 +171,10 @@ El patrón completo consta de **tres señales independientes**; el flujo de
 1. `scripts/build_docs_zip.py` — build local + artefacto versionado en `dist/*.zip` + SHA256.
    `dist/*.zip`, `dist/*.sha256` y `dist/CHECKSUMS.txt` son artefactos generados: nunca editarlos
    a mano. La tabla en `docs/downloads.md` refleja estos artefactos: actualizarla tras el script.
-2. `{nombre}_docs/docs_build_plugin.py` + `pyproject.toml` + entrada en `mkdocs.yml` — plugin MkDocs
-   que genera automáticamente `{nombre}-docs-latest.zip` en `site/` durante cada `mkdocs build`.
-   Activar con `python -m pip install -e .` (una vez por entorno).
-   Patrón de referencia: `doc_ia/doc_ia_docs/docs_build_plugin.py`.
+2. `mkdocs_hooks.py` en la raíz del proyecto + `hooks: [mkdocs_hooks.py]` en `mkdocs.yml` — hook
+   nativo MkDocs que genera automáticamente `{nombre}-docs-latest.zip` en `site/` en cada build.
+   **Sin instalación**: funciona con cualquier Python que tenga mkdocs. No requiere `pyproject.toml`,
+   `setup.py` ni `pip install -e .`. Patrón de referencia: `socyalpro/mkdocs_hooks.py`.
 3. `.github/workflows/docs-zip-release.yml` — auto-publicación en GitHub Releases en cada push
    a `main` con cambios en `docs/`.
 
@@ -209,15 +209,12 @@ son complementarias, no alternativas:
 1. **Página de descargas** (`docs/downloads.md`) — tabla de versiones + instrucciones SHA256.
 2. **Script local** (`scripts/build_docs_zip.py`) — genera ZIP versionado + `.sha256` + `dist/CHECKSUMS.txt`.
    Permite empaquetar localmente sin depender de CI.
-3. **Plugin MkDocs** (`{nombre}_docs/docs_build_plugin.py` + `pyproject.toml` + `mkdocs.yml`) —
+3. **Hook MkDocs** (`mkdocs_hooks.py` en la raíz + `hooks: [mkdocs_hooks.py]` en `mkdocs.yml`) —
    genera `{nombre}-docs-latest.zip` en `site/` automáticamente en cada build.
    El ZIP incluye siempre `start-server.py` (desde `scripts/start-server.py` en la raíz del proyecto).
-   Activar: `python -m pip install -e .` una vez por entorno.
-   Patrón de referencia: `doc_ia/doc_ia_docs/docs_build_plugin.py` + `doc_ia/scripts/start-server.py`.
-   ⚠️ **Vinculado al venv**: el entry point queda en el `site-packages` del venv donde se instaló.
-   Si el terminal no tiene ese venv activo, `mkdocs build` falla con
-   `"plugin is not installed"`. Usar siempre `python -m mkdocs build` o activar el venv primero.
-   Ver `.claude/EDGE_CASES.md` § *Plugin ZIP no encontrado*.
+   **Sin instalación**: cargado directamente por MkDocs; funciona con cualquier Python que tenga mkdocs.
+   No requiere `pyproject.toml`, `setup.py`, `pip install -e .` ni activar ningún venv.
+   Patrón de referencia: `doc_ia/mkdocs_hooks.py` (solo cambiar la línea `zip_path`).
 4. **Workflow CI** (`.github/workflows/docs-zip-release.yml` o job en `.gitlab-ci.yml`) —
    auto-publica la release `docs-vX.Y.Z` con los artefactos en cada push a `main`.
 

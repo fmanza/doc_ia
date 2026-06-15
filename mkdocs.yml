@@ -40,13 +40,13 @@ theme:
   icon:
     repo: fontawesome/brands/github
 
+hooks:
+  - hooks/sync_root_docs.py
+  - mkdocs_hooks.py
+
 plugins:
   - search:
       lang: es
-  - doc_ia_documentation_zip:
-
-hooks:
-  - hooks/sync_root_docs.py
 
 markdown_extensions:
   - admonition
