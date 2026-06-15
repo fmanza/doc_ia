@@ -10,6 +10,17 @@
 - `.ai/glossary.md`
 <!-- Añadir otros archivos relevantes para esta sesión: -->
 
+## Orígenes externos consultados
+<!-- Solo para sesiones /document-project con orígenes fuera del repo.
+     Listar las rutas de código fuente, manuales, normativa o especificaciones leídas.
+     Omitir esta sección si la sesión es interna (new_feature, hotfix, refactor, etc.) -->
+<!-- Ejemplos:
+- `C:\repos\mi_api\` — código fuente Java/Python (CÓDIGO)
+- `C:\docs\manuales\md\manual_ssb.md` — manual de usuario (MANUAL)
+- `C:\docs\legales\ES\` — normativa estatal (NORMATIVA)
+- `C:\docs\legales\CA\` — normativa autonómica, 17 PDFs (NORMATIVA)
+-->
+
 ## Estado actual observado
 <!-- Resumen del estado real del repositorio al inicio de la sesión:
      - Tests: ¿en verde? ¿cuántos? ¿cobertura?

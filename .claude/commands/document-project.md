@@ -171,20 +171,40 @@ cp -r {origen}/docs/assets/* {destino}/docs/assets/
 
 10. **CIERRE DE SESIÓN** (siempre obligatorio)
 
-    **a) Artefacto `.ai/sessions/`** — crear en el **destino** (no en doc_ia), en la ruta
+    **a) Archivos de contexto raíz `.ai/*.md`** — en la **primera sesión** de un destino nuevo
+    (o si faltan en un destino existente), crear los siguientes archivos de contexto persistente
+    sobre el proyecto FUENTE. Una IA futura los leerá en su `00_CONTEXT_SNAPSHOT` antes de empezar.
+
+    | Archivo | Contenido |
+    |---|---|
+    | `.ai/product.md` | Descripción, versión, dominio funcional, audiencia, capacidades, marco legal |
+    | `.ai/architecture.md` | Módulos, stack tecnológico, patrones de diseño, CI/CD |
+    | `.ai/glossary.md` | Términos del dominio funcional, capas arquitectónicas, abreviaturas |
+    | `.ai/runtime.md` | Prerequisitos, estructura de proyecto, comandos, despliegue, BD |
+    | `.ai/standards.md` | Estilo de código, testing, commits, seguridad, API |
+
+    Estos archivos describen el **proyecto fuente**, no doc_ia. No copiar de DPSS o SOCYALPRO —
+    escribir a partir de lo observado en el origen durante el INVENTARIO.
+    En sesiones posteriores: actualizar solo si el INVENTARIO detecta cambios relevantes en el origen.
+
+    **b) Artefacto `.ai/sessions/`** — crear en el **destino** (no en doc_ia), en la ruta
     `{destino}/../.ai/sessions/YYYY-MM-DD/` con tres ficheros:
 
     - `00_REQUEST.md` — inputs recibidos (origen, destino, generador, idioma, alcance,
       arquetipos, verificación) + objetivo operativo de la sesión
     - `00_CONTEXT_SNAPSHOT.md` — ficheros leídos antes de la primera fase, estado git
-      (rama, cambios pre-existentes, último commit), estado de build (si se ejecutó)
+      (rama, cambios pre-existentes, último commit), estado de build (si se ejecutó).
+      Si la sesión usa orígenes externos (MANUAL, NORMATIVA, CÓDIGO fuera del destino):
+      añadir sección "Orígenes externos consultados" con sus rutas.
     - `TRACEABILITY.md` — resumen cronológico de acciones, tabla de artefactos generados
       (`| Artefacto | Ruta | Estado |`), directrices para IAs futuras, veredicto final
       (`GO` / `GO_CONDICIONAL` / `NO_GO` / `CLOSED`)
 
-    Usar como plantilla los ficheros de `.ai/sessions/TEMPLATE/` de doc_ia.
-    Si `.ai/sessions/` no existe en el destino, crearlo (es el primer uso del sistema de sesiones
-    en ese proyecto).
+    Usar como plantilla los ficheros de `.ai/sessions/TEMPLATE/` de doc_ia (o del propio destino
+    si ya los tiene). Si `.ai/sessions/` no existe en el destino, crearlo junto con
+    la carpeta `TEMPLATE/` y el archivo `INDEX.md` — es el primer uso del sistema de sesiones
+    en ese proyecto. El `INDEX.md` debe listar las sesiones completadas con fecha, objetivo,
+    rama, skill y estado.
 
     **b) Commit** — una vez escritos los artefactos y verificado el build (si aplica), proponer
     el siguiente commit en el repositorio **destino**:
