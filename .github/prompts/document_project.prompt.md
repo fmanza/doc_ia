@@ -95,12 +95,33 @@ Fase 0a — Clasificación de orígenes (solo con ≥2 orígenes, o si el único
 Fase 0 — Detección de normativa: si el origen referencia normativa de obligado cumplimiento,
          ofrecer Arquetipo 8 (normative_traceability.prompt.md). Si no hay, omitir.
          Nota: si la Fase 0a ya clasificó un origen como NORMATIVA, este paso está cubierto.
-Fase 0b — Conversión de documentos no legibles (solo si existen ficheros binarios en el origen):
-         1. Detectar en el árbol del origen ficheros con extensiones no legibles directamente
-            por el agente: .pdf, .docx, .doc, .pptx, .odt, .epub, .rst, .html, .htm
-         2. Si se detectan → proponer al usuario ejecutar en el directorio del ORIGEN:
+Fase 0b — Conversión de documentos no legibles y uso de documentos pre-convertidos:
+         Paso 0 — Detectar carpeta md/ pre-existente (ejecutar SIEMPRE, antes del Paso 1):
+           · Buscar en todo el árbol del origen subcarpetas llamadas `md/` que contengan
+             ficheros `.md`. Criterio de carpeta válida de pre-convertidos: la carpeta `md/`
+             existe junto a ficheros binarios en el directorio padre, O sus ficheros `.md`
+             tienen nombres que corresponden a binarios del directorio padre (sin extensión).
+             Si no se cumplen estos criterios, descartar esa carpeta `md/` para este paso.
+           · Para orígenes clasificados como REFERENCIA o NORMATIVA en Fase 0a, ejecutar
+             este paso con prioridad aunque no haya ficheros binarios visibles.
+           · Para cada fichero binario encontrado, comprobar si ya tiene equivalente en `md/`
+             (mismo nombre relativo, extensión cambiada a `.md`):
+               TIENE_MD = true  → marcar OMITIR_CONVERSIÓN
+               TIENE_MD = false → añadir a lista de pendientes de conversión (Paso 1)
+           · Si TODOS los binarios tienen TIENE_MD = true, O si no hay binarios pero `md/`
+             tiene contenido → omitir Pasos 1-3 y pasar directamente al Paso 4.
+           · Si `md/` parcial (algunos binarios sin equivalente) → ejecutar Pasos 1-3 solo
+             para los pendientes; incluir ya los pre-existentes en Paso 4.
+           · Si no existe ninguna `md/` válida NI ficheros binarios → omitir esta fase.
+           · Cuando `md/` existe sin binarios visibles (binarios eliminados tras conversión),
+             reportar en INVENTARIO con nota "Documentos pre-convertidos sin binario original"
+             y confirmar con el usuario antes de usarlos en Fases 2-4.
+         Paso 1 — Detectar binarios pendientes de conversión (solo si Paso 0 identifica pendientes):
+           Extensiones no legibles directamente: .pdf, .docx, .doc, .pptx, .odt, .epub, .rst, .html, .htm
+         Paso 2 — Proponer conversión de los pendientes:
+           → proponer al usuario ejecutar en el directorio del ORIGEN:
                 python scripts/convert_to_md.py <ruta_origen>
-            Esto crea una carpeta `md/` dentro del origen con las versiones Markdown convertidas,
+            Crea una carpeta `md/` dentro del origen con las versiones Markdown convertidas,
             reflejando la estructura de subdirectorios para evitar colisiones de nombres.
             El script usa la herramienta correcta según la extensión:
               - PDF                     → markitdown  (pip install markitdown)
@@ -110,21 +131,26 @@ Fase 0b — Conversión de documentos no legibles (solo si existen ficheros bina
             Si el origen no dispone del script (proyecto externo), usar directamente:
                 markitdown <fichero.pdf> -o <fichero_sin_ext>.md     ← para PDF
                 pandoc <fichero> -o <fichero_sin_ext>.md --wrap=none  ← para DOCX/PPTX/…
-         3. Si falta alguna herramienta → mostrar instrucciones y esperar resolución del usuario
-            o que decida omitir:
+         Paso 3 — Resolver herramientas faltantes (si aplica):
               markitdown (PDF):  pip install markitdown
               pandoc (DOCX/…):   Windows: winget install JohnMacFarlane.Pandoc
                                  macOS:   brew install pandoc
                                  Linux:   sudo apt install pandoc | sudo dnf install pandoc
-         4. Una vez convertidos, incluir los ficheros en `<origen>/md/` como fuente adicional
-            de contexto en las Fases 2-4, con el mismo tratamiento que ficheros .md nativos.
-         5. Si el usuario no instala la herramienta o decide omitir → registrar en INVENTARIO
-            (Fase 1) los ficheros no convertidos con estado A y nota:
-            "Pendiente: requiere markitdown para convertir [nombre.pdf]" (PDF)
-            "Pendiente: requiere pandoc para convertir [nombre.docx]" (DOCX/PPTX/…)
-         Nota: si no se detectan ficheros binarios en el origen, omitir esta fase completamente.
+         Paso 4 — Incluir ficheros md/ como contexto (siempre que md/ tenga contenido):
+           · Incluir en las Fases 2-4 todos los ficheros `.md` de carpetas `md/` del origen,
+             tanto los recién convertidos como los pre-existentes.
+           · Tratamiento idéntico a ficheros `.md` nativos del origen.
+           · Estos ficheros son artefactos generados — nunca editarlos directamente.
+         Paso 5 — Registrar en INVENTARIO los pendientes no resueltos:
+           Si el usuario no instala la herramienta o decide omitir → registrar en INVENTARIO
+           (Fase 1) los ficheros no convertidos con estado A y nota:
+           "Pendiente: requiere markitdown para convertir [nombre.pdf]" (PDF)
+           "Pendiente: requiere pandoc para convertir [nombre.docx]" (DOCX/PPTX/…)
+         Nota: omitir esta fase solo si no existen ficheros binarios NI carpeta `md/` con
+         contenido válido en el origen.
 Fase 1 — Inventariar y clasificar:
-         Leer árbol real del origen (README, código, docs/, mkdocs.yml del destino).
+         Leer árbol real del origen (README, código, docs/, mkdocs.yml del destino,
+         y carpetas `md/` de documentos de referencia pre-convertidos si existen).
          Para cada módulo del origen y cada página existente en el destino, asignar estado:
            ESTADO A — sin doc: no existe página en docs/ para este módulo.
            ESTADO B — desactualizado: página existe pero al menos uno de los siguientes:
@@ -323,6 +349,7 @@ APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reg
 3. **INVENTARIO** (Fase 0+0b+1) — tabla: | Módulo / Página | Estado (A/B/C) | Acción (CREAR/ACTUALIZAR/OMITIR) | Arquetipos / Secciones afectadas |
    - Con múltiples orígenes CÓDIGO: un sub-inventario por proyecto.
    - Si Fase 0b activa: indicar qué ficheros se convirtieron (con markitdown o pandoc) y cuáles quedan pendientes.
+   - Si existen carpetas `md/` de documentos pre-convertidos: añadir sub-sección "Documentos de referencia (md/)" con tabla | Carpeta `md/` | Ficheros disponibles | Fases donde aplica |. Sin estado A/B/C — son fuentes de contexto, no destinos de documentación.
 4. **PLAN_DOC** — orden de generación con columnas CREAR / ACTUALIZAR (indicar secciones) / OMITIR; impacto en navegación.
 5. **GENERACIÓN** (Fases 2-4) — por fases e iterando módulo a módulo; nunca un único prompt masivo.
    - Orígenes MATERIAL: usar como fuente de enriquecimiento de las secciones mapeadas (ver Fase 0a); no crear páginas propias para ellos.

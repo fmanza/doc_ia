@@ -146,6 +146,12 @@ cp -r {origen}/docs/assets/* {destino}/docs/assets/
      - Estado C — vigente → OMITIR
    - Criterios estado B: firma cambiada · símbolo nuevo no documentado · símbolo retirado
      del módulo · tests contradicen docs · sección "Pendiente de verificación" verificable ya
+   - **Documentos de referencia pre-convertidos** — si el origen contiene carpetas `md/`
+     (generadas por `scripts/convert_to_md.py`), añadir sub-sección separada:
+     | Carpeta `md/` | Ficheros `.md` disponibles | Fases donde aplica como contexto |
+     No asignar estado A/B/C: son fuentes de contexto, no destinos de documentación.
+     Enriquecen Fases 2-4 con el mismo tratamiento que ficheros `.md` nativos del origen.
+     Si `md/` existe sin binarios originales visibles: confirmar con el usuario antes de usar.
 
 4. **PLAN_DOC**
    - Orden de ejecución: CREAR (A) antes que ACTUALIZAR (B); OMITIR (C) no se toca
