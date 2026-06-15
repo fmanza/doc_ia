@@ -53,13 +53,18 @@
   `C:\Users\{user}\AppData\Roaming\Python\Python314\Scripts\mkdocs.exe`) que no conoce el plugin.
   Hay múltiples `mkdocs` en el PATH del sistema; el que "gana" depende del orden del PATH
   y del venv activo en el terminal concreto.
-- **Contraste con dpss**: dpss usa `egg-info` en la raíz del proyecto. Python lo descubre vía
-  `''` (CWD) en `sys.path`, por lo que funciona con cualquier Python ejecutado desde ese
-  directorio, sin activar ningún venv.
-- **Tratamiento**:
+- **Solución definitiva (2026-06-15)**: **no usar el sistema de plugins** para la generación del ZIP.
+  Migrar a un hook MkDocs nativo (`mkdocs_hooks.py`) cargado mediante la clave `hooks:` de `mkdocs.yml`.
+  El hook no requiere instalación, no usa entry points y funciona con cualquier Python que tenga `mkdocs`.
+  Patrón canónico: `doc_ia/mkdocs_hooks.py` (solo cambiar `zip_path` para otro proyecto).
+  ```yaml
+  # mkdocs.yml — añadir:
+  hooks:
+    - mkdocs_hooks.py
+  # y eliminar el plugin de la sección plugins:
+  ```
+- **Workaround temporal** (si no es posible migrar aún):
   - Activar el venv antes del build: `doc_ia\.venv\Scripts\Activate.ps1`
   - O invocar explícitamente: `python -m mkdocs build --strict`
     (donde `python` = `doc_ia\.venv\Scripts\python.exe`)
-  - Si el proyecto cambia de entorno virtual, repetir `python -m pip install -e .`
-    en el nuevo entorno.
-- **Sesión**: `.ai/sessions/2026-06-12/` (socyalpro, quinta pasada)
+- **Sesión**: `.ai/sessions/2026-06-12/` (descubierto); `.ai/sessions/2026-06-15_hooks_migration/` (resuelto)

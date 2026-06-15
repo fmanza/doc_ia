@@ -86,16 +86,21 @@ sha256sum -c doc_ia-docs-latest.zip.sha256
 
 ## 🛠️ Para Desarrolladores
 
-### ZIP automático (plugin)
+### ZIP automático (hook MkDocs)
 
-El plugin `doc_ia_documentation_zip` genera `doc_ia-docs-latest.zip` automáticamente en `site/`
-en cada `mkdocs build` / `mkdocs serve`. No requiere ningún comando adicional.
+El hook `mkdocs_hooks.py` genera `doc_ia-docs-latest.zip` automáticamente en `site/`
+en cada `mkdocs build`. No requiere instalación ni activar ningún venv específico:
+MkDocs lo carga directamente desde `mkdocs.yml` mediante la clave `hooks:`.
 
-Para registrar el plugin en un entorno nuevo (solo una vez):
-
-```bash
-python -m pip install -e .
+```yaml
+# mkdocs.yml (extracto)
+hooks:
+  - hooks/sync_root_docs.py
+  - mkdocs_hooks.py
 ```
+
+Este hook es también el patrón canónico para otros proyectos: copiar `mkdocs_hooks.py`
+al proyecto destino y cambiar únicamente la línea `zip_path`.
 
 ### Generar ZIP versionado
 

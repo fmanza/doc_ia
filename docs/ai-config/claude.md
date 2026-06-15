@@ -91,5 +91,12 @@ Derivadas de `CLAUDE.md` y `.github/SHARED_INSTRUCTIONS.md`:
 
 ## 7. Casos Límite Conocidos
 
-*No aplica para esta configuración.* El fichero `.claude/EDGE_CASES.md` está vacío —
-se poblará con el tiempo a medida que se descubran casos límite en sesiones de trabajo.
+El fichero `.claude/EDGE_CASES.md` registra los casos límite descubiertos en sesiones de trabajo:
+
+| Caso | Síntoma | Sesión |
+|---|---|---|
+| `navigation.sections` impide colapsar el menú lateral | Submenús sin colapso; `nav.css` sin efecto; botón ◀/▶ ausente | `.ai/sessions/2026-06-12/` |
+| Plugin ZIP no encontrado al ejecutar `mkdocs build` | `ERROR - Config value 'plugins': The "…" plugin is not installed` — resuelto migrando a hook MkDocs | `.ai/sessions/2026-06-12/` |
+
+Acción preventiva para ambos casos: ejecutar la **Fase 0b** (sincronización visual obligatoria) al inicio
+de toda sesión `/document-project`, y usar `mkdocs_hooks.py` en lugar de plugins para el ZIP offline.
