@@ -63,6 +63,7 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 
 **Checklist obligatorio** (ejecutar al inicio de CADA sesión, antes de cualquier otra fase):
 
+- [ ] `.gitignore` presente en la raíz del destino con los patrones estándar (primera sesión: crear si no existe; ver tabla abajo)
 - [ ] `theme.features` verificado — sin `navigation.sections` si `nav.css` presente
 - [ ] `extra_css` incluye `assets/css/nav.css` y `assets/css/mermaid.css`
 - [ ] `extra_javascript` incluye CDN Mermaid + `assets/js/mermaid.js` + `assets/js/sidebar-toggle.js`
@@ -111,6 +112,33 @@ cp -r {origen}/docs/assets/* {destino}/docs/assets/
 ```
 
 **Commit de referencia**: En doc_ia → origin, origen de la configuración visual
+
+**Inicialización de `.gitignore`** (primera sesión de un destino nuevo):
+
+Si la raíz del destino no tiene `.gitignore`, crearlo con los patrones estándar. Si ya existe,
+verificar que contiene al menos `site/`; añadir los que falten sin borrar los existentes.
+
+```gitignore
+site/
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+*.pdf
+*.doc
+*.docx
+```
+
+> **Por qué `*.pdf` / `*.doc` / `*.docx`**: los proyectos origen pueden incluir binarios de
+> documentación fuente (especificaciones, manuales). Nunca deben entrar en el repositorio de
+> documentación MkDocs — son fuentes de lectura, no artefactos versionables.
+>
+> **Por qué `site/`**: MkDocs regenera `site/` en cada build. Si se versiona, genera ruido en
+> cada `git status` y conflictos innecesarios. La página de descargas documenta cómo obtener
+> el ZIP; no hace falta que `site/` esté en git.
+>
+> Si `site/` ya estaba rastreado (error de sesión anterior): ejecutar
+> `git rm -r --cached site/` para retirarlo del índice sin borrar del disco.
 
 ---
 
