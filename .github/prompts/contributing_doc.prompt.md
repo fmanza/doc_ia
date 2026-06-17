@@ -41,6 +41,9 @@ Pasos numerados:
 5. Abrir PR con descripción clara
 6. Proceso de review (tiempos estimados si aplica)
 7. Criterio de merge
+Si el proyecto tiene un flujo de branching con múltiples ramas (feature, fix, release),
+incluir un diagrama `gitgraph` Mermaid que muestre el modelo de fork/branch/PR/merge.
+Omitir si el flujo es trivial (solo commits a main).
 
 ## 4. Convenciones de Código y Commits
 Enlace a SHARED_INSTRUCTIONS.md o resumen inline.

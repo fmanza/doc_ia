@@ -271,12 +271,32 @@ Usa **Mermaid.js** para diagramas: texto plano que el renderer convierte en caja
 
 ### Criterios de selección de diagrama
 
-| Tipo | Úsalo cuando |
+| Tipo | Úsalo cuando | Nivel |
+|---|---|---|
+| `sequenceDiagram` | El módulo procesa requests/responses o tiene flujo I/O claro con pasos ordenados | OBLIGATORIO |
+| `flowchart TD` | El módulo tiene lógica de decisión o pipeline de transformación con ramificaciones | OBLIGATORIO |
+| `classDiagram` | El módulo expone una jerarquía de clases relevante para el consumidor | RECOMENDADO |
+| `architecture-beta` | El módulo o proyecto incluye infraestructura física: Web API, servidor web, base de datos o contenedores Docker — muestra la topología de servicios y sus conexiones | RECOMENDADO |
+| `stateDiagram-v2` | El módulo o flujo tiene estados discretos con transiciones (ciclo de vida de documento, fases de pipeline, estados de PR/MR) | RECOMENDADO |
+| `gitgraph` | La documentación describe una estrategia de branching o flujo de contribución con ramas (main + feature + release) | RECOMENDADO |
+| `erDiagram` | El módulo expone un modelo de datos relacional (ORM, schemas SQL, entidades con FK) — solo si es verificable en el código | RECOMENDADO (condicional) |
+| `mindmap` | Se necesita una visión jerárquica de conceptos o módulos sin relaciones de flujo; complementa tablas, no las sustituye | OPCIONAL |
+| `quadrantChart` | Se dispone de datos cuantitativos para una matriz de 2 ejes (impacto/esfuerzo, madurez/cobertura) | OPCIONAL |
+| `timeline` | Se documenta un historial cronológico con hitos significativos (log de ADR, roadmap de versiones) | OPCIONAL |
+
+### Niveles de prescripción
+
+| Nivel | Significado |
 |---|---|
-| `sequenceDiagram` | El módulo procesa requests/responses o tiene flujo I/O claro con pasos ordenados |
-| `flowchart TD` | El módulo tiene lógica de decisión o pipeline de transformación con ramificaciones |
-| `classDiagram` | El módulo expone una jerarquía de clases relevante para el consumidor |
-| `architecture-beta` | El módulo o proyecto incluye infraestructura física: Web API, servidor web, base de datos o contenedores Docker — muestra la topología de servicios y sus conexiones |
+| OBLIGATORIO | El tipo de diagrama es parte del contrato del arquetipo; la sección lo requiere |
+| RECOMENDADO | Usar este tipo cuando el patrón del módulo lo justifique; no forzar si no encaja |
+| OPCIONAL | Disponible para casos específicos; no esperado en la mayoría de documentos |
+
+Solo los tipos listados como OBLIGATORIO o RECOMENDADO están contemplados en los prompts de
+arquetipo. Los OPCIONAL se aplican a criterio del documentador cuando aportan valor visual
+demostrable. Todos los tipos incluidos son **estables en Mermaid v11**; los tipos en estado
+beta (`kanban`, `sankey`, `radar`, `venn`, `ishikawa`, `wardley`, `treemap`, `treeview`,
+`packet`, `block`, `event modeling`) quedan excluidos por riesgo de rotura entre versiones.
 
 ### Reglas de diagramas
 
@@ -323,6 +343,36 @@ Usa **Mermaid.js** para diagramas: texto plano que el renderer convierte en caja
 - **Conectores**: usa `A:R -- L:B` (doble guión). El conector `-->` es de `flowchart`, no de `architecture-beta`.
 - **Iconos integrados en Mermaid 11**: `cloud`, `database`, `disk`, `internet`, `server`. No uses otros sin verificar que existen.
 - **Compatibilidad**: renderiza en MkDocs Material. No renderiza en VS Code preview ni en GitHub Markdown preview.
+
+### Reglas de `stateDiagram-v2`
+
+- Usar `stateDiagram-v2` (no `stateDiagram` sin sufijo) para acceder a la sintaxis completa.
+- Las etiquetas de estado deben ser descriptivas: `VALIDACION`, `INVENTARIO`, no `s1`, `s2`.
+- Máximo 10 estados para legibilidad. Si el ciclo tiene más, agrupar con `state "nombre" as grupo { }`.
+- Las transiciones deben llevar la acción o condición que las dispara: `PLAN --> AUDIT : aprobado`.
+- Usar `[*]` para estados inicial y final.
+- Etiquetas en español para estados y transiciones.
+- **Cuándo NO usar**: si el flujo es un pipeline lineal sin estados nombrados ni transiciones
+  condicionales, preferir `flowchart TD`. La distinción clave: `stateDiagram` modela *en qué
+  estado está la entidad*; `flowchart` modela *qué pasos ejecuta el proceso*.
+
+### Reglas de `gitgraph`
+
+- Usar para visualizar la estrategia de branching del proyecto, no commits individuales.
+- Incluir solo las ramas típicas (`main`, `develop`, `feature/*`, `fix/*`, `release/*`); no ramas concretas con nombres de ticket.
+- Las etiquetas de commit deben ser descriptivas: `id: "feat: X"`, `id: "fix: Y"`.
+- Usar `tag:` para marcar releases: `merge develop tag: "v1.0"`.
+- No usar para proyectos con flujo de trabajo trivial (solo rama `main` sin estrategia).
+- **Compatibilidad**: renderiza en MkDocs Material y GitHub. No renderiza en VS Code preview.
+
+### Reglas de `erDiagram`
+
+- Solo cuando el modelo de datos relacional es verificable en el código (ORM models, DDL, schemas).
+- Las entidades corresponden a clases/tablas exportadas, no a implementación interna.
+- Las relaciones usan la notación de cardinalidad de Mermaid: `||--o{`, `}o--||`, `||--|{`, `}|--||`.
+- Incluir los atributos principales de cada entidad (PK, FK, campos de negocio); omitir campos internos (`created_at`, `updated_at`).
+- Etiquetas de entidad y atributo en español cuando el proyecto documental sea en español.
+- No inventar entidades ni relaciones no presentes en el código real.
 
 ### Sección de Arquitectura física (condicional)
 

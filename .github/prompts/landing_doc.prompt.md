@@ -110,6 +110,8 @@ Vista estática equivalente a C4 nivel 3 (Component). Árbol real del repositori
 carpetas que existen: scripts/, docs/, .github/, .claude/, .ai/) +
 Tabla: | Módulo | Responsabilidad |
 Una fila por carpeta de primer nivel verificable.
+Opcionalmente, complementar con un diagrama `mindmap` Mermaid para visualizar la jerarquía
+de módulos cuando el proyecto tiene más de 6 áreas funcionales (no sustituye a la tabla).
 
 ## 3. Flujo en Ejecución (Runtime)
 Diagrama Mermaid (`flowchart TD` o `sequenceDiagram`, máx. 12 nodos) que muestre cómo fluye

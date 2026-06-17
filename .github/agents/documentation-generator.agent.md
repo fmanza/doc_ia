@@ -51,7 +51,7 @@ Destinada a: desarrolladores, equipo de mantenimiento.
 
 Estructura por módulo:
 - Responsabilidad (1 frase)
-- Diagrama Mermaid (sequenceDiagram / flowchart TD / classDiagram)
+- Diagrama Mermaid (sequenceDiagram / flowchart TD / classDiagram / stateDiagram-v2 / erDiagram)
 - API pública (tabla)
 - Contrato de entrada (tabla)
 - Contrato de salida
@@ -203,7 +203,10 @@ No modifica ningún fichero basándose solo en hallazgos del HTML; propone cambi
 - Máximo 12 nodos para legibilidad sin zoom
 - Etiquetas en español para actores y acciones
 - Sin nombres de variables internas, rutas de implementación ni puertos
-- Usar `sequenceDiagram` para flujos I/O, `flowchart TD` para lógica de decisión
+- Usar `sequenceDiagram` para flujos I/O, `flowchart TD` para lógica de decisión,
+  `stateDiagram-v2` para ciclos de vida con estados discretos, `gitgraph` para
+  estrategias de branching, `erDiagram` para modelos de datos relacionales.
+  Ver tabla completa de criterios y niveles de prescripción en `docs.instructions.md`
 - Si el flujo no se puede inferir con seguridad, documentar la incertidumbre en vez de inventar pasos
 - **Caracteres prohibidos en labels de nodos** (`[...]`, `(...)`, `{...}`): `@`, `#`, `"`, `{`, `}`.
   Sustituir con entidad HTML: `@` → `&#64;`, `#` → `&#35;`. El resto del Markdown (fuera del bloque

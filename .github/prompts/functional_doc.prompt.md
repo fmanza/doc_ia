@@ -50,8 +50,10 @@ Un ítem por precondición.
 Si no hay precondiciones verificables en el código: "*No aplica para este módulo.*"
 
 ## 3. Flujo Principal
-Diagrama Mermaid sequenceDiagram con los actores del domain slot ajustados al módulo real
-(elimina actores que no participen). Máximo 12 nodos.
+Diagrama Mermaid: usa `sequenceDiagram` para flujo I/O con actores secuenciales, o
+`stateDiagram-v2` cuando el módulo tiene un ciclo de vida con estados discretos y
+transiciones (ej: fases de un pipeline, estados de un documento). Ajustar actores/estados
+al módulo real (eliminar los que no participen). Máximo 12 nodos.
 Marca los puntos de decisión (alt/opt/loop) con el criterio de bifurcación en la nota.
 Tras el diagrama: párrafo en lenguaje natural describiendo el flujo paso a paso.
 
@@ -170,7 +172,7 @@ Usa etiquetas en español. Máximo 12 nodos. Incluye puntos de decisión relevan
 Un fichero Markdown con:
 - Título H1
 - 8 secciones numeradas (`## 1.` — `## 8.`)
-- Al menos un diagrama Mermaid `sequenceDiagram` en `## 3.`
+- Al menos un diagrama Mermaid (`sequenceDiagram` o `stateDiagram-v2`) en `## 3.`
 - Tabla en `## 5.` con 3 columnas
 - `## 7.` con tabla Given/When/Then (`| ID | Dado | Cuando | Entonces |`) y/o placeholder QA estructurado
 - `## 8.` con tabla de términos o `*No aplica para este módulo.*`

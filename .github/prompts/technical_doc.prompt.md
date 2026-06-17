@@ -23,6 +23,8 @@ Elige el tipo de diagrama más apropiado:
 - `sequenceDiagram` → si el módulo procesa requests/responses o tiene flujo I/O
 - `flowchart TD` → si el módulo tiene lógica de decisión o pipeline de transformación
 - `classDiagram` → si el módulo expone jerarquía de clases relevante para el consumidor
+- `stateDiagram-v2` → si el módulo gestiona estados discretos con transiciones (ciclo de vida, pipeline con fases)
+- `erDiagram` → si el módulo expone un modelo de datos relacional (ORM, schemas SQL)
 
 Criterios del diagrama:
 - Omite: credenciales, puertos, variables internas, rutas de ficheros de implementación
@@ -91,6 +93,8 @@ Restricciones:
 | Motor de personalización con sustituciones | `flowchart TD` | Pipeline: leer → aplicar → escribir |
 | Orquestador con múltiples fases | `sequenceDiagram` | Flujo completo con actores y salidas |
 | Módulo con Web API / base de datos / Docker | `architecture-beta` | Topología de infraestructura física |
+| Módulo con ciclo de vida de entidades o fases | `stateDiagram-v2` | Estados discretos con transiciones |
+| Módulo con modelo ORM o esquema relacional | `erDiagram` | Entidades, atributos y relaciones |
 
 ## Cómo usar este prompt
 
@@ -148,6 +152,8 @@ Fase 4 — Revisión cruzada:
 | Flujo entre usuario, CLI, servicio externo y salida | `sequenceDiagram` | Muestra interacción y orden temporal |
 | Pipeline de transformación o decisiones | `flowchart TD` | Muestra ramas, validaciones y resultado |
 | Jerarquía pública de clases | `classDiagram` | Muestra contratos orientados a objetos |
+| Gestión de estados o fases de un pipeline | `stateDiagram-v2` | Muestra ciclo de vida y transiciones |
+| Modelo de datos relacional (ORM/SQL) | `erDiagram` | Muestra entidades y cardinalidades |
 
 ## Prompt dedicado para infografías Mermaid
 

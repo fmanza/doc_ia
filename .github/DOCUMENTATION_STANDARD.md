@@ -98,7 +98,9 @@ Si no hay términos específicos: "No aplica para este módulo."
 
 **Regla de sección vacía**: Si un subapartado queda vacío, escribe `*No aplica para este módulo.*` — nunca omitas la sección.
 
-**Diagramas recomendados**: `sequenceDiagram` (flujo principal), `flowchart TD` (decisiones).
+**Diagramas recomendados**: `sequenceDiagram` (flujo principal), `flowchart TD` (decisiones),
+`stateDiagram-v2` (cuando el módulo tiene un ciclo de vida con estados discretos y transiciones).
+Ver criterios de selección y niveles de prescripción en `docs.instructions.md`.
 
 ---
 
@@ -120,8 +122,9 @@ Si no hay términos específicos: "No aplica para este módulo."
 [Párrafo introductorio de una frase: responsabilidad exacta del módulo.]
 
 ## 1. Arquitectura y Diseño
-Diagrama Mermaid (flowchart TD, classDiagram, sequenceDiagram o architecture-beta).
-Máximo 12 nodos. Ver criterios de selección en docs.instructions.md.
+Diagrama Mermaid (flowchart TD, classDiagram, sequenceDiagram, architecture-beta,
+stateDiagram-v2 o erDiagram). Máximo 12 nodos. Ver criterios de selección y niveles
+de prescripción en docs.instructions.md.
 
 ## 2. Modelo de Datos / Contratos
 ### API pública
@@ -348,6 +351,8 @@ Estas páginas entran directamente en `nav:` (nivel raíz), no bajo `functional/
 ## 7. Mapa del Código                 — árbol simplificado, responsabilidad por módulo/paquete, regla de capas
 ## 8. Convenciones y Herramientas     — lint, format, tipos, tests — verificar contra SHARED_INSTRUCTIONS.md
 ## 9. Flujo de Trabajo Git            — ramas, Conventional Commits, PR/MR
+                                        Diagrama recomendado: `gitgraph` cuando el proyecto
+                                        tiene branching definido (main + feature + release)
 ## 10. Verificación del Entorno       — tabla: Verificación | Comando | Output esperado
 ## 11. Recursos y Referencias         — .ai/*.md, docs/ relevantes, normativa, contacto
 ```
@@ -742,6 +747,7 @@ Código de conducta (referencia externa si aplica). Requerimientos de CLA si apl
 4. Verificar calidad (lint, tipos, tests)
 5. Abrir PR con descripción según la plantilla
 6. Proceso de review y merge
+Diagrama opcional: `gitgraph` para visualizar el flujo de fork/branch/PR/merge.
 
 ## 4. Convenciones de Código y Commits
 Referencia a SHARED_INSTRUCTIONS.md / Conventional Commits.
