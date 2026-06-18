@@ -38,15 +38,17 @@ del sitio (`--strict`), trazabilidad de sesiones (`.ai/sessions/`).
 
 | Carpeta | Responsabilidad |
 |---|---|
-| `scripts/` | Tooling determinista standalone: `check_env.py`, `build_docs_zip.py` |
+| `scripts/` | Tooling determinista standalone: `check_env.py`, `build_docs_zip.py`, `convert_to_md.py`, `start-server.py` |
+| `hooks/` | `sync_root_docs.py`: copia CHANGELOG.md / CONTRIBUTING.md a docs/ (hook MkDocs + PostToolUse) |
+| `mkdocs_hooks.py` | Hook MkDocs nativo: genera `doc_ia-docs-latest.zip` + SHA256 en `site/` en cada build |
 | `tests/` | Tests pytest del tooling (importan `scripts/` vía `sys.path`) |
-| `docs/` + `mkdocs.yml` | Sitio MkDocs Material (este sitio); `mkdocs.yml` es fuente única |
-| `.github/` | Canónico (`SHARED_INSTRUCTIONS.md`), 12 agentes, 20 prompts, instructions, workflows CI |
-| `.claude/` | 9 slash commands, hooks PostToolUse (ruff, mypy, pytest), plantillas |
-| `.ai/` | Contexto persistente para agentes + sesiones trazadas |
+| `docs/` + `mkdocs.yml` | Sitio MkDocs Material (este sitio, 31 páginas); `mkdocs.yml` es fuente única de navegación |
+| `.github/` | Canónico (`SHARED_INSTRUCTIONS.md`), 12 agentes, 25 prompts, 3 instructions, 2 workflows CI |
+| `.claude/` | 9 slash commands, hooks PostToolUse (sync_root_docs, ruff, mypy, pytest), plantillas |
+| `.ai/` | Contexto persistente (product, architecture, glossary, runtime, standards) + sesiones trazadas |
 
-Regla de capas: `scripts/` no importa de `docs/` ni `.github/`; los entry points de
-plataforma dependen del canónico, nunca entre sí.
+Regla de capas: `scripts/` no importa de `docs/` ni `.github/`; `hooks/` no importa de
+`scripts/`; los entry points de plataforma dependen del canónico, nunca entre sí.
 
 ## 3. Flujo en Ejecución (Runtime)
 
@@ -54,13 +56,18 @@ Operación típica — documentar un proyecto con `/document-project`:
 
 ```mermaid
 flowchart TD
-    A[Usuario en chat IA] --> B[document_project.prompt.md<br/>VALIDACIÓN de inputs]
+    A[Usuario en chat IA] --> B[/document-project<br/>VALIDACIÓN de 4 inputs]
     B -- inputs incompletos --> A
-    B --> C[Lectura del código real<br/>del proyecto origen]
-    C --> D[Generación por arquetipos<br/>en docs/ del destino]
-    D --> E[Sincronización de mkdocs.yml]
-    E --> F[python -m mkdocs build --strict]
-    F --> G[Opcional: scripts/build_docs_zip.py<br/>ZIP + SHA256 en dist/]
+    B --> B0{¿≥2 orígenes o<br/>no es CÓDIGO?}
+    B0 -- Sí --> F0a[Fase 0a — Clasificar orígenes<br/>8 tipos posibles]
+    F0a --> B1
+    B0 -- No --> B1[Fase 0b — Sincronización visual<br/>assets + mkdocs.yml + .gitignore]
+    B1 --> C[Fase 1 — Inventario<br/>Estado A / B / C<br/>Señales ZIP offline]
+    C --> D[Fases 2-4 — Generación por arquetipos<br/>funcional · técnica · ejemplos · guías]
+    D --> E[Fase 5 — Sincronización de mkdocs.yml]
+    E --> F[Fase 6 — Revisión Markdown · enlaces · Mermaid]
+    F --> G[Fase 7 — Build opt-in + downloads.md]
+    G --> H[Cierre — .ai/sessions/ + commit]
 ```
 
 ## 4. Conceptos Transversales y Estándares No Funcionales

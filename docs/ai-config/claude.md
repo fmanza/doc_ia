@@ -1,6 +1,6 @@
 # Configuración de Claude Code
 
-Versión de modelo objetivo: claude-sonnet-4-6 · Fecha de revisión: 2026-06-11
+Versión de modelo objetivo: claude-sonnet-4-6 · Fecha de revisión: 2026-06-18
 
 ## 1. Plataforma y Modelo
 
@@ -63,14 +63,26 @@ Basado en `.claude/settings.json` (sección `permissions.allow`):
 
 ## 5. Hooks y Automatizaciones
 
-| Evento | Comando ejecutado | Propósito |
-|---|---|---|
-| `PostToolUse` en `Edit\|Write` | `python -m ruff check scripts tests --quiet 2>&1 \| head -15` | Linting tras cualquier edición de código |
-| `PostToolUse` en `Edit\|Write` | `python -m mypy scripts --no-error-summary 2>&1 \| head -10` | Type-checking tras cualquier edición de código |
-| `PostToolUse` en `Edit\|Write` | `python -m pytest --collect-only -q tests 2>&1 \| head -10` | Validación de sintaxis de tests tras edición |
+### Hooks PostToolUse (`.claude/settings.json`)
 
-Los hooks se ejecutan automáticamente sobre `scripts/` y `tests/`. No se ejecutan sobre
-`docs/`, `mkdocs.yml` ni otros ficheros no-Python.
+Ejecutados automáticamente tras cada `Edit`/`Write` sobre código Python, en este orden:
+
+| # | Comando ejecutado | Propósito |
+|---|---|---|
+| 1 | `python hooks/sync_root_docs.py` | Sincroniza CHANGELOG.md y CONTRIBUTING.md de la raíz a `docs/` |
+| 2 | `python -m ruff check scripts tests hooks --quiet 2>&1 \| head -15` | Linting (incluye `hooks/`) |
+| 3 | `python -m mypy scripts --no-error-summary 2>&1 \| head -10` | Type-checking strict |
+| 4 | `python -m pytest --collect-only -q tests 2>&1 \| head -10` | Validación de sintaxis de tests |
+
+### Hooks MkDocs (en `mkdocs.yml`)
+
+| Hook | Evento | Propósito |
+|---|---|---|
+| `hooks/sync_root_docs.py` | `on_pre_build` | Copia CHANGELOG.md / CONTRIBUTING.md a docs/ antes del build |
+| `mkdocs_hooks.py` | `on_post_build` | Genera `doc_ia-docs-latest.zip` + `.sha256` en `site/` |
+
+Los hooks PostToolUse se ejecutan sobre `scripts/`, `tests/` y `hooks/`. No se ejecutan
+sobre `docs/`, `mkdocs.yml` ni otros ficheros no-Python.
 
 ## 6. Restricciones Explícitas
 

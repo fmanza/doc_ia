@@ -21,7 +21,7 @@ La documentación completa está disponible como un archivo ZIP comprimido que p
 
 | Versión | Tamaño | Checksum | Fecha |
 |---|---|---|---|
-| <a href="../doc_ia-docs-latest.zip">doc_ia-docs-latest.zip</a> | ~1.0 MB | <a href="../doc_ia-docs-latest.zip.sha256">.sha256</a> | 2026-06-12 |
+| <a href="../doc_ia-docs-latest.zip">doc_ia-docs-latest.zip</a> | ~1.0 MB | <a href="../doc_ia-docs-latest.zip.sha256">.sha256</a> | 2026-06-18 |
 
 **doc_ia 0.1.0** — Instrucciones IA y tooling para documentar proyectos de desarrollo
 

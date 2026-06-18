@@ -7,11 +7,12 @@ Punto de entrada único del producto doc_ia: orquesta los arquetipos formales so
 ```mermaid
 flowchart TD
     V[VALIDACIÓN\n4 parámetros obligatorios] --> CL{≥2 orígenes\no tipo no CÓDIGO}
-    CL -- Sí --> F0a[Fase 0a — Clasificación\nCÓDIGO / NORMATIVA /\nESPECIFICACIÓN / UI / REFERENCIA]
+    CL -- Sí --> F0a[Fase 0a — Clasificación\n8 tipos de origen]
     F0a --> confirm[Confirmar con usuario]
-    confirm --> F0
-    CL -- No --> F0[Fase 0 — Normativa\nArquetipo 8 si aplica]
-    F0 --> F1[Fase 1 — Inventario\nEstado A · B · C\nDetección ZIP offline]
+    confirm --> F0b
+    CL -- No --> F0b[Fase 0b — Sincronización visual\nassets + mkdocs.yml + .gitignore]
+    F0b --> F0[Fase 0 — Normativa\nArquetipo 8 si aplica]
+    F0 --> F1[Fase 1 — Inventario\nEstado A · B · C\nDetección ZIP offline\nDetección carpetas md/]
     F1 --> PD[PLAN_DOC\nCREAR A · ACTUALIZAR B · OMITIR C]
     PD --> F2[Fase 2 — Funcional\nArquetipo 1]
     F2 --> F3[Fase 3 — Técnica\nArquetipo 2]
@@ -23,6 +24,7 @@ flowchart TD
     F7 -- No --> F7b
     build --> F7b[Fase 7b — downloads.md\nsiempre obligatorio]
     F7b --> RES[RESUMEN]
+    RES --> CIERRE[CIERRE DE SESIÓN\n.ai/sessions/ + .ai/*.md + commit]
 ```
 
 ## 2. Modelo de Datos / Contratos
@@ -87,7 +89,7 @@ Once bloques en el chat, en este orden:
 
 | Dependencia | Propósito | Requerida | Comportamiento sin ella |
 |---|---|---|---|
-| `.github/DOCUMENTATION_STANDARD.md` | Define los 8 arquetipos formales y sus estructuras | Sí | Las fases de generación no tienen plantilla de referencia |
+| `.github/DOCUMENTATION_STANDARD.md` | Define los 11 arquetipos formales y sus estructuras | Sí | Las fases de generación no tienen plantilla de referencia |
 | `.github/instructions/docs.instructions.md` | Reglas operativas (Mermaid, snippets, MkDocs) | Sí | Riesgo de inconsistencias de estilo y formato |
 | `mkdocs.yml` (destino) | Navegación que se sincroniza en Fase 5 | Sí para generador mkdocs-material | Sin él, SYNC NAV no puede actualizar la navegación |
 | Prompts de arquetipo (`.github/prompts/`) | Plantillas de cada tipo de documento | Sí | Las fases 2-4 no tienen instrucciones para generar cada arquetipo |
@@ -96,5 +98,5 @@ Once bloques en el chat, en este orden:
 ## 5. Ejemplos Relacionados
 
 - [Ejemplo: Documentar un Proyecto](../examples/document_project_usage.md) — invocación
-  con los 3 escenarios principales (sin doc, parcial, `--verify-build`) y output esperado
-  de cada fase.
+  con 6 escenarios (sin doc, parcial, `--verify-build`, orígenes heterogéneos, opt-in
+  changelog, CONTRATO+INFRAESTRUCTURA) y output esperado de cada fase.

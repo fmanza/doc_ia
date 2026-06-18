@@ -30,6 +30,9 @@ decidir manualmente qué arquetipo aplicar a cada módulo.
 | Sin inventar | El contenido generado se basa únicamente en el código y la documentación real del origen; no se inventan módulos, APIs, salidas ni dependencias | Documentación incorrecta que no corresponde al proyecto real |
 | Preservación de lo vigente | Las páginas clasificadas como vigentes (estado C) no se modifican; las desactualizadas (B) se actualizan conservando las secciones aún correctas | Se perdería documentación válida o se introduciría regresión de contenido |
 | `downloads.md` siempre obligatorio | Cada sesión genera o actualiza `docs/downloads.md` en el destino (Fase 7b); el flujo detecta tres señales de distribución offline (`TIENE_ZIP_SCRIPT`, `TIENE_MKDOCS_PLUGIN`, `TIENE_WORKFLOW_GITHUB`) y reporta los huecos | El destino quedaría sin una página de descarga offline o con datos desactualizados |
+| Sincronización visual obligatoria (Fase 0b) | Al inicio de toda sesión se verifican: assets CSS/JS en `docs/assets/`, configuración de `mkdocs.yml` (sin `navigation.sections` si `nav.css` presente), `.gitignore` con patrones estándar (`site/`, `*.pdf`, `*.doc`, `*.docx`). Aplica tanto en creación como en actualización | El destino tendría assets desincronizados, menú lateral sin colapso o binarios versionados por error |
+| Documentos pre-convertidos (`md/`) | Si el origen contiene carpetas `md/` (generadas por `convert_to_md.py`), se usan como contexto de primera clase en Fases 2-4 sin re-conversión; no generan páginas propias ni reciben estado A/B/C | Se perdería contexto valioso de documentos binarios o se intentaría re-convertir innecesariamente |
+| Contexto persistente `.ai/*.md` | En la primera sesión de un destino nuevo (o si faltan), se crean los 5 ficheros de contexto raíz: `product.md`, `architecture.md`, `glossary.md`, `runtime.md`, `standards.md`; en sesiones posteriores se actualizan si el inventario detecta cambios relevantes | Una IA futura no tendría el snapshot del proyecto para su `00_CONTEXT_SNAPSHOT` |
 
 ## 3. Casos de Uso
 
@@ -40,16 +43,17 @@ flowchart TD
     U[Usuario en chat IA] --> V[Validar cuatro parámetros obligatorios]
     V -- parámetro faltante --> U
     V --> CL{¿≥2 orígenes o\nno es CÓDIGO?}
-    CL -- Sí --> F0a[Fase 0a — Clasificar orígenes<br/>CÓDIGO · NORMATIVA · ESPECIFICACIÓN<br/>UI/PANTALLAS · REFERENCIA]
-    F0a -- confirmar con usuario --> I
-    CL -- No --> I[Inventariar el origen<br/>clasificar A / B / C<br/>detectar señales ZIP offline]
+    CL -- Sí --> F0a[Fase 0a — Clasificar orígenes<br/>8 tipos posibles]
+    F0a -- confirmar con usuario --> F0b
+    CL -- No --> F0b[Fase 0b — Sincronización visual<br/>assets + mkdocs.yml + .gitignore]
+    F0b --> I[Inventariar el origen<br/>clasificar A / B / C<br/>detectar señales ZIP offline<br/>detectar carpetas md/]
     I --> P[PLAN_DOC<br/>CREAR A · ACTUALIZAR B · OMITIR C]
     P --> G[Generar por arquetipos<br/>funcional · técnica · ejemplos · guías]
     G --> N[Sincronizar mkdocs.yml]
     N --> R[Revisión final<br/>Markdown · enlaces · Mermaid]
     R --> DL[Fase 7b — downloads.md<br/>Variante A o B · reportar huecos]
     DL --> D[Documentación publicada]
-    D --> C[Cierre de sesión<br/>.ai/sessions/YYYY-MM-DD/ + commit]
+    D --> CS[Cierre de sesión<br/>.ai/sessions/YYYY-MM-DD/<br/>.ai/*.md contexto + commit]
 ```
 
 ### Flujos alternativos y de error
@@ -108,5 +112,8 @@ cualquier plataforma IA soportada.
 | `INFRAESTRUCTURA` | Artefactos IaC y de despliegue del propio proyecto (Terraform, Kubernetes, Docker, Ansible…); enriquece Arquetipo 2 §4 y Arquetipo 6D |
 | `MANUAL` | Documentación narrativa ya escrita para el propio proyecto (manuales de usuario, guías de administrador, runbooks…); enriquece Arquetipos 3a, 3b, 6 y 7 |
 | Fase 0a | Paso de clasificación de orígenes ejecutado antes del inventario cuando hay ≥2 orígenes o el único origen no es CÓDIGO; requiere confirmación del usuario antes de continuar |
+| Fase 0b | Sincronización visual obligatoria al inicio de toda sesión: verificar assets CSS/JS, `mkdocs.yml` (sin `navigation.sections`), `.gitignore` con patrones estándar |
+| Carpeta `md/` | Artefactos generados por `convert_to_md.py`: versiones Markdown de documentos binarios del origen. Se usan como contexto en Fases 2-4, no generan páginas propias |
+| Contexto `.ai/*.md` | Ficheros de contexto persistente del proyecto (`product.md`, `architecture.md`, `glossary.md`, `runtime.md`, `standards.md`); creados en la primera sesión de un destino nuevo |
 | Estrategia | Forma de documentar múltiples orígenes de tipo CÓDIGO: `federado` (cada proyecto independiente), `hub+satélite` (un proyecto concentra el destino), `monorepo` (un `mkdocs.yml` raíz agrupa secciones); nunca se autodetecta |
-| Cierre de sesión | Paso final obligatorio del flujo: crea los artefactos `.ai/sessions/YYYY-MM-DD/` en el destino y propone un commit Conventional Commits con el resumen de la sesión |
+| Cierre de sesión | Paso final obligatorio del flujo: crea los artefactos `.ai/sessions/YYYY-MM-DD/` en el destino, actualiza o crea `.ai/*.md` si es primera sesión, y propone un commit Conventional Commits con el resumen de la sesión |

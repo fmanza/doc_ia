@@ -1,7 +1,7 @@
 # Producto — doc_ia
 
-> Contexto persistente para agentes IA. Regenerado en el bootstrap (2026-06-10)
-> analizando el árbol real del proyecto. No describe capacidades no verificadas.
+> Contexto persistente para agentes IA. Actualizado: 2026-06-18.
+> No describe capacidades no verificadas.
 
 ## Qué es
 
@@ -19,7 +19,8 @@ Code Assist, GitHub Copilot Chat, Cursor, Codex). Los **orígenes a documentar**
 
 1. **Sin API keys**: ninguna credencial de servicios IA se configura ni se versiona.
 2. **Sin componentes programáticos IA**: el código Python es exclusivamente tooling
-   determinista (build de documentación, ZIP offline, validaciones). Nunca invoca servicios IA.
+   determinista (build de documentación, ZIP offline, validaciones, conversión de documentos).
+   Nunca invoca servicios IA.
 3. **Ejecución en chat**: la generación documental ocurre siempre en el chat de la plataforma
    IA, guiada por las instrucciones de `.github/` y `.claude/`.
 
@@ -27,13 +28,23 @@ Code Assist, GitHub Copilot Chat, Cursor, Codex). Los **orígenes a documentar**
 
 | Capacidad | Soporte | Evidencia |
 |---|---|---|
-| Arquetipos documentales (7) | ✅ | `.github/prompts/{functional,technical,guide,example,architecture,landing}_doc.prompt.md`, `onboarding_dev.prompt.md` |
-| Flujo PLAN→AUDIT_PLAN→IMPLEMENT→AUDIT_CODE→VERSION | ✅ | `.github/agents/` (12), `.claude/commands/` (8) |
-| Bootstrap multiplataforma (modelo PULL) | ✅ | `.github/prompts/bootstrap_ai_config.prompt.md` |
+| Arquetipos documentales (11) | ✅ | `.github/prompts/` — 13 prompts de arquetipo: funcional, técnica, how-to (3a), tutorial (3b), ejemplos, ADR/MADR 4.0, landing (4 variantes), onboarding, normativa (condicional), changelog (opt-in), config IA, contribución (opt-in) |
+| Flujo PLAN→AUDIT_PLAN→IMPLEMENT→AUDIT_CODE→VERSION | ✅ | `.github/agents/` (12 agentes), `.claude/commands/` (9 slash commands) |
+| Documentación de proyectos externos parametrizada | ✅ | `/document-project` con 4 parámetros obligatorios, Fase 0a de clasificación (8 tipos de origen), Fase 0b de sincronización visual, cierre de sesión con `.ai/sessions/` |
+| Bootstrap multiplataforma (modelo PULL) | ✅ | `.github/prompts/bootstrap_ai_config.prompt.md` (capas A/B/C/D) |
 | Verificación de entorno | ✅ | `scripts/check_env.py` + `tests/test_check_env.py` |
-| ZIP offline de docs con SHA256 | ✅ | `scripts/build_docs_zip.py`, `.github/workflows/docs-zip-release.yml` |
-| Sitio de documentación propio | ✅ (mínimo) | `mkdocs.yml` + `docs/` (index, downloads, guides/codex_guide) |
-| Documentación de proyectos externos parametrizada | 🔜 Pendiente | objetivo del producto; los arquetipos están listos, falta la guía de invocación parametrizada |
+| ZIP offline de docs con SHA256 | ✅ | Mecanismo dual: `scripts/build_docs_zip.py` (script) + `mkdocs_hooks.py` (hook nativo MkDocs); `.github/workflows/docs-zip-release.yml` (CI) |
+| Conversión de documentos a Markdown | ✅ | `scripts/convert_to_md.py` — PDF vía markitdown, DOCX/PPTX/ODT/… vía pandoc; genera carpeta `md/` como contexto IA |
+| Sincronización raíz→docs/ | ✅ | `hooks/sync_root_docs.py` — copia CHANGELOG.md y CONTRIBUTING.md a docs/ automáticamente |
+| Servidor offline para ZIP | ✅ | `scripts/start-server.py` — servidor HTTP local incluido en el ZIP offline |
+| Sitio de documentación propio (dogfooding) | ✅ | `mkdocs.yml` + `docs/` (31 páginas, 11 arquetipos aplicados al propio proyecto) |
+| Orígenes heterogéneos | ✅ | 8 tipos: CÓDIGO, NORMATIVA, ESPECIFICACIÓN, UI/PANTALLAS, REFERENCIA, CONTRATO, INFRAESTRUCTURA, MANUAL |
+
+## Instrucciones IA
+
+25 prompts en `.github/prompts/` (13 de arquetipo + 12 de método/flujo), 12 agentes en
+`.github/agents/`, 3 instrucciones en `.github/instructions/`, 9 slash commands en
+`.claude/commands/`.
 
 ## Plataformas IA activas
 

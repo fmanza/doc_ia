@@ -54,28 +54,32 @@ doc_ia no tiene servidor propio; lo ejecutable es el tooling y el sitio de docum
 ```bash
 python scripts/check_env.py     # verificación del entorno
 python -m mkdocs serve          # sitio de docs en http://127.0.0.1:8000/
+python scripts/convert_to_md.py <ruta>  # convertir documentos binarios a Markdown
 ```
 
 ## 7. Mapa del Código
 
 ```text
 doc_ia/
-  scripts/        # Tooling determinista: check_env.py, build_docs_zip.py
-  tests/          # Tests pytest (importan scripts/ vía sys.path)
-  docs/           # Sitio MkDocs Material (este sitio)
-  .github/        # Canónico, agentes, prompts (método + arquetipos), workflows
-  .claude/        # Slash commands, hooks PostToolUse, plantillas
-  .ai/            # Contexto persistente para agentes IA + sesiones
+  scripts/          # Tooling determinista: check_env.py, build_docs_zip.py, convert_to_md.py, start-server.py
+  hooks/            # sync_root_docs.py: copia CHANGELOG.md/CONTRIBUTING.md a docs/
+  mkdocs_hooks.py   # Hook MkDocs: genera ZIP offline en site/ en cada build
+  tests/            # Tests pytest (importan scripts/ vía sys.path)
+  docs/             # Sitio MkDocs Material (este sitio, 31 páginas)
+  .github/          # Canónico, 12 agentes, 25 prompts, 3 instructions, 2 workflows
+  .claude/          # 9 slash commands, hooks PostToolUse, plantillas
+  .ai/              # Contexto persistente para agentes IA + sesiones trazadas
 ```
 
-Regla de capas: `scripts/` no importa de `docs/` ni `.github/`; cada script es standalone.
+Regla de capas: `scripts/` no importa de `docs/` ni `.github/`; `hooks/` no importa de
+`scripts/`; cada script es standalone.
 
 ## 8. Convenciones y Herramientas
 
 | Herramienta | Comando | Regla |
 |---|---|---|
-| ruff | `python -m ruff check scripts tests` | Lint sin errores |
-| ruff format | `python -m ruff format scripts tests` | Formato canónico |
+| ruff | `python -m ruff check scripts tests hooks` | Lint sin errores |
+| ruff format | `python -m ruff format scripts tests hooks` | Formato canónico |
 | mypy | `python -m mypy scripts` | Modo `strict`: todo símbolo tipado |
 | pytest | `python -m pytest` | Tests deterministas, sin red |
 
@@ -95,7 +99,7 @@ APIs de IA desde código. Fuente completa: `.github/SHARED_INSTRUCTIONS.md`.
 | Verificación | Comando | Output esperado |
 |---|---|---|
 | Tooling completo | `python scripts/check_env.py` | `Entorno de tooling documental completo.` |
-| Lint | `python -m ruff check scripts tests` | `All checks passed!` |
+| Lint | `python -m ruff check scripts tests hooks` | `All checks passed!` |
 | Tipos | `python -m mypy scripts` | `Success: no issues found` |
 | Tests | `python -m pytest -q` | Todos los tests en verde |
 | Docs | `python -m mkdocs build --strict` | `Documentation built` sin warnings |
