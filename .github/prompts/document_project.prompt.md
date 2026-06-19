@@ -109,43 +109,74 @@ Fase 0b — Conversión de documentos no legibles y uso de documentos pre-conver
                TIENE_MD = true  → marcar OMITIR_CONVERSIÓN
                TIENE_MD = false → añadir a lista de pendientes de conversión (Paso 1)
            · Si TODOS los binarios tienen TIENE_MD = true, O si no hay binarios pero `md/`
-             tiene contenido → omitir Pasos 1-3 y pasar directamente al Paso 4.
-           · Si `md/` parcial (algunos binarios sin equivalente) → ejecutar Pasos 1-3 solo
-             para los pendientes; incluir ya los pre-existentes en Paso 4.
+             tiene contenido → omitir Pasos 1-4 y pasar directamente al Paso 5.
+           · Si `md/` parcial (algunos binarios sin equivalente) → ejecutar Pasos 1-4 solo
+             para los pendientes; incluir ya los pre-existentes en Paso 5.
            · Si no existe ninguna `md/` válida NI ficheros binarios → omitir esta fase.
            · Cuando `md/` existe sin binarios visibles (binarios eliminados tras conversión),
              reportar en INVENTARIO con nota "Documentos pre-convertidos sin binario original"
              y confirmar con el usuario antes de usarlos en Fases 2-4.
          Paso 1 — Detectar binarios pendientes de conversión (solo si Paso 0 identifica pendientes):
-           Extensiones no legibles directamente: .pdf, .docx, .doc, .pptx, .odt, .epub, .rst, .html, .htm
-         Paso 2 — Proponer conversión de los pendientes:
-           → proponer al usuario ejecutar en el directorio del ORIGEN:
+           Extensiones convertibles:
+             markitdown (principal): .pdf, .docx, .pptx, .xlsx, .xls, .html, .htm, .csv, .epub, .ipynb
+             pandoc (complemento):   .doc, .odt, .rst
+         Paso 2 — Validación previa (OBLIGATORIO antes de convertir):
+           → proponer al usuario ejecutar validación primero:
+                python scripts/convert_to_md.py <ruta_origen> --validate-only
+           La validación comprueba tres dimensiones ANTES de intentar la conversión:
+             a) Extensiones soportadas: cada fichero tiene extensión reconocida por algún conversor.
+             b) Plugins disponibles: markitdown está instalado y los plugins opcionales para
+                cada extensión están presentes (pdfminer→PDF, python-docx→DOCX, python-pptx→PPTX,
+                openpyxl→XLSX, xlrd→XLS). Si falta un plugin pero pandoc está disponible,
+                se usa como fallback para DOCX/PPTX/EPUB.
+             c) Integridad de ficheros: cada fichero existe, no está vacío (0 bytes) y es legible.
+           El informe de validación lista cada fichero con su estado:
+             OK → conversor_asignado | ERROR: motivo | SIN PLUGIN: pip install <plugin>
+           Si la validación reporta errores:
+             · Errores de plugin → proponer instalación (Paso 3)
+             · Errores de integridad → reportar al usuario para resolución manual
+             · Ficheros válidos se procesan igualmente; los inválidos se registran (Paso 6)
+         Paso 3 — Proponer conversión de los pendientes validados:
+           → proponer al usuario ejecutar conversión completa:
                 python scripts/convert_to_md.py <ruta_origen>
             Crea una carpeta `md/` dentro del origen con las versiones Markdown convertidas,
             reflejando la estructura de subdirectorios para evitar colisiones de nombres.
-            El script usa la herramienta correcta según la extensión:
-              - PDF                     → markitdown  (pip install markitdown)
-              - DOCX, DOC, PPTX, ODT,
-                EPUB, RST, HTML, HTM   → pandoc       (winget/brew/apt install pandoc)
+            El script selecciona automáticamente el conversor óptimo según extensión y plugins:
+              markitdown (principal):
+                PDF (.pdf)               → requiere plugin pdfminer
+                DOCX (.docx)             → requiere plugin python-docx
+                PPTX (.pptx)             → requiere plugin python-pptx
+                XLSX (.xlsx)             → requiere plugin openpyxl
+                XLS (.xls)               → requiere plugin xlrd
+                HTML/HTM (.html, .htm)   → dependencia core (beautifulsoup4)
+                CSV (.csv)               → built-in
+                EPUB (.epub)             → built-in
+                IPYNB (.ipynb)           → built-in
+              pandoc (complemento):
+                DOC (.doc), ODT (.odt), RST (.rst) → solo pandoc
+              pandoc (fallback):
+                DOCX, PPTX, EPUB → cuando el plugin de markitdown no está instalado
             IMPORTANTE: pandoc NO puede leer PDF. Para PDF usar siempre markitdown.
             Si el origen no dispone del script (proyecto externo), usar directamente:
-                markitdown <fichero.pdf> -o <fichero_sin_ext>.md     ← para PDF
-                pandoc <fichero> -o <fichero_sin_ext>.md --wrap=none  ← para DOCX/PPTX/…
-         Paso 3 — Resolver herramientas faltantes (si aplica):
-              markitdown (PDF):  pip install markitdown
-              pandoc (DOCX/…):   Windows: winget install JohnMacFarlane.Pandoc
-                                 macOS:   brew install pandoc
-                                 Linux:   sudo apt install pandoc | sudo dnf install pandoc
-         Paso 4 — Incluir ficheros md/ como contexto (siempre que md/ tenga contenido):
+                markitdown <fichero.pdf> -o <fichero_sin_ext>.md     ← para formatos markitdown
+                pandoc <fichero> -o <fichero_sin_ext>.md --wrap=none  ← para DOC/ODT/RST
+         Paso 4 — Resolver herramientas faltantes (si la validación detectó carencias):
+              markitdown:           pip install markitdown
+              Plugins markitdown:   pip install python-docx python-pptx openpyxl xlrd
+              pandoc (complemento): Windows: winget install JohnMacFarlane.Pandoc
+                                    macOS:   brew install pandoc
+                                    Linux:   sudo apt install pandoc | sudo dnf install pandoc
+         Paso 5 — Incluir ficheros md/ como contexto (siempre que md/ tenga contenido):
            · Incluir en las Fases 2-4 todos los ficheros `.md` de carpetas `md/` del origen,
              tanto los recién convertidos como los pre-existentes.
            · Tratamiento idéntico a ficheros `.md` nativos del origen.
            · Estos ficheros son artefactos generados — nunca editarlos directamente.
-         Paso 5 — Registrar en INVENTARIO los pendientes no resueltos:
-           Si el usuario no instala la herramienta o decide omitir → registrar en INVENTARIO
-           (Fase 1) los ficheros no convertidos con estado A y nota:
-           "Pendiente: requiere markitdown para convertir [nombre.pdf]" (PDF)
-           "Pendiente: requiere pandoc para convertir [nombre.docx]" (DOCX/PPTX/…)
+         Paso 6 — Registrar en INVENTARIO los pendientes no resueltos:
+           Si el usuario no instala la herramienta/plugin o decide omitir → registrar en
+           INVENTARIO (Fase 1) los ficheros no convertidos con estado A y nota:
+           "Pendiente: requiere markitdown + <plugin> para convertir [nombre.ext]"
+           "Pendiente: requiere pandoc para convertir [nombre.doc]" (DOC/ODT/RST)
+           "Pendiente: fichero inválido [nombre.ext] — <motivo de la validación>"
          Nota: omitir esta fase solo si no existen ficheros binarios NI carpeta `md/` con
          contenido válido en el origen.
 Fase 1 — Inventariar y clasificar:
@@ -348,7 +379,7 @@ APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reg
    - ⚠️ Confirmar con el usuario antes de continuar.
 3. **INVENTARIO** (Fase 0+0b+1) — tabla: | Módulo / Página | Estado (A/B/C) | Acción (CREAR/ACTUALIZAR/OMITIR) | Arquetipos / Secciones afectadas |
    - Con múltiples orígenes CÓDIGO: un sub-inventario por proyecto.
-   - Si Fase 0b activa: indicar qué ficheros se convirtieron (con markitdown o pandoc) y cuáles quedan pendientes.
+   - Si Fase 0b activa: incluir resultado de la validación previa (extensiones, plugins, integridad) e indicar qué ficheros se convirtieron (conversor usado: markitdown o pandoc), cuáles quedan pendientes y motivo (plugin faltante, fichero inválido, etc.).
    - Si existen carpetas `md/` de documentos pre-convertidos: añadir sub-sección "Documentos de referencia (md/)" con tabla | Carpeta `md/` | Ficheros disponibles | Fases donde aplica |. Sin estado A/B/C — son fuentes de contexto, no destinos de documentación.
 4. **PLAN_DOC** — orden de generación con columnas CREAR / ACTUALIZAR (indicar secciones) / OMITIR; impacto en navegación.
 5. **GENERACIÓN** (Fases 2-4) — por fases e iterando módulo a módulo; nunca un único prompt masivo.
