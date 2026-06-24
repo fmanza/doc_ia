@@ -16,8 +16,9 @@ concreto, sin pasos manuales de inspección.
 
 | Regla | Descripción | Impacto si se viola |
 |---|---|---|
-| Conjunto fijo de herramientas | Se verifican exactamente cuatro herramientas: el generador de documentación, el analizador de estilo, el verificador de tipos y el ejecutor de pruebas | Una herramienta ausente no detectada provoca fallos posteriores en build o validación |
-| Resultado binario | El resultado es "completo" o "faltan herramientas" con su lista; no hay estados intermedios | Ambigüedad sobre si se puede trabajar o no |
+| Conjunto fijo de herramientas | Se verifican exactamente cuatro herramientas requeridas (mkdocs, ruff, mypy, pytest) y herramientas opcionales de conversión (docling, markitdown, pandoc) | Una herramienta ausente no detectada provoca fallos posteriores en build o validación |
+| Resultado binario para requeridas | El resultado es "completo" o "faltan herramientas" con su lista; no hay estados intermedios | Ambigüedad sobre si se puede trabajar o no |
+| Avisos informativos para opcionales | Las herramientas de conversión (docling, markitdown, pandoc) se reportan como avisos, no como errores | El script no falla si falta un motor de conversión |
 | Sin servicios externos | La comprobación es local y no contacta con ningún servicio IA ni de red | Violaría el principio del proyecto de ejecución determinista sin APIs |
 
 ## 3. Casos de Uso

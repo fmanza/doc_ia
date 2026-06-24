@@ -1,119 +1,170 @@
 # convert_to_md
 
-Convierte ficheros en formatos no legibles directamente por el agente IA (PDF, DOCX, PPTX…) a Markdown, depositando el resultado en `<origen>/md/` con la estructura de subdirectorios reflejada. Usa `markitdown` para PDF y `pandoc` para el resto de formatos.
+Convierte ficheros en formatos no legibles directamente por el agente IA (PDF, DOCX, PPTX,
+imágenes, email, audio…) a Markdown, depositando el resultado en `<origen>/md/` con la
+estructura de subdirectorios reflejada. Soporta tres motores: docling (default), markitdown
+y pandoc.
 
 ## 1. Arquitectura y Diseño
 
 ```mermaid
 flowchart TD
-    CLI["CLI: argparse\n(source, --dry-run)"] --> SE{source existe?}
-    SE -- No --> ERR2["ERROR: origen no existe → exit 1"]
-    SE -- Sí --> CF["collect_files(source)\nfiltrar CONVERTIBLE_EXTENSIONS\nexcluir carpeta md/"]
-    CF --> WARN["Advertir si falta\nmarkitdown o pandoc"]
-    WARN --> EMPTY{¿Sin ficheros?}
-    EMPTY -- Sí --> OK0["Mensaje informativo → exit 0"]
-    EMPTY -- No --> LOOP["Para cada fichero:\noutput_path(file, root, md_root)"]
-    LOOP --> EXISTS{¿Ya existe en md/?}
-    EXISTS -- Sí --> SKIP["OMITIR — idempotente"]
-    EXISTS -- No --> DRY{--dry-run?}
-    DRY -- Sí --> DRYOUT["DRY-RUN — listar sin convertir"]
-    DRY -- No --> EXT{¿Extensión PDF?}
-    EXT -- Sí --> MIT["markitdown.convert(file)"]
-    EXT -- No --> PAN["pandoc file -o out.md --wrap=none"]
-    MIT --> RES{¿Éxito?}
-    PAN --> RES
-    RES -- Sí --> OKFILE["OK — imprimir ruta salida"]
-    RES -- No --> ERRFILE["ERROR — eliminar parcial\n+ imprimir mensaje"]
-    SKIP & DRYOUT & OKFILE & ERRFILE --> MORE{¿Más ficheros?}
-    MORE -- Sí --> LOOP
-    MORE -- No --> FINAL{¿Hubo errores?}
+    CLI["CLI: argparse\n(source, --engine, --dry-run,\n--validate-only, --metadata…)"]
+    CLI --> PA["_parse_args → ConvertOptions"]
+    PA --> SE{source existe?}
+    SE -- No --> ERR["ERROR → exit 1"]
+    SE -- Sí --> VO{validate_only?}
+    VO -- Sí --> VREP["_validate_only_report\n→ exit 0/1"]
+    VO -- No --> DEV["_detect_device\n(CPU/CUDA)"]
+    DEV --> ENG{engine\ndisponible?}
+    ENG -- No --> ENGERR["ERROR → exit 1\ncon alternativas"]
+    ENG -- Sí --> CF["collect_files(source, engine)"]
+    CF --> EMPTY{¿Sin ficheros?}
+    EMPTY -- Sí --> OK0["exit 0"]
+    EMPTY -- No --> BATCH{¿docling?}
+    BATCH -- Sí --> BA["_convert_batch_docling\n(convert_all + pre-filtro)"]
+    BATCH -- No --> LOOP["convert_file uno a uno\n(markitdown o pandoc)"]
+    BA --> FINAL
+    LOOP --> FINAL{¿Errores?}
     FINAL -- Sí --> EXIT1["exit 1"]
     FINAL -- No --> EXIT0["exit 0"]
 ```
 
-Pipeline determinista: cada fichero se procesa de forma independiente; un error en un fichero no detiene los restantes. La función `main` acumula contadores y devuelve el código de salida agregado.
+Pipeline determinista: cada fichero se procesa de forma independiente; un error en un fichero
+no detiene los restantes. Docling usa `convert_all()` para procesamiento batch optimizado;
+markitdown y pandoc procesan fichero a fichero.
 
 ## 2. Modelo de Datos / Contratos
+
+### ConvertOptions (dataclass)
+
+| Campo | Tipo | Default | Descripción |
+|---|---|---|---|
+| `source` | `Path` | `Path(".")` | Fichero o directorio origen |
+| `engine` | `str` | `"docling"` | Motor: `docling`, `markitdown`, `pandoc` |
+| `dry_run` | `bool` | `False` | Simular sin convertir |
+| `validate_only` | `bool` | `False` | Solo validar, no convertir |
+| `force` | `bool` | `False` | Re-convertir aunque exista salida |
+| `metadata` | `bool` | `False` | Añadir frontmatter YAML |
+| `chunk` | `bool` | `False` | Generar chunks RAG (solo docling) |
+| `chunk_max_tokens` | `int` | `512` | Tokens máximo por chunk |
+| `ocr` | `bool` | `True` | Habilitar OCR (solo docling) |
+| `ocr_engine` | `str` | `"auto"` | Motor OCR: `auto`, `easyocr`, `tesseract`, `rapidocr` |
+| `ocr_lang` | `list[str]` | `["es", "en"]` | Idiomas OCR |
+| `table_mode` | `str` | `"accurate"` | Modo tablas: `accurate`, `fast` |
+| `image_export` | `str` | `"placeholder"` | Exportación imágenes: `placeholder`, `embedded`, `referenced` |
+| `pdf_backend` | `str` | `"docling-parse"` | Backend PDF: `docling-parse`, `pypdfium2` |
+| `timeout` | `int` | `300` | Timeout por documento (segundos) |
+| `device` | `str` | `"cpu"` | Dispositivo: `cpu`, `cuda`, `auto` |
+| `num_threads` | `int` | `4` | Hilos CPU para docling |
+| `flash_attention` | `bool` | `False` | Flash Attention 2 (GPU Ampere+) |
+| `batch_size` | `int` | `1` | Documentos por lote (docling) |
+| `workers` | `int` | `1` | Concurrencia por lote (docling) |
 
 ### API pública
 
 | Función | Firma | Descripción | Retorna |
 |---|---|---|---|
-| `pandoc_available` | `() -> bool` | Comprueba si `pandoc` está en el PATH del sistema mediante `shutil.which` | `True` si disponible |
-| `markitdown_available` | `() -> bool` | Comprueba si el paquete `markitdown` está instalado mediante `importlib.util.find_spec` | `True` si disponible |
-| `collect_files` | `(source: Path) -> list[Path]` | Recopila ficheros convertibles bajo `source`; excluye `md/` para evitar recursión | Lista ordenada de `Path` |
-| `output_path` | `(source_file: Path, source_root: Path, md_root: Path) -> Path` | Calcula la ruta de salida reflejando la estructura relativa del origen | `Path` bajo `md_root` |
-| `convert_file` | `(source_file: Path, source_root: Path, md_root: Path, *, dry_run: bool = False) -> bool` | Convierte un fichero con markitdown (PDF) o pandoc (resto); idempotente si ya existe | `True` si éxito u omisión |
-| `main` | `() -> int` | Punto de entrada CLI: parsea args, verifica herramientas, itera ficheros, devuelve código de salida | `0` ok · `1` error |
+| `docling_available` | `() -> bool` | Comprueba si docling está instalado | `True` si disponible |
+| `markitdown_available` | `() -> bool` | Comprueba si markitdown está instalado | `True` si disponible |
+| `pandoc_available` | `() -> bool` | Comprueba si pandoc está en el PATH | `True` si disponible |
+| `engine_available` | `(engine: str) -> bool` | Comprueba disponibilidad del motor indicado | `True` si disponible |
+| `validate_file` | `(source_file: Path) -> tuple[bool, str]` | Valida integridad: tamaño, ZIP, cabecera PDF/imagen, audio | `(True, "")` o `(False, razón)` |
+| `collect_files` | `(source: Path, engine: str) -> list[Path]` | Recopila ficheros convertibles para el motor; excluye `md/` | Lista ordenada de `Path` |
+| `output_path` | `(source_file, source_root, md_root) -> Path` | Calcula ruta de salida reflejando estructura relativa | `Path` bajo `md_root` |
+| `convert_file` | `(source_file, source_root, md_root, *, options) -> bool` | Convierte un fichero con el motor indicado; idempotente | `True` si éxito u omisión |
+| `main` | `(argv: list[str] \| None) -> int` | Punto de entrada CLI | `0` ok · `1` error |
 
 ### CLI
 
 ```
-python scripts/convert_to_md.py <source> [--dry-run]
+python scripts/convert_to_md.py <source> [--engine {docling,markitdown,pandoc}]
+    [--dry-run] [--validate-only] [--force] [--metadata] [--chunk]
+    [--ocr | --no-ocr] [--ocr-engine {auto,easyocr,tesseract,rapidocr}]
+    [--device {cpu,cuda,auto}] [--batch-size N] [--workers N]
 ```
 
 | Argumento | Tipo | Descripción | Restricciones |
 |---|---|---|---|
 | `source` | `Path` | Fichero o directorio a convertir | Obligatorio; debe existir |
-| `--dry-run` | flag | Lista qué se convertiría sin ejecutar conversión | Opcional |
+| `--engine` | choice | Motor de conversión | Default: `docling` |
+| `--dry-run` | flag | Simular sin convertir | — |
+| `--validate-only` | flag | Solo validar integridad | — |
+| `--force` | flag | Re-convertir aunque exista | — |
+| `--metadata` | flag | Añadir frontmatter YAML | — |
+| `--chunk` | flag | Generar chunks RAG | Solo con `--engine docling` |
+| `--no-ocr` | flag | Deshabilitar OCR | — |
+| `--device` | choice | CPU/CUDA/auto | `--flash-attention` requiere `cuda` o `auto` |
+| `--batch-size` | int | Lote docling | Solo con `--engine docling` |
+| `--workers` | int | Concurrencia lote | Solo con `--engine docling` |
 
 ### Constantes
 
-| Nombre | Tipo | Valor |
+| Nombre | Tipo | Contenido |
 |---|---|---|
-| `MARKITDOWN_EXTENSIONS` | `frozenset[str]` | `{".pdf"}` |
-| `PANDOC_EXTENSIONS` | `frozenset[str]` | `{".docx", ".doc", ".pptx", ".odt", ".epub", ".rst", ".html", ".htm"}` |
-| `CONVERTIBLE_EXTENSIONS` | `frozenset[str]` | Unión de las dos anteriores |
+| `DOCLING_EXTENSIONS` | `frozenset[str]` | `.pdf`, `.docx`, `.pptx`, `.xlsx`, `.csv`, `.html`, `.htm`, `.epub`, `.png`, `.jpg`, `.jpeg`, `.tiff`, `.bmp`, `.webp`, `.eml`, `.msg`, `.md`, `.tex`, `.latex`, `.wav`, `.mp3` |
+| `MARKITDOWN_EXTENSIONS` | `frozenset[str]` | `.pdf`, `.docx`, `.pptx`, `.xlsx`, `.xls`, `.csv`, `.epub`, `.html`, `.htm`, `.msg` |
+| `PANDOC_EXTENSIONS` | `frozenset[str]` | `.doc`, `.odt`, `.rst`, `.tex`, `.latex` |
+| `ENGINE_EXTENSIONS` | `dict[str, frozenset]` | Mapeo motor → extensiones soportadas |
+| `CONVERTIBLE_EXTENSIONS` | `frozenset[str]` | Unión de las tres anteriores |
 
 ### Contrato de salida (stdout)
 
 | Situación | Línea impresa |
 |---|---|
-| Fichero ya convertido | `  OMITIR  <rel_origen> → md/<rel_salida> (ya existe)` |
-| Conversión exitosa | `  OK      <rel_origen> → md/<rel_salida>` |
-| Error de markitdown | `  ERROR   <rel_origen>: <mensaje markitdown>` |
-| Error de pandoc | `  ERROR   <rel_origen>: <mensaje stderr pandoc>` |
-| `--dry-run` | `  DRY-RUN <rel_origen> → md/<rel_salida>` |
-| Sin ficheros convertibles | `No se encontraron ficheros convertibles en: <source>` |
-| markitdown no instalado (aviso previo) | `⚠  markitdown no instalado — los PDF fallarán.` |
-| pandoc no encontrado (aviso previo) | `⚠  pandoc no encontrado — los ficheros DOCX/PPTX/… fallarán.` |
+| Fichero ya convertido | `  OMITIR  <rel> -> md/<rel_salida> (ya existe)` |
+| Conversión exitosa | `  OK      <rel> -> md/<rel_salida>` |
+| Conversión exitosa (docling batch) | `  CONV    <rel> ... OK -> md/<rel_salida>` |
+| Error de conversión | `  ERROR   <rel>: <mensaje>` |
+| Fichero inválido | `  INVÁLID <rel>: <razón>` |
+| Formato no soportado | `  NOSOPOR <rel>: formato '<ext>' no soportado por motor '<engine>'` |
+| `--dry-run` | `  DRY-RUN <rel> -> md/<rel_salida>` |
+| Validate-only OK | `  OK      <rel>` |
+| Motor no disponible | `ERROR: Motor '<engine>' no disponible.` |
 
 ### Errores y casos especiales
 
 | Caso | Comportamiento |
 |---|---|
 | `source` no existe | `exit 1` con mensaje |
-| Sin ficheros convertibles | Mensaje informativo + `exit 0` |
-| Fichero ya existe en `md/` | `OMITIR` — no re-convierte; comportamiento idempotente |
-| `markitdown` no instalado al procesar PDF | `ERROR` en ese fichero; continúa con el resto |
-| `pandoc` no en PATH al procesar DOCX/… | `ERROR` en ese fichero; continúa con el resto |
-| Al menos un fallo al finalizar | `exit 1`; los ficheros convertidos correctamente se conservan |
+| Motor no instalado (sin `--dry-run`) | `exit 1` con alternativas |
+| `--validate-only` sin motor | Reporta como `NO INSTALADO` pero continúa validación |
+| Fichero vacío (0 bytes) | `INVÁLID` — no intenta conversión |
+| PDF con cabecera no `%PDF-` | `INVÁLID` — fichero corrupto |
+| DOCX/PPTX/XLSX/EPUB no ZIP válido | `INVÁLID` — formato corrupto |
+| Imagen con magic bytes incorrectos | `INVÁLID` — fichero corrupto |
+| Audio < 1KB | `INVÁLID` — demasiado pequeño |
+| `--device cuda` sin nvidia-smi | `exit 1` |
+| `--chunk` con motor no docling | Error de argparse |
 
 ## 3. Componentes y Clases
 
 | Componente | Ruta | Responsabilidad |
 |---|---|---|
-| Script principal | `scripts/convert_to_md.py` | Lógica completa de detección, routing y conversión |
-| Constantes de extensiones | `scripts/convert_to_md.py:22-25` | Separación clara PDF (markitdown) vs. otros (pandoc) |
-| Dependencia PDF | `markitdown` (paquete Python) | Única herramienta capaz de convertir PDF a Markdown |
-| Dependencia DOCX/… | `pandoc` (binario externo) | Conversión de formatos Office/web a Markdown |
+| Script principal | `scripts/convert_to_md.py` | Lógica de detección, routing, validación y conversión |
+| `ConvertOptions` | `scripts/convert_to_md.py` | Dataclass con todos los parámetros CLI |
+| Motor docling | `_convert_with_docling`, `_convert_batch_docling` | Conversión con pipeline docling + batch |
+| Motor markitdown | `_convert_with_markitdown` | Conversión con MarkItDown |
+| Motor pandoc | `_convert_with_pandoc` | Conversión vía subprocess |
+| Validación | `validate_file`, `_validate_only_report` | Integridad previa y modo validate-only |
+| Detección CUDA | `_cuda_available`, `_detect_device` | Resolución CPU/CUDA sin importar torch |
+| Chunking RAG | `_run_chunking` | Fragmentación con HybridChunker |
+| Metadata | `_build_metadata_basic`, `_format_frontmatter` | Frontmatter YAML |
 
 ## 4. Dependencias y Requisitos
 
-| Dependencia | Propósito | Requerida para | Comportamiento sin ella |
+| Dependencia | Propósito | Requerida para | Sin ella |
 |---|---|---|---|
-| `markitdown` (paquete Python) | Convierte PDF a Markdown | Ficheros `.pdf` | `ERROR` por fichero PDF; resto continúa |
-| `pandoc` (binario externo) | Convierte DOCX, PPTX, ODT… a Markdown | Ficheros `.docx`, `.pptx`, … | `ERROR` por fichero; resto continúa |
-| `pathlib.Path` | Manipulación de rutas | Todos | — (stdlib Python ≥ 3.4) |
-| `subprocess` | Invocación de pandoc | Ficheros no-PDF | — (stdlib) |
-| `importlib.util` | Detección de markitdown | Todos | — (stdlib) |
-| `shutil.which` | Detección de pandoc en PATH | Todos | — (stdlib) |
+| `docling` (Python) | Motor principal de conversión | `--engine docling` | Usar `--engine markitdown` o `pandoc` |
+| `markitdown` (Python) | Motor ligero de conversión | `--engine markitdown` | Usar `--engine docling` o `pandoc` |
+| `pandoc` (binario) | Conversión de formatos legacy | `--engine pandoc` | Usar `--engine docling` o `markitdown` |
+| `nvidia-smi` (sistema) | Detección CUDA | `--device cuda/auto` | Solo CPU disponible |
+| `pathlib`, `subprocess`, `importlib.util`, `shutil`, `zipfile` | Infraestructura | Todos | stdlib Python ≥ 3.12 |
 
-Verificar entorno antes de usar: `python scripts/check_env.py` (reporta si markitdown y pandoc están instalados).
+Verificar entorno: `python scripts/check_env.py` (reporta disponibilidad de docling, markitdown y pandoc).
 
 ## 5. Ejemplos Relacionados
 
 - [Ejemplo: Convertir Documentos a Markdown](../examples/convert_to_md_usage.md) — invocaciones
-  para directorio completo, fichero individual, `--dry-run` y gestión de errores.
-- Integrado en el flujo [Documentar un Proyecto](../functional/document_project.md) § Fase 0b:
-  propuesto automáticamente cuando se detectan ficheros binarios en el origen.
+  por motor, validación, metadata, batch y chunking.
+- Integrado en el flujo [Documentar un Proyecto](../functional/document_project.md) § Fase 0b.

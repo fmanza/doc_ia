@@ -4,6 +4,8 @@ Comprueba que las herramientas Python requeridas (mkdocs, ruff, mypy, pytest) y 
 herramientas de conversión están disponibles. No invoca ningún servicio IA.
 
 Herramientas de conversión:
+  docling    (Python, opcional) — PDF, DOCX, PPTX, XLSX, CSV, HTML, EPUB, imágenes, email,
+             LaTeX, audio. OCR integrado, GPU acelerada, chunking RAG.
   markitdown (Python, principal) — cubre PDF, DOCX, PPTX, XLSX, XLS, HTML, CSV, EPUB, IPYNB.
   pandoc     (binario, complemento) — cubre DOC, ODT, RST y fallback para DOCX/PPTX/EPUB.
 
@@ -20,7 +22,7 @@ import sys
 
 REQUIRED_TOOLS: tuple[str, ...] = ("mkdocs", "ruff", "mypy", "pytest")
 
-OPTIONAL_PYTHON_TOOLS: tuple[str, ...] = ("markitdown",)
+OPTIONAL_PYTHON_TOOLS: tuple[str, ...] = ("markitdown", "docling")
 
 MARKITDOWN_PLUGINS: dict[str, str] = {
     "pdfminer": ".pdf",
@@ -39,6 +41,7 @@ _PANDOC_INSTALL = (
 )
 _MARKITDOWN_INSTALL = "    pip install markitdown"
 _MARKITDOWN_PLUGINS_INSTALL = "    pip install python-docx python-pptx openpyxl xlrd"
+_DOCLING_INSTALL = "    pip install docling"
 
 
 def missing_tools(tools: tuple[str, ...] = REQUIRED_TOOLS) -> list[str]:
@@ -71,6 +74,18 @@ def main() -> int:
         return 1
 
     warnings: list[str] = []
+
+    has_docling = importlib.util.find_spec("docling") is not None
+    if not has_docling:
+        warnings.append(
+            "docling no instalado (opcional): motor avanzado de conversión con OCR, GPU y"
+            " chunking RAG.\n"
+            f"   Instalar con:\n{_DOCLING_INSTALL}"
+        )
+    else:
+        has_nvidia_smi = shutil.which("nvidia-smi") is not None
+        gpu_note = " (nvidia-smi detectado)" if has_nvidia_smi else " (solo CPU, sin nvidia-smi)"
+        warnings.append(f"docling instalado{gpu_note}.")
 
     has_markitdown = importlib.util.find_spec("markitdown") is not None
     if not has_markitdown:

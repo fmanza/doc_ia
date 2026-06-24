@@ -58,3 +58,11 @@ python -m mkdocs build --strict
 | El build con `--builder zensical` falla al arrancar | Zensical no está instalado (no es dependencia del proyecto) | Instalarlo aparte o usar el builder por defecto (`mkdocs`) |
 | La cadena `--8<--` aparece literal en el sitio | Ruta del snippet incorrecta para `pymdownx.snippets` | Usar ruta relativa desde `docs/` (p. ej. `examples/foo.py`, NO `docs/examples/foo.py`) porque `base_path: [docs]` está activo en `mkdocs.yml` |
 | El hook PostToolUse falla tras editar un script | ruff/mypy/pytest detectan un problema real | Ejecutar el comando del hook manualmente y corregir el hallazgo |
+| `Motor 'docling' no disponible` | docling no instalado | `pip install docling` o usar `--engine markitdown` |
+| `import torch` tarda 27+ minutos | GPU NVIDIA sin CUDA Toolkit | El script fija `CUDA_VISIBLE_DEVICES=""` por defecto; usar `--device cpu` (default) |
+| `--device cuda` falla: `nvidia-smi no encontrado` | NVIDIA driver no instalado o nvidia-smi no en PATH | Instalar NVIDIA driver; verificar con `nvidia-smi` en terminal |
+| `INVÁLID: cabecera PDF inválida` | Fichero PDF corrupto o no es PDF real | Verificar integridad del fichero; re-descargar si es necesario |
+| `INVÁLID: archivo ZIP inválido` en DOCX/PPTX | Fichero Office corrupto | Abrir en Office para verificar; re-guardar si se puede abrir |
+| RapidOCR PP-OCRv6 incompatible | Versión de PP-OCR no soportada | Usar `--no-ocr` o `--ocr-engine easyocr` |
+| Ficheros `.msg` fallan con docling | Formato MSG con estructura compleja | Usar `--engine markitdown` para ficheros MSG |
+| `--chunk` con motor markitdown/pandoc | Chunking solo disponible con docling | Usar `--engine docling --chunk` |

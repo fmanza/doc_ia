@@ -12,25 +12,41 @@ requiere API keys** de ningún servicio.
 ### Conversión de documentos binarios a Markdown (opcional)
 
 El script `scripts/convert_to_md.py` convierte ficheros no legibles directamente (PDF, DOCX,
-PPTX…) a Markdown, depositando el resultado en `<origen>/md/`. Usa la herramienta correcta
-según la extensión:
+PPTX, imágenes, email, audio…) a Markdown, depositando el resultado en `<origen>/md/`.
+Ofrece tres motores seleccionables con `--engine`:
 
-| Formato | Herramienta | Rol |
+| Motor | Formatos | Rol |
 |---|---|---|
-| PDF, DOCX, PPTX, HTML, EPUB… | `markitdown` (Python) | **Dependencia principal** — un solo `pip install` cubre la mayoría de formatos |
-| ODT, RST, DOCX complejos | `pandoc` (binario externo) | Complemento — mejor calidad para documentos con estructura avanzada |
+| **docling** (default) | PDF, DOCX, PPTX, XLSX, CSV, HTML, EPUB, imágenes, email, LaTeX, audio | Motor principal — OCR, GPU, chunking RAG, metadata |
+| **markitdown** | PDF, DOCX, PPTX, XLSX, XLS, CSV, EPUB, HTML, MSG | Alternativa ligera — un solo `pip install` |
+| **pandoc** (binario) | DOC, ODT, RST, TEX/LATEX | Complemento — formatos legacy y LaTeX |
 
-#### markitdown — dependencia principal
+#### docling — motor principal (opcional)
 
-Cubre PDF, DOCX, PPTX, HTML, EPUB, CSV, JSON y más con una sola instalación Python:
+Motor avanzado con OCR integrado, aceleración GPU y chunking RAG:
+
+```bash
+pip install docling
+```
+
+Para aceleración GPU (opcional): NVIDIA driver + `nvidia-smi` en PATH. CPU es el default.
+
+```bash
+pip install 'doc_ia[docling]'     # o directamente: pip install docling
+```
+
+#### markitdown — alternativa ligera
+
+Cubre PDF, DOCX, PPTX, HTML, EPUB, CSV y más con una sola instalación Python:
 
 ```bash
 pip install markitdown
+pip install 'doc_ia[markitdown]'  # equivalente
 ```
 
-#### pandoc — complemento para ODT, RST y DOCX complejos
+#### pandoc — complemento para formatos legacy
 
-Necesario solo si el origen contiene `.odt`, `.rst` o DOCX con estructura avanzada (tablas complejas, notas al pie, referencias cruzadas):
+Necesario solo si el origen contiene `.doc`, `.odt`, `.rst` o `.tex`:
 
 | Sistema operativo | Comando de instalación |
 |---|---|
@@ -39,9 +55,16 @@ Necesario solo si el origen contiene `.odt`, `.rst` o DOCX con estructura avanza
 | Linux (Debian/Ubuntu) | `sudo apt install pandoc` |
 | Linux (Fedora/RHEL) | `sudo dnf install pandoc` |
 
-!!! note "Ambas herramientas son opcionales"
-    `python scripts/check_env.py` avisa si falta alguna (markitdown primero), pero no falla.
-    Si el origen solo contiene PDF, DOCX y PPTX habituales, markitdown es suficiente.
+#### Todos los motores
+
+```bash
+pip install 'doc_ia[all-engines]'  # docling + markitdown
+# pandoc se instala aparte como binario del sistema
+```
+
+!!! note "Los tres motores son opcionales e independientes"
+    `python scripts/check_env.py` informa del estado de cada motor, pero no falla.
+    Solo necesitas el motor que corresponda a los formatos de tu origen.
 
 ## 2. Instalación del Entorno
 

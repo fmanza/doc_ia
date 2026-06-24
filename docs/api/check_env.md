@@ -1,6 +1,6 @@
 # check_env
 
-Verifica de forma determinista que las herramientas del tooling documental (`mkdocs`, `ruff`, `mypy`, `pytest`) son importables en el entorno Python activo.
+Verifica de forma determinista que las herramientas del tooling documental (`mkdocs`, `ruff`, `mypy`, `pytest`) son importables en el entorno Python activo. Además reporta la disponibilidad de herramientas opcionales de conversión: `docling`, `markitdown` (con plugins), `pandoc` y `nvidia-smi`.
 
 ## 1. Arquitectura y Diseño
 
@@ -24,8 +24,12 @@ Script standalone sin dependencias entre módulos del proyecto: usa solo
 | Función/Clase | Firma simplificada | Descripción | Retorna |
 |---|---|---|---|
 | `REQUIRED_TOOLS` | `tuple[str, ...]` | Constante con las herramientas requeridas: `("mkdocs", "ruff", "mypy", "pytest")` | — |
-| `missing_tools` | `missing_tools(tools=REQUIRED_TOOLS) -> list[str]` | Filtra las herramientas no importables en el entorno actual | Lista de nombres ausentes (vacía si completo) |
-| `main` | `main() -> int` | Imprime el estado del entorno | `0` completo, `1` falta algo |
+| `OPTIONAL_PYTHON_TOOLS` | `tuple[str, ...]` | Herramientas opcionales de conversión: `("markitdown", "docling")` | — |
+| `SYSTEM_TOOLS` | `tuple[str, ...]` | Herramientas de sistema opcionales: `("pandoc",)` | — |
+| `missing_tools` | `missing_tools(tools=REQUIRED_TOOLS) -> list[str]` | Filtra las herramientas Python no importables en el entorno actual | Lista de nombres ausentes (vacía si completo) |
+| `missing_system_tools` | `missing_system_tools(tools=SYSTEM_TOOLS) -> list[str]` | Filtra herramientas de sistema no encontradas en el PATH | Lista de nombres ausentes |
+| `check_markitdown_plugins` | `() -> tuple[list[str], list[str]]` | Comprueba plugins de markitdown (pdfminer, docx, pptx, openpyxl, xlrd) | `(instalados, faltantes)` |
+| `main` | `main() -> int` | Imprime el estado del entorno (requeridas + opcionales) | `0` completo, `1` falta algo requerido |
 
 ### Contrato de entrada
 

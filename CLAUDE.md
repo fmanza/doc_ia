@@ -229,12 +229,15 @@ python -m mypy scripts               # Type-checking (strict)
 python -m pytest                     # Tests
 python -m mkdocs build --strict      # Build de documentación
 python -m mkdocs serve               # Documentación local
-python scripts/check_env.py          # Verificación del entorno (Python + markitdown + plugins + pandoc)
+python scripts/check_env.py          # Verificación del entorno (Python + docling + markitdown + plugins + pandoc)
 python scripts/build_docs_zip.py     # ZIP offline con SHA256
-python scripts/convert_to_md.py <ruta>                 # Valida + convierte a Markdown en <ruta>/md/ (markitdown principal; pandoc complemento)
-python scripts/convert_to_md.py <ruta> --validate-only # Solo validación previa (extensiones, plugins, integridad)
+python scripts/convert_to_md.py <ruta>                            # Convierte a Markdown con docling (default) en <ruta>/md/
+python scripts/convert_to_md.py <ruta> --engine markitdown        # Convierte con markitdown (sin docling)
+python scripts/convert_to_md.py <ruta> --engine pandoc            # Convierte con pandoc (DOC/ODT/RST/TEX)
+python scripts/convert_to_md.py <ruta> --validate-only            # Solo validación previa (extensiones, integridad)
+python scripts/convert_to_md.py <ruta> --validate-only --engine markitdown  # Validación para motor específico
 ```
 
 ---
 
-*Actualizado: 2026-06-19*
+*Actualizado: 2026-06-24*
