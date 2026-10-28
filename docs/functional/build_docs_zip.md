@@ -4,6 +4,7 @@ fuentes:
   mkdocs.yml: 417c1a6602da
   mkdocs_hooks.py: 2f510611cb6f
   scripts/build_docs_zip.py: 0b48091d8aa9
+  tests/test_build_docs_zip.py: a643fd260da2
 revisado: 2026-10-28
 ---
 # ZIP de Documentación Offline
@@ -136,11 +137,11 @@ proyecto en el nombre, su huella y una nueva línea en el registro histórico de
 
 | ID | Dado | Cuando | Entonces | Test |
 |---|---|---|---|---|
-| AC-01 | Un entorno completo y la versión 0.1.0 declarada en el proyecto | Se solicita el empaquetado versionado estándar | Se reconstruye el sitio en modo estricto y se crean `dist/doc_ia-docs-0.1.0.zip`, su `.zip.sha256` y la entrada en `CHECKSUMS.txt` | Sin test |
-| AC-02 | Ningún sitio generado previamente | Se solicita empaquetar sin reconstruir | Se informa de un error explicativo y el proceso termina con fallo (código 1) sin crear ningún ZIP | Sin test |
-| AC-03 | Documentación con un enlace roto o página huérfana | Se solicita el empaquetado versionado estándar (build estricto) | El proceso se detiene con el código de error del generador y no se crea ningún ZIP | Sin test |
-| AC-04 | Un ZIP ya generado con su huella `.sha256` | Se valida la integridad de la descarga | La huella calculada coincide con la registrada (`sha256sum -c` → OK) | Sin test |
-| AC-05 | El empaquetado automático declarado en la configuración del sitio | Se construye el sitio | Se genera `site/doc_ia-docs-latest.zip` y su `.sha256` sin ningún comando adicional ni instalación de paquetes | Sin test |
+| AC-01 | Un entorno completo y la versión 0.1.0 declarada en el proyecto | Se solicita el empaquetado versionado estándar | Se reconstruye el sitio en modo estricto y se crean `dist/doc_ia-docs-0.1.0.zip`, su `.zip.sha256` y la entrada en `CHECKSUMS.txt` | `tests/test_build_docs_zip.py::test_main_builds_strict_and_packages_versioned_zip` |
+| AC-02 | Ningún sitio generado previamente | Se solicita empaquetar sin reconstruir | Se informa de un error explicativo y el proceso termina con fallo (código 1) sin crear ningún ZIP | `tests/test_build_docs_zip.py::test_main_no_build_without_site_exits_1` |
+| AC-03 | Documentación con un enlace roto o página huérfana | Se solicita el empaquetado versionado estándar (build estricto) | El proceso se detiene con el código de error del generador y no se crea ningún ZIP | `tests/test_build_docs_zip.py::test_main_build_failure_propagates_exit_code` |
+| AC-04 | Un ZIP ya generado con su huella `.sha256` | Se valida la integridad de la descarga | La huella calculada coincide con la registrada (`sha256sum -c` → OK) | `tests/test_build_docs_zip.py::test_sha256_file_matches_archive` |
+| AC-05 | El empaquetado automático declarado en la configuración del sitio | Se construye el sitio | Se genera `site/doc_ia-docs-latest.zip` y su `.sha256` sin ningún comando adicional ni instalación de paquetes | `tests/test_build_docs_zip.py::test_post_build_hook_creates_latest_zip` |
 | AC-06 | Un Python con el generador instalado pero sin activar el entorno de doc_ia | Se construye el sitio desde la raíz del proyecto | El empaquetado automático funciona (no requiere instalar el proyecto como paquete) | Sin test |
 
 Verificación manual: `python scripts/build_docs_zip.py` (AC-01/AC-03),

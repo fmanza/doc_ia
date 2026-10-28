@@ -28,6 +28,13 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
   (criterios de aceptación ↔ tests) y `llms` (`docs/llms.txt` desde el nav). 20 tests.
 - **Frontmatter de trazabilidad** (`arquetipo`, `fuentes`, `revisado`) en las 15 páginas de
   doc_ia con bloque "Evidencia"; `docs/llms.txt` publicado en la raíz del sitio.
+- **CI de calidad** (`.github/workflows/ci.yml`, Python 3.12 y 3.14): ruff, formato, mypy strict,
+  pytest, `doc_trace` (drift bloqueante, matrix, `llms --check`) y build `--strict` en cada push/PR
+  a `develop` y `main`.
+- `requirements-docs.txt` (stack MkDocs) y `requirements-dev.txt` (+ ruff, mypy, pytest): la CI y
+  los workflows de documentación ya no instalan docling ni torch.
+- `tests/test_build_docs_zip.py` (8 tests: script y hook del ZIP) y `tests/test_docs_conformance.py`
+  (conformidad de `docs/` con los arquetipos). Cobertura de criterios: 45/67.
 
 ### Changed
 
@@ -43,6 +50,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - `.claude/settings.json.example`: añadido el hook `sync_root_docs.py` como primer PostToolUse.
 - `DOCUMENTATION_STANDARD.md` §4.2: la copia del `nav` se sustituye por una referencia a `mkdocs.yml`.
 - El sitio no se publica en GitHub Pages: `site_url` solo fija la URL canónica (sitemap y `llms.txt`).
+- mypy limpio sin los extras opcionales (overrides para `docling` y `markitdown`).
+- `CONTRIBUTING.md`: la sincronización visual pasa a §5.1 y «Release» vuelve a ser §6 (Arquetipo 11).
+- `docs/installation.md`: corregido que `requirements.txt` no incluye ruff ni mypy.
 
 ### Fixed
 

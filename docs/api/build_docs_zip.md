@@ -2,8 +2,9 @@
 arquetipo: "2"
 fuentes:
   mkdocs_hooks.py: 2f510611cb6f
-  pyproject.toml: b5d09450b820
+  pyproject.toml: c781eab25083
   scripts/build_docs_zip.py: 0b48091d8aa9
+  tests/test_build_docs_zip.py: a643fd260da2
 revisado: 2026-10-28
 ---
 # build_docs_zip
@@ -124,9 +125,22 @@ canónico de referencia para otros proyectos: copiar y cambiar únicamente `zip_
 
 ## 6. Verificación y Tests
 
-*Sin tests automatizados.* Riesgo principal sin cubrir: la convivencia de los dos mecanismos
-(script y hook) — nombre del ZIP, formato del `.sha256` y modo append de `CHECKSUMS.txt` solo se
-validan en el workflow `docs-zip-release.yml` al publicar.
+| Test | Qué verifica | Tipo |
+|---|---|---|
+| `test_main_builds_strict_and_packages_versioned_zip` | Build con `--strict`, ZIP versionado, `.sha256` y `CHECKSUMS.txt` | integración (CLI, build simulado) |
+| `test_main_no_strict_omits_flag` | `--no-strict` no pasa `--strict` al generador | unitario |
+| `test_main_no_build_without_site_exits_1` | `--no-build` sin `site/` termina con `1` sin crear `dist/` | integración (CLI) |
+| `test_main_build_failure_propagates_exit_code` | El código de error del generador se propaga y no se crea ZIP | integración (CLI) |
+| `test_main_no_build_relative_output_dir` | `--output-dir` relativo se resuelve contra la raíz | integración (CLI) |
+| `test_sha256_file_matches_archive` | El `.sha256` coincide con el hash real del ZIP | unitario |
+| `test_checksums_txt_is_append_only` | `CHECKSUMS.txt` acumula una línea por build | unitario |
+| `test_post_build_hook_creates_latest_zip` | `mkdocs_hooks.on_post_build`: ZIP `latest` + `.sha256`, incluye `start-server.py`, excluye `.zip`/`.sha256` | unitario |
+
+```bash
+python -m pytest tests/test_build_docs_zip.py -q
+```
+
+Sin cubrir: el build real con MkDocs (se simula `subprocess.run`) y `--builder zensical`.
 
 ??? note "Evidencia"
 

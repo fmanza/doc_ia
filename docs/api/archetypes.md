@@ -5,6 +5,7 @@ fuentes:
   .github/agents/documentation-generator.agent.md: 7b067d1a3238
   .github/prompts/example_doc.prompt.md: 6041f616e0c3
   mkdocs.yml: 417c1a6602da
+  tests/test_docs_conformance.py: 8bd5c919f184
 revisado: 2026-10-28
 ---
 # archetypes
@@ -105,11 +106,26 @@ Cada arquetipo produce un archivo Markdown con las secciones numeradas obligator
 
 ## 6. Verificación y Tests
 
-*Sin tests automatizados.* Los arquetipos son plantillas Markdown y prompts, no código Python.
-La única verificación automática es `python -m mkdocs build --strict` (enlaces y navegación); la
-conformidad de secciones, del enlace §5↔§5 y del bloque "Evidencia" depende del Documentation
-Reviewer. Riesgo principal sin cubrir: deriva entre la norma y los prompts (como la corregida en
-ADR-002).
+Los arquetipos son plantillas y prompts; se verifica su **resultado** sobre `docs/` de doc_ia
+con `tests/test_docs_conformance.py`:
+
+| Test | Qué verifica | Tipo |
+|---|---|---|
+| `test_functional_pages_follow_archetype_1` | 8 secciones, columna `Test` y Evidencia en cada página funcional | conformidad |
+| `test_api_pages_follow_archetype_2` | 6 secciones y Evidencia en cada página técnica | conformidad |
+| `test_reference_follows_archetype_12` | 6 secciones, Evidencia y entrada en el `nav` | conformidad |
+| `test_functional_map_follows_variant_1i` | 4 secciones y una fila por página funcional | conformidad |
+| `test_every_script_has_functional_technical_and_example_pages` | Arq. 1 + 2 + 4 por script | conformidad |
+| `test_api_and_example_link_both_ways` | Enlace bidireccional §5 ↔ §5 | conformidad |
+| `test_numbered_sections_are_never_empty` | Ninguna sección numerada vacía | conformidad |
+| `test_no_normative_archetype_without_normative`, `test_changelog_follows_keep_a_changelog`, `test_ai_config_has_seven_sections`, `test_contributing_has_six_sections`, `test_guides_naming_convention` | Arquetipos 8, 9, 10, 11 y nombres de guías | conformidad |
+
+```bash
+python -m pytest tests/test_docs_conformance.py -q
+```
+
+Sin cubrir: la calidad del contenido (lo revisa el Documentation Reviewer) y la deriva entre la
+norma y los prompts (como la corregida en ADR-002).
 
 ??? note "Evidencia"
 

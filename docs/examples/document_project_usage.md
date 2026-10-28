@@ -243,5 +243,6 @@ python -m mkdocs build --strict
 ## 5. Referencias Relacionadas
 
 - Documentación funcional: [Documentar un Proyecto](../functional/document_project.md)
+- Referencia técnica: [document_project](../api/document_project.md)
 - Arquetipos formales: [Arquetipos Formales](../functional/archetypes.md)
 - Ejemplos relacionados: [Verificar Entorno](check_env_usage.md), [Generar ZIP Offline](build_docs_zip_offline.md)

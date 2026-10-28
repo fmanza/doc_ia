@@ -25,7 +25,8 @@ Rama principal de trabajo: `main`. No hay submódulos ni dependencias privadas.
 python -m venv .venv
 .venv\Scripts\activate          # Windows
 # source .venv/bin/activate     # Linux/Mac
-python -m pip install -r requirements.txt
+python -m pip install -r requirements-dev.txt   # docs + ruff + mypy + pytest
+# python -m pip install -r requirements.txt     # opcional: + docling/markitdown/torch
 ```
 
 No se configuran credenciales: el proyecto **no usa API keys** (principio innegociable).

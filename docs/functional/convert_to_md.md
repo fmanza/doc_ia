@@ -1,7 +1,7 @@
 ---
 arquetipo: "1"
 fuentes:
-  scripts/convert_to_md.py: f83b67fcc7be
+  scripts/convert_to_md.py: 8f5b3676ae87
   tests/test_convert_to_md.py: 10a39c214291
 revisado: 2026-10-28
 ---

@@ -2,14 +2,14 @@
 arquetipo: "12"
 fuentes:
   .claude/settings.json.example: e1c10842aa20
-  .github/workflows/docs-zip-release.yml: cf1d3deac841
+  .github/workflows/docs-zip-release.yml: 20d18f9f3c59
   CLAUDE.md: a167ad648656
   hooks/sync_root_docs.py: ef5e576436c6
   mkdocs.yml: 417c1a6602da
   mkdocs_hooks.py: 2f510611cb6f
   scripts/build_docs_zip.py: 0b48091d8aa9
   scripts/check_env.py: 5a2a60e20da2
-  scripts/convert_to_md.py: f83b67fcc7be
+  scripts/convert_to_md.py: 8f5b3676ae87
   scripts/doc_trace.py: a1824b159937
   scripts/start-server.py: ec67386821f7
 revisado: 2026-10-28

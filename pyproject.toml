@@ -29,6 +29,18 @@ python_version = "3.12"
 strict = true
 files = ["scripts"]
 
+# docling y markitdown son extras opcionales ([docling], [markitdown]): sin ellos, mypy no
+# encuentra sus módulos.
+[[tool.mypy.overrides]]
+module = ["docling", "docling.*", "markitdown", "markitdown.*"]
+ignore_missing_imports = true
+
+# Los `type: ignore` sobre APIs de docling solo se usan cuando docling está instalado;
+# no avisar de ellos en entornos sin el extra (CI, venv mínimo).
+[[tool.mypy.overrides]]
+module = ["scripts.convert_to_md"]
+warn_unused_ignores = false
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"

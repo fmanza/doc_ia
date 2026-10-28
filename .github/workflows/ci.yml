@@ -1,0 +1,65 @@
+name: ✅ CI — Calidad y trazabilidad
+
+# Lint, tipos, tests, trazabilidad docs ↔ código y build estricto de la documentación.
+# Sin docling/torch: requirements-dev.txt solo incluye el stack de MkDocs y las herramientas.
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Calidad (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.14"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: requirements-*.txt
+
+      - name: Instalar dependencias de desarrollo
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Ruff (lint)
+        run: python -m ruff check scripts tests hooks
+
+      - name: Ruff (formato)
+        run: python -m ruff format --check scripts tests hooks
+
+      - name: Mypy (strict)
+        run: python -m mypy scripts
+
+      - name: Pytest
+        run: python -m pytest
+
+      - name: Trazabilidad — drift (bloqueante)
+        run: python scripts/doc_trace.py drift
+
+      - name: Trazabilidad — criterios ↔ tests
+        run: python scripts/doc_trace.py matrix --output traceability.md
+
+      - name: Trazabilidad — llms.txt al día
+        run: python scripts/doc_trace.py llms --check
+
+      - name: Build estricto de la documentación
+        run: python -m mkdocs build --strict

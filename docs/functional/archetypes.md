@@ -4,6 +4,7 @@ fuentes:
   .claude/commands/document-project.md: 6e088419ade1
   .github/DOCUMENTATION_STANDARD.md: a22d4e8ab738
   hooks/sync_root_docs.py: ef5e576436c6
+  tests/test_docs_conformance.py: 8bd5c919f184
 revisado: 2026-10-28
 ---
 # Arquetipos Formales de Documentación
@@ -152,19 +153,21 @@ se aplica cuando el proyecto tiene agentes IA configurados sin documentar.
 
 | ID | Dado | Cuando | Entonces | Test |
 |---|---|---|---|---|
-| AC-01 | Un proyecto sin documentación previa | Se aplica el flujo completo de arquetipos | Cada módulo tiene al menos Arquetipo 1 + 2 + 4; las secciones vacías contienen `*No aplica*` | Sin test |
-| AC-02 | Un módulo con Arquetipo 2 generado | Se verifica la presencia del enlace bidireccional | La sección §5 del Arquetipo 2 enlaza a la página de ejemplos del módulo (o tiene el marcador de pendiente) | Sin test |
-| AC-03 | Un proyecto sin normativa de referencia | Se ejecuta la Fase 0 del inventario | El Arquetipo 8 no se genera ni aparece en `mkdocs.yml` | Sin test |
-| AC-04 | Cualquier arquetipo generado con sección vacía | Se revisa el documento | La sección vacía contiene `*No aplica para este módulo.*` y no se omite | Sin test |
-| AC-05 | Arquetipo 9 solicitado explícitamente (`Arquetipos: ..., changelog`) | Se ejecuta `/document-project` | `CHANGELOG.md` existe en raíz con Keep a Changelog v1.1.0 y sección `[Unreleased]`; si **no** se solicita, no se genera aunque el proyecto tenga releases | Sin test |
-| AC-06 | Proyecto con ≥1 plataforma IA configurada | Se ejecuta el inventario | Existe al menos un fichero en `docs/ai-config/` con las 7 secciones obligatorias del Arquetipo 10 | Sin test |
-| AC-07 | Arquetipo 11 solicitado explícitamente (`Arquetipos: ..., contribución`) | Se ejecuta `/document-project` | `CONTRIBUTING.md` existe en raíz con las 6 secciones obligatorias del Arquetipo 11; si **no** se solicita, no se genera aunque el proyecto acepte contribuciones | Sin test |
-| AC-08 | Arquetipo 3a (how-to) vs. 3b (tutorial) | Se selecciona el arquetipo | El fichero de destino usa `_howto.md` o `_tutorial.md` según corresponda; nunca los dos tipos mezclados en el mismo fichero | Sin test |
-| AC-09 | Proyecto con CLI o variables de entorno | Se ejecuta `/document-project` | Existe `docs/reference/index.md` con las 6 secciones del Arquetipo 12 y la entrada "Referencia del Sistema" en `mkdocs.yml`; en una librería sin superficie de usuario no se genera | Sin test |
-| AC-10 | Página de Arquetipo 1, 2 o 12 generada | Se revisa el documento | Termina con el bloque plegable "Evidencia"; cada regla, contrato y criterio tiene fila con su fuente y su confianza | Sin test |
+| AC-01 | Un proyecto sin documentación previa | Se aplica el flujo completo de arquetipos | Cada módulo tiene al menos Arquetipo 1 + 2 + 4; las secciones vacías contienen `*No aplica*` | `tests/test_docs_conformance.py::test_every_script_has_functional_technical_and_example_pages` |
+| AC-02 | Un módulo con Arquetipo 2 generado | Se verifica la presencia del enlace bidireccional | La sección §5 del Arquetipo 2 enlaza a la página de ejemplos del módulo (o tiene el marcador de pendiente) | `tests/test_docs_conformance.py::test_api_and_example_link_both_ways` |
+| AC-03 | Un proyecto sin normativa de referencia | Se ejecuta la Fase 0 del inventario | El Arquetipo 8 no se genera ni aparece en `mkdocs.yml` | `tests/test_docs_conformance.py::test_no_normative_archetype_without_normative` |
+| AC-04 | Cualquier arquetipo generado con sección vacía | Se revisa el documento | La sección vacía contiene `*No aplica para este módulo.*` y no se omite | `tests/test_docs_conformance.py::test_numbered_sections_are_never_empty` |
+| AC-05 | Arquetipo 9 solicitado explícitamente (`Arquetipos: ..., changelog`) | Se ejecuta `/document-project` | `CHANGELOG.md` existe en raíz con Keep a Changelog v1.1.0 y sección `[Unreleased]`; si **no** se solicita, no se genera aunque el proyecto tenga releases | `tests/test_docs_conformance.py::test_changelog_follows_keep_a_changelog` |
+| AC-06 | Proyecto con ≥1 plataforma IA configurada | Se ejecuta el inventario | Existe al menos un fichero en `docs/ai-config/` con las 7 secciones obligatorias del Arquetipo 10 | `tests/test_docs_conformance.py::test_ai_config_has_seven_sections` |
+| AC-07 | Arquetipo 11 solicitado explícitamente (`Arquetipos: ..., contribución`) | Se ejecuta `/document-project` | `CONTRIBUTING.md` existe en raíz con las 6 secciones obligatorias del Arquetipo 11; si **no** se solicita, no se genera aunque el proyecto acepte contribuciones | `tests/test_docs_conformance.py::test_contributing_has_six_sections` |
+| AC-08 | Arquetipo 3a (how-to) vs. 3b (tutorial) | Se selecciona el arquetipo | El fichero de destino usa `_howto.md` o `_tutorial.md` según corresponda; nunca los dos tipos mezclados en el mismo fichero | `tests/test_docs_conformance.py::test_guides_naming_convention` |
+| AC-09 | Proyecto con CLI o variables de entorno | Se ejecuta `/document-project` | Existe `docs/reference/index.md` con las 6 secciones del Arquetipo 12 y la entrada "Referencia del Sistema" en `mkdocs.yml`; en una librería sin superficie de usuario no se genera | `tests/test_docs_conformance.py::test_reference_follows_archetype_12` |
+| AC-10 | Página de Arquetipo 1, 2 o 12 generada | Se revisa el documento | Termina con el bloque plegable "Evidencia"; cada regla, contrato y criterio tiene fila con su fuente y su confianza | `tests/test_docs_conformance.py::test_functional_pages_follow_archetype_1`, `tests/test_docs_conformance.py::test_api_pages_follow_archetype_2`, `tests/test_docs_conformance.py::test_reference_follows_archetype_12` |
 
 Verificación: `python -m mkdocs build --strict` sin warnings tras generar cualquier arquetipo.
 Los arquetipos se aplican en el chat y no tienen tests automatizados.
+
+Los tests verifican el **resultado** sobre la documentación de doc_ia (dogfooding): comprueban que un proyecto documentado con los arquetipos cumple cada criterio, no ejecutan el flujo `/document-project`, que ocurre en el chat ⚠️.
 
 ## 8. Glosario de Dominio
 

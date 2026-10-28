@@ -100,6 +100,7 @@ flowchart LR
 | Entorno | Infraestructura | Componentes / artefactos | Fuente |
 |---|---|---|---|
 | Local | Python ≥ 3.12 + venv; chat de plataforma IA | `site/`, `site/doc_ia-docs-latest.zip` + `.sha256`, `dist/doc_ia-docs-{versión}.zip` | `mkdocs_hooks.py::on_post_build`, `scripts/build_docs_zip.py::main` |
+| CI — calidad | GitHub Actions `ubuntu-latest`, Python 3.12 y 3.14 | ruff, mypy, pytest, `doc_trace` (drift bloqueante, matrix, llms) y build `--strict` en cada push/PR a `develop` y `main` | `.github/workflows/ci.yml::quality` |
 | CI — ZIP de docs | GitHub Actions `ubuntu-latest`, Python 3.12 | Build `--strict`, artifact de 30 días, release `docs-v{versión}` | `.github/workflows/docs-zip-release.yml::build-and-publish` |
 | CI — release de versión | GitHub Actions `ubuntu-latest`, Python 3.12 | ZIP adjunto a la release del tag `v*` | `.github/workflows/docs-release.yml::build-and-upload` |
 | Sitio web | No se publica (decisión 2026-10-28) | `site_url` solo da la URL canónica del sitemap y de los enlaces de `llms.txt`; la distribución oficial es el ZIP offline | `mkdocs.yml::site_url` |

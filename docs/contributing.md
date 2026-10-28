@@ -40,7 +40,7 @@ canónica del sistema y los cambios tienen impacto transversal.
    python -m venv .venv
    .venv\Scripts\activate      # Windows
    # source .venv/bin/activate   # Linux/Mac
-   python -m pip install -r requirements.txt
+   python -m pip install -r requirements-dev.txt
    python scripts/check_env.py
    ```
 4. Implementa el cambio y añade o actualiza tests en `tests/` si corresponde.
@@ -74,25 +74,31 @@ Formato: `tipo(ámbito): descripción imperativa en minúsculas` — máximo 72 
 Los siguientes comandos deben ejecutarse sin errores antes de abrir PR:
 
 ```bash
-python -m ruff check scripts tests   # Linting
-python -m ruff format scripts tests  # Formato (verificar diff limpio)
-python -m mypy scripts               # Type-checking strict
-python -m pytest                     # Tests
-python -m mkdocs build --strict      # Build de docs (si hay cambios en docs/)
+python -m ruff check scripts tests hooks         # Linting
+python -m ruff format --check scripts tests hooks  # Formato
+python -m mypy scripts                           # Type-checking strict
+python -m pytest                                 # Tests (incluye conformidad de docs/)
+python scripts/doc_trace.py drift                # Páginas desactualizadas respecto al código
+python scripts/doc_trace.py matrix               # Criterios de aceptación ↔ tests
+python scripts/doc_trace.py llms --check         # docs/llms.txt al día
+python -m mkdocs build --strict                  # Build de docs
 ```
 
-Un PR que falle en cualquiera de estos comandos no será mergeado.
+El workflow `.github/workflows/ci.yml` ejecuta estos mismos comandos (Python 3.12 y 3.14) en cada
+push y PR a `develop` y `main`. Un PR que falle en cualquiera de ellos no será mergeado. Si
+`drift` falla, revisa la página contra el cambio de la fuente y re-séllala con
+`python scripts/doc_trace.py stamp <página>`.
 
-## 6. Sincronización Visual de mkdocs.yml (para Nuevos Proyectos)
+### 5.1 Sincronización Visual de mkdocs.yml (para Nuevos Proyectos)
 
-### Contexto
+#### Contexto
 
 El comando `/document-project` documenta proyectos mediante **arquetipos formales** organizados en `docs/`. 
 Usa **MkDocs Material** como generador estándar. Sin embargo, la configuración visual (`mkdocs.yml`) 
 debe estar **correctamente sincronizada** entre origen y destino para que theme, plugins, extensions 
 y assets personalizados funcionen.
 
-### Plantilla Reutilizable
+#### Plantilla Reutilizable
 
 En lugar de escribir `mkdocs.yml` desde cero, usa la plantilla estándar:
 
@@ -111,7 +117,7 @@ cp .github/templates/TEMPLATE_mkdocs.yml <destino>/mkdocs.yml
 - **NAV**: Estructura de navegación — [PERSONALIZAR]
 - **EXTRAS**: Assets personalizados (sidebar-toggle.js, nav.css) — [REUTILIZABLE]
 
-### Checklist de Sincronización Visual
+#### Checklist de Sincronización Visual
 
 Cuando documentes un nuevo proyecto con `/document-project`, verifica:
 
@@ -129,7 +135,7 @@ Cuando documentes un nuevo proyecto con `/document-project`, verifica:
 - [ ] **Build válido**: `python -m mkdocs build --strict` sin warnings
 - [ ] **Navegación funcional**: Verificar que sidebar toggle y estilos de nav funcionan
 
-### Si Faltan Assets Personalizados
+#### Si Faltan Assets Personalizados
 
 Si los archivos `sidebar-toggle.js` y `nav.css` no existen:
 
@@ -151,14 +157,14 @@ extra_css:
   - assets/css/nav.css
 ```
 
-### Referencias
+#### Referencias
 
 - **Comando**: `/document-project` — orquesta generación de documentación con Fase 0b (sincronización visual)
 - **Especificación**: `.claude/commands/document-project.md` — sección "Sincronización de Configuración Visual"
 - **Análisis de caso**: `ANALYSIS_document-project-visual-sync.md` — validación y mejoras implementadas
 - **Arquetipos formales**: `.github/DOCUMENTATION_STANDARD.md` — estructura de cada tipo de documentación
 
-## 7. Proceso de Release y Versionado
+## 6. Proceso de Release y Versionado
 
 Este proyecto sigue [Semantic Versioning](https://semver.org/):
 - `MAJOR`: cambio incompatible en la API de los arquetipos o en los contratos de los scripts.

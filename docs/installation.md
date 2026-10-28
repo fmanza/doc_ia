@@ -73,7 +73,8 @@ pip install 'doc_ia[all-engines]'  # docling + markitdown
 | 1 | `git clone https://github.com/fmanza/doc_ia.git && cd doc_ia` | Obtener el código |
 | 2 | `python -m venv .venv` | Entorno virtual aislado |
 | 3 | `.venv\Scripts\activate` (Windows) / `source .venv/bin/activate` (Linux/Mac) | Activar el venv |
-| 4 | `python -m pip install -r requirements.txt` | Dependencias reales: mkdocs-material, ruff, mypy, pytest |
+| 4 | `python -m pip install -r requirements-dev.txt` | Desarrollo y CI: mkdocs-material, ruff, mypy y pytest (sin docling ni torch) |
+| 4b | `python -m pip install -r requirements.txt` | Opcional: entorno local completo con los motores de conversión (docling, markitdown, torch) |
 
 ## 3. Configuración por Plataforma IA
 
