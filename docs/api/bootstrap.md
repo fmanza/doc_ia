@@ -2,7 +2,7 @@
 arquetipo: "2"
 fuentes:
   .github/agents/config-reviewer.agent.md: 376360c404e4
-  .github/prompts/bootstrap_ai_config.prompt.md: bbc94b60795c
+  .github/prompts/bootstrap_ai_config.prompt.md: e7ef8b2fb106
 revisado: 2026-10-28
 ---
 # bootstrap

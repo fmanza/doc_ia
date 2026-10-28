@@ -2,8 +2,8 @@
 arquetipo: "1"
 fuentes:
   .claude/commands/document-project.md: 6e088419ade1
-  .github/DOCUMENTATION_STANDARD.md: e26793186dd8
-  .github/prompts/document_project.prompt.md: 904cacf42880
+  .github/DOCUMENTATION_STANDARD.md: a22d4e8ab738
+  .github/prompts/document_project.prompt.md: 2ab96b792358
   CLAUDE.md: a167ad648656
 revisado: 2026-10-28
 ---
@@ -180,7 +180,7 @@ automatizados.
 | `MANUAL` | Documentación narrativa ya escrita para el propio proyecto (manuales de usuario, guías de administrador, runbooks…); enriquece Arquetipos 3a, 3b, 6 y 7 |
 | Fase 0a | Paso de clasificación de orígenes ejecutado antes del inventario cuando hay ≥2 orígenes o el único origen no es CÓDIGO; requiere confirmación del usuario antes de continuar |
 | Fase 0b | Sincronización visual obligatoria al inicio de toda sesión: verificar assets CSS/JS, `mkdocs.yml` (sin `navigation.sections`), `.gitignore` con patrones estándar |
-| Carpeta `md/` | Artefactos generados por `convert_to_md.py`: versiones Markdown de documentos binarios del origen. Se usan como contexto en Fases 2-4, no generan páginas propias |
+| Carpeta `md/` | Artefactos generados por `convert_to_md.py` en la Fase 0c: versiones Markdown de documentos binarios del origen. Se usan como contexto en Fases 2-4, no generan páginas propias |
 | Contexto `.ai/*.md` | Ficheros de contexto persistente del proyecto (`product.md`, `architecture.md`, `glossary.md`, `runtime.md`, `standards.md`); creados en la primera sesión de un destino nuevo |
 | Estrategia | Forma de documentar múltiples orígenes de tipo CÓDIGO: `federado` (cada proyecto independiente), `hub+satélite` (un proyecto concentra el destino), `monorepo` (un `mkdocs.yml` raíz agrupa secciones); nunca se autodetecta |
 | Cierre de sesión | Paso final obligatorio del flujo: crea los artefactos `.ai/sessions/YYYY-MM-DD/` en el destino, actualiza o crea `.ai/*.md` si es primera sesión, y propone un commit Conventional Commits con el resumen de la sesión |
@@ -196,8 +196,8 @@ automatizados.
     | Regla «Sin inventar» | `CLAUDE.md::Contrato documental obligatorio` | ✅ |
     | Regla «Preservación de lo vigente» | `.github/prompts/document_project.prompt.md::Protocolo ACTUALIZAR (estado B)` | ✅ |
     | Regla «`downloads.md` siempre obligatorio» | `.github/prompts/document_project.prompt.md::Fase 7b` | ✅ |
-    | Regla «Sincronización visual (Fase 0b)» — el prompt llama "Fase 0b" a la conversión de documentos, el comando a la sincronización visual | `.claude/commands/document-project.md::Sincronización de Configuración Visual (Fase 0b)` | ⚠️ |
-    | Regla «Documentos pre-convertidos (`md/`)» | `.github/prompts/document_project.prompt.md::Fase 0b — Paso 0` | ✅ |
+    | Regla «Sincronización visual (Fase 0b)» | `.claude/commands/document-project.md::Sincronización de Configuración Visual (Fase 0b)`, `.github/prompts/document_project.prompt.md::Fase 0b` | ✅ |
+    | Regla «Documentos pre-convertidos (`md/`)» | `.github/prompts/document_project.prompt.md::Fase 0c — Paso 0` | ✅ |
     | Regla «Contexto persistente `.ai/*.md`» | `.claude/commands/document-project.md::Devuelve en este orden` (tabla de ficheros `.ai/`) | ✅ |
     | Precondición «generador instalado para `--verify-build`» | `.github/prompts/document_project.prompt.md::Fase 7` | ✅ |
     | Postcondición «commit propuesto, no ejecutado» | `.github/prompts/document_project.prompt.md::Devuelve en este orden` (punto 10) | ✅ |

@@ -19,6 +19,7 @@
 | **Tooling determinista** | Código Python de `scripts/` y `hooks/` sin dependencias de servicios IA: mismo input → mismo output, validable en CI. |
 | **Flujo canónico** | Ciclo `PLAN → AUDIT_PLAN → IMPLEMENT → AUDIT_CODE → VERSION` que estructura cualquier cambio no trivial. |
 | **Fase 0a** | Paso de clasificación de orígenes ejecutado antes del inventario cuando hay ≥2 orígenes o el único no es CÓDIGO. Requiere confirmación del usuario. |
+| **Fase 0c** | Conversión de documentos no legibles (PDF, Word, Excel…) a Markdown con `scripts/convert_to_md.py` y uso de carpetas `md/` pre-convertidas como contexto. Hasta 2026-10-28 el prompt la llamaba "Fase 0b". |
 | **Fase 0b** | Sincronización visual obligatoria al inicio de toda sesión `/document-project`: verificar assets (nav.css, mermaid.css, sidebar-toggle.js, mermaid.js), `mkdocs.yml` (sin `navigation.sections` si `nav.css` presente), `.gitignore`. |
 | **Carpeta `md/`** | Artefactos generados por `scripts/convert_to_md.py`: versiones `.md` de documentos binarios del origen. El agente los usa como contexto de primera clase en Fases 2-4 sin re-conversión. |
 | **Estado A/B/C** | Clasificación del inventario: A = sin documentación (CREAR), B = desactualizado (ACTUALIZAR), C = vigente (OMITIR). |

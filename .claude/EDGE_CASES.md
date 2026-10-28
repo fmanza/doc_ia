@@ -83,3 +83,12 @@
 - **No es causa**: sellar una página que es fuente de otra (p. ej. el Mapa Funcional): el
   frontmatter de las fuentes `.md` se excluye de la huella.
 - **Sesión**: `.ai/sessions/2026-10-28_archetypes_v2/` (P3)
+
+## [mkdocs_hooks.py] — El ZIP `latest` se regenera aunque `mkdocs build --strict` falle
+
+- **Síntoma**: tras un build estricto que termina con `Aborted with N warnings in strict mode`,
+  `site/doc_ia-docs-latest.zip` y su `.sha256` tienen fecha nueva.
+- **Causa**: MkDocs 1.6 ejecuta `on_post_build` antes de comprobar los avisos del modo estricto.
+- **Decisión (2026-10-28)**: aceptado. El ZIP local de un build fallido no se distribuye: los
+  workflows solo publican si el build termina con 0. No usar `site/` tras un build fallido.
+- **Sesión**: `.ai/sessions/2026-10-28c_quality_pending/`

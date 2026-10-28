@@ -2,7 +2,7 @@
 arquetipo: "1"
 fuentes:
   .claude/commands/document-project.md: 6e088419ade1
-  .github/DOCUMENTATION_STANDARD.md: e26793186dd8
+  .github/DOCUMENTATION_STANDARD.md: a22d4e8ab738
   hooks/sync_root_docs.py: ef5e576436c6
 revisado: 2026-10-28
 ---

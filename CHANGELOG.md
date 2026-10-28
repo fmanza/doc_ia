@@ -36,6 +36,13 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - Prompt del Arquetipo 2 alineado con la norma (§2 "Modelo de Datos / Contratos"); la directiva
   autodoc solo se usa si el generador tiene mkdocstrings.
 - Material `CONTRATO` alimenta también el Arquetipo 12 §5; `INFRAESTRUCTURA` va a 6C §3 › Despliegue.
+- `/document-project`: la **Fase 0b** es siempre la sincronización visual (ahora también en el prompt
+  multiplataforma); la conversión de documentos a Markdown pasa a llamarse **Fase 0c**.
+- Bootstrap: ruta de la guía de Codex corregida (`docs/guides/codex_guide.md`); la Capa B incluye los
+  Arquetipos 7, 8, 10 y 12 y ofrece `scripts/doc_trace.py` como tooling opcional.
+- `.claude/settings.json.example`: añadido el hook `sync_root_docs.py` como primer PostToolUse.
+- `DOCUMENTATION_STANDARD.md` §4.2: la copia del `nav` se sustituye por una referencia a `mkdocs.yml`.
+- El sitio no se publica en GitHub Pages: `site_url` solo fija la URL canónica (sitemap y `llms.txt`).
 
 ### Fixed
 

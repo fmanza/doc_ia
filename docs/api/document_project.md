@@ -3,7 +3,7 @@ arquetipo: "2"
 fuentes:
   .claude/commands/document-project.md: 6e088419ade1
   .github/agents/documentation-generator.agent.md: 7b067d1a3238
-  .github/prompts/document_project.prompt.md: 904cacf42880
+  .github/prompts/document_project.prompt.md: 2ab96b792358
   mkdocs.yml: 417c1a6602da
 revisado: 2026-10-28
 ---
@@ -20,7 +20,7 @@ flowchart TD
     F0a --> confirm[Confirmar con usuario]
     confirm --> F0b
     CL -- No --> F0b[Fase 0b — Sincronización visual\nassets + mkdocs.yml + .gitignore]
-    F0b --> F0[Fase 0 — Normativa\nArquetipo 8 si aplica]
+    F0b --> F0[Fase 0 — Normativa · Arquetipo 8 si aplica\nFase 0c — Conversión a Markdown · md/]
     F0 --> F1[Fase 1 — Inventario\nEstado A · B · C\nDetección ZIP offline\nDetección carpetas md/]
     F1 --> PD[PLAN_DOC\nCREAR A · ACTUALIZAR B · OMITIR C]
     PD --> F2[Fase 2 — Funcional\nArquetipo 1 + Mapa 1-I]

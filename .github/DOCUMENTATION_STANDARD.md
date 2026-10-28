@@ -1143,52 +1143,13 @@ extra_css:
 
 ### 4.2 Navegación de doc_ia (Implementación Actual)
 
-Mapeo concreto del proyecto sobre la estructura anterior.
-La fuente canónica de la navegación es siempre `mkdocs.yml`; este bloque refleja
-los grupos principales como referencia rápida:
+La navegación real de doc_ia vive **solo** en `mkdocs.yml` (fuente única; no se duplica aquí
+para evitar copias desactualizadas). Sigue la estructura de §4.1 con estas concreciones:
 
-```yaml
-nav:
-  - Inicio: index.md
-  - Instalación: installation.md
-  - 📥 Descargas: downloads.md
-
-  # ── Audiencia: Product Owner, responsables de documentación ────────────────
-  - Documentación Funcional:
-      - Tooling Determinista:
-          - Verificación de Entorno: functional/check_env.md
-          - ZIP de Documentación Offline: functional/build_docs_zip.md
-      # pendiente: Flujos IA (functional/archetypes.md, functional/bootstrap.md)
-
-  # ── Audiencia: Desarrolladores, mantenedores del proyecto ──────────────────
-  - Referencia Técnica:
-      - Tooling Determinista:
-          - check_env: api/check_env.md
-          - build_docs_zip: api/build_docs_zip.md
-
-  # ── Ejemplos de código ─────────────────────────────────────────────────────
-  - Ejemplos:
-      - Tooling Determinista:
-          - Verificar Entorno: examples/check_env_usage.md
-          - Generar ZIP Offline: examples/build_docs_zip_offline.md
-
-  # ── Guías de uso y operación ───────────────────────────────────────────────
-  - Guías:
-      - Incorporación:
-          - Onboarding de Desarrolladores: guides/onboarding_dev.md
-      - Errores y Diagnóstico:
-          - Troubleshooting: guides/troubleshooting.md
-      - Herramientas IA:
-          - Guía de Codex (OpenAI): guides/codex_guide.md
-
-  # ── Contexto del proyecto ──────────────────────────────────────────────────
-  - Arquitectura:
-      - Visión del Sistema: architecture.md
-      - ADR-001 — MkDocs Material por defecto: adr/ADR-001-mkdocs-material-por-defecto.md
-```
-
-> **Nota**: implementado en el dogfooding 2026-06-10 (nombres con guiones bajos según el
-> canónico). Pendiente: páginas funcionales de Flujos IA (archetypes, bootstrap).
+- "Documentación Funcional" empieza por el **Mapa Funcional** (`functional/index.md`, Variante 1-I).
+- "Referencia del Sistema" (`reference/index.md`, Arquetipo 12) va tras "Referencia Técnica".
+- Dentro de Funcional, Técnica y Ejemplos se agrupa por área: *Tooling Determinista* y *Flujos IA*.
+- `docs/llms.txt` se regenera desde el `nav` con `python scripts/doc_trace.py llms`.
 
 ---
 

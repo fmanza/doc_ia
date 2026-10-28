@@ -1,7 +1,7 @@
 ---
 arquetipo: "1"
 fuentes:
-  .github/prompts/bootstrap_ai_config.prompt.md: bbc94b60795c
+  .github/prompts/bootstrap_ai_config.prompt.md: e7ef8b2fb106
 revisado: 2026-10-28
 ---
 # Bootstrap de Configuración IA Multiplataforma
@@ -150,7 +150,7 @@ ejecuta en el chat y no tiene tests automatizados.
     | Regla «Contexto obligatorio de invocación» | `.github/prompts/bootstrap_ai_config.prompt.md::Contexto a completar` (VALIDACIÓN) | ✅ |
     | Regla «Auditoría posterior con Config Reviewer» | `.github/prompts/bootstrap_ai_config.prompt.md::Auditoría posterior (AUDIT_CODE)` | ✅ |
     | Regla «Sin modificar el origen» | `.github/prompts/bootstrap_ai_config.prompt.md::Contexto a completar` (origen solo lectura) | ✅ |
-    | Caso «Codex sin fichero propio» — el prompt cita `docs/codex_guide.md`; en doc_ia la guía está en `docs/guides/codex_guide.md` | `.github/prompts/bootstrap_ai_config.prompt.md::Objetivo` (Nota sobre Codex) | ⚠️ |
+    | Caso «Codex sin fichero propio» (guía en `docs/guides/codex_guide.md`) | `.github/prompts/bootstrap_ai_config.prompt.md::Objetivo` (Nota sobre Codex) | ✅ |
     | Caso «destino sin documentación publicada» | `.github/prompts/bootstrap_ai_config.prompt.md::Capa B` | ✅ |
     | Flujo «Plataformas IA parciales» | `.github/prompts/bootstrap_ai_config.prompt.md::Contexto a completar` (Plataformas IA activas) | 🔍 |
     | Flujo «Fase parcial (solo PLAN + AUDIT_PLAN)» | `.github/prompts/bootstrap_ai_config.prompt.md::Devuelve en este orden` | 🔍 |

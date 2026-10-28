@@ -95,7 +95,15 @@ Fase 0a — Clasificación de orígenes (solo con ≥2 orígenes, o si el único
 Fase 0 — Detección de normativa: si el origen referencia normativa de obligado cumplimiento,
          ofrecer Arquetipo 8 (normative_traceability.prompt.md). Si no hay, omitir.
          Nota: si la Fase 0a ya clasificó un origen como NORMATIVA, este paso está cubierto.
-Fase 0b — Conversión de documentos no legibles y uso de documentos pre-convertidos:
+Fase 0b — Sincronización visual del destino (OBLIGATORIO en toda sesión, creación o actualización):
+         Checklist completo y tabla de theme.features: .claude/commands/document-project.md
+         § Sincronización de Configuración Visual. Como mínimo:
+           · .gitignore en la raíz del destino con site/, __pycache__/, *.pyc, *.egg-info/,
+             .venv/, *.pdf, *.doc, *.docx (crear si no existe; añadir los que falten)
+           · theme.features SIN navigation.sections si nav.css está en extra_css
+           · los 4 assets de docs/assets/ existen y están en extra_css / extra_javascript
+         (La Fase 5 vuelve a verificar la configuración estándar al final.)
+Fase 0c — Conversión de documentos no legibles y uso de documentos pre-convertidos:
          Paso 0 — Detectar carpeta md/ pre-existente (ejecutar SIEMPRE, antes del Paso 1):
            · Buscar en todo el árbol del origen subcarpetas llamadas `md/` que contengan
              ficheros `.md`. Criterio de carpeta válida de pre-convertidos: la carpeta `md/`
@@ -384,9 +392,9 @@ APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reg
    - Tabla: | Origen | Tipo detectado | Señales | Rol |
    - Si hay ≥2 orígenes CÓDIGO: indicar estrategia elegida por el usuario.
    - ⚠️ Confirmar con el usuario antes de continuar.
-3. **INVENTARIO** (Fase 0+0b+1) — tabla: | Módulo / Página | Estado (A/B/C) | Acción (CREAR/ACTUALIZAR/OMITIR) | Arquetipos / Secciones afectadas |
+3. **INVENTARIO** (Fase 0+0b+0c+1) — tabla: | Módulo / Página | Estado (A/B/C) | Acción (CREAR/ACTUALIZAR/OMITIR) | Arquetipos / Secciones afectadas |
    - Con múltiples orígenes CÓDIGO: un sub-inventario por proyecto.
-   - Si Fase 0b activa: incluir resultado de la validación previa (extensiones, plugins, integridad) e indicar qué ficheros se convirtieron (conversor usado: markitdown o pandoc), cuáles quedan pendientes y motivo (plugin faltante, fichero inválido, etc.).
+   - Si Fase 0c activa: incluir resultado de la validación previa (extensiones, plugins, integridad) e indicar qué ficheros se convirtieron (conversor usado: markitdown o pandoc), cuáles quedan pendientes y motivo (plugin faltante, fichero inválido, etc.).
    - Si existen carpetas `md/` de documentos pre-convertidos: añadir sub-sección "Documentos de referencia (md/)" con tabla | Carpeta `md/` | Ficheros disponibles | Fases donde aplica |. Sin estado A/B/C — son fuentes de contexto, no destinos de documentación.
 4. **PLAN_DOC** — orden de generación con columnas CREAR / ACTUALIZAR (indicar secciones) / OMITIR; impacto en navegación.
 5. **GENERACIÓN** (Fases 2-4) — por fases e iterando módulo a módulo; nunca un único prompt masivo.

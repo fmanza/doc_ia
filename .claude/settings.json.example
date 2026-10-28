@@ -6,6 +6,11 @@
         "hooks": [
           {
             "type": "command",
+            "command": "python hooks/sync_root_docs.py 2>&1 | head -5",
+            "description": "Sincroniza CHANGELOG.md y CONTRIBUTING.md a docs/ (va primero). Opcional: false."
+          },
+          {
+            "type": "command",
             "command": "python -m ruff check scripts tests --quiet 2>&1 | head -15",
             "description": "Linting/formatting check del tooling. Requiere ruff. Opcional: false."
           },

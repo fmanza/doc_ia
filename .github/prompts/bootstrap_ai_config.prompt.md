@@ -12,7 +12,7 @@ de entrada** que confirma quien lo invoca, no constantes embebidas.
 
 > **Nota sobre Codex**: Codex (OpenAI) **no usa un fichero de instrucciones propio**; lee
 > `CLAUDE.md`, `.github/SHARED_INSTRUCTIONS.md` y `.github/AGENTS.md`, con su guía de uso en
-> `docs/codex_guide.md`. Al hacer bootstrap, replica esa guía adaptada al destino.
+> `docs/guides/codex_guide.md`. Al hacer bootstrap, replica esa guía adaptada al destino.
 
 ---
 
@@ -49,7 +49,7 @@ Fase: PLAN y AUDIT_PLAN únicamente.   # o "completa" para llegar hasta VERSION
 | `.ai/sessions/TEMPLATE/` | `.ai/sessions/TEMPLATE/` | verbatim |
 | `.github/SHARED_INSTRUCTIONS.md` | idem | copiar + reescribir dominio |
 | `CLAUDE.md`, `GEMINI.md`, `.github/copilot-instructions.md`, `.github/AGENTS.md`, `.cursorrules` | idem | copiar + reescribir dominio |
-| `docs/codex_guide.md` (guía de uso de Codex) | idem | copiar + reescribir dominio |
+| `docs/guides/codex_guide.md` (guía de uso de Codex) | idem | copiar + reescribir dominio |
 | `scripts/build_docs_zip.py` + `.github/workflows/docs-release.yml` | idem | copiar + adaptar builder/secrets/prefijo ZIP |
 | `.ai/{product,architecture,runtime,glossary,standards}.md` | idem | **regenerar desde cero** |
 
@@ -120,6 +120,11 @@ Clasifica **cada** activo IA del origen en una de estas cuatro capas:
   - `.github/prompts/changelog.prompt.md` (Arquetipo 9: Changelog)
   - `.github/prompts/contributing_doc.prompt.md` (Arquetipo 11: Guía de Contribución)
   - `.github/prompts/landing_doc.prompt.md` (Arquetipo 6: Páginas Navegación Principal)
+  - `.github/prompts/normative_traceability.prompt.md` (Arquetipo 8: Trazabilidad Normativa —
+    solo si el destino referencia normativa de obligado cumplimiento)
+  - `.github/prompts/ai_config_doc.prompt.md` (Arquetipo 10: Configuración de Agente IA)
+  - `.github/prompts/reference_doc.prompt.md` (Arquetipo 12: Referencia del Sistema —
+    condicional: configuración, CLI, códigos de salida, eventos o interfaces publicadas)
 - **NUEVO**: `docs/downloads.md` (página de descarga offline si destino publica documentación)
 - **NUEVO**: `scripts/build_docs_zip.py` + `.github/workflows/docs-zip-release.yml` (si destino
   publica documentación con generador estático): adaptar builder por defecto (`--builder`),
@@ -127,6 +132,11 @@ Clasifica **cada** activo IA del origen en una de estas cuatro capas:
 - **NUEVO**: `.github/prompts/onboarding_dev.prompt.md` (Arquetipo 7 — Onboarding Desarrolladores):
   copiar + actualizar el bloque "Especialización de dominio" con stack, herramientas, infraestructura
   y rutas del destino; las 11 secciones del núcleo son idénticas en todos los proyectos
+- **OPCIONAL**: `scripts/doc_trace.py` + `tests/test_doc_trace.py` (trazabilidad determinista
+  docs ↔ código: `stamp`, `drift`, `matrix`, `llms`; DOCUMENTATION_STANDARD.md §3.16) si el
+  destino es Python y publica documentación MkDocs. En otros lenguajes, portar el contrato
+  (frontmatter `fuentes` + huella SHA256 de 12 hex con saltos LF) o dejar las huellas como
+  `pendiente`
 
 ### Capa C — Regenerar desde cero (NO copiar contenido del origen)
 
@@ -153,7 +163,7 @@ Clasifica **cada** activo IA del origen en una de estas cuatro capas:
 
 1. `.github/SHARED_INSTRUCTIONS.md` — canónico, **reescrito** para el dominio del destino.
 2. Un punto de entrada **por cada plataforma activa**: `CLAUDE.md`, `GEMINI.md`,
-   `.github/copilot-instructions.md`, `.cursorrules` y `docs/codex_guide.md` (Codex).
+   `.github/copilot-instructions.md`, `.cursorrules` y `docs/guides/codex_guide.md` (Codex).
 3. `.ai/architecture.md` + `.ai/product.md` — contexto que los agentes leen antes de planificar.
 4. Núcleo de método: prompts/commands `new_feature`, `hotfix`, `refactor`, `audit_code`,
    `version_closure` + agentes `plan-architect`, `code-auditor`, `version-closer`.
@@ -176,7 +186,7 @@ Clasifica **cada** activo IA del origen en una de estas cuatro capas:
 | Gemini | `GEMINI.md` | estándares de código del lenguaje destino, comandos rápidos, arquetipos doc |
 | Copilot Chat | `.github/copilot-instructions.md` | agentes VS Code, `#file:`, validación de rutas, arquetipos doc |
 | Cursor | `.cursorrules` | estándar de documentación/ejemplos y reglas de estilo del destino |
-| Codex (OpenAI) | `docs/codex_guide.md` | guía de uso; lee `CLAUDE.md` + `SHARED_INSTRUCTIONS.md` + `AGENTS.md` (sin fichero propio) |
+| Codex (OpenAI) | `docs/guides/codex_guide.md` | guía de uso; lee `CLAUDE.md` + `SHARED_INSTRUCTIONS.md` + `AGENTS.md` (sin fichero propio) |
 
 Todos referencian a `.github/SHARED_INSTRUCTIONS.md` como **fuente canónica**.
 **Regla de oro**: edita primero `SHARED_INSTRUCTIONS.md`; los entry points solo añaden especialización.
@@ -188,9 +198,9 @@ Todos referencian a `.github/SHARED_INSTRUCTIONS.md` como **fuente canónica**.
 **Aplica solo si** el destino publica documentación pública con un generador estático
 (MkDocs, Docusaurus, Hugo, Sphinx, etc.).
 
-### Estructura de arquetipos (5 tipos + 1 variante)
+### Estructura de arquetipos (12 arquetipos + variantes 3b, 6A–D y 1-I)
 
-El estándar de documentación incluye **6 arquetipos formales** que garantizan consistencia y
+El estándar de documentación incluye **12 arquetipos formales** que garantizan consistencia y
 búsqueda automática por IA. Cada uno responde una pregunta de usuario distinta:
 
 | Arq. | Nombre | Propósito | Ubicación | Prompt |
@@ -202,8 +212,12 @@ búsqueda automática por IA. Cada uno responde una pregunta de usuario distinta
 | **4** | Ejemplos de Código | ¿Cómo se implementa? | `docs/examples/` | `example_doc.prompt.md` |
 | **5** | ADR / MADR 4.0 | ¿Por qué se decidió así? | `docs/adr/` | `architecture_doc.prompt.md` |
 | **6** | Navegación Principal *(variante A/B/C/D)* | Intro + instalación + visión + quick start | `docs/index.md`, `installation.md`, `architecture.md`, `quickstart.md` | `landing_doc.prompt.md` |
+| **7** | Onboarding Desarrolladores | ¿Cómo me incorporo? | `docs/guides/onboarding_dev.md` | `onboarding_dev.prompt.md` |
+| **8** | Trazabilidad Normativa *(condicional)* | ¿Qué normativa cubre? | `docs/normativa/` | `normative_traceability.prompt.md` |
 | **9** | Changelog | ¿Qué cambió en cada versión? | `CHANGELOG.md` | `changelog.prompt.md` |
+| **10** | Config Agente IA | ¿Cómo está configurado el agente IA? | `docs/ai-config/` | `ai_config_doc.prompt.md` |
 | **11** | Guía de Contribución | ¿Cómo contribuyo? | `CONTRIBUTING.md` | `contributing_doc.prompt.md` |
+| **12** | Referencia del Sistema *(condicional)* | ¿Qué configuración, comandos y códigos expone? | `docs/reference/` | `reference_doc.prompt.md` |
 
 ### Adaptación de arquetipos al destino
 

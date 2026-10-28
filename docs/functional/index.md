@@ -2,12 +2,12 @@
 arquetipo: "1-I"
 fuentes:
   docs/functional/archetypes.md: 826f4fde74ba
-  docs/functional/bootstrap.md: 78002104430a
+  docs/functional/bootstrap.md: c3f3aa31f605
   docs/functional/build_docs_zip.md: 9c656e44d0aa
   docs/functional/check_env.md: 17ab4862ac92
   docs/functional/convert_to_md.md: ba27225210c2
   docs/functional/doc_trace.md: 5137aa9944f5
-  docs/functional/document_project.md: 725fab8e7ad8
+  docs/functional/document_project.md: 53dd471b88d5
   docs/functional/origin_types.md: da5ec981131e
 revisado: 2026-10-28
 ---

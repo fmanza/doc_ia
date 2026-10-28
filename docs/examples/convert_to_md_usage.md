@@ -197,7 +197,7 @@ Convirtiendo 2 fichero(s) con motor 'docling' -> C:\proyectos\mi_api\md
 
 ## Uso integrado en /document-project
 
-Cuando el flujo detecta ficheros binarios en el origen (Fase 0b), propone ejecutar este script
+Cuando el flujo detecta ficheros binarios en el origen (Fase 0c), propone ejecutar este script
 antes de inventariar:
 
 ```
@@ -211,4 +211,4 @@ Propuesta: python scripts/convert_to_md.py C:\proyectos\mi_api"
 - [Documentación funcional: convert_to_md](../functional/convert_to_md.md) — objetivo, flujo, comportamiento.
 - [Referencia técnica: convert_to_md](../api/convert_to_md.md) — ConvertOptions, funciones, constantes.
 - [Verificación de Entorno](check_env_usage.md) — confirmar disponibilidad de motores.
-- [Documentar un Proyecto](document_project_usage.md) — contexto de Fase 0b.
+- [Documentar un Proyecto](document_project_usage.md) — contexto de Fase 0c.

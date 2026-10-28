@@ -175,7 +175,7 @@ Verificar entorno: `python scripts/check_env.py` (reporta disponibilidad de docl
 
 - [Ejemplo: Convertir Documentos a Markdown](../examples/convert_to_md_usage.md) — invocaciones
   por motor, validación, metadata, batch y chunking.
-- Integrado en el flujo [Documentar un Proyecto](../functional/document_project.md) § Fase 0b.
+- Integrado en el flujo [Documentar un Proyecto](../functional/document_project.md) § Fase 0c.
 
 ## 6. Verificación y Tests
 

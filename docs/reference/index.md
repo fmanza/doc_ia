@@ -1,7 +1,7 @@
 ---
 arquetipo: "12"
 fuentes:
-  .claude/settings.json.example: e8ef6577113c
+  .claude/settings.json.example: e1c10842aa20
   .github/workflows/docs-zip-release.yml: cf1d3deac841
   CLAUDE.md: a167ad648656
   hooks/sync_root_docs.py: ef5e576436c6
@@ -28,7 +28,7 @@ línea de comandos, códigos de salida y eventos de build. La API interna de cad
 | `project.version` | fichero `pyproject.toml` | cadena SemVer | `0.1.0` (valor actual) | Versión usada en el nombre del ZIP (`doc_ia-docs-{versión}.zip`) y en la release `docs-v{versión}` |
 | `site_dir` | fichero `mkdocs.yml` | ruta | `site` | Directorio de salida del build; `mkdocs_hooks.py` lo lee de la configuración. `build_docs_zip.py` usa `site/` fijo |
 | `hooks` | fichero `mkdocs.yml` | lista de rutas | `hooks/sync_root_docs.py`, `mkdocs_hooks.py` | Hooks MkDocs cargados en cada build (ver §4) |
-| `hooks.PostToolUse` | fichero `.claude/settings.json` (no versionado; plantilla en `.claude/settings.json.example`) | objeto JSON | ruff + mypy + pytest `--collect-only` sobre `Edit\|Write` | Validaciones automáticas tras cada edición en Claude Code ⚠️ |
+| `hooks.PostToolUse` | fichero `.claude/settings.json` (no versionado; plantilla en `.claude/settings.json.example`) | objeto JSON | `sync_root_docs.py` + ruff + mypy + pytest `--collect-only` sobre `Edit\|Write` | Sincronización y validaciones automáticas tras cada edición en Claude Code |
 
 !!! note "Sin secretos"
     doc_ia no lee credenciales ni API keys. `.gitignore` excluye `.env`, `.env.*` y `*.key`.
@@ -160,7 +160,7 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 |---|---|---|---|
 | `on_pre_build` | MkDocs | `hooks/sync_root_docs.py` | Configuración MkDocs (`docs_dir`); copia los ficheros raíz a `docs/` |
 | `on_post_build` | MkDocs | `mkdocs_hooks.py` | Configuración MkDocs (`site_dir`); genera `site/doc_ia-docs-latest.zip` + `.sha256` |
-| `PostToolUse` (`Edit\|Write`) | Claude Code | Comandos de `.claude/settings.json` | Ejecuta ruff, mypy y pytest `--collect-only`; salida truncada a 10–15 líneas ⚠️ |
+| `PostToolUse` (`Edit\|Write`) | Claude Code | Comandos de `.claude/settings.json` | Ejecuta `sync_root_docs.py`, ruff, mypy y pytest `--collect-only`; salida truncada a 5–15 líneas |
 | Prefijos de log `[build_docs_zip]`, `[ZIP]`, `[OK]`, `[sync_root_docs]`, `[doc_ia-docs]` | Scripts y hooks | Usuario / CI | Texto libre por stdout; sin contrato estable más allá del prefijo |
 
 ## 5. Interfaces Publicadas
@@ -221,7 +221,7 @@ convertido: hereda la sensibilidad del origen.
     | `project.version` | `scripts/build_docs_zip.py::_version` | ✅ |
     | `site_dir` fijo en `build_docs_zip.py` | `scripts/build_docs_zip.py::SITE_DIR` | ✅ |
     | `hooks` de MkDocs | `mkdocs.yml::hooks` | ✅ |
-    | `hooks.PostToolUse` — la plantilla no incluye `sync_root_docs.py`, que `CLAUDE.md` sí describe | `.claude/settings.json.example` | ⚠️ |
+    | `hooks.PostToolUse` — `sync_root_docs.py` primero, como describe `CLAUDE.md` | `.claude/settings.json.example` | ✅ |
     | Opciones de `build_docs_zip.py` | `scripts/build_docs_zip.py::main` | ✅ |
     | Herramientas de `check_env.py` | `scripts/check_env.py::REQUIRED_TOOLS` | ✅ |
     | Opciones y restricciones de `convert_to_md.py` | `scripts/convert_to_md.py::_parse_args` | ✅ |
