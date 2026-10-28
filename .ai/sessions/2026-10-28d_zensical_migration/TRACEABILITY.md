@@ -48,7 +48,9 @@ recomendable la migración. Puede consultarse información en internet. PLAN y A
 | F6a | `fix(docs): diagrama Runtime de architecture con nodo paralelogramo inválido` | `a96de4b` | HECHO |
 | F6 | `refactor(docs): Mermaid con la integración nativa del tema` | `f370cbf` | HECHO |
 | — | push de `develop` (`6ee016a..f370cbf`) → CI run 40743109579: 3.12 y 3.14 en verde | — | HECHO |
-| F2b | `ci(docs): resultado de la paridad Zensical visible como anotación` | (este commit) | HECHO |
+| F2b | `ci(docs): resultado de la paridad Zensical visible como anotación` | `b20b015` | HECHO |
+| — | CI run 40743567252 (`b20b015`): verde; anotación `Paridad Zensical - OK` en 3.12 y 3.14 → arranca C2 | — | HECHO |
+| — | `chore(ci): actions de GitHub a sus versiones mayores actuales (Node 24)` | (este commit) | HECHO |
 | F7-F10, F12 | ver `02_PLAN_FASES.md` | — | PENDIENTE (gates) |
 
 ### F1 — verificación
@@ -147,6 +149,17 @@ recomendable la migración. Puede consultarse información en internet. PLAN y A
 - Avisos de GitHub (sin impacto hoy): `actions/checkout@v4` y `actions/setup-python@v4` apuntan a
   Node 20 y se ejecutan forzados en Node 24; `ubuntu-latest` migra a Ubuntu 26 desde el
   2026-10-19. Candidato a `chore(ci)`: subir a las versiones mayores actuales de esas actions.
+
+### F2b — verificación
+- Run 40743567252 (`b20b015`) en verde; anotaciones del paso nuevo: `Paridad Zensical - OK (Python 3.12)`
+  y `OK (Python 3.14)`. **C2 empieza a contar el 2026-10-28** (F8 no antes del 2026-11-11).
+
+### chore(ci) — actions a Node 24 (fuera del plan, a petición del usuario)
+- Versiones consultadas en la API de GitHub (2026-10-28): `checkout` v7.0.1, `setup-python` v7.1.0,
+  `upload-artifact` v7.0.2, `action-gh-release` v3.0.3; `ncipollo/release-action@v1` ya usa `node24`.
+- Cambios rompedores revisados, sin impacto: setup-python v7 elimina `pip-install` (no se usa);
+  checkout v7 bloquea PR de forks en `pull_request_target`/`workflow_run` (no se usan) y v6 guarda
+  las credenciales en un fichero aparte; upload-artifact v7 añade `archive` (por defecto `true`, igual).
 
 ## Veredicto final
 Veredicto: F0-F5, F11 GO · F6 GO_CONDICIONAL (C6, C7) · F7 gate 0.1 · F8 gate C2-C5 ·

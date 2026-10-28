@@ -68,7 +68,10 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
   diagramas visibles con MkDocs y con Zensical, en claro y en oscuro.
 - CI: build de paridad con Zensical (`build_docs_zip.py --builder zensical`, no bloqueante) que
   verifica además el ZIP `latest`. `zensical==0.0.73` fijado en `requirements-dev.txt` y
-  `requirements.txt` (con `deepmerge` y `tomli`).
+  `requirements.txt` (con `deepmerge` y `tomli`). El resultado real se publica como anotación
+  `Paridad Zensical` (OK/FALLO), porque `continue-on-error` marca el paso como `success` aunque falle.
+- Workflows: `actions/checkout` y `actions/setup-python` v4 → v7, `actions/upload-artifact` v4 → v7 y
+  `softprops/action-gh-release` v2 → v3 (Node 24 nativo; GitHub ya no admite Node 20 en los runners).
 
 - Norma del Arquetipo 1 alineada con su prompt (8 secciones); las páginas con la estructura v1
   siguen siendo válidas en transición.
