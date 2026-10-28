@@ -1,9 +1,9 @@
 ---
 arquetipo: "1"
 fuentes:
-  .github/DOCUMENTATION_STANDARD.md: 240fbe12bb5d
-  .github/prompts/document_project.prompt.md: 1a4749c3685d
-revisado: 2026-10-28
+  .github/DOCUMENTATION_STANDARD.md: 10dd01cc5e3b
+  .github/prompts/document_project.prompt.md: f626f8518ed1
+revisado: 2026-10-29
 ---
 # Catálogo de Tipos de Origen
 
@@ -76,10 +76,10 @@ Presenta el resultado en una tabla y espera la confirmación del usuario antes d
 | `NORMATIVA` | Documentos legales o regulatorios de obligado cumplimiento | PDFs/docs cuyo nombre o carpeta contenga: `ley`, `decreto`, `directiva`, `rgpd`, `gdpr`, `une`, `iso`, `reglamento`, `compliance` | `RGPD-2016-679.pdf`, `ley-39-2015.pdf`, `ISO-27001.pdf` |
 | `ESPECIFICACIÓN` | Requisitos, user stories, casos de uso o pliegos del proyecto | Word/PDF de requisitos; ficheros `.feature` (BDD/Gherkin); carpetas `specs/`, `requirements/`, `ux/`, `user-stories/` | `PRD-v2.docx`, `requirements.pdf`, `login.feature` |
 | `UI/PANTALLAS` | Wireframes, mockups, capturas de pantalla o prototipos de interfaz | `.png`, `.jpg`, `.pdf` de diseño; carpetas `mockups/`, `screens/`, `wireframes/`, `figma-exports/`, `designs/` | `mockup-login.png`, `flujo-checkout.pdf`, `screens/` |
-| `REFERENCIA` | Documentación de terceros que el proyecto consume o referencia (sin ser código propio) | Manuales externos, RFCs, especificaciones de protocolo ajenas al proyecto; PDFs/docs en `docs/external/`, `references/` | `RFC-7807.pdf`, `stripe-api-reference.pdf`, `oauth2-spec.pdf` |
 | `CONTRATO` | Especificaciones machine-readable de las APIs y modelos de datos **propios del proyecto** | `.yaml`/`.json` con clave `openapi:` o `asyncapi:`; `.graphql`/`.gql`; `.proto`; `.avsc`; `.sql` DDL en `db/`/`migrations/`; `.dbml`; carpetas `api/`, `contracts/`, `schemas/`, `proto/`, `graphql/` | `openapi.yaml`, `schema.graphql`, `service.proto`, `asyncapi.yml`, `schema.sql`, `models.dbml` |
 | `INFRAESTRUCTURA` | Artefactos IaC y de despliegue que describen cómo se ejecuta el sistema | `.tf` (Terraform); `Dockerfile`, `docker-compose.yml`, `.dockerfile`; YAML en `k8s/`, `deploy/`, `manifests/`, `helm/`; playbooks Ansible `.yml` en `roles/`/`ansible/`; CloudFormation `.yaml` en `cloudformation/` | `main.tf`, `docker-compose.yml`, `k8s/deployment.yaml`, `helm/Chart.yaml` |
 | `MANUAL` | Documentación narrativa ya escrita **por/para el propio proyecto**: manuales de usuario, guías de administrador, runbooks operativos, notas de versión, ayuda en línea | `.pdf`, `.docx`, `.odt`, `.md` con nombres que contengan `manual`, `guia`, `guide`, `handbook`, `runbook`, `ayuda`, `help`, `user-guide`, `admin-guide`, `release-notes`; carpetas `manuals/`, `help/`, `user-docs/`, `documentation/`; ficheros `.chm` | `manual-usuario-v3.pdf`, `admin-guide.docx`, `runbook-ops.md`, `help/` |
+| `REFERENCIA` | Documentación de terceros que el proyecto consume o referencia (sin ser código propio) | Manuales externos, RFCs, especificaciones de protocolo ajenas al proyecto; PDFs/docs en `docs/external/`, `references/` | `RFC-7807.pdf`, `stripe-api-reference.pdf`, `oauth2-spec.pdf` |
 
 ### Mapeo MATERIAL → arquetipos enriquecidos
 
@@ -184,7 +184,7 @@ el chat y no tiene tests automatizados.
     | Elemento | Fuente | Confianza |
     |---|---|---|
     | Precondición «≥2 orígenes o único no CÓDIGO» | `.github/prompts/document_project.prompt.md::Fase 0a` | ✅ |
-    | Tabla de señales y orden de evaluación | `.github/DOCUMENTATION_STANDARD.md::3.10 Documentación con Múltiples Orígenes` (Tipos de origen) | ⚠️ |
+    | Tabla de señales y orden de evaluación | `.github/DOCUMENTATION_STANDARD.md::3.10 Documentación con Múltiples Orígenes` (Tipos de origen, Orden de evaluación), `.github/prompts/document_project.prompt.md::Fase 0a` (paso 1) | ✅ |
     | Mapeo MATERIAL → arquetipos (numeración v2 del Arq. 1) | `.github/DOCUMENTATION_STANDARD.md::3.10` (Mapeo MATERIAL → arquetipos), renumerado según `::3.1` | ⚠️ |
     | Postcondición «tabla Origen · Tipo · Señales · Rol» | `.github/prompts/document_project.prompt.md::Fase 0a` (paso 2) | ✅ |
     | Regla «Un origen `CÓDIGO` obligatorio» | `.github/DOCUMENTATION_STANDARD.md::3.10` (Caso degenerado) | ✅ |

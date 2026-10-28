@@ -18,7 +18,7 @@ Documentar un proyecto (origen → destino) orquestando los arquetipos formales.
   `.github/prompts/document_project.prompt.md` § *Reglas por generador: Zensical* (no ejecuta
   `hooks:`; señal `TIENE_PIPELINE_SIN_HOOKS`, Gap A4, plugins soportados, build vía script)
 - [ ] **Idioma**: `es` | `en` | otro
-- [ ] **Tipo de cada origen** (opcional): `CÓDIGO` | `NORMATIVA` | `ESPECIFICACIÓN` | `UI/PANTALLAS` | `REFERENCIA` | `CONTRATO` | `INFRAESTRUCTURA` | `MANUAL` — autodetectado si se omite; el usuario confirma antes de continuar
+- [ ] **Tipo de cada origen** (opcional): `CÓDIGO` | `NORMATIVA` | `ESPECIFICACIÓN` | `UI/PANTALLAS` | `CONTRATO` | `INFRAESTRUCTURA` | `MANUAL` | `REFERENCIA` — autodetectado si se omite; el usuario confirma antes de continuar
 - [ ] **Estrategia** (solo con ≥2 orígenes CÓDIGO): `federado` | `hub+satélite` | `monorepo` — preguntar al usuario, nunca autodetectar
 - [ ] **Alcance** (opcional): módulos o subconjunto; por defecto proyecto completo
 - [ ] **Arquetipos** (opcional): subconjunto; por defecto todos los aplicables **excepto 9 (Changelog) y 11 (Contribución)**, que son opt-in explícito

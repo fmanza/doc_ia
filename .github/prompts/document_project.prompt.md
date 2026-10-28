@@ -19,7 +19,7 @@ sueltos para documentar un proyecto completo: invoca este flujo y deja que orque
 
 Opcionales:
 
-- **Tipo de cada origen**: `CÓDIGO` | `NORMATIVA` | `ESPECIFICACIÓN` | `UI/PANTALLAS` | `REFERENCIA` | `CONTRATO` | `INFRAESTRUCTURA` | `MANUAL` — autodetectado si se omite; se confirma con el usuario antes de continuar
+- **Tipo de cada origen**: `CÓDIGO` | `NORMATIVA` | `ESPECIFICACIÓN` | `UI/PANTALLAS` | `CONTRATO` | `INFRAESTRUCTURA` | `MANUAL` | `REFERENCIA` — autodetectado si se omite; se confirma con el usuario antes de continuar
 - **Estrategia** (solo con ≥2 orígenes CÓDIGO): `federado` | `hub+satélite` | `monorepo` — siempre preguntar al usuario, nunca autodetectar
 - **Alcance**: módulos o subconjunto a documentar (por defecto: proyecto completo)
 - **Arquetipos**: subconjunto a aplicar (por defecto: todos los aplicables según inventario)
@@ -55,7 +55,8 @@ Aplica el flujo por fases de `.github/agents/documentation-generator.agent.md` s
 
 ```
 Fase 0a — Clasificación de orígenes (solo con ≥2 orígenes, o si el único origen no es CÓDIGO):
-         1. Para cada origen, detectar tipo por señales del sistema de ficheros:
+         1. Para cada origen, detectar tipo por señales del sistema de ficheros, en este orden
+            (se asigna el primer tipo que coincide; REFERENCIA, la última, es el tipo por defecto):
             - CÓDIGO         : archivos fuente (.py, .js, .ts, .cs, .java, .go, .rs, …),
                                pyproject.toml, package.json, pom.xml, Cargo.toml, go.mod,
                                src/, tests/ presentes
@@ -65,7 +66,6 @@ Fase 0a — Clasificación de orígenes (solo con ≥2 orígenes, o si el único
                                carpetas specs/, requirements/, ux/, user-stories/
             - UI/PANTALLAS   : wireframes, mockups, capturas (.png, .jpg, .pdf de diseño);
                                carpetas mockups/, screens/, wireframes/, figma-exports/
-            - REFERENCIA     : manuales de TERCEROS, RFCs, especificaciones de protocolo AJENAS al proyecto
             - CONTRATO       : especificaciones machine-readable del PROPIO proyecto:
                                .yaml/.json con clave openapi: o asyncapi:; .graphql/.gql; .proto; .avsc;
                                .sql DDL en db//migrations/; .dbml; carpetas api/, contracts/, schemas/, proto/
@@ -73,6 +73,9 @@ Fase 0a — Clasificación de orígenes (solo con ≥2 orígenes, o si el único
                                YAML en k8s/, deploy/, manifests/, helm/; playbooks Ansible en roles//ansible/
             - MANUAL         : documentación narrativa del PROPIO proyecto: .pdf/.docx/.md con manual/
                                guide/runbook/ayuda/help en nombre; carpetas manuals/, help/, user-docs/; .chm
+            - REFERENCIA     : manuales de TERCEROS, RFCs, especificaciones de protocolo AJENAS
+                               al proyecto; también lo que no coincide con ningún tipo anterior.
+                               Un contrato o manual de un tercero es REFERENCIA (la propiedad decide)
          2. Presentar tabla: | Origen | Tipo detectado | Señales encontradas | Rol propuesto |
          3. DETENER y pedir confirmación al usuario antes de continuar.
          4. Si hay ≥2 orígenes CÓDIGO → preguntar estrategia al usuario:

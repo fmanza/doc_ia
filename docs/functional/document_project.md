@@ -1,11 +1,11 @@
 ---
 arquetipo: "1"
 fuentes:
-  .claude/commands/document-project.md: 9df2db0bb68d
-  .github/DOCUMENTATION_STANDARD.md: 240fbe12bb5d
-  .github/prompts/document_project.prompt.md: 1a4749c3685d
+  .claude/commands/document-project.md: 0ed86a22efca
+  .github/DOCUMENTATION_STANDARD.md: 10dd01cc5e3b
+  .github/prompts/document_project.prompt.md: f626f8518ed1
   CLAUDE.md: 1be4ae56b47a
-revisado: 2026-10-28
+revisado: 2026-10-29
 ---
 # Documentar un Proyecto
 
