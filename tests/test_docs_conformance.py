@@ -133,6 +133,23 @@ def test_contributing_has_six_sections() -> None:
     assert _sections(ROOT / "CONTRIBUTING.md") == list(range(1, 7))
 
 
+def test_mermaid_nodes_do_not_start_with_slash() -> None:
+    """`[/texto` abre un nodo paralelogramo en Mermaid 11 → «Syntax error in text» al renderizar.
+
+    Regla de `document_project.prompt.md` (Mermaid — sintaxis de nodos); `--strict` no la detecta.
+    """
+    offenders = []
+    for page in sorted(DOCS.rglob("*.md")):
+        text = page.read_text(encoding="utf-8")
+        for block in re.findall(r"^```mermaid\n(.*?)^```", text, flags=re.M | re.S):
+            offenders += [
+                f"{page.relative_to(DOCS).as_posix()}: {line.strip()}"
+                for line in block.splitlines()
+                if re.search(r"\[/", line)
+            ]
+    assert not offenders, offenders
+
+
 def test_guides_naming_convention() -> None:
     """Guías en minúsculas con guion bajo y sin subcarpetas; how-to ≠ tutorial (AC-08)."""
     guides = DOCS / "guides"

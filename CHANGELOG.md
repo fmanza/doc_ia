@@ -84,6 +84,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ### Fixed
 
+- `docs/architecture.md`: el diagrama de Runtime mostraba «Syntax error in text». El nodo
+  `B[/document-project…]` abre un paralelogramo en Mermaid 11; pasa a `B[Comando document-project…]`.
+  Nuevo test `test_mermaid_nodes_do_not_start_with_slash` (`--strict` no detecta este error).
 - `convert_to_md.py --device auto` detecta la GPU: el `CUDA_VISIBLE_DEVICES=""` que el módulo
   fija al importarse ya no se confunde con una elección del usuario.
 - `convert_to_md.py` con docling ya no recoge los `.md` del origen: el Markdown ya es legible y

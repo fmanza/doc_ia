@@ -5,7 +5,7 @@ fuentes:
   .github/agents/documentation-generator.agent.md: f8537cc1dd52
   .github/prompts/example_doc.prompt.md: 6041f616e0c3
   mkdocs.yml: 2a7d695ddd8d
-  tests/test_docs_conformance.py: 8bd5c919f184
+  tests/test_docs_conformance.py: 14ba445df5a0
 revisado: 2026-10-28
 ---
 # archetypes

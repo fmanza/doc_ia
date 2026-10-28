@@ -44,7 +44,8 @@ recomendable la migración. Puede consultarse información en internet. PLAN y A
 | F3 | `feat(env): check_env informa de Zensical como generador opcional` | `767e97b` | HECHO |
 | F4 | `test(docs): guardas de compatibilidad con Zensical` | `d7b89f6` | HECHO |
 | F5 | `docs(adr): ADR-003 Zensical como generador por defecto (propuesto)` | `5cc8bfc` | HECHO |
-| F11 | `feat(prompts): soporte completo de Zensical en document_project` | (este commit) | HECHO |
+| F11 | `feat(prompts): soporte completo de Zensical en document_project` | `d059533` | HECHO |
+| F6a | `fix(docs): diagrama Runtime de architecture con nodo paralelogramo inválido` | (este commit) | HECHO |
 | F6-F10, F12 | ver `02_PLAN_FASES.md` | — | PENDIENTE |
 
 ### F1 — verificación
@@ -99,6 +100,23 @@ recomendable la migración. Puede consultarse información en internet. PLAN y A
   `api/archetypes` revisadas: no describen el generador → solo re-sellado.
 - No se ha ejecutado `/document-project` con Zensical sobre un destino real: la regla se
   validará en la primera sesión de ese tipo (AC-08 sin test, como el resto del flujo IA).
+
+### Verificación visual de Mermaid (C6) — método
+- Edge headless no devuelve `--dump-dom` por stdout en esta máquina. Se usa CDP desde Python
+  (`websockets`): `Emulation.setEmulatedMedia` (claro u oscuro), `DOM.getDocument(pierce=True)`
+  para leer los shadow roots **cerrados** de Material, y una captura recortada por diagrama.
+  Scripts en el scratchpad de la sesión (`mermaid/cdp_check.py`), no versionados.
+- Hallazgo: con la config actual (CDN + `assets/js/mermaid.js`), la integración nativa de Material
+  pinta el diagrama visible en un shadow root cerrado. El `mermaid.run()` propio llega tarde y
+  deja un SVG de error **oculto** en el DOM normal de cada bloque (23/23). Al usuario solo le
+  llega el render nativo.
+
+### F6a — hotfix encontrado durante C6
+- Línea base (MkDocs, claro): 22/23 diagramas visibles bien; el que falla es `architecture.md`
+  #2 (Runtime): `B[/document-project…]` → paralelogramo de Mermaid 11 → «Syntax error in text».
+  Ocurría también en el render nativo: error real, independiente de F6.
+- Arreglo: `B[Comando document-project…]` → 23/23 y captura revisada.
+- Regresión: `test_mermaid_nodes_do_not_start_with_slash` (falla sin el arreglo, pasa con él).
 
 ## Veredicto final
 Veredicto: F0-F5, F11 GO · F6 GO_CONDICIONAL (C6, C7) · F7 gate 0.1 · F8 gate C2-C5 ·

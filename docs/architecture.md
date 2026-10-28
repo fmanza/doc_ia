@@ -58,7 +58,7 @@ Operación típica — documentar un proyecto con `/document-project`:
 
 ```mermaid
 flowchart TD
-    A[Usuario en chat IA] --> B[/document-project<br/>VALIDACIÓN de 4 inputs]
+    A[Usuario en chat IA] --> B[Comando document-project<br/>VALIDACIÓN de 4 inputs]
     B -- inputs incompletos --> A
     B --> B0{¿≥2 orígenes o<br/>no es CÓDIGO?}
     B0 -- Sí --> F0a[Fase 0a — Clasificar orígenes<br/>8 tipos posibles]
