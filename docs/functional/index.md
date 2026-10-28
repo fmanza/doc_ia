@@ -1,14 +1,14 @@
 ---
 arquetipo: "1-I"
 fuentes:
-  docs/functional/archetypes.md: a716fe5d2d7b
-  docs/functional/bootstrap.md: c3f3aa31f605
-  docs/functional/build_docs_zip.md: 9926058a0826
-  docs/functional/check_env.md: 50d36e2a0f15
-  docs/functional/convert_to_md.md: ba27225210c2
-  docs/functional/doc_trace.md: 5137aa9944f5
-  docs/functional/document_project.md: 389c47c24ef5
-  docs/functional/origin_types.md: da5ec981131e
+  docs/functional/archetypes.md: 6d433cc0bbd0
+  docs/functional/bootstrap.md: d53936a473e4
+  docs/functional/build_docs_zip.md: dc22d821749a
+  docs/functional/check_env.md: f9e9d9c5e13d
+  docs/functional/convert_to_md.md: f96accb1837d
+  docs/functional/doc_trace.md: 699c6a22d9f3
+  docs/functional/document_project.md: b1c9cf70251a
+  docs/functional/origin_types.md: 8164b678fa95
 revisado: 2026-10-28
 ---
 # Mapa Funcional — doc_ia
@@ -22,11 +22,11 @@ y qué términos comparten. Cada capacidad enlaza a su página funcional detalla
 |---|---|---|---|---|
 | Comprobar que el entorno tiene las herramientas necesarias | Tooling determinista | [Verificación de Entorno](check_env.md) | AC-01 – AC-06 | 6/6 |
 | Convertir documentos previos a Markdown para usarlos como contexto | Tooling determinista | [Conversión de Documentos a Markdown](convert_to_md.md) | AC-01 – AC-13 | 12/13 |
-| Empaquetar la documentación para consulta offline con verificación de integridad | Tooling determinista | [ZIP de Documentación Offline](build_docs_zip.md) | AC-01 – AC-09 | 8/9 |
+| Empaquetar la documentación para consulta offline con verificación de integridad | Tooling determinista | [ZIP de Documentación Offline](build_docs_zip.md) | AC-01 – AC-10 | 9/10 |
 | Detectar documentación desactualizada respecto al código y cruzar criterios con tests | Tooling determinista | [Trazabilidad Docs ↔ Código](doc_trace.md) | AC-01 – AC-14 | 14/14 |
 | Documentar un proyecto completo desde una única operación de entrada | Flujos IA | [Documentar un Proyecto](document_project.md) | AC-01 – AC-08 | 0/8 |
 | Clasificar cada origen (código, normativa, especificación, contrato…) y decidir su tratamiento | Flujos IA | [Catálogo de Tipos de Origen](origin_types.md) | AC-01 – AC-09 | 0/9 |
-| Producir documentación con estructura fija y evidencia verificable | Flujos IA | [Arquetipos Formales](archetypes.md) | AC-01 – AC-10 | 10/10 |
+| Producir documentación con estructura fija y evidencia verificable | Flujos IA | [Arquetipos Formales](archetypes.md) | AC-01 – AC-13 | 13/13 |
 | Trasladar el sistema de instrucciones IA a otro proyecto | Flujos IA | [Bootstrap de Configuración IA](bootstrap.md) | AC-01 – AC-04 | 0/4 |
 
 **Cobertura de pruebas**: 50 de 73 criterios tienen un test automatizado. Los flujos IA se
@@ -39,6 +39,8 @@ documentación resultante (Arquetipos) ⚠️.
 
 ```mermaid
 flowchart LR
+    accTitle: Recorrido de documentos previos a ZIP offline
+    accDescr: Los documentos previos se convierten a Markdown, se documenta el proyecto clasificando orígenes y aplicando arquetipos, y se construye el sitio y su ZIP offline con SHA256.
     A[Documentos previos<br/>PDF, Word, Excel…] --> B[Conversión a Markdown<br/>carpeta md/]
     B --> C[Documentar un Proyecto]
     C --> D[Clasificación de orígenes]
@@ -55,6 +57,8 @@ Los arquetipos generan las páginas y la build produce el sitio, que se empaquet
 
 ```mermaid
 flowchart LR
+    accTitle: Recorrido de bootstrap en un proyecto destino
+    accDescr: El proyecto destino recibe la configuración IA, verifica su entorno y documenta su proyecto aplicando los arquetipos.
     A[Proyecto destino] --> B[Bootstrap de Configuración IA]
     B --> C[Destino con prompts,<br/>agentes y comandos]
     C --> D[Verificación de Entorno]

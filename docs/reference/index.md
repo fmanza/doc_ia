@@ -3,9 +3,9 @@ arquetipo: "12"
 fuentes:
   .claude/settings.json.example: e1c10842aa20
   .github/workflows/docs-zip-release.yml: 09d54c255eb8
-  CLAUDE.md: 301a256778f8
+  CLAUDE.md: 1be4ae56b47a
   hooks/sync_root_docs.py: ef5e576436c6
-  mkdocs.yml: 66d3b81c502c
+  mkdocs.yml: 2179f8729495
   mkdocs_hooks.py: 2f510611cb6f
   scripts/build_docs_zip.py: b9a2694d122f
   scripts/check_env.py: a30937ae040f
@@ -183,6 +183,8 @@ tooling.
 
 ```mermaid
 erDiagram
+    accTitle: Modelo de artefactos de doc_ia
+    accDescr: Un documento origen genera un Markdown con frontmatter y chunks opcionales indexados por un manifiesto; el ZIP offline va con su SHA256 y su línea en CHECKSUMS; cada página declara su trazabilidad con una huella por fuente.
     DOCUMENTO_ORIGEN ||--|| MARKDOWN : "convert_to_md genera"
     MARKDOWN ||--o| FRONTMATTER : "incluye con --metadata"
     MARKDOWN ||--o{ CHUNK : "se divide con --chunk"

@@ -1,10 +1,10 @@
 ---
 arquetipo: "1"
 fuentes:
-  .claude/commands/document-project.md: 0c40f2025589
-  .github/DOCUMENTATION_STANDARD.md: 40584ca88ec3
-  .github/prompts/document_project.prompt.md: eb1288bb24e5
-  CLAUDE.md: 301a256778f8
+  .claude/commands/document-project.md: 9df2db0bb68d
+  .github/DOCUMENTATION_STANDARD.md: 240fbe12bb5d
+  .github/prompts/document_project.prompt.md: 1a4749c3685d
+  CLAUDE.md: 1be4ae56b47a
 revisado: 2026-10-28
 ---
 # Documentar un Proyecto
@@ -43,20 +43,27 @@ decidir manualmente qué arquetipo aplicar a cada módulo.
 ## 3. Flujo Principal
 
 ```mermaid
-flowchart TD
-    U[Usuario en chat IA] --> V[Validar cuatro parámetros obligatorios]
-    V -- parámetro faltante --> U
-    V --> CL{¿≥2 orígenes o\nno es CÓDIGO?}
-    CL -- Sí --> F0a[Fase 0a — Clasificar orígenes<br/>8 tipos posibles]
-    F0a -- confirmar con usuario --> F0b
-    CL -- No --> F0b[Fase 0b — Sincronización visual<br/>assets + mkdocs.yml + .gitignore]
-    F0b --> I[Inventariar el origen<br/>clasificar A / B / C<br/>detectar señales ZIP offline<br/>detectar carpetas md/]
-    I --> P[PLAN_DOC<br/>CREAR A · ACTUALIZAR B · OMITIR C]
-    P --> G[Generar por arquetipos<br/>funcional + mapa · técnica · referencia · ejemplos · guías]
-    G --> N[Sincronizar mkdocs.yml]
-    N --> R[Revisión final<br/>Markdown · enlaces · Mermaid · trazabilidad]
-    R --> DL[Fase 7b — downloads.md<br/>Variante A o B · reportar huecos]
-    DL --> CS[Cierre de sesión<br/>.ai/sessions/YYYY-MM-DD/<br/>.ai/*.md contexto + commit]
+sequenceDiagram
+    accTitle: Documentar un proyecto desde el chat
+    accDescr: El usuario invoca el flujo con cuatro parámetros; el agente valida, pide confirmar la clasificación si hay varios orígenes o ninguno es código, inventaría el origen frente a la documentación existente, genera las páginas en el destino y devuelve un resumen con la trazabilidad y una propuesta de commit.
+    actor U as Usuario
+    participant A as Agente
+    participant O as Origen
+    participant D as Destino
+    U->>A: Origen(es), destino, generador e idioma
+    alt Falta algún parámetro
+        A-->>U: Se detiene y pregunta
+    end
+    opt Varios orígenes o el único no es código
+        A-->>U: Clasificación de orígenes propuesta
+        U->>A: Confirma
+    end
+    A->>D: Sincroniza la configuración visual
+    A->>O: Inventaría módulos
+    A->>D: Compara con la documentación existente (A, B o C)
+    A->>D: Crea o actualiza páginas por arquetipo y la navegación
+    A->>D: Revisa y actualiza la página de descargas
+    A-->>U: Resumen, trazabilidad de la sesión y propuesta de commit
 ```
 
 El usuario invoca el flujo con los cuatro parámetros; si falta alguno, el flujo se detiene y
@@ -79,7 +86,7 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
   y la configuración estándar verificada (tema, assets, Mermaid).
 - `docs/downloads.md` existe en el destino (variante A o B) y los huecos de distribución
   offline quedan reportados en el resumen.
-- El destino tiene los tres assets visuales en `docs/assets/`, Mermaid con la integración nativa del tema y un `.gitignore` con los
+- El destino tiene los cinco recursos visuales en `docs/assets/`, entre ellos su propia copia de Mermaid, de modo que los diagramas se ven también sin conexión, y un `.gitignore` con los
   patrones estándar.
 - Existe `.ai/sessions/YYYY-MM-DD/` en el destino con `00_REQUEST.md`,
   `00_CONTEXT_SNAPSHOT.md` y `TRACEABILITY.md`; en la primera sesión se crean además los

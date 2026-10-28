@@ -246,6 +246,9 @@ fases posteriores **salvo** las que dependen de él según el grafo.
   - `.gitignore`: `.cache/`.
   - `.github/workflows/docs-zip-release.yml`: el cuerpo de la release describe el offline real.
   - `extra.polyfills` con `iframe-worker` local solo si se quiere evitar la descarga en el build.
+  - **Mermaid ya no forma parte de F10**: lo resolvió la sesión `2026-10-28f_mermaid_local`
+    (copia local 12.2.0 en `docs/assets/vendor/mermaid/` + `mermaid-theme.js`, sin depender de
+    `privacy`). F10 solo debe comprobar que `offline`/`privacy` no alteran esa configuración.
   - Re-sellados por `mkdocs.yml`.
 - **Commit**: `feat(docs): ZIP de documentación navegable sin conexión`
 - **AUDIT**:
@@ -257,6 +260,8 @@ fases posteriores **salvo** las que dependen de él según el grafo.
   - **GO_CONDICIONAL**:
     - **C8**: abrir el ZIP extraído con `file://` y verificar búsqueda, Mermaid y navegación sin
       red.
+    - **C9**: CUMPLIDA en la sesión `2026-10-28f_mermaid_local` (24/24 diagramas sin conexión,
+      0 SVG de error, MkDocs y Zensical, claro y oscuro). Repetir solo si F10 toca `extra_javascript`.
 
 ---
 

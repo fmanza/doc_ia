@@ -79,7 +79,9 @@ Cuando se pida revisar todo el proyecto, sigue estas fases:
 2. **Cobertura funcional**: ¿cada módulo tiene objetivo de negocio, flujo y reglas documentados?
 3. **Cobertura técnica**: ¿cada módulo tiene responsabilidad, diagrama Mermaid, API y contratos?
 4. **Ejemplos**: ¿existen ejemplos verificables por módulo principal? ¿son reproducibles?
-5. **Calidad**: docstrings, type hints, enlaces relativos, Mermaid válido, sin detalles inventados.
+5. **Calidad**: docstrings, type hints, enlaces relativos, Mermaid válido y conforme a
+   `DOCUMENTATION_STANDARD.md` §3.17 (accesibilidad, ≤12 nodos, sin entidades HTML, sin diagramas
+   duplicados entre arquetipos), sin detalles inventados.
 6. **Navegación**: `mkdocs.yml` coherente con páginas reales (sin huérfanas ni rotas).
 7. **Separación**: ¿funcional, técnico y ejemplos tienen secciones claramente diferenciadas?
 8. **Veredicto**: readiness global con prioridades de mejora inmediata.

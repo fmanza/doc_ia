@@ -26,16 +26,19 @@ Elige el tipo de diagrama más apropiado:
 - `stateDiagram-v2` → si el módulo gestiona estados discretos con transiciones (ciclo de vida, pipeline con fases)
 - `erDiagram` → si el módulo expone un modelo de datos relacional (ORM, schemas SQL)
 
-Criterios del diagrama:
-- Omite: credenciales, puertos, variables internas, rutas de ficheros de implementación
-- Incluye: actores externos, operaciones de negocio, flujo de datos, puntos de decisión
-- Máximo 12 nodos para legibilidad sin zoom
+Criterios del diagrama (reglas completas en `DOCUMENTATION_STANDARD.md` §3.17):
+- Vista interna: puede usar nombres de funciones y clases del módulo; omite credenciales y puertos
+- Incluye: actores externos, operaciones, flujo de datos, puntos de decisión
+- Máximo 12 nodos; si se supera, divide en dos diagramas o usa una tabla si no hay flujo
+- `accTitle` y `accDescr` obligatorios; labels con `@ ( ) { }` entre comillas dobles
+- No repitas el diagrama de la página funcional del mismo módulo: aquí va la estructura interna
 - Usa etiquetas en español para actores y acciones
 - Si no hay suficiente información para un diagrama correcto, declara la limitación y no inventes flujo
 
 Si el módulo contiene Web API, servidor web, base de datos o contenedores, añade inmediatamente
-después del diagrama principal un párrafo de infraestructura y un diagrama `architecture-beta`.
-Ver restricciones de sintaxis en docs.instructions.md.
+después del diagrama principal un párrafo de infraestructura y un `flowchart LR` con un
+`subgraph` por contenedor o red (`architecture-beta` es opcional). Ver
+`docs.instructions.md` § Sección de Arquitectura física.
 
 ## 2. Modelo de Datos / Contratos
 
@@ -116,7 +119,7 @@ Restricciones:
 | Generación de múltiples tipos de archivo | `flowchart TD` | Selección y pipeline de transformación |
 | Motor de personalización con sustituciones | `flowchart TD` | Pipeline: leer → aplicar → escribir |
 | Orquestador con múltiples fases | `sequenceDiagram` | Flujo completo con actores y salidas |
-| Módulo con Web API / base de datos / Docker | `architecture-beta` | Topología de infraestructura física |
+| Módulo con Web API / base de datos / Docker | `flowchart LR` con `subgraph` | Topología de infraestructura física |
 | Módulo con ciclo de vida de entidades o fases | `stateDiagram-v2` | Estados discretos con transiciones |
 | Módulo con modelo ORM o esquema relacional | `erDiagram` | Entidades, atributos y relaciones |
 
@@ -171,13 +174,8 @@ Fase 4 — Revisión cruzada:
 
 ## Tipos de diagrama recomendados
 
-| Patrón real del módulo | Diagrama recomendado | Motivo |
-|---|---|---|
-| Flujo entre usuario, CLI, servicio externo y salida | `sequenceDiagram` | Muestra interacción y orden temporal |
-| Pipeline de transformación o decisiones | `flowchart TD` | Muestra ramas, validaciones y resultado |
-| Jerarquía pública de clases | `classDiagram` | Muestra contratos orientados a objetos |
-| Gestión de estados o fases de un pipeline | `stateDiagram-v2` | Muestra ciclo de vida y transiciones |
-| Modelo de datos relacional (ORM/SQL) | `erDiagram` | Muestra entidades y cardinalidades |
+Ver la tabla "Criterios de selección de diagrama por tipo de módulo" y
+`DOCUMENTATION_STANDARD.md` §3.17 (tipos, colores del tema, tamaño, accesibilidad).
 
 ## Prompt dedicado para infografías Mermaid
 
@@ -189,7 +187,7 @@ el código Mermaid.js para un diagrama de secuencia que ilustre la interacción 
 usuario, el componente principal y sus salidas.
 Omite: credenciales, puertos, variables internas, rutas de implementación, nombres de bases de datos.
 Incluye: actores externos, operaciones de negocio, puntos de decisión, flujo de datos.
-Máximo 12 nodos. Etiquetas en español.
+Máximo 12 nodos. Etiquetas en español. Incluye accTitle y accDescr.
 Si el flujo no puede inferirse con seguridad, declara qué información falta en lugar de inventar.
 ```
 

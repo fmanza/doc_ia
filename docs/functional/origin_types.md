@@ -1,8 +1,8 @@
 ---
 arquetipo: "1"
 fuentes:
-  .github/DOCUMENTATION_STANDARD.md: 40584ca88ec3
-  .github/prompts/document_project.prompt.md: eb1288bb24e5
+  .github/DOCUMENTATION_STANDARD.md: 240fbe12bb5d
+  .github/prompts/document_project.prompt.md: 1a4749c3685d
 revisado: 2026-10-28
 ---
 # Catálogo de Tipos de Origen
@@ -31,44 +31,42 @@ produzcan páginas vacías o incorrectas.
 ## 3. Flujo Principal
 
 ```mermaid
-flowchart TD
-    O[Origen recibido] --> S1{¿Contiene archivos fuente<br/>o manifiestos de build?}
-    S1 -- Sí --> CODIGO[CÓDIGO]
-
-    S1 -- No --> S2{¿PDF/doc con palabras<br/>clave legales?}
-    S2 -- Sí --> NORMATIVA[NORMATIVA]
-
-    S2 -- No --> S3{¿Word/PDF de requisitos<br/>o ficheros .feature?}
-    S3 -- Sí --> ESPECIFICACION[ESPECIFICACIÓN]
-
-    S3 -- No --> S4{¿Imágenes/PDFs de diseño<br/>o carpeta mockups/?}
-    S4 -- Sí --> UI[UI/PANTALLAS]
-
-    S4 -- No --> S5{¿openapi:/asyncapi: YAML,<br/>.graphql, .proto, .sql DDL,<br/>.dbml, carpeta schemas/?}
-    S5 -- Sí --> CONTRATO[CONTRATO]
-
-    S5 -- No --> S6{¿.tf, Dockerfile,<br/>docker-compose, k8s/ YAML,<br/>helm/, Ansible?}
-    S6 -- Sí --> INFRA[INFRAESTRUCTURA]
-
-    S6 -- No --> S7{¿PDF/Word/MD propio del<br/>proyecto con manual/guide/<br/>runbook en nombre o carpeta?}
-    S7 -- Sí --> MANUAL[MANUAL]
-
-    S7 -- No --> REFERENCIA[REFERENCIA]
-
-    CODIGO --> CONF[Confirmar con usuario antes de continuar]
-    NORMATIVA --> CONF
-    ESPECIFICACION --> CONF
-    UI --> CONF
-    CONTRATO --> CONF
-    INFRA --> CONF
-    MANUAL --> CONF
-    REFERENCIA --> CONF
+sequenceDiagram
+    accTitle: Clasificación de orígenes
+    accDescr: El usuario entrega los orígenes; el agente evalúa las señales de cada uno en orden, propone una tabla de tipos y no pasa al inventario hasta que el usuario la confirma o corrige.
+    actor U as Usuario
+    participant A as Agente
+    U->>A: Entrega uno o varios orígenes (tipo opcional)
+    loop Cada origen sin tipo indicado
+        A->>A: Evalúa las señales en orden y asigna el primer tipo que coincide
+    end
+    A-->>U: Tabla de clasificación propuesta
+    alt Acepta la tabla
+        U->>A: Confirma
+    else No acepta algún tipo
+        U->>A: Indica el tipo correcto
+    end
+    alt Hay al menos un origen CÓDIGO
+        A->>A: Continúa al inventario
+    else Ningún origen CÓDIGO
+        A-->>U: Se detiene y orienta a los prompts de arquetipo directo
+    end
 ```
 
-Para cada origen, el agente evalúa las señales en orden: primero si es código, después si
-es normativa, especificación, diseño de pantallas, contrato propio, infraestructura o
-manual propio; lo que no encaja en ninguno se considera referencia de terceros. Presenta
-el resultado en una tabla y espera la confirmación del usuario antes de inventariar.
+Para cada origen, el agente evalúa las señales en el orden de la tabla siguiente y asigna el
+primer tipo que coincide; lo que no encaja en ninguno se considera referencia de terceros.
+Presenta el resultado en una tabla y espera la confirmación del usuario antes de inventariar.
+
+| Orden | Señal | Tipo |
+|---|---|---|
+| 1 | Archivos fuente o manifiestos de build | `CÓDIGO` |
+| 2 | PDF o documento con palabras clave legales | `NORMATIVA` |
+| 3 | Word/PDF de requisitos o ficheros `.feature` | `ESPECIFICACIÓN` |
+| 4 | Imágenes o PDFs de diseño, carpeta `mockups/` | `UI/PANTALLAS` |
+| 5 | YAML con `openapi:`/`asyncapi:`, `.graphql`, `.proto`, `.sql` DDL, `.dbml`, carpeta `schemas/` | `CONTRATO` |
+| 6 | `.tf`, `Dockerfile`, `docker-compose`, YAML en `k8s/`, `helm/`, Ansible | `INFRAESTRUCTURA` |
+| 7 | PDF/Word/MD propio con `manual`, `guide` o `runbook` en el nombre o la carpeta | `MANUAL` |
+| 8 | Ninguna de las anteriores | `REFERENCIA` |
 
 ### Tipos y señales de detección
 

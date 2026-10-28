@@ -134,3 +134,52 @@
   para errores de sintaxis que `--strict` no ve; verificación visual con CDP antes de cambiar la
   integración.
 - **Sesión**: `.ai/sessions/2026-10-28d_zensical_migration/` (F6a, F6)
+
+## [Mermaid] — Entidades HTML en labels se pintan con un `&` sobrante
+
+- **Síntoma**: `H[on_post_build&#40;config&#41;]` se ve como `on_post_build&(config&)`; la regla
+  `@` → `&#64;` (sesión 2026-06-12b) pinta `Cl&@ve`. El build `--strict` pasa y Mermaid no da error.
+- **Causa** (verificada renderizando con mermaid@11 y @12 en Edge headless): Mermaid no decodifica
+  entidades HTML; su sintaxis propia es `#64;` (sin `&`). El `&` queda como texto.
+- **Diagnóstico previo correcto, remedio incorrecto**: sin comillas, `@`, `(`, `)`, `{` o `}`
+  dentro de `[...]` o `{...}` sí son parse error en v11 y v12.
+- **Tratamiento**: label entre comillas dobles (`A["Cl@ve (firma)"]`); una `"` interna → `#quot;`.
+  `#`, `#64;`, `A@{ shape: … }` y `["/ruta"]` entre comillas renderizan bien.
+- **Prevención**: `tests/test_docs_conformance.py::test_mermaid_no_html_entities` y
+  `::test_mermaid_special_chars_quoted` (detector calibrado con fixtures renderizadas).
+- **Pendiente fuera de doc_ia**: los destinos que aplicaron la regla `&#64;` (socyalpro) muestran
+  el `&`; corregir con un hotfix en cada repositorio.
+- **Sesión**: `.ai/sessions/2026-10-28e_mermaid_diagrams/` (M0)
+
+## [Mermaid] — Material y Zensical cargan versiones mayores distintas (RESUELTO: Mermaid local)
+
+- **Síntoma**: el mismo diagrama se ve distinto según el generador; en Zensical los flowchart usan
+  otro layout.
+- **Causa** (verificada en los bundles instalados): MkDocs Material 9.8.0 carga
+  `unpkg.com/mermaid@11/dist/mermaid.min.js` y Zensical 0.0.73 `unpkg.com/mermaid@12/...`. En v12
+  el flowchart usa por defecto el layout ELK y el look `neo`. Las dos son versiones mayores
+  flotantes y necesitan red, también en el ZIP offline.
+- **Tratamiento** (sesión 2026-10-28f): el sitio sirve su propia copia,
+  `docs/assets/vendor/mermaid/mermaid-12.2.0.min.js`. Los bundles de los dos temas solo descargan
+  de unpkg si `typeof mermaid=="undefined"`, así que ambos dibujan con esa versión y sin red.
+  `tests/test_mermaid_assets.py` vigila la coherencia y que el bundle instalado conserve esa
+  condición (si una actualización del tema la cambia, el fichero local dejaría de usarse).
+- **Ojo al verificar**: renderizar varios diagramas a la vez con `startOnLoad` en una página de
+  prueba con mermaid@12 los superpone; no es un fallo de la documentación. Verificar en el sitio
+  construido o diagrama a diagrama con `mermaid.render()`.
+- **Sesión**: `.ai/sessions/2026-10-28e_mermaid_diagrams/` (M5)
+
+## [Mermaid] — Material + Mermaid 12: subgrafos ilegibles en modo oscuro
+
+- **Síntoma**: con Mermaid 12 cargado por Material, los `subgraph` de los flowchart salen con
+  fondos pastel claros y el texto de sus nodos casi no se lee en el esquema `slate`.
+- **Causa** (verificada con capturas en Edge headless): Mermaid 12 cambió el tema por defecto del
+  flowchart. Zensical inicializa Mermaid con `theme: "default"` y no lo sufre; Material no pasa
+  `theme` (su integración se diseñó para v11).
+- **Tratamiento**: `docs/assets/js/mermaid-theme.js`, cargado justo después de la librería, envuelve
+  `mermaid.initialize` y añade `theme: "default"` y `themeVariables.dropShadow: "none"` (lo mismo
+  que Zensical; la configuración del tema prevalece). También fija `startOnLoad: false` en cuanto
+  carga, para que la librería no procese los bloques por su cuenta en el evento `load` y duplique
+  el render (§ CDN propio + `mermaid.run()`).
+- **Verificado**: 24/24 diagramas sin conexión, 0 SVG de error, MkDocs y Zensical, claro y oscuro.
+- **Sesión**: `.ai/sessions/2026-10-28f_mermaid_local/` (L1)

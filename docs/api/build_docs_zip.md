@@ -17,19 +17,21 @@ Distribución offline del sitio de documentación mediante dos mecanismos comple
 
 ```mermaid
 flowchart TD
+    accTitle: Flujo de build_docs_zip.py
+    accDescr: Sin --no-build ejecuta el pre-build si el generador no admite hooks, construye el sitio en modo estricto y, con Zensical, el post-build; después lee la versión, crea el ZIP y los ficheros de checksum. Con --no-build reutiliza site/ o falla si no existe.
     A[CLI: argparse] --> B{--no-build}
-    B -- No --> P{builder sin hooks?\nzensical}
-    P -- Sí --> PRE[_pre_build:\nhooks/sync_root_docs.py]
-    PRE --> C[_build: python -m builder build\ncon --strict por defecto]
+    B -- No --> P{builder sin hooks?<br/>zensical}
+    P -- Sí --> PRE[_pre_build:<br/>hooks/sync_root_docs.py]
+    PRE --> C[_build: python -m builder build<br/>con --strict por defecto]
     P -- "No, mkdocs" --> C
     C -- "exit != 0" --> X[sys.exit con código del builder]
-    C -- "OK, zensical" --> POST[_post_build:\nmkdocs_hooks.on_post_build]
+    C -- "OK, zensical" --> POST[_post_build:<br/>mkdocs_hooks.on_post_build]
     POST --> D
     B -- "Sí, sin site/" --> Y[ERROR a stderr + exit 1]
     C -- "OK, mkdocs" --> D[_version: lee pyproject.toml]
     B -- "Sí, con site/" --> D
     D --> E[_zip: shutil.make_archive sobre site/]
-    E --> F[_create_checksum_files:\n.sha256 + CHECKSUMS.txt]
+    E --> F[_create_checksum_files:<br/>.sha256 + CHECKSUMS.txt]
 ```
 
 Pipeline secuencial de funciones privadas orquestadas por `main()`; cada etapa
@@ -44,8 +46,10 @@ termina con `0`**. Ambos módulos se cargan por ruta desde la raíz del reposito
 
 ```mermaid
 flowchart TD
-    MK[mkdocs build] --> H[on_post_build&#40;config&#41;]
-    H --> Z[zipfile.ZipFile sobre site/\nexcluye .zip y .sha256]
+    accTitle: Hook on_post_build de MkDocs
+    accDescr: Tras mkdocs build, el hook empaqueta site/ con start-server.py, sin ZIP ni checksums previos, y escribe la huella SHA256 de doc_ia-docs-latest.zip.
+    MK[mkdocs build] --> H["on_post_build(config)"]
+    H --> Z[zipfile.ZipFile sobre site/<br/>excluye .zip y .sha256]
     Z --> S[start-server.py incluido en ZIP]
     S --> C2[hashlib.sha256 → .zip.sha256]
     C2 --> OUT[site/doc_ia-docs-latest.zip]

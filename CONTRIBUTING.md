@@ -91,6 +91,27 @@ el build de paridad con Zensical, que es informativo mientras Zensical esté en 
 `drift` falla, revisa la página contra el cambio de la fuente y re-séllala con
 `python scripts/doc_trace.py stamp <página>`.
 
+El job `mermaid` del mismo workflow pasa cada página de `docs/` con diagramas por el parser real
+de Mermaid (`@mermaid-js/mermaid-cli`) con la misma versión que sirve el sitio;
+`mkdocs build --strict` no detecta esos errores. Las reglas deterministas de los diagramas
+(accesibilidad, ≤12 nodos, comillas, sin entidades HTML) las comprueba
+`tests/test_docs_conformance.py`.
+
+#### Actualizar Mermaid
+
+El sitio sirve su propia copia de Mermaid (`docs/assets/vendor/mermaid/`) para que los diagramas
+se vean sin conexión. Para cambiar de versión, elige una publicada hace al menos dos semanas y:
+
+1. Descarga el paquete y copia el fichero tal cual:
+   `npm pack mermaid@X.Y.Z` → del tarball, `package/dist/mermaid.min.js` a
+   `docs/assets/vendor/mermaid/mermaid-X.Y.Z.min.js`; borra la versión anterior y actualiza
+   `LICENSE` y `SOURCE.txt` (origen, integridad del tarball y SHA256 del fichero).
+2. Cambia la versión en `mkdocs.yml` y `.github/templates/TEMPLATE_mkdocs.yml`
+   (`extra_javascript`), en la matriz del job `mermaid` de `ci.yml` (con una versión de
+   `@mermaid-js/mermaid-cli` compatible) y la huella en `tests/test_mermaid_assets.py`.
+3. Ejecuta `python -m pytest tests/test_mermaid_assets.py` (falla si algo no coincide) y revisa
+   los diagramas en claro y oscuro con los dos generadores.
+
 ### 5.1 Sincronización Visual de mkdocs.yml (para Nuevos Proyectos)
 
 #### Contexto
@@ -124,14 +145,15 @@ cp .github/templates/TEMPLATE_mkdocs.yml <destino>/mkdocs.yml
 Cuando documentes un nuevo proyecto con `/document-project`, verifica:
 
 - [ ] **mkdocs.yml existe**: Si no, copiar desde `.github/templates/TEMPLATE_mkdocs.yml`
-- [ ] **extra_javascript**: Incluye `assets/js/sidebar-toggle.js` y **no** incluye el CDN de Mermaid ni `assets/js/mermaid.js` (duplican el render)
+- [ ] **extra_javascript**: Incluye, en este orden, `assets/js/sidebar-toggle.js`, `assets/vendor/mermaid/mermaid-12.2.0.min.js` y `assets/js/mermaid-theme.js`, y **no** incluye el CDN de Mermaid ni `assets/js/mermaid.js` (duplican el render)
 - [ ] **markdown_extensions**: `pymdownx.superfences` con `custom_fences` para `mermaid` (imprescindible para los diagramas)
 - [ ] **extra_css**: Incluye `assets/css/mermaid.css`
 - [ ] **extra_css**: Incluye `assets/css/nav.css`
-- [ ] **Archivos existen**: Verificar que los 2 archivos personalizados existen en `docs/assets/`:
+- [ ] **Archivos existen**: Verificar que los recursos existen en `docs/assets/`:
   ```bash
-  ls docs/assets/js/sidebar-toggle.js
-  ls docs/assets/css/nav.css
+  ls docs/assets/js/sidebar-toggle.js docs/assets/js/mermaid-theme.js
+  ls docs/assets/css/nav.css docs/assets/css/mermaid.css
+  ls docs/assets/vendor/mermaid/   # mermaid-<versión>.min.js, LICENSE, SOURCE.txt
   ```
 - [ ] **Build válido**: `python -m mkdocs build --strict` sin warnings
 - [ ] **Navegación funcional**: Verificar que sidebar toggle y estilos de nav funcionan
@@ -144,7 +166,7 @@ Si los archivos `sidebar-toggle.js` y `nav.css` no existen:
 # Opción 1: Copiar desde proyecto hermano (si aplica)
 cp -r <origen>/docs/assets/* <destino>/docs/assets/
 
-# Opción 2: Crear vacíos (fallback)
+# Opción 2: Crear vacíos (fallback; nunca para Mermaid: sin la librería no hay diagramas)
 mkdir -p docs/assets/{js,css}
 touch docs/assets/js/sidebar-toggle.js
 touch docs/assets/css/nav.css

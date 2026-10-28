@@ -42,7 +42,8 @@ Pasos numerados:
 6. Proceso de review (tiempos estimados si aplica)
 7. Criterio de merge
 Si el proyecto tiene un flujo de branching con múltiples ramas (feature, fix, release),
-incluir un diagrama `gitgraph` Mermaid que muestre el modelo de fork/branch/PR/merge.
+se puede incluir un diagrama `gitgraph` Mermaid (opcional, §3.17 del estándar) que muestre el
+modelo de fork/branch/PR/merge.
 Omitir si el flujo es trivial (solo commits a main).
 
 ## 4. Convenciones de Código y Commits

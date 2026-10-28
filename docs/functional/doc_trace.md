@@ -36,6 +36,8 @@ la red, y el mismo repositorio produce siempre el mismo resultado.
 
 ```mermaid
 sequenceDiagram
+    accTitle: Sellado y detección de drift
+    accDescr: El desarrollador sella una página con las huellas de sus fuentes; más tarde, la comprobación recalcula las huellas y falla si alguna no coincide o la fuente falta.
     actor Dev as Desarrollador o CI
     participant Tr as Trazabilidad
     participant Doc as Documentación

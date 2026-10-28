@@ -86,7 +86,7 @@ Lista: herramientas, parámetros, ficheros o estado requeridos antes de usar la 
 Tabla: | Rol | Puede | No puede |
 
 ## 3. Flujo Principal
-Diagrama Mermaid (sequenceDiagram o stateDiagram-v2, máx. 12 nodos) + párrafo paso a paso.
+Diagrama Mermaid (sequenceDiagram, stateDiagram-v2 o flowchart TD de decisiones; §3.17) + párrafo paso a paso.
 
 ## 4. Postcondiciones y Efectos
 Estado observable tras la operación: ficheros creados/modificados, artefactos, estado persistido.
@@ -130,7 +130,7 @@ Tabla: | Capacidad | Módulo(s) | Página funcional | Criterios | Tests |
 (Criterios: rango de IDs AC-xx; Tests: nº de criterios con test / total)
 
 ## 2. Recorridos Transversales
-Flujos de usuario que cruzan ≥2 módulos: Mermaid (máx. 12 nodos) + párrafo por recorrido.
+Flujos de usuario que cruzan ≥2 módulos: Mermaid (§3.17) + párrafo por recorrido.
 
 ## 3. Actores y Permisos
 Tabla global: | Rol | Capacidades | Restricciones |  — "No aplica" si no hay roles.
@@ -141,9 +141,8 @@ Términos de dominio compartidos por ≥2 módulos (los propios de un módulo qu
 ??? note "Evidencia"
 ```
 
-**Diagramas recomendados**: `sequenceDiagram` (flujo principal), `flowchart TD` (decisiones),
-`stateDiagram-v2` (cuando el módulo tiene un ciclo de vida con estados discretos y transiciones).
-Ver criterios de selección y niveles de prescripción en `docs.instructions.md`.
+**Diagramas**: perspectiva del usuario, sin nombres internos. Tipos, tamaño, etiquetas y
+accesibilidad en §3.17.
 
 ---
 
@@ -165,9 +164,8 @@ Ver criterios de selección y niveles de prescripción en `docs.instructions.md`
 [Párrafo introductorio de una frase: responsabilidad exacta del módulo.]
 
 ## 1. Arquitectura y Diseño
-Diagrama Mermaid (flowchart TD, classDiagram, sequenceDiagram, architecture-beta,
-stateDiagram-v2 o erDiagram). Máximo 12 nodos. Ver criterios de selección y niveles
-de prescripción en docs.instructions.md.
+Diagrama Mermaid de la estructura interna (flowchart, stateDiagram-v2, classDiagram o
+erDiagram). Tipos, tamaño, etiquetas y accesibilidad en §3.17.
 
 ## 2. Modelo de Datos / Contratos
 ### API pública
@@ -209,7 +207,7 @@ el Arquetipo 2 la enlaza, no la duplica.
 
 **Regla de sección vacía**: Si un subapartado queda vacío, escribe `*No aplica para este módulo.*`.
 
-**Diagramas recomendados**: Ver tabla en `docs.instructions.md` y en `technical_doc.prompt.md`.
+**Diagramas**: §3.17.
 
 ---
 
@@ -410,7 +408,7 @@ Estas páginas entran directamente en `nav:` (nivel raíz), no bajo `functional/
 ## 7. Mapa del Código                 — árbol simplificado, responsabilidad por módulo/paquete, regla de capas
 ## 8. Convenciones y Herramientas     — lint, format, tipos, tests — verificar contra SHARED_INSTRUCTIONS.md
 ## 9. Flujo de Trabajo Git            — ramas, Conventional Commits, PR/MR
-                                        Diagrama recomendado: `gitgraph` cuando el proyecto
+                                        Diagrama opcional: `gitgraph` cuando el proyecto
                                         tiene branching definido (main + feature + release)
 ## 10. Verificación del Entorno       — tabla: Verificación | Comando | Output esperado
 ## 11. Recursos y Referencias         — .ai/*.md, docs/ relevantes, normativa, contacto
@@ -982,6 +980,104 @@ se revisa la página contra el cambio de la fuente. Falso positivo conocido: cam
 
 ---
 
+### 3.17 Diagramas Mermaid (transversal a todos los arquetipos)
+
+**Propósito**: fuente única de las reglas de diagramas. `docs.instructions.md`, los prompts de
+arquetipo y los agentes remiten a esta sección en lugar de repetirla.
+
+**Versión de Mermaid**: el sitio sirve su propia copia, con versión exacta
+(`docs/assets/vendor/mermaid/mermaid-<versión>.min.js`, hoy 12.2.0), seguida de
+`assets/js/mermaid-theme.js`. Material y Zensical solo descargan Mermaid de unpkg si no existe
+`window.mermaid`, así que con la copia local los dos generadores dibujan con la misma versión y
+el ZIP offline muestra los diagramas sin conexión. En v12 el flowchart usa por defecto el layout
+ELK. No se añade CDN propio ni `mermaid.run()` (§4).
+
+#### Selección de tipo
+
+| Tipo | Úsalo cuando | Nivel | Colores del tema |
+|---|---|---|---|
+| `sequenceDiagram` | Varios actores intercambian peticiones y respuestas en un orden | OBLIGATORIO | ✅ |
+| `flowchart TD` / `LR` | Decisiones, pipelines con ramas, contexto o despliegue | OBLIGATORIO | ✅ |
+| `stateDiagram-v2` | Una entidad o proceso pasa por estados con nombre y transiciones | RECOMENDADO | ✅ |
+| `classDiagram` | La jerarquía de clases importa al consumidor | RECOMENDADO | ✅ |
+| `erDiagram` | Modelo de datos verificable en el código (relacional o de artefactos) | RECOMENDADO (condicional) | ✅ |
+| `gitgraph` | Estrategia de ramas de contribución | OPCIONAL | ❌ |
+| `mindmap`, `timeline`, `quadrantChart` | Jerarquía de conceptos, hitos o matriz de 2 ejes con datos reales | OPCIONAL | ❌ |
+| `architecture-beta` | Topología física con iconos (beta: no renderiza en GitHub ni en VS Code) | OPCIONAL | ❌ |
+
+OBLIGATORIO: la sección del arquetipo exige un diagrama y será de uno de estos tipos.
+RECOMENDADO: úsalo cuando el patrón del módulo lo justifique. OPCIONAL: solo si aporta valor
+demostrable. "Colores del tema" = MkDocs Material (y Zensical) adaptan el diagrama al modo claro u
+oscuro; los tipos ❌ funcionan pero sin esa adaptación y se ven mal en móvil. Excluidos por
+experimentales: C4, `kanban`, `sankey`, `radar`, `venn`, `ishikawa`, `wardley`, `treemap`,
+`treeview`, `packet`, `block`, `event modeling`.
+
+**Cuándo no diagramar**: decisiones independientes entre sí o mapeos 1→N sin flujo (p. ej.
+"arquetipo → prompt") van en una **tabla**; un diagrama solo aporta cuando hay orden, ramas o
+relaciones.
+
+#### Una vista por arquetipo
+
+| Arquetipo | Perspectiva | Tipos | Nombres internos |
+|---|---|---|---|
+| 1 Funcional §3 · 1-I §2 | Lo que vive el usuario | `sequenceDiagram` (actores), `stateDiagram-v2` (estados), `flowchart TD` (decisiones sin actores) | No |
+| 2 Técnica §1 | Estructura interna | `flowchart` (llamadas o pipeline), `stateDiagram-v2`, `classDiagram`, `erDiagram` | Sí (símbolos del código) |
+| 6 Navegación | Contexto o resumen | `flowchart`, máximo 8 nodos | No |
+| 12 Referencia | Modelo de datos o artefactos | `erDiagram`, `classDiagram` | Sí |
+
+Un mismo proceso no se dibuja igual en dos arquetipos: cada uno muestra su perspectiva y la
+página de navegación enlaza a ellas en lugar de repetirlas.
+
+#### Tamaño
+
+Máximo **12 nodos** (8 en el Arquetipo 6). Cómo se cuentan: `flowchart` = IDs de nodo distintos
+(los `subgraph` no cuentan); `sequenceDiagram` = participantes y actores; `stateDiagram-v2` =
+estados declarados, incluidos los de dentro de un compuesto (`[*]` no cuenta); `erDiagram` y
+`classDiagram` = entidades o clases. Si se supera: dividir en dos diagramas con una frase que los
+enlace, agrupar y sacar el detalle a otro diagrama, o pasar a tabla si no hay flujo.
+
+#### Etiquetas
+
+- Idioma del destino. Saltos de línea con `<br/>` (`\n` funciona, pero no está documentado).
+- Label con `@`, `(`, `)`, `{`, `}` o que empieza por `/` → **entre comillas dobles**
+  (`A["Cl@ve (firma)"]`, `B["/opt/data"]`); una `"` interna se escribe `#quot;`. **Prohibidas las
+  entidades HTML** (`&#64;`): Mermaid no las decodifica y pinta un `&` sobrante.
+- Sin comillas, `[/texto/]` es un nodo paralelogramo: una `/` inicial sin cierre rompe el diagrama.
+- `subgraph id[título]` con ID alfanumérico sin guiones; prohibido `subgraph id[(título)]`.
+- En diagramas de contexto y despliegue, las flechas llevan la relación como etiqueta
+  (`DEV -- usa --> CHAT`).
+
+#### Accesibilidad
+
+Todo bloque declara, justo después del tipo, `accTitle:` (una línea) y `accDescr:` (una línea) o
+`accDescr { … }` (varias). Mermaid los convierte en `<title>`/`<desc>` del SVG con `aria-*` para
+lectores de pantalla. No sustituyen al párrafo explicativo que pida el arquetipo.
+
+```mermaid
+flowchart LR
+    accTitle: Flujo de publicación
+    accDescr: El desarrollador construye el sitio y CI publica el ZIP en la release.
+    DEV[Desarrollador] -- construye --> SITE[Sitio]
+    SITE -- publica --> REL[Release]
+```
+
+#### Estilo y contenido
+
+- Sin `style`, `classDef` ni `linkStyle` con colores fijos, ni tema en frontmatter: romperían el
+  modo oscuro.
+- Nunca diagramas ASCII (`┌─┐`, `──>`): sustituirlos por un bloque Mermaid equivalente.
+- Solo flujos e interacciones presentes en el código real; si un paso no se puede inferir, se
+  documenta la incertidumbre en lugar de inventarlo.
+
+#### Validación
+
+`mkdocs build --strict` no valida Mermaid. Si el destino tiene tests de conformidad, cubren las
+reglas deterministas (entidades, comillas, accesibilidad, tamaño) y un job de CI con
+`@mermaid-js/mermaid-cli` valida la sintaxis con el parser real. En doc_ia:
+`tests/test_docs_conformance.py::test_mermaid_*` y el job `mermaid` de `.github/workflows/ci.yml`.
+
+---
+
 ## 4. Configuración Recomendada mkdocs.yml
 
 La siguiente configuración es la **referencia estándar** para todos los proyectos.
@@ -1124,9 +1220,11 @@ extra:
     # - icon: fontawesome/brands/python
     #   link: https://pypi.org/project/[nombre]/
 
-# Mermaid: integración nativa del tema vía pymdownx.superfences custom_fences (sin CDN propio)
+# Mermaid: integración nativa del tema vía pymdownx.superfences custom_fences, con copia local
 extra_javascript:
   - assets/js/sidebar-toggle.js # ← copia desde doc_ia/docs/assets/
+  - assets/vendor/mermaid/mermaid-12.2.0.min.js  # ← ídem; antes de mermaid-theme.js
+  - assets/js/mermaid-theme.js  # ← ídem
 
 extra_css:
   - assets/css/mermaid.css  # ← copia desde doc_ia/docs/assets/
@@ -1135,9 +1233,9 @@ extra_css:
 
 **Notas críticas:**
 - `!!python/name:` genera advertencias en linters YAML estándar — falso positivo; válido para MkDocs.
-- Sin `custom_fences` de `mermaid` en `pymdownx.superfences`, los diagramas salen como bloque de código aunque el build pase. Con él, el tema (Material o Zensical) carga Mermaid y lo renderiza con los colores del esquema claro/oscuro. **No** añadir el CDN de Mermaid ni un `mermaid.run()` propio: el render se duplica y deja SVG de error ocultos (`.claude/EDGE_CASES.md § Mermaid`).
+- Sin `custom_fences` de `mermaid` en `pymdownx.superfences`, los diagramas salen como bloque de código aunque el build pase. Con él, el tema (Material o Zensical) renderiza con la copia local de Mermaid (§3.17) y los colores del esquema claro/oscuro, también sin conexión. **No** añadir el CDN de Mermaid ni un `mermaid.run()` propio: el render se duplica y deja SVG de error ocultos (`.claude/EDGE_CASES.md § Mermaid`).
 - `navigation.sections` y `navigation.tabs` son compatibles técnicamente, pero con tabs activados los grupos de área se muestran en la sidebar del tab activo; `navigation.sections` no aporta valor adicional. No incluir ambos.
-- Los tres assets (`assets/js/sidebar-toggle.js`, `assets/css/mermaid.css`, `assets/css/nav.css`) deben copiarse desde `doc_ia/docs/assets/` sin modificación.
+- Los cinco recursos (`assets/js/sidebar-toggle.js`, `assets/css/mermaid.css`, `assets/css/nav.css`, `assets/vendor/mermaid/` y `assets/js/mermaid-theme.js`) deben copiarse desde `doc_ia/docs/assets/` sin modificación; una librería Mermaid de otra versión se sustituye.
 - La indentación de `nav:` usa **4 espacios extra por nivel**: secciones a 2 espacios, ítems de primer nivel a 6, segundo nivel a 10.
 
 ---
@@ -1303,6 +1401,7 @@ La estandarización se considera **completa** cuando:
 - [ ] Si el proyecto acepta contribuciones: `CONTRIBUTING.md` existe en raíz y enlaza desde README (Arquetipo 11)
 - [ ] Si el sistema expone configuración, CLI, códigos de salida o interfaces: existe `docs/reference/` (Arquetipo 12)
 - [ ] Las páginas de los Arquetipos 1, 2 y 12 terminan con el bloque plegable "Evidencia" y sus citas usan `ruta::símbolo` en código inline (§3.16)
+- [ ] Cada diagrama Mermaid declara `accTitle`/`accDescr`, no supera 12 nodos (8 en Arquetipo 6), no usa entidades HTML y no repite el diagrama de otro arquetipo (§3.17)
 
 ---
 

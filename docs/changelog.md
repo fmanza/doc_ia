@@ -5,6 +5,36 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+### Added
+
+- **Regla transversal de diagramas** (`DOCUMENTATION_STANDARD.md` §3.17): fuente única de las
+  reglas Mermaid (tipo por arquetipo con columna de colores del tema, una vista por arquetipo,
+  máximo 12 nodos y 8 en el Arquetipo 6, etiquetas, accesibilidad, estilo y validación).
+- **Tests de conformidad de diagramas**: sin entidades HTML, labels especiales entre comillas,
+  `accTitle`/`accDescr` obligatorios y tamaño máximo (criterios AC-11 a AC-13).
+- **Job `mermaid` en CI**: valida cada página de `docs/` con el parser real
+  (`@mermaid-js/mermaid-cli`) y la misma versión que sirve el sitio.
+- **Mermaid servido en local** (`docs/assets/vendor/mermaid/mermaid-12.2.0.min.js` +
+  `assets/js/mermaid-theme.js`): los diagramas del sitio y del ZIP offline se dibujan sin conexión,
+  con la misma versión en MkDocs Material y Zensical. `tests/test_mermaid_assets.py` vigila versión,
+  huella, orden de carga, coherencia con CI y el cargador del tema (AC-10 del ZIP offline).
+- **Producto**: la Fase 0b de `/document-project` sincroniza cinco recursos en vez de tres y lleva
+  Mermaid local a los proyectos documentados.
+
+### Changed
+
+- Rediseño de 9 diagramas que superaban 12 nodos o repetían el mismo flujo en varios
+  arquetipos (document_project, convert_to_md, archetypes, origin_types, doc_trace); los 24
+  diagramas declaran título y descripción accesibles.
+- `gitgraph` y `architecture-beta` pasan a OPCIONAL; la "Arquitectura física" usa `flowchart LR`
+  con `subgraph`; el Arquetipo 1 §3 admite `flowchart TD` de decisiones.
+
+### Fixed
+
+- La regla `@` → `&#64;` pintaba un `&` sobrante (Mermaid no decodifica entidades HTML): las
+  labels con `@ ( ) { }` van entre comillas. Corregido `on_post_build(config)` en
+  `docs/api/build_docs_zip.md`.
+
 ## [0.2.0] — 2026-10-28
 
 ### Added

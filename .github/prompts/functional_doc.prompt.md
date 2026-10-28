@@ -55,10 +55,13 @@ Tabla: | Rol | Puede | No puede |
 Si no hay roles: omitir esta subsección (no escribir "No aplica").
 
 ## 3. Flujo Principal
-Diagrama Mermaid: usa `sequenceDiagram` para flujo I/O con actores secuenciales, o
-`stateDiagram-v2` cuando el módulo tiene un ciclo de vida con estados discretos y
-transiciones (ej: fases de un pipeline, estados de un documento). Ajustar actores/estados
-al módulo real (eliminar los que no participen). Máximo 12 nodos.
+Diagrama Mermaid desde la perspectiva del usuario (reglas en `DOCUMENTATION_STANDARD.md`
+§3.17): `sequenceDiagram` para flujo I/O con actores secuenciales, `stateDiagram-v2` cuando el
+módulo tiene un ciclo de vida con estados discretos y transiciones (ej: fases de un pipeline,
+estados de un documento), o `flowchart TD` cuando el flujo son decisiones sin actores. Ajustar
+actores/estados al módulo real (eliminar los que no participen). Máximo 12 nodos; `accTitle` y
+`accDescr` obligatorios; sin nombres internos. Si la página técnica del módulo ya dibuja el
+mismo proceso, mostrar aquí la vista de usuario, no la misma.
 Marca los puntos de decisión (alt/opt/loop) con el criterio de bifurcación en la nota.
 Tras el diagrama: párrafo en lenguaje natural describiendo el flujo paso a paso.
 
@@ -188,7 +191,7 @@ Tabla: | Capacidad | Módulo(s) | Página funcional | Criterios | Tests |
 Una fila por página funcional. Criterios = rango de IDs AC; Tests = "n/total" con test.
 ## 2. Recorridos Transversales
 Solo flujos que crucen ≥2 módulos y estén verificados en las páginas por módulo.
-Mermaid (máx. 12 nodos) + un párrafo por recorrido.
+Mermaid (§3.17) + un párrafo por recorrido.
 ## 3. Actores y Permisos
 Consolidación de las subsecciones "Actores y permisos" de las páginas; "*No aplica para este
 sistema.*" si ninguna las tiene.
@@ -208,7 +211,8 @@ Para generar únicamente el diagrama de secuencia de un módulo:
 Basándote en la lógica del módulo [Nombre], genera exclusivamente el código Mermaid.js
 para un diagrama de secuencia que ilustre la interacción entre los actores y el sistema,
 omitiendo detalles de implementación (clases internas, rutas, variables).
-Usa etiquetas en español. Máximo 12 nodos. Incluye puntos de decisión relevantes.
+Usa etiquetas en español. Máximo 12 nodos. Incluye puntos de decisión relevantes,
+accTitle y accDescr. Aplica DOCUMENTATION_STANDARD.md §3.17.
 ```
 
 ## Output esperado
@@ -216,7 +220,7 @@ Usa etiquetas en español. Máximo 12 nodos. Incluye puntos de decisión relevan
 Un fichero Markdown con:
 - Título H1
 - 8 secciones numeradas (`## 1.` — `## 8.`)
-- Al menos un diagrama Mermaid (`sequenceDiagram` o `stateDiagram-v2`) en `## 3.`
+- Al menos un diagrama Mermaid (`sequenceDiagram`, `stateDiagram-v2` o `flowchart TD`) en `## 3.`, con `accTitle`/`accDescr`
 - Tabla en `## 5.` con 3 columnas
 - `## 7.` con tabla Given/When/Then (`| ID | Dado | Cuando | Entonces | Test |`) y/o placeholder QA estructurado
 - `## 8.` con tabla de términos o `*No aplica para este módulo.*`

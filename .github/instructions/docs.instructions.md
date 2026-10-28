@@ -159,9 +159,11 @@ extra:
     # - icon: fontawesome/brands/python
     #   link: https://pypi.org/project/<nombre>/
 
-# Mermaid: integración nativa del tema vía pymdownx.superfences custom_fences (sin CDN propio)
+# Mermaid: integración nativa del tema vía pymdownx.superfences custom_fences, con copia local
 extra_javascript:
   - assets/js/sidebar-toggle.js  # botón ◀/▶ para ocultar/mostrar sidebar
+  - assets/vendor/mermaid/mermaid-12.2.0.min.js  # librería, siempre antes de
+  - assets/js/mermaid-theme.js  # startOnLoad:false + theme default
 
 extra_css:
   - assets/css/mermaid.css
@@ -170,12 +172,16 @@ extra_css:
 
 **Notas críticas:**
 - `!!python/name:` genera advertencias en linters YAML estándar; es válido para MkDocs (falso positivo).
-- Sin `custom_fences` de `mermaid` en `pymdownx.superfences`, los bloques mermaid salen como código resaltado y **no se renderizan**. Con él, el tema carga Mermaid por sí mismo. **No** añadir el CDN de Mermaid ni un `mermaid.run()` propio: duplican el render (`.claude/EDGE_CASES.md § Mermaid`).
+- Sin `custom_fences` de `mermaid` en `pymdownx.superfences`, los bloques mermaid salen como código resaltado y **no se renderizan**. Con él, el tema renderiza con la copia local de Mermaid (usa `window.mermaid` si existe y no descarga nada, así que los diagramas se ven sin conexión). **No** añadir el CDN de Mermaid ni un `mermaid.run()` propio: duplican el render (`.claude/EDGE_CASES.md § Mermaid`).
 - `pymdownx.snippets.base_path: [docs]` → las rutas en `--8<--` son **relativas a `docs/`** (no a la raíz del repo). Ejemplo: `--8<-- "examples/mi_snippet.py"`, no `--8<-- "docs/examples/mi_snippet.py"`.
-- Los tres assets se copian íntegros desde `doc_ia/docs/assets/` sin modificación:
+- Los cinco recursos se copian íntegros desde `doc_ia/docs/assets/` sin modificación:
   - `sidebar-toggle.js` — botón ◀/▶ fijo en desktop para ocultar/mostrar la sidebar; persiste en `localStorage`; desactivado automáticamente en móvil (viewport < 76.1875em)
   - `mermaid.css` — centrado y responsive de SVGs Mermaid
   - `nav.css` — grupos colapsables + `.md-grid { max-width: min(90vw, 1600px) }` + CSS del toggle
+  - `vendor/mermaid/` — librería Mermaid con versión exacta (`mermaid-<versión>.min.js`), `LICENSE` y
+    `SOURCE.txt`; una versión distinta en el destino se sustituye
+  - `mermaid-theme.js` — `startOnLoad: false` (evita el render propio de la librería) y
+    `theme: "default"` (con Mermaid 12, Material dejaba los subgrafos ilegibles en modo oscuro)
 - `mkdocstrings` solo si el proyecto tiene código Python con docstrings; comentado por defecto.
 
 ### Agrupación en subsecciones por área
@@ -268,112 +274,33 @@ Al añadir una clase nueva a `__all__`, añadir también su directiva — export
 
 ## Visualización: Mermaid.js
 
-Usa **Mermaid.js** para diagramas: texto plano que el renderer convierte en cajas y flechas.
+Usa **Mermaid.js** para diagramas: texto plano que el tema convierte en SVG. Las reglas completas
+(selección de tipo, una vista por arquetipo, máximo 12 nodos, etiquetas, accesibilidad, estilo y
+validación) viven en [`DOCUMENTATION_STANDARD.md` §3.17](../DOCUMENTATION_STANDARD.md) y **no se
+duplican aquí**. Recordatorio de lo que rompe el render o la conformidad:
 
-### Criterios de selección de diagrama
+- `accTitle:` y `accDescr:` en todo bloque, justo después del tipo.
+- Máximo 12 nodos (8 en páginas del Arquetipo 6); si no hay flujo, tabla en vez de diagrama.
+- Labels con `@`, `(`, `)`, `{`, `}` o `/` inicial, entre comillas dobles; nunca entidades HTML
+  (`&#64;` se pinta como `&@`).
+- Saltos de línea con `<br/>`; sin `style`/`classDef` de colores fijos (modo oscuro).
+- Nunca diagramas ASCII; solo flujos presentes en el código real.
 
-| Tipo | Úsalo cuando | Nivel |
-|---|---|---|
-| `sequenceDiagram` | El módulo procesa requests/responses o tiene flujo I/O claro con pasos ordenados | OBLIGATORIO |
-| `flowchart TD` | El módulo tiene lógica de decisión o pipeline de transformación con ramificaciones | OBLIGATORIO |
-| `classDiagram` | El módulo expone una jerarquía de clases relevante para el consumidor | RECOMENDADO |
-| `architecture-beta` | El módulo o proyecto incluye infraestructura física: Web API, servidor web, base de datos o contenedores Docker — muestra la topología de servicios y sus conexiones | RECOMENDADO |
-| `stateDiagram-v2` | El módulo o flujo tiene estados discretos con transiciones (ciclo de vida de documento, fases de pipeline, estados de PR/MR) | RECOMENDADO |
-| `gitgraph` | La documentación describe una estrategia de branching o flujo de contribución con ramas (main + feature + release) | RECOMENDADO |
-| `erDiagram` | El módulo expone un modelo de datos relacional (ORM, schemas SQL, entidades con FK) — solo si es verificable en el código | RECOMENDADO (condicional) |
-| `mindmap` | Se necesita una visión jerárquica de conceptos o módulos sin relaciones de flujo; complementa tablas, no las sustituye | OPCIONAL |
-| `quadrantChart` | Se dispone de datos cuantitativos para una matriz de 2 ejes (impacto/esfuerzo, madurez/cobertura) | OPCIONAL |
-| `timeline` | Se documenta un historial cronológico con hitos significativos (log de ADR, roadmap de versiones) | OPCIONAL |
+### Estructura del documento (headings y listas)
 
-### Niveles de prescripción
-
-| Nivel | Significado |
-|---|---|
-| OBLIGATORIO | El tipo de diagrama es parte del contrato del arquetipo; la sección lo requiere |
-| RECOMENDADO | Usar este tipo cuando el patrón del módulo lo justifique; no forzar si no encaja |
-| OPCIONAL | Disponible para casos específicos; no esperado en la mayoría de documentos |
-
-Solo los tipos listados como OBLIGATORIO o RECOMENDADO están contemplados en los prompts de
-arquetipo. Los OPCIONAL se aplican a criterio del documentador cuando aportan valor visual
-demostrable. Todos los tipos incluidos son **estables en Mermaid v11**; los tipos en estado
-beta (`kanban`, `sankey`, `radar`, `venn`, `ishikawa`, `wardley`, `treemap`, `treeview`,
-`packet`, `block`, `event modeling`) quedan excluidos por riesgo de rotura entre versiones.
-
-### Reglas de diagramas
-
-#### Límites y legibilidad
-- Máximo 12 nodos para legibilidad sin zoom.
-- **Nunca uses diagramas ASCII** (cajas con `┌─┐│└─┘` o flechas con `──>`). Son
-  frágiles en proportional fonts, no escalan y no se renderizan en MkDocs ni GitHub.
-  Sustituye cualquier diagrama ASCII existente por un bloque Mermaid equivalente.
-
-#### Etiquetas y lenguaje
-- Etiquetas en español para actores y acciones.
-- Sin nombres de variables internas, rutas de implementación, puertos ni nombres de base de datos.
-
-#### Sintaxis y formato
-- Valida que el Mermaid generado sea sintácticamente correcto antes de guardar.
-- Usa bloques fenced ` ```mermaid ` (compatible con MkDocs Material y GitHub).
-- **`flowchart TD` para arquitecturas en capas o pipelines con bifurcación**: cuando
-  el diagrama muestra capas verticales y tiene al menos un nodo de decisión o dos ramas
-  paralelas, `flowchart TD` es siempre preferible a `sequenceDiagram`. Incluye el ciclo
-  de respuesta (flecha de vuelta) para que el flujo completo quede visible.
-
-#### Contenido basado en código real
-- Solo genera diagramas basados en el código real; no inventes flujos ni interacciones.
-
-#### Estructura del documento (headings y listas)
-- **Nunca uses texto en negrita como pseudo-subheading antes de listas** (`**Componente:**\n- item`).
+- **Nunca uses texto en negrita como pseudo-subheading antes de listas** (`**Componente:**
+- item`).
   En MkDocs y VSCode preview los bloques se mezclan visualmente. Usa `####` para subsecciones
   reales, o un diagrama Mermaid si los componentes tienen relación entre sí. Cuando hay tres o
   más componentes con responsabilidades distintas y flujo entre ellos, un `flowchart TD` con
   subgraphs es siempre más claro que listas de bullets independientes.
-- **Para listas de características o features, usa `####` + lista** (nunca `**Label:**\n- item`).
+- **Para listas de características o features, usa `####` + lista** (nunca `**Label:**
+- item`).
   No añadas ✅/❌ inline si el contexto ya deja claro que son características activas — reserva
   los emojis para tablas comparativas.
 - **Para listas de validaciones o parámetros, usa siempre una tabla**, no bullets. Una tabla
   con columnas `Campo | Requerido | Regla` separa cada dimensión y se renderiza correctamente.
   El subheading debe ser `####` (no negrita) seguido de una línea en blanco antes de la tabla.
-
-### Reglas de `architecture-beta`
-
-- **Labels `[]`**: solo alfanuméricos, espacios y guiones. Nunca `+`, `#`, `&`, `(`, `)` ni símbolos especiales.
-  `[uvicorn + FastAPI]` ❌ — `[uvicorn FastAPI]` ✅
-- **IDs de servicio**: el ID nunca puede ser igual al nombre del icono.
-  `service server(server)` ❌ — `service webserver(server)` ✅
-- **Conectores**: usa `A:R -- L:B` (doble guión). El conector `-->` es de `flowchart`, no de `architecture-beta`.
-- **Iconos integrados en Mermaid 11**: `cloud`, `database`, `disk`, `internet`, `server`. No uses otros sin verificar que existen.
-- **Compatibilidad**: renderiza en MkDocs Material. No renderiza en VS Code preview ni en GitHub Markdown preview.
-
-### Reglas de `stateDiagram-v2`
-
-- Usar `stateDiagram-v2` (no `stateDiagram` sin sufijo) para acceder a la sintaxis completa.
-- Las etiquetas de estado deben ser descriptivas: `VALIDACION`, `INVENTARIO`, no `s1`, `s2`.
-- Máximo 10 estados para legibilidad. Si el ciclo tiene más, agrupar con `state "nombre" as grupo { }`.
-- Las transiciones deben llevar la acción o condición que las dispara: `PLAN --> AUDIT : aprobado`.
-- Usar `[*]` para estados inicial y final.
-- Etiquetas en español para estados y transiciones.
-- **Cuándo NO usar**: si el flujo es un pipeline lineal sin estados nombrados ni transiciones
-  condicionales, preferir `flowchart TD`. La distinción clave: `stateDiagram` modela *en qué
-  estado está la entidad*; `flowchart` modela *qué pasos ejecuta el proceso*.
-
-### Reglas de `gitgraph`
-
-- Usar para visualizar la estrategia de branching del proyecto, no commits individuales.
-- Incluir solo las ramas típicas (`main`, `develop`, `feature/*`, `fix/*`, `release/*`); no ramas concretas con nombres de ticket.
-- Las etiquetas de commit deben ser descriptivas: `id: "feat: X"`, `id: "fix: Y"`.
-- Usar `tag:` para marcar releases: `merge develop tag: "v1.0"`.
-- No usar para proyectos con flujo de trabajo trivial (solo rama `main` sin estrategia).
-- **Compatibilidad**: renderiza en MkDocs Material y GitHub. No renderiza en VS Code preview.
-
-### Reglas de `erDiagram`
-
-- Solo cuando el modelo de datos relacional es verificable en el código (ORM models, DDL, schemas).
-- Las entidades corresponden a clases/tablas exportadas, no a implementación interna.
-- Las relaciones usan la notación de cardinalidad de Mermaid: `||--o{`, `}o--||`, `||--|{`, `}|--||`.
-- Incluir los atributos principales de cada entidad (PK, FK, campos de negocio); omitir campos internos (`created_at`, `updated_at`).
-- Etiquetas de entidad y atributo en español cuando el proyecto documental sea en español.
-- No inventar entidades ni relaciones no presentes en el código real.
 
 ### Sección de Arquitectura física (condicional)
 
@@ -387,23 +314,26 @@ proyecto documentado incluya cualquiera de:
 | Base de datos | `SQLAlchemy`, `psycopg2`, `pymongo`, `redis`, `sqlite3`, `alembic` |
 | Contenedores | `Dockerfile`, `docker-compose.yml`, `.dockerignore` |
 
-La sección contiene:
-
-1. Un párrafo breve con los componentes de infraestructura detectados (no inventes).
-2. Un diagrama `architecture-beta` para representar la topología física de servicios.
+La sección contiene un párrafo breve con los componentes de infraestructura detectados (no
+inventes) y un `flowchart LR` con un `subgraph` por contenedor o red y la relación en cada
+flecha. `architecture-beta` es opcional (§3.17): el tema no le aplica colores y no renderiza en
+GitHub ni en VS Code.
 
 ```mermaid
-architecture-beta
-    group app(cloud)[Servidor web]
-    service client(internet)[Cliente HTTP]
-    service api(server)[uvicorn FastAPI] in app
-    service fs(disk)[Sistema de archivos] in app
-    client:R -- L:api
-    api:R -- L:fs
+flowchart LR
+    accTitle: Arquitectura física
+    accDescr: Un cliente HTTP llama a la API, que lee y escribe en el sistema de archivos del servidor.
+    subgraph app[Servidor web]
+        API[uvicorn FastAPI]
+        FS[Sistema de archivos]
+    end
+    CLI[Cliente HTTP] -- HTTPS --> API
+    API -- lee y escribe --> FS
 ```
 
-Usa `group` para agrupar servicios en el mismo contenedor o red.
-Etiquetas en español. Solo incluye componentes presentes en el código real.
+Si se usa `architecture-beta`: labels `[]` solo con alfanuméricos, espacios y guiones; el ID de
+servicio nunca igual al nombre del icono; conectores `A:R -- L:B`; iconos integrados `cloud`,
+`database`, `disk`, `internet`, `server`.
 
 ---
 

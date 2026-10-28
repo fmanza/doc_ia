@@ -54,7 +54,9 @@ recomendable la migración. Puede consultarse información en internet. PLAN y A
 | — | CI run 40757387496 (`4b9b45e`): verde, sin avisos de Node 20; paridad OK en 3.12 y 3.14 | — | HECHO |
 | — | `docs(trace): aclarar que stamp --source sustituye la lista de fuentes` | `bf7763e` | HECHO |
 | — | CI run 40757783481 (`bf7763e`): verde; paridad OK en 3.12 y 3.14 | — | HECHO |
-| VERSION | `release: v0.2.0 - …` + merge a `main` + tag `v0.2.0` (`03_VERSION_CLOSURE.md`) | (este commit) | HECHO |
+| VERSION | `release: v0.2.0 - …` (`03_VERSION_CLOSURE.md`); CI run 40758754780 verde | `d619d59` | HECHO |
+| VERSION | merge `--no-ff` a `main`; CI run 40759057725 verde; release `docs-v0.2.0` (run 40759057543) | `2e8da9d` | HECHO |
+| VERSION | tag `v0.2.0` sobre `2e8da9d` → release `v0.2.0` con `doc_ia-docs-0.2.0.zip` (run 40760807978) | `2e8da9d` | HECHO |
 | F7-F10, F12 | ver `02_PLAN_FASES.md` | — | PENDIENTE (gates) |
 
 ### F1 — verificación
@@ -169,6 +171,18 @@ recomendable la migración. Puede consultarse información en internet. PLAN y A
 - Al re-sellar `docs/reference/index.md` con `--source <ruta>` la página se quedó con una sola
   fuente: `--source` sustituye la lista (diseño correcto para el primer sellado). Detectado en el
   diff antes del commit; `CLAUDE.md` lo mostraba como forma de re-sellar → aclarado en `bf7763e`.
+
+### Incidente en la release v0.2.0
+- `git merge … -F -` falló (`-F` no lee de stdin) y el `git tag` encadenado en el mismo comando se
+  creó sobre el `main` antiguo (`6ee016a`) y se subió. El workflow `docs-release.yml` publicó una
+  release `v0.2.0` con `doc_ia-docs-0.1.0.zip`.
+- El borrado del tag remoto fue denegado por permisos (operación git destructiva): lo hizo el
+  usuario (borrar release, borrar tag y recrearlo sobre `2e8da9d`). Release `v0.2.0` correcta.
+- Tras la limpieza, la API pública no listaba la release `docs-v0.2.0` (el tag seguía). Se ejecutó
+  a mano «📦 Build & Publish Docs ZIP» sobre `main` (run 40762456792, `workflow_dispatch`): release
+  `docs-v0.2.0` con ZIP, `.sha256` y `CHECKSUMS.txt`. Conserva su `created_at` original (19:58),
+  así que probablemente no llegó a borrarse y la consulta anterior fue un dato desactualizado.
+- Lección: no encadenar merge, tag y push en un único comando; verificar el merge antes de etiquetar.
 
 ## Veredicto final
 Veredicto: bloque A (F0-F6, F2b, F11) GO y publicado en **v0.2.0** (2026-10-28) · F6 C6/C7 cumplidas ·

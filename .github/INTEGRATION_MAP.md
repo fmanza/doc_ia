@@ -7,6 +7,8 @@
 
 ```mermaid
 flowchart TD
+    accTitle: Mapa de integración de la configuración IA
+    accDescr: SHARED_INSTRUCTIONS.md es la fuente canónica de los entry points de cada plataforma; Claude usa sus comandos y Copilot los agentes, ambos equivalentes a los prompts, y el contexto de .ai alimenta a los agentes.
     SHARED[".github/SHARED_INSTRUCTIONS.md<br/>(canónico)"]
     CLAUDE["CLAUDE.md<br/>Claude Code"]
     GEMINI["GEMINI.md<br/>Gemini Code Assist"]

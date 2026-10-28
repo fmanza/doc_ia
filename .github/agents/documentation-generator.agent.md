@@ -42,7 +42,7 @@ Destinada a: jefes de proyecto, responsables de calidad, equipos de negocio.
 Estructura por módulo:
 - Objetivo de negocio (sin jerga técnica)
 - Precondiciones
-- Flujo principal con diagrama `sequenceDiagram` Mermaid
+- Flujo principal con diagrama Mermaid (`sequenceDiagram`, `stateDiagram-v2` o `flowchart TD` de decisiones)
 - Reglas de negocio críticas (tabla)
 - Límites del módulo
 
@@ -52,7 +52,7 @@ Destinada a: desarrolladores, equipo de mantenimiento.
 
 Estructura por módulo:
 - Responsabilidad (1 frase)
-- Diagrama Mermaid (sequenceDiagram / flowchart TD / classDiagram / stateDiagram-v2 / erDiagram)
+- Diagrama Mermaid de la estructura interna (flowchart / stateDiagram-v2 / classDiagram / erDiagram)
 - API pública (tabla)
 - Contrato de entrada (tabla)
 - Contrato de salida
@@ -206,20 +206,19 @@ No modifica ningún fichero basándose solo en hallazgos del HTML; propone cambi
 ## Reglas de generación
 
 ### Diagramas Mermaid
-- Máximo 12 nodos para legibilidad sin zoom
-- Etiquetas en español para actores y acciones
-- Sin nombres de variables internas, rutas de implementación ni puertos
-- Usar `sequenceDiagram` para flujos I/O, `flowchart TD` para lógica de decisión,
-  `stateDiagram-v2` para ciclos de vida con estados discretos, `gitgraph` para
-  estrategias de branching, `erDiagram` para modelos de datos relacionales.
-  Ver tabla completa de criterios y niveles de prescripción en `docs.instructions.md`
+Reglas completas en `DOCUMENTATION_STANDARD.md` §3.17 (tipo por arquetipo, una vista por
+arquetipo, tamaño, etiquetas, accesibilidad, estilo). Las que rompen el render o la conformidad:
+- `accTitle:` y `accDescr:` en todo bloque, justo después del tipo.
+- Máximo 12 nodos (8 en el Arquetipo 6); si no hay flujo, tabla en lugar de diagrama.
+- Perspectiva por arquetipo: Arq. 1 = lo que vive el usuario, sin nombres internos; Arq. 2 =
+  estructura interna, con símbolos del código. No repetir el mismo diagrama en dos páginas.
 - Si el flujo no se puede inferir con seguridad, documentar la incertidumbre en vez de inventar pasos
-- **Caracteres prohibidos en labels de nodos** (`[...]`, `(...)`, `{...}`): `@`, `#`, `"`, `{`, `}`.
-  Sustituir con entidad HTML: `@` → `&#64;`, `#` → `&#35;`. El resto del Markdown (fuera del bloque
-  mermaid) puede usar estos caracteres libremente.
-- **`/` al inicio de `[...]` — PROHIBIDO**: Mermaid 11 interpreta `[/texto/]` como nodo paralelogramo.
-  Si falta el `/` de cierre → lexical error en la línea siguiente. Sustituir rutas (`/opt/data`) por
-  nombres descriptivos (`data`) o usar `·` como separador. `<br/>` dentro de labels es seguro.
+- **Labels de nodo con `@`, `(`, `)`, `{`, `}` o `/` inicial**: escribir la label **entre comillas
+  dobles** (`A["Cl@ve (firma)"]`, `B["/opt/data"]`). Una `"` dentro de la label se escribe `#quot;`.
+  **Prohibidas las entidades HTML** (`&#64;`, `&#40;`…): Mermaid no las decodifica y pinta un `&`
+  sobrante. El resto del Markdown (fuera del bloque mermaid) puede usar estos caracteres libremente.
+- **`/` al inicio de `[...]` sin comillas**: Mermaid interpreta `[/texto/]` como nodo paralelogramo;
+  si falta el `/` de cierre → lexical error en la línea siguiente. `<br/>` dentro de labels es seguro.
 - **`subgraph` — ID y título**: usar `subgraph id[título]` con ID alfanumérico sin hifens.
   Si el título contiene `/` o `-`, usar `·` o guión bajo en su lugar.
   **Prohibido** `subgraph id[(título)]` — `[(…)]` es exclusiva de nodos cilíndricos y causa
@@ -264,7 +263,7 @@ Cuando el usuario pida documentar o actualizar todo el proyecto, usa este flujo 
 - Para cada módulo de tipo A o B, aplica `technical_doc.prompt.md`.
 - Genera o actualiza `docs/api/[nombre].md` con: responsabilidad, diagrama Mermaid apropiado,
   API pública, contratos entrada/salida, errores y ejemplo técnico mínimo.
-- Elige tipo de diagrama según patrón del módulo (ver `technical_doc.prompt.md`).
+- Elige tipo de diagrama según patrón del módulo (`DOCUMENTATION_STANDARD.md` §3.17).
 - Si el INVENTARIO detecta configuración, CLI, códigos de salida, eventos o material `CONTRATO`,
   aplica `reference_doc.prompt.md` (Arquetipo 12) → `docs/reference/index.md`, una sola vez
   para todo el sistema (no por módulo).
@@ -295,22 +294,28 @@ Cuando el usuario pida documentar o actualizar todo el proyecto, usa este flujo 
 
 **Configuración estándar (DOCUMENTATION_STANDARD.md §4.1) — verificar siempre, corregir si falta:**
 - `palette`: dos entradas con `media` + `toggle` (light: scheme `default`, dark: scheme `slate`).
-- `extra_javascript`: `assets/js/sidebar-toggle.js`. Sin CDN de Mermaid ni `assets/js/mermaid.js`
-  (si existen, retirarlos: duplican el render). Mermaid lo carga el tema gracias a
-  `pymdownx.superfences` con `custom_fences` para `mermaid`, que es imprescindible.
+- `extra_javascript`, en este orden: `assets/js/sidebar-toggle.js`,
+  `assets/vendor/mermaid/mermaid-12.2.0.min.js` y `assets/js/mermaid-theme.js`. Sin CDN de Mermaid ni
+  `assets/js/mermaid.js` (si existen, retirarlos: duplican el render). El tema renderiza con
+  la copia local de Mermaid gracias a `pymdownx.superfences` con `custom_fences` para
+  `mermaid`, que es imprescindible; así los diagramas se ven sin conexión.
 - `extra_css`: `assets/css/mermaid.css` + `assets/css/nav.css`.
 - `markdown_extensions`: `attr_list`, `md_in_html`, `pymdownx.snippets` (con `base_path: [docs]`),
   `line_spans: __span` y `pygments_lang_class: true` en `pymdownx.highlight`.
 - `plugins`: `search` con `lang` del idioma del proyecto.
 
-**Assets** — si alguno de los tres ficheros no existe en `docs/assets/` del destino, indicarlo
-explícitamente en el RESUMEN con la acción: "Copiar desde `doc_ia/docs/assets/`":
+**Assets** — si alguno de los cinco recursos no existe en `docs/assets/` del destino, o su
+librería Mermaid es de otra versión, indicarlo explícitamente en el RESUMEN con la acción:
+"Copiar desde `doc_ia/docs/assets/`" (una versión distinta se sustituye y se actualiza
+`extra_javascript`):
 - `docs/assets/js/sidebar-toggle.js`
 - `docs/assets/css/mermaid.css`
 - `docs/assets/css/nav.css`
+- `docs/assets/vendor/mermaid/` (`mermaid-<versión>.min.js`, `LICENSE`, `SOURCE.txt`)
+- `docs/assets/js/mermaid-theme.js`
 
 ### Fase 6 — Revisión y entrega
-- Valida Markdown, enlaces relativos y sintaxis Mermaid.
+- Valida Markdown, enlaces relativos y sintaxis y conformidad Mermaid (`DOCUMENTATION_STANDARD.md` §3.17).
 - Si el destino tiene `scripts/doc_trace.py`: sella cada página nueva o actualizada con bloque
   "Evidencia" (`stamp`, fuentes = ficheros citados) y ejecuta `drift`, `matrix` y `llms`
   (DOCUMENTATION_STANDARD.md §3.16 › Frontmatter de trazabilidad). Sin el script, escribe el
