@@ -1,3 +1,11 @@
+---
+arquetipo: "1"
+fuentes:
+  mkdocs.yml: 417c1a6602da
+  mkdocs_hooks.py: 2f510611cb6f
+  scripts/build_docs_zip.py: 0b48091d8aa9
+revisado: 2026-10-28
+---
 # ZIP de Documentación Offline
 
 ## 1. Objetivo y Descripción

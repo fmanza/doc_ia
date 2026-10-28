@@ -231,6 +231,8 @@ Fase 5 — Sincronizar navegación y verificar configuración estándar del gene
             js/sidebar-toggle.js, css/mermaid.css, css/nav.css) no existe en el destino,
             indicarlo explícitamente en RESUMEN con la acción: "Copiar desde doc_ia/docs/assets/".
 Fase 6 — Revisión final: Markdown, enlaces relativos, sintaxis Mermaid, secciones de arquetipo completas.
+         Trazabilidad (§3.16): frontmatter `fuentes` en páginas con Evidencia; si existe
+         scripts/doc_trace.py → `stamp` + `drift` + `matrix` + `llms` (todos con exit 0).
 Fase 7 — Verificación de build (solo con --verify-build): build --strict del generador + lectura del HTML.
 Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
          Crear o actualizar `docs/downloads.md` en el destino según la variante:

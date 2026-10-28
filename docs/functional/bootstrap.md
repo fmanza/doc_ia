@@ -1,3 +1,9 @@
+---
+arquetipo: "1"
+fuentes:
+  .github/prompts/bootstrap_ai_config.prompt.md: bbc94b60795c
+revisado: 2026-10-28
+---
 # Bootstrap de Configuración IA Multiplataforma
 
 ## 1. Objetivo y Descripción

@@ -1,3 +1,10 @@
+---
+arquetipo: "1"
+fuentes:
+  .github/DOCUMENTATION_STANDARD.md: e26793186dd8
+  .github/prompts/document_project.prompt.md: 904cacf42880
+revisado: 2026-10-28
+---
 # Catálogo de Tipos de Origen
 
 ## 1. Objetivo y Descripción

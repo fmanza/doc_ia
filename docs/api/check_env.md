@@ -1,3 +1,10 @@
+---
+arquetipo: "2"
+fuentes:
+  scripts/check_env.py: 5a2a60e20da2
+  tests/test_check_env.py: 6fa39a48d70d
+revisado: 2026-10-28
+---
 # check_env
 
 Verifica de forma determinista que las herramientas del tooling documental (`mkdocs`, `ruff`, `mypy`, `pytest`) son importables en el entorno Python activo. Además reporta la disponibilidad de herramientas opcionales de conversión: `docling`, `markitdown` (con plugins), `pandoc` y `nvidia-smi`.

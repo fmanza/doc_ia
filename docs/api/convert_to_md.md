@@ -1,3 +1,10 @@
+---
+arquetipo: "2"
+fuentes:
+  scripts/convert_to_md.py: a1636c5b204b
+  tests/test_convert_to_md.py: 42d0d78e54a6
+revisado: 2026-10-28
+---
 # convert_to_md
 
 Convierte ficheros en formatos no legibles directamente por el agente IA (PDF, DOCX, PPTX,

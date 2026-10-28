@@ -1,3 +1,9 @@
+---
+arquetipo: "1"
+fuentes:
+  scripts/check_env.py: 5a2a60e20da2
+revisado: 2026-10-28
+---
 # Verificación de Entorno
 
 ## 1. Objetivo y Descripción

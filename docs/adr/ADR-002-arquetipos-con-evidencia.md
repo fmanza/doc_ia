@@ -69,6 +69,10 @@ ACEPTADO — 2026-10-28. Sesión: `.ai/sessions/2026-10-28_archetypes_v2/`.
 Variante 1-I (Mapa Funcional), Arquetipo 2 §6 Verificación y Tests y Arquetipo 12 §6 Datos.
 Las 7 páginas funcionales de doc_ia están migradas a la estructura v2; se cierra la deuda
 técnica de transición de P1.
+
+**P3 completada (2026-10-28)**: frontmatter de trazabilidad (`arquetipo`, `fuentes`,
+`revisado`) y `scripts/doc_trace.py` (`stamp`, `drift`, `matrix`, `llms`). Se cierra la deuda
+"sin detección automática de citas obsoletas". Runbook y Seguridad siguen aplazados.
 Revisar al cerrar P2 (mapa funcional, criterios ligados a tests, modelo de datos) y P3
 (frontmatter de trazabilidad y script de drift). Runbook y Seguridad se reabren cuando un
 proyecto destino real los requiera.

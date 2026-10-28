@@ -1,3 +1,12 @@
+---
+arquetipo: "2"
+fuentes:
+  .claude/commands/document-project.md: 6e088419ade1
+  .github/agents/documentation-generator.agent.md: 7b067d1a3238
+  .github/prompts/document_project.prompt.md: 904cacf42880
+  mkdocs.yml: 417c1a6602da
+revisado: 2026-10-28
+---
 # document_project
 
 Punto de entrada único del producto doc_ia: orquesta los arquetipos formales sobre un proyecto origen para generar o actualizar su documentación completa.
@@ -18,7 +27,7 @@ flowchart TD
     F2 --> F3[Fase 3 — Técnica\nArquetipo 2 · Arquetipo 12 si aplica]
     F3 --> F4[Fase 4 — Ejemplos + Guías\nArquetipos 3 · 4 · 6 · 7]
     F4 --> F5[Fase 5 — SYNC NAV\nmkdocs.yml]
-    F5 --> F6[Fase 6 — Revisión\nMarkdown · enlaces · Mermaid]
+    F5 --> F6[Fase 6 — Revisión\nMarkdown · enlaces · Mermaid\nstamp · drift · matrix · llms]
     F6 --> F7{--verify-build}
     F7 -- Sí --> build[Fase 7 — Build estricto]
     F7 -- No --> F7b

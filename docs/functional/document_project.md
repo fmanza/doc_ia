@@ -1,3 +1,12 @@
+---
+arquetipo: "1"
+fuentes:
+  .claude/commands/document-project.md: 6e088419ade1
+  .github/DOCUMENTATION_STANDARD.md: e26793186dd8
+  .github/prompts/document_project.prompt.md: 904cacf42880
+  CLAUDE.md: a167ad648656
+revisado: 2026-10-28
+---
 # Documentar un Proyecto
 
 ## 1. Objetivo y Descripción
@@ -45,7 +54,7 @@ flowchart TD
     I --> P[PLAN_DOC<br/>CREAR A · ACTUALIZAR B · OMITIR C]
     P --> G[Generar por arquetipos<br/>funcional + mapa · técnica · referencia · ejemplos · guías]
     G --> N[Sincronizar mkdocs.yml]
-    N --> R[Revisión final<br/>Markdown · enlaces · Mermaid]
+    N --> R[Revisión final<br/>Markdown · enlaces · Mermaid · trazabilidad]
     R --> DL[Fase 7b — downloads.md<br/>Variante A o B · reportar huecos]
     DL --> CS[Cierre de sesión<br/>.ai/sessions/YYYY-MM-DD/<br/>.ai/*.md contexto + commit]
 ```
@@ -64,6 +73,8 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
 
 - Las páginas en estado A existen en el destino; las de estado B están actualizadas
   conservando las secciones vigentes; las de estado C no se han modificado.
+- Las páginas con bloque "Evidencia" declaran sus fuentes en el frontmatter; si el destino
+  dispone del tooling de trazabilidad, quedan selladas y sin desactualizaciones.
 - La navegación del generador en el destino (`mkdocs.yml`) incluye todas las páginas nuevas
   y la configuración estándar verificada (tema, assets, Mermaid).
 - `docs/downloads.md` existe en el destino (variante A o B) y los huecos de distribución

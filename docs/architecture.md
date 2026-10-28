@@ -38,7 +38,7 @@ del sitio (`--strict`), trazabilidad de sesiones (`.ai/sessions/`).
 
 | Carpeta | Responsabilidad |
 |---|---|
-| `scripts/` | Tooling determinista standalone: `check_env.py`, `build_docs_zip.py`, `convert_to_md.py`, `start-server.py` |
+| `scripts/` | Tooling determinista standalone: `check_env.py`, `build_docs_zip.py`, `convert_to_md.py`, `doc_trace.py`, `start-server.py` |
 | `hooks/` | `sync_root_docs.py`: copia CHANGELOG.md / CONTRIBUTING.md a docs/ (hook MkDocs + PostToolUse) |
 | `mkdocs_hooks.py` | Hook MkDocs nativo: genera `doc_ia-docs-latest.zip` + SHA256 en `site/` en cada build |
 | `tests/` | Tests pytest del tooling (importan `scripts/` vía `sys.path`) |

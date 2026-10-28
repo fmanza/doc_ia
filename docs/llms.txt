@@ -1,0 +1,62 @@
+# doc_ia
+
+> Documentación asistida por IA de proyectos de desarrollo
+
+## Páginas principales
+
+- [Inicio](https://fmanza.github.io/doc_ia/)
+- [Quick Start](https://fmanza.github.io/doc_ia/quickstart/)
+- [Instalación](https://fmanza.github.io/doc_ia/installation/)
+- [📥 Descargas](https://fmanza.github.io/doc_ia/downloads/)
+- [Referencia del Sistema](https://fmanza.github.io/doc_ia/reference/)
+- [Changelog](https://fmanza.github.io/doc_ia/changelog/)
+- [Contribuir](https://fmanza.github.io/doc_ia/contributing/)
+
+## Documentación Funcional
+
+- [Mapa Funcional](https://fmanza.github.io/doc_ia/functional/)
+- [Tooling Determinista › Verificación de Entorno](https://fmanza.github.io/doc_ia/functional/check_env/)
+- [Tooling Determinista › ZIP de Documentación Offline](https://fmanza.github.io/doc_ia/functional/build_docs_zip/)
+- [Tooling Determinista › Conversión de Documentos a Markdown](https://fmanza.github.io/doc_ia/functional/convert_to_md/)
+- [Tooling Determinista › Trazabilidad Docs ↔ Código](https://fmanza.github.io/doc_ia/functional/doc_trace/)
+- [Flujos IA › Documentar un Proyecto](https://fmanza.github.io/doc_ia/functional/document_project/)
+- [Flujos IA › Catálogo de Tipos de Origen](https://fmanza.github.io/doc_ia/functional/origin_types/)
+- [Flujos IA › Arquetipos Formales](https://fmanza.github.io/doc_ia/functional/archetypes/)
+- [Flujos IA › Bootstrap de Configuración IA](https://fmanza.github.io/doc_ia/functional/bootstrap/)
+
+## Referencia Técnica
+
+- [Flujos IA › document_project](https://fmanza.github.io/doc_ia/api/document_project/)
+- [Flujos IA › archetypes](https://fmanza.github.io/doc_ia/api/archetypes/)
+- [Flujos IA › bootstrap](https://fmanza.github.io/doc_ia/api/bootstrap/)
+- [Tooling Determinista › check_env](https://fmanza.github.io/doc_ia/api/check_env/)
+- [Tooling Determinista › build_docs_zip](https://fmanza.github.io/doc_ia/api/build_docs_zip/)
+- [Tooling Determinista › convert_to_md](https://fmanza.github.io/doc_ia/api/convert_to_md/)
+- [Tooling Determinista › doc_trace](https://fmanza.github.io/doc_ia/api/doc_trace/)
+
+## Ejemplos
+
+- [Flujos IA › Documentar un Proyecto](https://fmanza.github.io/doc_ia/examples/document_project_usage/)
+- [Flujos IA › Aplicar Arquetipos Individualmente](https://fmanza.github.io/doc_ia/examples/archetypes_usage/)
+- [Flujos IA › Bootstrap de Configuración IA](https://fmanza.github.io/doc_ia/examples/bootstrap_usage/)
+- [Tooling Determinista › Verificar Entorno](https://fmanza.github.io/doc_ia/examples/check_env_usage/)
+- [Tooling Determinista › Generar ZIP Offline](https://fmanza.github.io/doc_ia/examples/build_docs_zip_offline/)
+- [Tooling Determinista › Convertir Documentos a Markdown](https://fmanza.github.io/doc_ia/examples/convert_to_md_usage/)
+- [Tooling Determinista › Trazabilidad Docs ↔ Código](https://fmanza.github.io/doc_ia/examples/doc_trace_usage/)
+
+## Guías
+
+- [Incorporación › Onboarding de Desarrolladores](https://fmanza.github.io/doc_ia/guides/onboarding_dev/)
+- [Errores y Diagnóstico › Troubleshooting](https://fmanza.github.io/doc_ia/guides/troubleshooting/)
+- [Herramientas IA › Guía de Claude Code](https://fmanza.github.io/doc_ia/guides/claude_code_guide/)
+- [Herramientas IA › Guía de Codex (OpenAI)](https://fmanza.github.io/doc_ia/guides/codex_guide/)
+
+## Configuración IA
+
+- [Claude Code](https://fmanza.github.io/doc_ia/ai-config/claude/)
+
+## Arquitectura
+
+- [Visión del Sistema](https://fmanza.github.io/doc_ia/architecture/)
+- [ADR-001 — MkDocs Material por defecto](https://fmanza.github.io/doc_ia/adr/ADR-001-mkdocs-material-por-defecto/)
+- [ADR-002 — Arquetipos con evidencia verificable](https://fmanza.github.io/doc_ia/adr/ADR-002-arquetipos-con-evidencia/)

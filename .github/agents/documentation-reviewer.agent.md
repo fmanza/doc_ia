@@ -49,6 +49,8 @@ Lee antes de revisar:
     tests que existen en `tests/` (`pytest --collect-only`); `Sin test` es válido, un test
     inexistente es hallazgo de Nivel 1. Si hay ≥2 páginas funcionales, existe el Mapa Funcional
     (`docs/functional/index.md`, Variante 1-I) y cada capacidad enlaza a una página real.
+    Si existe `scripts/doc_trace.py`, ejecuta `drift` y `matrix`: cada fuente `stale` es hallazgo
+    de Nivel 2 (página posiblemente obsoleta) y cada test citado inexistente, de Nivel 1.
 12. **Referencia del sistema (condicional)**: si el código expone configuración, CLI, códigos
     de salida, eventos o interfaces publicadas, existe `docs/reference/` (Arquetipo 12) y el
     Arquetipo 2 la enlaza en lugar de duplicarla.

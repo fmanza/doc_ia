@@ -305,6 +305,10 @@ explícitamente en el RESUMEN con la acción: "Copiar desde `doc_ia/docs/assets/
 
 ### Fase 6 — Revisión y entrega
 - Valida Markdown, enlaces relativos y sintaxis Mermaid.
+- Si el destino tiene `scripts/doc_trace.py`: sella cada página nueva o actualizada con bloque
+  "Evidencia" (`stamp`, fuentes = ficheros citados) y ejecuta `drift`, `matrix` y `llms`
+  (DOCUMENTATION_STANDARD.md §3.16 › Frontmatter de trazabilidad). Sin el script, escribe el
+  frontmatter con `fuentes` y deja las huellas como `pendiente`.
 - Ejecuta o recomienda `mkdocs build` para detectar errores de navegación.
 - Entrega inventario final: páginas creadas, actualizadas, sin cambios y pendientes de verificación humana.
 

@@ -1,3 +1,11 @@
+---
+arquetipo: "1"
+fuentes:
+  .claude/commands/document-project.md: 6e088419ade1
+  .github/DOCUMENTATION_STANDARD.md: e26793186dd8
+  hooks/sync_root_docs.py: ef5e576436c6
+revisado: 2026-10-28
+---
 # Arquetipos Formales de Documentación
 
 ## 1. Objetivo y Descripción
@@ -108,7 +116,7 @@ se aplica cuando el proyecto tiene agentes IA configurados sin documentar.
 | Enlace bidireccional | El Arquetipo 2 (técnica, §5) debe enlazar al Arquetipo 4 (ejemplos, §5) y viceversa | Rompe la trazabilidad entre la referencia técnica y los ejemplos ejecutables |
 | Arquetipo 8 condicional | La trazabilidad normativa solo se genera si el proyecto origen referencia normativa de obligado cumplimiento; si no, se omite | Generación innecesaria de páginas vacías o sin valor en proyectos sin normativa |
 | Arquetipo 12 condicional | La Referencia del Sistema solo se genera si el proyecto expone configuración, comandos, códigos de salida, eventos o interfaces publicadas | Páginas de referencia vacías en librerías sin superficie de usuario |
-| Evidencia verificable | Las páginas funcionales, técnicas y de referencia terminan con un bloque plegable "Evidencia" que indica el origen de cada regla, contrato o criterio y su grado de confianza (✅ ⚠️ 🔍 ❌) | Afirmaciones imposibles de auditar; lo inferido se confunde con lo verificado |
+| Evidencia verificable | Las páginas funcionales, técnicas y de referencia terminan con un bloque plegable "Evidencia" que indica el origen de cada regla, contrato o criterio y su grado de confianza (✅ ⚠️ 🔍 ❌), y declaran al principio de qué ficheros derivan, con una huella que permite detectar cuándo esos ficheros cambian | Afirmaciones imposibles de auditar; lo inferido se confunde con lo verificado |
 | Arquetipos 9 y 11 opt-in | Changelog (9) y Guía de Contribución (11) **no se generan por defecto** en `/document-project`; deben solicitarse explícitamente con el parámetro `Arquetipos: changelog` o `Arquetipos: contribución` | Generación de CHANGELOG.md y CONTRIBUTING.md sin que el usuario los haya pedido |
 
 ## 6. Límites, Flujos Alternativos y Casos Especiales

@@ -1,3 +1,10 @@
+---
+arquetipo: "1"
+fuentes:
+  scripts/convert_to_md.py: a1636c5b204b
+  tests/test_convert_to_md.py: 42d0d78e54a6
+revisado: 2026-10-28
+---
 # Conversión de Documentos a Markdown (`convert_to_md`)
 
 ## 1. Objetivo y Descripción

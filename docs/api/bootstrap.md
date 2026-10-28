@@ -1,3 +1,10 @@
+---
+arquetipo: "2"
+fuentes:
+  .github/agents/config-reviewer.agent.md: 376360c404e4
+  .github/prompts/bootstrap_ai_config.prompt.md: bbc94b60795c
+revisado: 2026-10-28
+---
 # bootstrap
 
 Traslada el sistema de instrucciones IA de doc_ia a un proyecto destino de cualquier lenguaje y arquitectura, clasificando cada fichero en cuatro capas y emitiendo un plan de transferencia auditado.

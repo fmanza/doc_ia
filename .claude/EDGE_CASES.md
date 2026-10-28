@@ -68,3 +68,18 @@
   - O invocar explícitamente: `python -m mkdocs build --strict`
     (donde `python` = `doc_ia\.venv\Scripts\python.exe`)
 - **Sesión**: `.ai/sessions/2026-06-12/` (descubierto); `.ai/sessions/2026-06-15_hooks_migration/` (resuelto)
+
+## [doc_trace] — `drift` marca páginas tras cambios triviales o tras editar `mkdocs.yml`/`CLAUDE.md`
+
+- **Síntoma**: `python scripts/doc_trace.py drift` lista una página como `stale` aunque su
+  contenido sigue siendo correcto.
+- **Causa**: la huella es el SHA256 del fichero fuente completo (saltos normalizados a LF). Un
+  comentario, un espacio o cualquier edición de una fuente compartida (p. ej. `mkdocs.yml` o
+  `CLAUDE.md`, citadas por `docs/reference/index.md`) cambia la huella. Es intencionado: el
+  script no interpreta el contenido.
+- **Solución**: revisar la página contra el diff de la fuente (`git diff <fuente>`); si sigue
+  siendo correcta, re-sellar con `python scripts/doc_trace.py stamp <página>`. No re-sellar a
+  ciegas en bloque.
+- **No es causa**: sellar una página que es fuente de otra (p. ej. el Mapa Funcional): el
+  frontmatter de las fuentes `.md` se excluye de la huella.
+- **Sesión**: `.ai/sessions/2026-10-28_archetypes_v2/` (P3)

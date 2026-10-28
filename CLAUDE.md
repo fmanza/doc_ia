@@ -235,6 +235,10 @@ python -m mkdocs build --strict      # Build de documentación
 python -m mkdocs serve               # Documentación local
 python scripts/check_env.py          # Verificación del entorno (Python + docling + markitdown + plugins + pandoc)
 python scripts/build_docs_zip.py     # ZIP offline con SHA256
+python scripts/doc_trace.py drift    # Páginas cuyas fuentes de código han cambiado
+python scripts/doc_trace.py matrix   # Criterios de aceptación ↔ tests reales
+python scripts/doc_trace.py llms     # Regenera docs/llms.txt desde el nav
+python scripts/doc_trace.py stamp <página> --source <ruta>  # Sella huellas tras editar una página
 python scripts/convert_to_md.py <ruta>                            # Convierte a Markdown con docling (default) en <ruta>/md/
 python scripts/convert_to_md.py <ruta> --engine markitdown        # Convierte con markitdown (sin docling)
 python scripts/convert_to_md.py <ruta> --engine pandoc            # Convierte con pandoc (DOC/ODT/RST/TEX)

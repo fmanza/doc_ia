@@ -947,6 +947,37 @@ la numeración de los arquetipos):
 criterio de aceptación sin fila en "Evidencia", (b) una cita a un símbolo inexistente y
 (c) una fila ✅ cuya fuente no respalda la afirmación.
 
+#### Frontmatter de trazabilidad y detección de drift
+
+Cada página con bloque "Evidencia" declara en su frontmatter las fuentes de las que deriva y su
+huella (SHA256 truncado a 12 caracteres, saltos de línea normalizados a LF; en fuentes `.md` se
+excluye su propio frontmatter):
+
+```yaml
+---
+arquetipo: "2"
+fuentes:
+  scripts/check_env.py: 5a2a60e20da2
+  tests/test_check_env.py: 6fa39a48d70d
+revisado: 2026-10-28
+---
+```
+
+`fuentes` = ficheros del repositorio citados en el bloque "Evidencia" (nunca rutas fuera del
+repositorio). El tooling determinista `scripts/doc_trace.py` (si el destino lo incorpora):
+
+| Subcomando | Qué hace | Código de salida |
+|---|---|---|
+| `stamp <página> --source <ruta>…` | Calcula y escribe las huellas | `0` / `1` si una fuente falta o sale del repo |
+| `drift` | Lista páginas cuyas fuentes cambiaron (`stale`, `missing`, `outside_repo`) | `0` sin drift / `1` con drift |
+| `matrix` | Cruza los `AC-xx` del Arq. 1 §7 con los tests reales; lista citados inexistentes y tests sin criterio | `0` / `1` si hay tests citados inexistentes |
+| `llms` | Genera `docs/llms.txt` ([llmstxt.org](https://llmstxt.org/)) desde el `nav` | `0` / `1` con `--check` si está desactualizado |
+
+Flujo: al generar o actualizar una página → `stamp`; antes de cerrar la sesión → `drift`,
+`matrix` y `llms --check`. Un `drift` con hallazgos no se corrige re-sellando a ciegas: primero
+se revisa la página contra el cambio de la fuente. Falso positivo conocido: cambios triviales
+(comentarios, espacios) en una fuente también alteran la huella.
+
 ---
 
 ## 4. Configuración Recomendada mkdocs.yml

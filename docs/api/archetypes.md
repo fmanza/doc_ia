@@ -1,3 +1,12 @@
+---
+arquetipo: "2"
+fuentes:
+  .github/DOCUMENTATION_STANDARD.md: e26793186dd8
+  .github/agents/documentation-generator.agent.md: 7b067d1a3238
+  .github/prompts/example_doc.prompt.md: 6041f616e0c3
+  mkdocs.yml: 417c1a6602da
+revisado: 2026-10-28
+---
 # archetypes
 
 Sistema de doce arquetipos de documentación (más variante 3b) con estructura fija, audiencia definida y ubicación establecida que garantiza coherencia y auditabilidad en todos los proyectos documentados con doc_ia. Los arquetipos 1–8 son la base; 3b y 9–11 son las adiciones 2024-2025; el 12 y la regla transversal de evidencia (`DOCUMENTATION_STANDARD.md` §3.16) son las adiciones 2026.
@@ -77,6 +86,7 @@ Cada arquetipo produce un archivo Markdown con las secciones numeradas obligator
 |---|---|---|
 | Estándar de documentación | `.github/DOCUMENTATION_STANDARD.md` §3 | Define estructura obligatoria, audiencia y ubicación de cada arquetipo |
 | Prompts de arquetipos | `.github/prompts/*_doc.prompt.md` | Instrucciones de generación por arquetipo; uno por arquetipo |
+| Trazabilidad determinista | `scripts/doc_trace.py` | Sella el frontmatter `fuentes` de las páginas con Evidencia y detecta drift, tests citados inexistentes y `llms.txt` desactualizado (§3.16) |
 | Reglas operativas | `.github/instructions/docs.instructions.md` | Mermaid, snippets `--8<--`, MkDocs, reglas de sección vacía |
 
 ## 4. Dependencias y Requisitos

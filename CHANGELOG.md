@@ -23,6 +23,11 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
   recorridos transversales, actores y glosario global del sistema.
 - **Arquetipo 12 §6 "Datos"** (condicional): `erDiagram` global y diccionario con sensibilidad
   por campo; aplicado a los ficheros con formato propio de doc_ia.
+- **`scripts/doc_trace.py`** (P3): trazabilidad determinista docs ↔ código con subcomandos
+  `stamp` (huellas SHA256 en el frontmatter), `drift` (páginas desactualizadas), `matrix`
+  (criterios de aceptación ↔ tests) y `llms` (`docs/llms.txt` desde el nav). 20 tests.
+- **Frontmatter de trazabilidad** (`arquetipo`, `fuentes`, `revisado`) en las 15 páginas de
+  doc_ia con bloque "Evidencia"; `docs/llms.txt` publicado en la raíz del sitio.
 
 ### Changed
 

@@ -1,3 +1,11 @@
+---
+arquetipo: "2"
+fuentes:
+  mkdocs_hooks.py: 2f510611cb6f
+  pyproject.toml: b5d09450b820
+  scripts/build_docs_zip.py: 0b48091d8aa9
+revisado: 2026-10-28
+---
 # build_docs_zip
 
 Distribución offline del sitio de documentación mediante dos mecanismos complementarios: el script `scripts/build_docs_zip.py` (ZIP versionado manual) y el hook `mkdocs_hooks.py` (ZIP automático "latest" en cada build).

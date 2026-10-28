@@ -5,7 +5,7 @@
 - fecha: 2026-10-28
 - rama: develop
 - skill: new_feature
-- fase: PLAN + AUDIT_PLAN (P1/P2/P3) + IMPLEMENT P1 + AUDIT_CODE P1 + IMPLEMENT P2 + AUDIT_CODE P2
+- fase: PLAN + AUDIT_PLAN (P1/P2/P3) + IMPLEMENT P1 + AUDIT_CODE P1 + IMPLEMENT P2 + AUDIT_CODE P2 + IMPLEMENT P3 + AUDIT_CODE P3
 
 ## Prompt issued
 "Analizar si se puede o se recomienda actualizar los arquetipos actuales, el objetivo es obtener
@@ -28,6 +28,19 @@ con lo propuesto" → "Adelante con las dos opciones" (guardar sesión + IMPLEME
 - Dogfooding con 3 forks en paralelo (ficheros disjuntos): 7 funcionales, 6 técnicas; el hilo
   principal hizo `docs/reference/` §6, Mapa Funcional, nav y la renumeración v2 en la orquestación.
 - Verificación independiente: 25/25 tests citados existen; build estricto, ruff y pytest OK.
+
+## P3 (tras commits 4c03178 de P2 y 16f9f4b del hotfix)
+- `scripts/doc_trace.py` + 20 tests; frontmatter de trazabilidad en 17 páginas; `docs/llms.txt`.
+- Detalle y hallazgos corregidos en `05_IMPLEMENT_P3.md`.
+
+## AUDIT_CODE (P3)
+- **Bugs corregidos**: cascada de drift en fuentes `.md`; `UnicodeEncodeError` en consola cp1252;
+  trazas no controladas en `stamp`/`llms`.
+- **Edge cases**: `--date` omitido → fecha del día (sello no determinista entre días, ⚠️ documentado);
+  cambios triviales en fuentes alteran la huella (EDGE_CASES.md).
+- **Seguridad**: rutas del frontmatter resueltas y limitadas a la raíz (`outside_repo`, sin lectura).
+- **Tipado**: `mypy --strict` limpio en `doc_trace.py`; yaml sin stubs aislado en `_load_yaml`.
+- **Deuda**: sin paso en CI (opcional en el PLAN); 37/66 criterios sin test (flujos IA y ZIP).
 
 ## AUDIT_CODE (P2)
 - **Hechos falsos corregidos por los forks** en páginas existentes: ruta de chunks (`chunks/<doc>/`
@@ -86,7 +99,7 @@ con lo propuesto" → "Adelante con las dos opciones" (guardar sesión + IMPLEME
   salto real; para etiquetas Mermaid con `\n` literal usar Edit o un script en el scratchpad.
 
 ## Veredicto final
-Veredicto: GO (P1, commit 51b6b57) · GO (P2)
+Veredicto: CLOSED — P1 (51b6b57) · P2 (4c03178) · P3 (este commit)
 Pendientes al cierre:
-- Commit de P2 (pendiente de confirmación del usuario).
-- P3 según `01_PLAN.md` (frontmatter de trazabilidad + `scripts/doc_trace.py`).
+- Opcional: añadir `doc_trace.py drift` / `matrix` / `llms --check` a `.github/workflows/`.
+- Hallazgos colaterales de P2 (Fase 0b, ruta y lista de prompts en `bootstrap_ai_config`, `.md` en docling).

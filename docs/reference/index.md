@@ -1,3 +1,19 @@
+---
+arquetipo: "12"
+fuentes:
+  .claude/settings.json.example: e8ef6577113c
+  .github/workflows/docs-zip-release.yml: cf1d3deac841
+  CLAUDE.md: a167ad648656
+  hooks/sync_root_docs.py: ef5e576436c6
+  mkdocs.yml: 417c1a6602da
+  mkdocs_hooks.py: 2f510611cb6f
+  scripts/build_docs_zip.py: 0b48091d8aa9
+  scripts/check_env.py: 5a2a60e20da2
+  scripts/convert_to_md.py: a1636c5b204b
+  scripts/doc_trace.py: a1824b159937
+  scripts/start-server.py: ec67386821f7
+revisado: 2026-10-28
+---
 # Referencia — doc_ia
 
 Superficie que consulta quien ejecuta u opera el tooling de doc_ia: configuración, comandos de
@@ -72,6 +88,28 @@ python scripts/convert_to_md.py <source> [opciones]
 | `--batch-size` | entero | `1` | Documentos por lote; `>1` solo con `docling` |
 | `--workers` | entero | `1` | Concurrencia por lote; `>1` solo con `docling` |
 
+### doc_trace.py
+
+```bash
+python scripts/doc_trace.py [--root DIR] {drift,stamp,matrix,llms} [opciones]
+```
+
+| Opción / Argumento | Tipo | Por defecto | Descripción |
+|---|---|---|---|
+| `--root` | ruta | raíz del repositorio | Base para resolver las fuentes del frontmatter (global, antes del subcomando) |
+| `drift --docs` | ruta | `docs` | Carpeta donde buscar páginas con frontmatter `fuentes` |
+| `stamp <páginas…>` | rutas (obligatorio) | — | Páginas a sellar |
+| `stamp --source` | ruta (repetible) | fuentes actuales del frontmatter | Ficheros de los que deriva la página |
+| `stamp --archetype` | cadena | el actual del frontmatter | Arquetipo de la página (`1`, `1-I`, `2`, `12`…) |
+| `stamp --date` | `YYYY-MM-DD` | hoy | Fecha `revisado` |
+| `matrix --docs` | ruta | `docs` | Se leen los `AC-xx` de `<docs>/functional/*.md` |
+| `matrix --tests` | ruta | `tests` | Carpeta con `test_*.py` |
+| `matrix --output` | ruta | stdout | Fichero Markdown de la matriz |
+| `llms --config` | ruta | `mkdocs.yml` | Configuración con `site_name`, `site_url` y `nav` |
+| `llms --output` | ruta | `docs/llms.txt` | Fichero generado |
+| `llms --site-url` | URL | `site_url` de `mkdocs.yml` | Base de los enlaces |
+| `llms --check` | flag | desactivado | Solo comprueba que el fichero está al día |
+
 ### start-server.py
 
 ```bash
@@ -108,6 +146,12 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 | `2` | `convert_to_md.py` | Combinación inválida: `--chunk`, `--batch-size >1` o `--workers >1` sin `docling`; `--flash-attention` con `--device cpu` | Ajustar las opciones |
 | `0` | `start-server.py` | Servidor detenido con Ctrl+C | — |
 | `1` | `start-server.py` | Puerto ocupado (excepción no capturada) 🔍 | Usar otro `--port` |
+| `0` | `doc_trace.py` | Sin drift, sin tests citados inexistentes, `llms.txt` al día o sellado correcto | — |
+| `1` | `doc_trace.py drift` | Alguna fuente `stale`, `missing` u `outside_repo` | Revisar la página contra el cambio y re-sellar con `stamp` |
+| `1` | `doc_trace.py stamp` | Página o fuente inexistente, fuente fuera del repositorio o página sin fuentes | Corregir la ruta o `--source` |
+| `1` | `doc_trace.py matrix` | La columna `Test` cita un test que no existe | Corregir el criterio o crear el test |
+| `1` | `doc_trace.py llms` | `mkdocs.yml` sin `nav` o ilegible; con `--check`, `llms.txt` no coincide con el `nav` actual | Revisar `--config`; ejecutar `llms` sin `--check` |
+| `2` | `doc_trace.py` | Sin subcomando u opción desconocida (argparse) | Revisar la sinopsis del §2 |
 | `0` | `sync_root_docs.py` | Siempre; un fichero raíz ausente solo genera un aviso | — |
 
 ## 4. Eventos y Mensajes
@@ -128,6 +172,8 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 | `CHECKSUMS.txt` | Fichero de salida (acumulativo) | `scripts/build_docs_zip.py::_create_checksum_files` | Una línea por build: `<hash>  <fichero>  (<ISO-8601>)` |
 | Release `docs-v{versión}` | GitHub Release | `.github/workflows/docs-zip-release.yml` | ZIP + `.sha256` + `CHECKSUMS.txt`; se actualiza en cada push a `main` con cambios en `docs/` |
 | Ficheros `<origen>/md/**/*.md` | Fichero de salida | `scripts/convert_to_md.py::output_path` | Estructura reflejada del origen; frontmatter opcional con `--metadata` |
+| `llms.txt` | Fichero de salida publicado en la raíz del sitio | `scripts/doc_trace.py::build_llms_txt` | Índice para agentes IA ([llmstxt.org](https://llmstxt.org/)): un `##` por sección del `nav` y un enlace por página |
+| Matriz de trazabilidad | Fichero de salida (Markdown) | `scripts/doc_trace.py::build_matrix` | Criterios y tests por página, tests citados inexistentes y tests sin criterio |
 
 ## 6. Datos
 
@@ -142,6 +188,8 @@ erDiagram
     MANIFIESTO ||--|{ CHUNK : "indexa"
     ZIP_OFFLINE ||--|| SHA256 : "acompañado de"
     ZIP_OFFLINE ||--o{ LINEA_CHECKSUMS : "registrado en"
+    PAGINA_DOCS ||--o| TRAZABILIDAD : "declara"
+    TRAZABILIDAD ||--|{ FUENTE : "huella por"
 ```
 
 | Entidad | Campo | Tipo | Restricción | Sensibilidad |
@@ -157,6 +205,9 @@ erDiagram
 | Manifiesto `_manifest.json` | `chars` | entero | Longitud del chunk | pública |
 | `.zip.sha256` | línea única | texto | `<sha256>  <nombre.zip>` (formato `sha256sum`) | pública |
 | `CHECKSUMS.txt` | una línea por build | texto | `<sha256>  <nombre.zip>  (<ISO-8601 local>)`; solo se añaden líneas | pública |
+| Frontmatter de trazabilidad | `arquetipo` | cadena | `1`, `1-I`, `2`, `12`… | pública |
+| Frontmatter de trazabilidad | `fuentes` | mapa ruta → huella | Rutas relativas dentro del repositorio; huella = 12 hex de SHA256 con saltos LF (en `.md`, sin su frontmatter) | pública |
+| Frontmatter de trazabilidad | `revisado` | fecha | `YYYY-MM-DD` | pública |
 
 La sensibilidad `interna` indica que el campo reproduce contenido o nombres del documento
 convertido: hereda la sensibilidad del origen.
@@ -187,3 +238,8 @@ convertido: hereda la sensibilidad del origen.
     | Serialización YAML del frontmatter | `scripts/convert_to_md.py::_format_frontmatter` | ✅ |
     | Manifiesto y chunks | `scripts/convert_to_md.py::_run_chunking` | ✅ |
     | Formato `.sha256` y `CHECKSUMS.txt` | `scripts/build_docs_zip.py::_create_checksum_files` | ✅ |
+    | Opciones de `doc_trace.py` | `scripts/doc_trace.py::_parser` | ✅ |
+    | Códigos de `doc_trace.py` | `scripts/doc_trace.py::_cmd_drift`, `::_cmd_stamp`, `::_cmd_matrix`, `::_cmd_llms` | ✅ |
+    | `llms.txt` | `scripts/doc_trace.py::build_llms_txt` | ✅ |
+    | Matriz de trazabilidad | `scripts/doc_trace.py::build_matrix` | ✅ |
+    | Frontmatter de trazabilidad y huella | `scripts/doc_trace.py::format_frontmatter`, `::fingerprint` | ✅ |

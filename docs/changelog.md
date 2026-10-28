@@ -23,11 +23,11 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
   recorridos transversales, actores y glosario global del sistema.
 - **Arquetipo 12 §6 "Datos"** (condicional): `erDiagram` global y diccionario con sensibilidad
   por campo; aplicado a los ficheros con formato propio de doc_ia.
-
-### Fixed
-
-- `convert_to_md.py --device auto` detecta la GPU: el `CUDA_VISIBLE_DEVICES=""` que el módulo
-  fija al importarse ya no se confunde con una elección del usuario.
+- **`scripts/doc_trace.py`** (P3): trazabilidad determinista docs ↔ código con subcomandos
+  `stamp` (huellas SHA256 en el frontmatter), `drift` (páginas desactualizadas), `matrix`
+  (criterios de aceptación ↔ tests) y `llms` (`docs/llms.txt` desde el nav). 20 tests.
+- **Frontmatter de trazabilidad** (`arquetipo`, `fuentes`, `revisado`) en las 15 páginas de
+  doc_ia con bloque "Evidencia"; `docs/llms.txt` publicado en la raíz del sitio.
 
 ### Changed
 
@@ -36,6 +36,11 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - Prompt del Arquetipo 2 alineado con la norma (§2 "Modelo de Datos / Contratos"); la directiva
   autodoc solo se usa si el generador tiene mkdocstrings.
 - Material `CONTRATO` alimenta también el Arquetipo 12 §5; `INFRAESTRUCTURA` va a 6C §3 › Despliegue.
+
+### Fixed
+
+- `convert_to_md.py --device auto` detecta la GPU: el `CUDA_VISIBLE_DEVICES=""` que el módulo
+  fija al importarse ya no se confunde con una elección del usuario.
 
 ## [0.1.0] — 2026-06-10
 
