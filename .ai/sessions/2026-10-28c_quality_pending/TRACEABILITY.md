@@ -34,9 +34,19 @@
 - Verificación: secuencia completa de CI en venv limpio con `requirements-dev.txt` (Python 3.14):
   ruff, format, mypy, pytest 170, drift 0, matrix 0, `llms --check` 0, build `--strict` OK.
 
+## Verificación con docling (tras instalarlo en `.venv`: docling 2.107.0, torch 2.15.0)
+- **C2 completada**: mypy limpio con docling; 170 tests en verde; conversión real HTML → `md/`
+  correcta y el `README.md` del origen no se recoge (hotfix H confirmado).
+- La prueba destapó dos defectos, corregidos con `/hotfix` y test de reproducción:
+  - `82ec5f0` — `check_env.py` lanzaba `UnicodeEncodeError` al imprimir «⚠» en consola cp1252.
+  - `44820c2` — `engine_version` del frontmatter siempre `unknown` (docling no expone
+    `__version__`); ahora `importlib.metadata` → `2.107.0`.
+- `requirements.txt` está desfasado respecto a lo que resuelve pip para `docling==2.107.0`
+  (p. ej. docling-core 2.105.0 frente a 2.84.0 fijado; torch 2.15.0 frente a 2.12.1). No bloquea:
+  la CI usa `requirements-dev.txt`.
+
 ## AUDIT_CODE
-- **C2 parcial**: "mypy con docling" no verificable en local (ningún entorno tiene docling); se
-  mitiga con `warn_unused_ignores=false` acotado a `scripts.convert_to_md`.
+- **C2**: verificada tras instalar docling (ver sección anterior).
 - **C4**: CI no ejecutada en GitHub (sin push en esta sesión). Python 3.12 no está instalado en
   local: la matriz de CI lo validará en el primer push.
 - **Regresiones**: ninguna en tests; `requirements.txt` intacto (entorno local completo).
@@ -55,4 +65,5 @@
 Veredicto: CLOSED
 Pendientes al cierre:
 - Push a `develop` para validar `ci.yml` en GitHub (C4) y la matriz 3.12.
+- Opcional: regenerar `requirements.txt` desde el `.venv` actual (`pip freeze`).
 - 22/67 criterios sin test: flujos IA ejecutados en chat (no automatizables con tests unitarios).
