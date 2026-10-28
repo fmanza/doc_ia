@@ -604,10 +604,7 @@ def _convert_with_pandoc(
         return True
 
     if not pandoc_available():
-        print(
-            f"  ERROR   {rel}: pandoc no encontrado en el PATH"
-            f"\n{INSTALL_INSTRUCTIONS['pandoc']}"
-        )
+        print(f"  ERROR   {rel}: pandoc no encontrado en el PATH\n{INSTALL_INSTRUCTIONS['pandoc']}")
         return False
 
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -707,7 +704,11 @@ def _convert_batch_docling(
         results = converter.convert_all(source_paths, raises_on_error=False)
         for i, result in enumerate(results):
             ok = _process_batch_result(
-                result, to_convert[i], source_root, md_root, options=options,
+                result,
+                to_convert[i],
+                source_root,
+                md_root,
+                options=options,
             )
             if not ok:
                 failures += 1
@@ -750,8 +751,7 @@ def _prefilter_files(
 
         if f.suffix.lower() not in extensions:
             print(
-                f"  NOSOPOR {rel}: formato '{f.suffix}' no soportado por"
-                f" motor '{options.engine}'",
+                f"  NOSOPOR {rel}: formato '{f.suffix}' no soportado por motor '{options.engine}'",
                 flush=True,
             )
             failures += 1
@@ -808,7 +808,7 @@ def _is_conversion_success(result: Any) -> bool:
     try:
         from docling.datamodel.base_models import ConversionStatus  # noqa: PLC0415
 
-        return getattr(result, "status", None) == ConversionStatus.SUCCESS
+        return bool(getattr(result, "status", None) == ConversionStatus.SUCCESS)
     except ImportError:
         return True
 
@@ -835,9 +835,7 @@ def _batch_context(options: ConvertOptions) -> Any:
 # ---------------------------------------------------------------------------
 
 
-def _validate_only_report(
-    files: list[Path], source_root: Path, options: ConvertOptions
-) -> int:
+def _validate_only_report(files: list[Path], source_root: Path, options: ConvertOptions) -> int:
     """Ejecuta solo validación previa sin convertir. Retorna 0 si todo OK."""
     engine_ok = engine_available(options.engine)
     errors = 0
@@ -872,9 +870,7 @@ def _validate_only_report(
     return 0
 
 
-def _print_validation_summary(
-    files: list[Path], source_root: Path, *, dry_run: bool
-) -> None:
+def _print_validation_summary(files: list[Path], source_root: Path, *, dry_run: bool) -> None:
     """Muestra un resumen de ficheros que no superaron la validación previa."""
     if dry_run:
         return
@@ -1071,10 +1067,7 @@ def main(argv: list[str] | None = None) -> int:
     if options.validate_only:
         files = collect_files(source, options.engine)
         if not files:
-            print(
-                f"No se encontraron ficheros convertibles en: {source}"
-                f" (motor: {options.engine})"
-            )
+            print(f"No se encontraron ficheros convertibles en: {source} (motor: {options.engine})")
             return 0
         return _validate_only_report(files, source_root, options)
 
@@ -1106,13 +1099,14 @@ def main(argv: list[str] | None = None) -> int:
 
     if options.engine == "docling":
         failures = _convert_batch_docling(
-            files, source_root, md_root, options=options,
+            files,
+            source_root,
+            md_root,
+            options=options,
         )
     else:
         failures = sum(
-            1
-            for f in files
-            if not convert_file(f, source_root, md_root, options=options)
+            1 for f in files if not convert_file(f, source_root, md_root, options=options)
         )
 
     if failures:
