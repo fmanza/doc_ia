@@ -85,3 +85,47 @@ jobs:
           else
             echo "::warning title=Paridad Zensical::FALLO (Python ${{ matrix.python-version }}): ${{ steps.zensical.outcome }}"
           fi
+
+  # `mkdocs build --strict` no valida Mermaid: el tema renderiza en el navegador. Este job pasa
+  # cada página con diagramas por el parser real, con la versión mayor que carga cada tema
+  # (Material → mermaid@11, Zensical → mermaid@12). Versiones exactas y con al menos dos semanas
+  # de antigüedad; se usa el Node y el Chrome del runner (sin descarga de puppeteer).
+  mermaid:
+    name: Mermaid (parser real, mermaid ${{ matrix.mermaid }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - cli: "11.17.0"
+            mermaid: "11.17.2"
+          - cli: "12.0.0"
+            mermaid: "12.2.0"
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Instalar mermaid-cli
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: "true"
+        run: |
+          mkdir -p "$RUNNER_TEMP/mmdc" && cd "$RUNNER_TEMP/mmdc"
+          echo '{"private": true}' > package.json
+          npm install --no-audit --no-fund --ignore-scripts \
+            "@mermaid-js/mermaid-cli@${{ matrix.cli }}" "mermaid@${{ matrix.mermaid }}"
+          npm ls mermaid
+          echo '{"executablePath": "/usr/bin/google-chrome", "args": ["--no-sandbox"]}' > puppeteer.json
+
+      - name: Validar los diagramas de docs/
+        run: |
+          mkdir -p "$RUNNER_TEMP/mmdc-out"
+          status=0
+          for page in $(grep -rl --include='*.md' '^```mermaid' docs); do
+            out="$RUNNER_TEMP/mmdc-out/$(echo "$page" | tr / _)"
+            if ! "$RUNNER_TEMP/mmdc/node_modules/.bin/mmdc" -q \
+                -p "$RUNNER_TEMP/mmdc/puppeteer.json" -i "$page" -o "$out"; then
+              echo "::error file=$page::Mermaid ${{ matrix.mermaid }} no parsea un diagrama de $page"
+              status=1
+            fi
+          done
+          exit $status

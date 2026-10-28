@@ -91,6 +91,12 @@ el build de paridad con Zensical, que es informativo mientras Zensical esté en 
 `drift` falla, revisa la página contra el cambio de la fuente y re-séllala con
 `python scripts/doc_trace.py stamp <página>`.
 
+El job `mermaid` del mismo workflow pasa cada página de `docs/` con diagramas por el parser real
+de Mermaid (`@mermaid-js/mermaid-cli`, con mermaid 11 y 12, las versiones que cargan Material y
+Zensical); `mkdocs build --strict` no detecta esos errores. Las reglas deterministas de los
+diagramas (accesibilidad, ≤12 nodos, comillas, sin entidades HTML) las comprueba
+`tests/test_docs_conformance.py`.
+
 ### 5.1 Sincronización Visual de mkdocs.yml (para Nuevos Proyectos)
 
 #### Contexto
