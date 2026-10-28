@@ -13,13 +13,15 @@ Traslada el sistema de instrucciones IA de doc_ia a un proyecto destino de cualq
 
 ```mermaid
 flowchart TD
-    U[Usuario en el proyecto DESTINO] --> INV[Lee bootstrap_ai_config.prompt.md\n+ 8 parámetros obligatorios]
-    INV --> AN[ANÁLISIS\nClasificación A/B/C/D\nmatriz de equivalencias]
-    AN --> PL[PLAN\nficheros a copiar·adaptar·regenerar]
-    PL --> AP[AUDIT_PLAN\nriesgos funcionales·técnicos·seguridad\nVeredicto GO/GO_CONDICIONAL/NO_GO]
-    AP --> IM[IMPLEMENT\nCapa A verbatim → Capa B reescrita → Capa C regenerada]
-    IM --> AC[AUDIT_CODE\nConfig Reviewer\nDRY · rutas portables · cero referencias huérfanas]
-    AC --> VE[VERSION\ncommit Conventional Commits · rollback]
+    accTitle: Fases del bootstrap de configuración IA
+    accDescr: Desde el proyecto destino, el prompt de bootstrap recorre análisis, plan, auditoría del plan, implementación por capas, auditoría de código y versión.
+    U[Usuario en el proyecto DESTINO] --> INV[Lee bootstrap_ai_config.prompt.md<br/>+ 8 parámetros obligatorios]
+    INV --> AN[ANÁLISIS<br/>Clasificación A/B/C/D<br/>matriz de equivalencias]
+    AN --> PL[PLAN<br/>ficheros a copiar·adaptar·regenerar]
+    PL --> AP[AUDIT_PLAN<br/>riesgos funcionales·técnicos·seguridad<br/>Veredicto GO/GO_CONDICIONAL/NO_GO]
+    AP --> IM[IMPLEMENT<br/>Capa A verbatim → Capa B reescrita → Capa C regenerada]
+    IM --> AC[AUDIT_CODE<br/>Config Reviewer<br/>DRY · rutas portables · cero referencias huérfanas]
+    AC --> VE[VERSION<br/>commit Conventional Commits · rollback]
 ```
 
 ## 2. Modelo de Datos / Contratos

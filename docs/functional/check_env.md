@@ -30,6 +30,8 @@ instalarlas.
 
 ```mermaid
 sequenceDiagram
+    accTitle: Verificación del entorno
+    accDescr: El desarrollador pide la verificación; si falta una herramienta requerida, falla; si no, comprueba las opcionales y termina con éxito, con avisos si falta alguna.
     actor Dev as Desarrollador
     participant Ver as Verificación de Entorno
     participant Ent as Entorno local

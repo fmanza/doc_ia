@@ -37,6 +37,8 @@ y qué se regenera desde el código real del destino.
 
 ```mermaid
 flowchart TD
+    accTitle: Trasladar la configuración IA a otro proyecto
+    accDescr: Desde el proyecto destino se aplica el prompt de bootstrap: se clasifican los ficheros en capas, se planifica, se copia la capa A, se reescribe la B, se regenera la C, se excluye la D y Config Reviewer audita el resultado.
     U[Usuario en el proyecto destino] --> B[Lee y aplica bootstrap_ai_config.prompt.md]
     B --> A[Análisis: clasificar ficheros en capas A/B/C/D]
     A --> P[PLAN + AUDIT_PLAN: plan de transferencia]

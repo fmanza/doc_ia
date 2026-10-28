@@ -183,6 +183,8 @@ tooling.
 
 ```mermaid
 erDiagram
+    accTitle: Modelo de artefactos de doc_ia
+    accDescr: Un documento origen genera un Markdown con frontmatter y chunks opcionales indexados por un manifiesto; el ZIP offline va con su SHA256 y su línea en CHECKSUMS; cada página declara su trazabilidad con una huella por fuente.
     DOCUMENTO_ORIGEN ||--|| MARKDOWN : "convert_to_md genera"
     MARKDOWN ||--o| FRONTMATTER : "incluye con --metadata"
     MARKDOWN ||--o{ CHUNK : "se divide con --chunk"

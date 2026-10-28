@@ -176,6 +176,17 @@ def test_mermaid_no_html_entities() -> None:
     assert not offenders, offenders
 
 
+def test_mermaid_has_accessibility() -> None:
+    """Todo diagrama declara `accTitle` y `accDescr` para lectores de pantalla (AC-13)."""
+    offenders = [
+        f"{page}: {block.splitlines()[0]}"
+        for page, block in _mermaid_blocks()
+        if not re.search(r"^\s*accTitle:\s*\S", block, re.M)
+        or not re.search(r"^\s*accDescr(:\s*\S|\s*\{)", block, re.M)
+    ]
+    assert not offenders, offenders
+
+
 def test_mermaid_special_chars_quoted() -> None:
     """`@ ( ) { }` en label de flowchart sin comillas → parse error en Mermaid 11 y 12 (AC-11)."""
     offenders = [

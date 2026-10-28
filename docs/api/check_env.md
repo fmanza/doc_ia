@@ -13,9 +13,11 @@ Verifica de forma determinista que las herramientas del tooling documental (`mkd
 
 ```mermaid
 flowchart TD
+    accTitle: Flujo de check_env.py
+    accDescr: Comprueba las herramientas requeridas; si falta alguna lo indica y sale con 1; si no, informa de que el entorno está completo y sale con 0.
     A[Inicio: python scripts/check_env.py] --> B[missing_tools con REQUIRED_TOOLS]
-    B --> C{¿Alguna herramienta\nno importable?}
-    C -- No --> D[Imprime: Entorno de tooling\ndocumental completo.]
+    B --> C{¿Alguna herramienta<br/>no importable?}
+    C -- No --> D[Imprime: Entorno de tooling<br/>documental completo.]
     D --> E[Código de salida 0]
     C -- Sí --> F[Imprime: Faltan herramientas: lista]
     F --> G[Código de salida 1]

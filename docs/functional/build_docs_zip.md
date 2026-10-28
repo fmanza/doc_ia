@@ -49,6 +49,8 @@ corruptas o manipuladas).
 
 ```mermaid
 sequenceDiagram
+    accTitle: ZIP latest tras cada build
+    accDescr: Al terminar el build, el empaquetado automático genera el ZIP latest con el servidor local y su huella SHA256, e informa del tamaño y la huella.
     actor Dev as Desarrollador / CI
     participant Gen as Generador del sitio
     participant Hook as Empaquetado automático
@@ -65,6 +67,8 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
+    accTitle: ZIP versionado para publicar
+    accDescr: El publicador solicita el empaquetado; por defecto se reconstruye el sitio en modo estricto y se crea el ZIP con la versión en el nombre, su huella y su entrada en el registro histórico.
     actor Pub as Publicador
     participant Emp as Empaquetado versionado
     participant Gen as Generador (modo estricto)

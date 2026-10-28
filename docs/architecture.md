@@ -12,6 +12,8 @@ el código Python solo construye, valida y empaqueta.
 
 ```mermaid
 flowchart TD
+    accTitle: Contexto de doc_ia
+    accDescr: El desarrollador usa el chat de una plataforma IA, que aplica las instrucciones de doc_ia al proyecto origen y genera docs/; el tooling determinista lo construye y verifica, y GitHub Actions lo publica.
     subgraph Externo
         DEV[Desarrollador]
         ORIG[Proyecto origen a documentar]
@@ -23,12 +25,12 @@ flowchart TD
         TOOL[Tooling determinista<br/>scripts/]
         DOCS[docs/ + mkdocs.yml]
     end
-    DEV --> CHAT
-    CHAT --> INSTR
-    INSTR --> ORIG
-    CHAT --> DOCS
-    TOOL --> DOCS
-    DOCS --> GH
+    DEV -- usa --> CHAT
+    CHAT -- aplica --> INSTR
+    INSTR -- se aplican a --> ORIG
+    CHAT -- genera --> DOCS
+    TOOL -- construye y verifica --> DOCS
+    DOCS -- se publica en --> GH
 ```
 
 Objetivos de calidad: determinismo del tooling, cero credenciales, validación estricta
@@ -79,6 +81,8 @@ documentación como ZIP offline en GitHub Releases mediante dos workflows.
 
 ```mermaid
 flowchart LR
+    accTitle: Despliegue de doc_ia
+    accDescr: En local, el chat y los scripts generan site/ y el ZIP; un push a main dispara docs-zip-release.yml, que publica la release docs-vX.Y.Z, y un tag v* dispara docs-release.yml, que publica la release vX.Y.Z.
     subgraph Local[Equipo del desarrollador]
         CHAT[Chat IA + instrucciones]
         SCR[scripts/ + mkdocs build]

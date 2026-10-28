@@ -4,7 +4,7 @@ fuentes:
   .claude/commands/document-project.md: 0c40f2025589
   .github/DOCUMENTATION_STANDARD.md: aab10203cb20
   hooks/sync_root_docs.py: ef5e576436c6
-  tests/test_docs_conformance.py: 8f2efe5e8244
+  tests/test_docs_conformance.py: 7aff93832e8c
 revisado: 2026-10-28
 ---
 # Arquetipos Formales de Documentación
@@ -159,6 +159,7 @@ condición, y los opt-in (9 y 11) solo cuando el usuario los pide. La condición
 | AC-10 | Página de Arquetipo 1, 2 o 12 generada | Se revisa el documento | Termina con el bloque plegable "Evidencia"; cada regla, contrato y criterio tiene fila con su fuente y su confianza | `tests/test_docs_conformance.py::test_functional_pages_follow_archetype_1`, `tests/test_docs_conformance.py::test_api_pages_follow_archetype_2`, `tests/test_docs_conformance.py::test_reference_follows_archetype_12` |
 | AC-11 | Diagrama Mermaid con `@`, `(`, `)`, `{` o `}` en una etiqueta | Se genera el bloque | La etiqueta va entre comillas dobles y no contiene entidades HTML (`&#40;`), que Mermaid pintaría con un `&` sobrante | `tests/test_docs_conformance.py::test_mermaid_no_html_entities`, `tests/test_docs_conformance.py::test_mermaid_special_chars_quoted` |
 | AC-12 | Diagrama Mermaid en cualquier página | Se genera o rediseña | Tiene como máximo 12 nodos, y 8 en las páginas del Arquetipo 6; si no hay flujo, se usa una tabla | `tests/test_docs_conformance.py::test_mermaid_max_nodes` |
+| AC-13 | Diagrama Mermaid en cualquier página | Se genera el bloque | Declara `accTitle` y `accDescr` justo después del tipo, para que el SVG tenga título y descripción accesibles | `tests/test_docs_conformance.py::test_mermaid_has_accessibility` |
 
 Verificación: `python -m mkdocs build --strict` sin warnings tras generar cualquier arquetipo.
 Los arquetipos se aplican en el chat y no tienen tests automatizados.
@@ -208,3 +209,4 @@ Los tests verifican el **resultado** sobre la documentación de doc_ia (dogfoodi
     | AC-10 | `.github/DOCUMENTATION_STANDARD.md::3.16` (Revisión) | ✅ |
     | AC-11 | `.github/DOCUMENTATION_STANDARD.md::3.17` (Etiquetas) | ✅ |
     | AC-12 | `.github/DOCUMENTATION_STANDARD.md::3.17` (Tamaño) | ✅ |
+    | AC-13 | `.github/DOCUMENTATION_STANDARD.md::3.17` (Accesibilidad) | ✅ |
