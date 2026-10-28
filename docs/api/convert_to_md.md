@@ -16,25 +16,30 @@ y pandoc.
 
 ```mermaid
 flowchart TD
-    CLI["CLI: argparse\n(source, --engine, --dry-run,\n--validate-only, --metadata…)"]
-    CLI --> PA["_parse_args → ConvertOptions"]
-    PA --> SE{source existe?}
-    SE -- No --> ERR["ERROR → exit 1"]
-    SE -- Sí --> VO{validate_only?}
-    VO -- Sí --> VREP["_validate_only_report\n→ exit 0/1"]
-    VO -- No --> DEV["_detect_device\n(CPU/CUDA)"]
-    DEV --> ENG{engine\ndisponible?}
-    ENG -- No --> ENGERR["ERROR → exit 1\ncon alternativas"]
+    accTitle: Despacho de main en convert_to_md
+    accDescr: main analiza los argumentos, sale con 1 si el origen no existe, delega en el informe de validación con validate_only, detecta el dispositivo para docling, comprueba el motor y reúne los ficheros antes de convertir.
+    MAIN["main · _parse_args → ConvertOptions"] --> SE{¿source existe?}
+    SE -- No --> X1["return 1"]
+    SE -- Sí --> VO{¿validate_only?}
+    VO -- Sí --> VREP["collect_files +<br/>_validate_only_report → 0 o 1"]
+    VO -- No --> DEV["_detect_device<br/>solo docling sin dry_run"]
+    DEV --> ENG{"¿engine_available()?<br/>se omite en dry_run"}
+    ENG -- No --> X2["return 1<br/>con alternativas"]
     ENG -- Sí --> CF["collect_files(source, engine)"]
-    CF --> EMPTY{¿Sin ficheros?}
-    EMPTY -- Sí --> OK0["exit 0"]
-    EMPTY -- No --> BATCH{¿docling?}
-    BATCH -- Sí --> BA["_convert_batch_docling\n(convert_all + pre-filtro)"]
-    BATCH -- No --> LOOP["convert_file uno a uno\n(markitdown o pandoc)"]
-    BA --> FINAL
-    LOOP --> FINAL{¿Errores?}
-    FINAL -- Sí --> EXIT1["exit 1"]
-    FINAL -- No --> EXIT0["exit 0"]
+    CF -- lista vacía --> X0["return 0"]
+    CF -- ficheros --> CONV[[Conversión por motor<br/>diagrama siguiente]]
+```
+
+```mermaid
+flowchart TD
+    accTitle: Conversión por motor en convert_to_md
+    accDescr: Con docling se prefiltra y se convierte en lote con convert_all; con markitdown o pandoc se llama a convert_file fichero a fichero. Cualquier fallo hace que main devuelva 1.
+    E{options.engine} -- docling --> BA["_convert_batch_docling<br/>_prefilter_files + convert_all"]
+    E -- markitdown o pandoc --> LOOP["convert_file<br/>fichero a fichero"]
+    BA --> F{¿failures > 0?}
+    LOOP --> F
+    F -- Sí --> R1["return 1"]
+    F -- No --> R0["return 0"]
 ```
 
 Pipeline determinista: cada fichero se procesa de forma independiente; un error en un fichero

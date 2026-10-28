@@ -14,27 +14,42 @@ Punto de entrada único del producto doc_ia: orquesta los arquetipos formales so
 ## 1. Arquitectura y Diseño
 
 ```mermaid
-flowchart TD
-    V[VALIDACIÓN\n4 parámetros obligatorios] --> CL{≥2 orígenes\no tipo no CÓDIGO}
-    CL -- Sí --> F0a[Fase 0a — Clasificación\n8 tipos de origen]
-    F0a --> confirm[Confirmar con usuario]
-    confirm --> F0b
-    CL -- No --> F0b[Fase 0b — Sincronización visual\nassets + mkdocs.yml + .gitignore]
-    F0b --> F0[Fase 0 — Normativa · Arquetipo 8 si aplica\nFase 0c — Conversión a Markdown · md/]
-    F0 --> F1[Fase 1 — Inventario\nEstado A · B · C\nDetección ZIP offline\nDetección carpetas md/]
-    F1 --> PD[PLAN_DOC\nCREAR A · ACTUALIZAR B · OMITIR C]
-    PD --> F2[Fase 2 — Funcional\nArquetipo 1 + Mapa 1-I]
-    F2 --> F3[Fase 3 — Técnica\nArquetipo 2 · Arquetipo 12 si aplica]
-    F3 --> F4[Fase 4 — Ejemplos + Guías\nArquetipos 3 · 4 · 6 · 7]
-    F4 --> F5[Fase 5 — SYNC NAV\nmkdocs.yml]
-    F5 --> F6[Fase 6 — Revisión\nMarkdown · enlaces · Mermaid\nstamp · drift · matrix · llms]
-    F6 --> F7{--verify-build}
-    F7 -- Sí --> build[Fase 7 — Build estricto]
-    F7 -- No --> F7b
-    build --> F7b[Fase 7b — downloads.md\nsiempre obligatorio]
-    F7b --> RES[RESUMEN]
-    RES --> CIERRE[CIERRE DE SESIÓN\n.ai/sessions/ + .ai/*.md + commit]
+stateDiagram-v2
+    accTitle: Fases internas de document_project
+    accDescr: Máquina de fases del flujo, desde la validación de los cuatro parámetros hasta el cierre de sesión, con las dos salidas anticipadas (parámetro faltante o ningún origen de código) y el build estricto opcional.
+    state "VALIDACIÓN · 4 parámetros" as VALIDACION
+    state "Fase 0a · Clasificación" as CLASIFICACION
+    state "Fase 0b · Sincronización visual" as SYNC_VISUAL
+    state "Fase 0 normativa · Fase 0c conversión md/" as PREPARACION
+    state "Fase 1 · Inventario A/B/C" as INVENTARIO
+    state "PLAN_DOC" as PLAN_DOC
+    state "Fases 2-4 · Arquetipos 1, 2, 12, 3, 4, 6, 7" as GENERACION
+    state "Fase 5 · SYNC NAV" as SYNC_NAV
+    state "Fase 6 · Revisión, stamp, drift, matrix, llms" as REVISION
+    state "Fase 7 · Build estricto" as BUILD
+    state "Fase 7b · downloads.md" as DESCARGAS
+    state "RESUMEN y cierre de sesión" as CIERRE
+    [*] --> VALIDACION
+    VALIDACION --> [*] : falta un parámetro
+    VALIDACION --> CLASIFICACION : ≥2 orígenes o tipo no CÓDIGO
+    VALIDACION --> SYNC_VISUAL : un origen CÓDIGO
+    CLASIFICACION --> [*] : ningún origen CÓDIGO
+    CLASIFICACION --> SYNC_VISUAL : confirmada
+    SYNC_VISUAL --> PREPARACION
+    PREPARACION --> INVENTARIO
+    INVENTARIO --> PLAN_DOC
+    PLAN_DOC --> GENERACION
+    GENERACION --> SYNC_NAV
+    SYNC_NAV --> REVISION
+    REVISION --> BUILD : --verify-build
+    REVISION --> DESCARGAS : sin --verify-build
+    BUILD --> DESCARGAS
+    DESCARGAS --> CIERRE
+    CIERRE --> [*]
 ```
+
+La vista del mismo flujo desde el usuario (qué pide, qué confirma y qué recibe) está en la
+[página funcional](../functional/document_project.md#3-flujo-principal).
 
 ## 2. Modelo de Datos / Contratos
 

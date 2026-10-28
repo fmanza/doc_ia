@@ -43,20 +43,27 @@ decidir manualmente qué arquetipo aplicar a cada módulo.
 ## 3. Flujo Principal
 
 ```mermaid
-flowchart TD
-    U[Usuario en chat IA] --> V[Validar cuatro parámetros obligatorios]
-    V -- parámetro faltante --> U
-    V --> CL{¿≥2 orígenes o\nno es CÓDIGO?}
-    CL -- Sí --> F0a[Fase 0a — Clasificar orígenes<br/>8 tipos posibles]
-    F0a -- confirmar con usuario --> F0b
-    CL -- No --> F0b[Fase 0b — Sincronización visual<br/>assets + mkdocs.yml + .gitignore]
-    F0b --> I[Inventariar el origen<br/>clasificar A / B / C<br/>detectar señales ZIP offline<br/>detectar carpetas md/]
-    I --> P[PLAN_DOC<br/>CREAR A · ACTUALIZAR B · OMITIR C]
-    P --> G[Generar por arquetipos<br/>funcional + mapa · técnica · referencia · ejemplos · guías]
-    G --> N[Sincronizar mkdocs.yml]
-    N --> R[Revisión final<br/>Markdown · enlaces · Mermaid · trazabilidad]
-    R --> DL[Fase 7b — downloads.md<br/>Variante A o B · reportar huecos]
-    DL --> CS[Cierre de sesión<br/>.ai/sessions/YYYY-MM-DD/<br/>.ai/*.md contexto + commit]
+sequenceDiagram
+    accTitle: Documentar un proyecto desde el chat
+    accDescr: El usuario invoca el flujo con cuatro parámetros; el agente valida, pide confirmar la clasificación si hay varios orígenes o ninguno es código, inventaría el origen frente a la documentación existente, genera las páginas en el destino y devuelve un resumen con la trazabilidad y una propuesta de commit.
+    actor U as Usuario
+    participant A as Agente
+    participant O as Origen
+    participant D as Destino
+    U->>A: Origen(es), destino, generador e idioma
+    alt Falta algún parámetro
+        A-->>U: Se detiene y pregunta
+    end
+    opt Varios orígenes o el único no es código
+        A-->>U: Clasificación de orígenes propuesta
+        U->>A: Confirma
+    end
+    A->>D: Sincroniza la configuración visual
+    A->>O: Inventaría módulos
+    A->>D: Compara con la documentación existente (A, B o C)
+    A->>D: Crea o actualiza páginas por arquetipo y la navegación
+    A->>D: Revisa y actualiza la página de descargas
+    A-->>U: Resumen, trazabilidad de la sesión y propuesta de commit
 ```
 
 El usuario invoca el flujo con los cuatro parámetros; si falta alguno, el flujo se detiene y

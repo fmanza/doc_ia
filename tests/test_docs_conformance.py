@@ -206,6 +206,90 @@ def test_unquoted_label_detector(line: str, bad: bool) -> None:
     assert found is bad
 
 
+# Páginas del Arquetipo 6 (navegación principal): resumen de 8 nodos como máximo (§3.17).
+LANDING_PAGES = {"index.md", "installation.md", "architecture.md", "quickstart.md"}
+FLOW_SKIP = ("subgraph", "end", "direction", "classDef", "class ", "style", "linkStyle", "click")
+SHAPE_RE = re.compile(r"\[[^\[\]]*\]|\([^()]*\)|\{[^{}]*\}")
+EDGE_TEXT_RE = re.compile(r"(--|==)\s+[^-=>]+?\s+(-->|==>|---|===)|-\.\s*[^.]+?\s*\.->")
+
+
+def _diagram_lines(block: str) -> list[str]:
+    """Líneas del diagrama sin la cabecera, comentarios ni `accTitle`/`accDescr`."""
+    body = re.sub(r"^\s*accDescr\s*\{.*?\}", "", block, flags=re.M | re.S)
+    return [
+        line.strip()
+        for line in body.splitlines()[1:]
+        if line.strip() and not re.match(r"\s*(%%|accTitle|accDescr)", line)
+    ]
+
+
+def _flowchart_nodes(lines: list[str]) -> set[str]:
+    groups = {m.group(1) for line in lines if (m := re.match(r"subgraph\s+(\w+)", line))}
+    nodes: set[str] = set()
+    for line in lines:
+        if line.startswith(FLOW_SKIP):
+            continue
+        text = re.sub(r"\|[^|]*\|", " ", re.sub(r'"[^"]*"', "", line))
+        while SHAPE_RE.search(text):
+            text = SHAPE_RE.sub(" ", text)
+        text = EDGE_TEXT_RE.sub(" --> ", text)
+        nodes |= set(re.findall(r"[A-Za-z_]\w*", text)) - groups
+    return nodes
+
+
+def _mermaid_nodes(block: str) -> int:
+    """Nodos según §3.17: IDs, participantes, estados o entidades (0 si no aplica)."""
+    kind, lines = block.split(maxsplit=1)[0], _diagram_lines(block)
+    if kind in {"flowchart", "graph"}:
+        return len(_flowchart_nodes(lines))
+    found: set[str] = set()
+    for line in lines:
+        if kind == "sequenceDiagram":
+            m = re.match(r"(?:participant|actor)\s+(\w+)", line) or re.match(
+                r"(\w+)\s*[-<>x)]+[+-]?\s*(\w+)\s*:", line
+            )
+        elif kind == "stateDiagram-v2":
+            m = re.match(r"state\s+(?:\"[^\"]*\"\s+as\s+)?(\w+)", line) or re.match(
+                r"(\[\*\]|\w+)\s*-->\s*(\[\*\]|\w+)", line
+            )
+        elif kind == "erDiagram":
+            m = re.match(r"([\w-]+)\s+[|}o{.-]+\s+([\w-]+)\s*:", line) or re.match(
+                r"([\w-]+)\s*\{", line
+            )
+        else:
+            return 0
+        if m:
+            found |= {g for g in m.groups() if g and g != "[*]"}
+    return len(found)
+
+
+@pytest.mark.parametrize(
+    ("block", "expected"),
+    [
+        ("flowchart TD\n A[x] -- No, y vigente --> B{y}\n B -->|z| C & D", 4),
+        ("flowchart TD\n subgraph S[t]\n A --> B\n end\n X --> S", 3),
+        ('flowchart TD\n accTitle: t\n A["a (b) -- c"] -. git push .-> B@{ shape: doc }', 2),
+        ("sequenceDiagram\n actor U as Usuario\n participant A\n U->>A: hola\n A-->>B: x", 3),
+        ('stateDiagram-v2\n state "x" as S1\n [*] --> S1\n S1 --> S2 : ok\n S2 --> [*]', 2),
+        ('erDiagram\n A ||--o{ B : "x"\n B }o--|| C : y', 3),
+        ("gitGraph\n commit", 0),
+    ],
+)
+def test_mermaid_node_counter(block: str, expected: int) -> None:
+    """El contador de nodos de §3.17 sobre casos límite de cada tipo de diagrama."""
+    assert _mermaid_nodes(block) == expected
+
+
+def test_mermaid_max_nodes() -> None:
+    """≤12 nodos por diagrama y ≤8 en las páginas del Arquetipo 6 (AC-12)."""
+    offenders = [
+        f"{page}: {n} nodos"
+        for page, block in _mermaid_blocks()
+        if (n := _mermaid_nodes(block)) > (8 if page in LANDING_PAGES else 12)
+    ]
+    assert not offenders, offenders
+
+
 def test_guides_naming_convention() -> None:
     """Guías en minúsculas con guion bajo y sin subcarpetas; how-to ≠ tutorial (AC-08)."""
     guides = DOCS / "guides"

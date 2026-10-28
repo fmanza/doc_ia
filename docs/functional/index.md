@@ -1,14 +1,14 @@
 ---
 arquetipo: "1-I"
 fuentes:
-  docs/functional/archetypes.md: b1ebe52b1d9e
+  docs/functional/archetypes.md: f3083ec30d05
   docs/functional/bootstrap.md: c3f3aa31f605
   docs/functional/build_docs_zip.md: 9926058a0826
   docs/functional/check_env.md: 50d36e2a0f15
-  docs/functional/convert_to_md.md: ba27225210c2
+  docs/functional/convert_to_md.md: f96accb1837d
   docs/functional/doc_trace.md: 5137aa9944f5
-  docs/functional/document_project.md: 389c47c24ef5
-  docs/functional/origin_types.md: da5ec981131e
+  docs/functional/document_project.md: c1b93bd04e58
+  docs/functional/origin_types.md: 8164b678fa95
 revisado: 2026-10-28
 ---
 # Mapa Funcional — doc_ia
@@ -26,7 +26,7 @@ y qué términos comparten. Cada capacidad enlaza a su página funcional detalla
 | Detectar documentación desactualizada respecto al código y cruzar criterios con tests | Tooling determinista | [Trazabilidad Docs ↔ Código](doc_trace.md) | AC-01 – AC-14 | 14/14 |
 | Documentar un proyecto completo desde una única operación de entrada | Flujos IA | [Documentar un Proyecto](document_project.md) | AC-01 – AC-08 | 0/8 |
 | Clasificar cada origen (código, normativa, especificación, contrato…) y decidir su tratamiento | Flujos IA | [Catálogo de Tipos de Origen](origin_types.md) | AC-01 – AC-09 | 0/9 |
-| Producir documentación con estructura fija y evidencia verificable | Flujos IA | [Arquetipos Formales](archetypes.md) | AC-01 – AC-11 | 11/11 |
+| Producir documentación con estructura fija y evidencia verificable | Flujos IA | [Arquetipos Formales](archetypes.md) | AC-01 – AC-12 | 12/12 |
 | Trasladar el sistema de instrucciones IA a otro proyecto | Flujos IA | [Bootstrap de Configuración IA](bootstrap.md) | AC-01 – AC-04 | 0/4 |
 
 **Cobertura de pruebas**: 50 de 73 criterios tienen un test automatizado. Los flujos IA se

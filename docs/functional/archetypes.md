@@ -4,7 +4,7 @@ fuentes:
   .claude/commands/document-project.md: 0c40f2025589
   .github/DOCUMENTATION_STANDARD.md: aab10203cb20
   hooks/sync_root_docs.py: ef5e576436c6
-  tests/test_docs_conformance.py: 483c92783560
+  tests/test_docs_conformance.py: 8f2efe5e8244
 revisado: 2026-10-28
 ---
 # Arquetipos Formales de Documentación
@@ -42,41 +42,34 @@ aplicar de forma individual a un único módulo o sección, sin invocar el flujo
 
 ```mermaid
 flowchart TD
-    INV[Inventario del módulo] --> Q1{¿Existe página funcional?}
-    Q1 -- No --> A1[Arquetipo 1: funcional_doc]
-    Q1 -- Sí y vigente --> C1[OMITIR]
-
-    INV --> Q2{¿Existe página técnica?}
-    Q2 -- No --> A2[Arquetipo 2: technical_doc]
-
-    INV --> Q3{¿Existe ejemplo ejecutable?}
-    Q3 -- No --> A4[Arquetipo 4: example_doc]
-
-    INV --> Q8{¿Hay normativa de referencia?}
-    Q8 -- Sí --> A8[Arquetipo 8: normative_traceability]
-    Q8 -- No --> skip8[Omitir Arquetipo 8]
-
-    INV --> Q9{¿changelog en\nparam Arquetipos?}
-    Q9 -- Sí --> A9[Arquetipo 9: changelog\nopt-in explícito]
-    Q9 -- No --> skip9[Omitir Arquetipo 9]
-
-    INV --> Q10{¿Hay agentes IA configurados?}
-    Q10 -- Sí y sin docs --> A10[Arquetipo 10: ai_config_doc]
-
-    INV --> Q11{¿contribución en\nparam Arquetipos?}
-    Q11 -- Sí --> A11[Arquetipo 11: contributing_doc\nopt-in explícito]
-    Q11 -- No --> skip11[Omitir Arquetipo 11]
-
-    INV --> Q12{¿Expone config, CLI,\ncódigos o interfaces?}
-    Q12 -- Sí --> A12[Arquetipo 12: reference_doc\nuna página por sistema]
-    Q12 -- No --> skip12[Omitir Arquetipo 12]
+    accTitle: Qué arquetipos se aplican a un módulo
+    accDescr: Durante el inventario se aplican los Arquetipos 1, 2 y 4 si falta su página, los condicionales 8, 10 y 12 si el origen cumple su condición y los opt-in 9 y 11 si el usuario los pide; en otro caso se omiten.
+    INV[Inventario del módulo] --> BASE{¿Falta la página funcional,<br/>técnica o de ejemplo?}
+    BASE -- Sí --> A124[Aplicar Arquetipo 1, 2 o 4<br/>según la que falte]
+    BASE -- No, y está vigente --> OMIT[Omitir]
+    INV --> COND{¿El origen cumple<br/>la condición?}
+    COND -- Sí --> A81012[Aplicar Arquetipo 8, 10 o 12]
+    COND -- No --> OMIT
+    INV --> OPT{¿El usuario lo pide<br/>en Arquetipos?}
+    OPT -- Sí --> A911[Aplicar Arquetipo 9 u 11]
+    OPT -- No --> OMIT
 ```
 
-Durante el inventario, cada módulo se evalúa contra las preguntas del diagrama: si le falta
-la página funcional, técnica o de ejemplos, se aplica el arquetipo correspondiente; si ya
-existe y está vigente, se omite. Los arquetipos condicionales (8 y 12) solo se aplican cuando
-el origen cumple su condición, y los opt-in (9 y 11) solo cuando el usuario los pide. El 10
-se aplica cuando el proyecto tiene agentes IA configurados sin documentar.
+Durante el inventario, cada módulo se evalúa en tres grupos: si le falta la página funcional,
+técnica o de ejemplos, se aplica el arquetipo correspondiente; si ya existe y está vigente, se
+omite. Los arquetipos condicionales (8, 10 y 12) solo se aplican cuando el origen cumple su
+condición, y los opt-in (9 y 11) solo cuando el usuario los pide. La condición de cada uno:
+
+| Arquetipo | Se aplica cuando | Si no se cumple |
+|---|---|---|
+| 1 — Funcional | Falta la página funcional del módulo | Se omite si existe y está vigente |
+| 2 — Técnica | Falta la página técnica del módulo | Se omite si existe y está vigente |
+| 4 — Ejemplos | Falta un ejemplo ejecutable del módulo | Se omite si existe y está vigente |
+| 8 — Normativa | El origen tiene normativa de referencia | Se omite |
+| 9 — Changelog | El parámetro Arquetipos incluye `changelog` | Se omite |
+| 10 — Config IA | El proyecto tiene agentes IA configurados sin documentar | Se omite |
+| 11 — Contribución | El parámetro Arquetipos incluye `contribución` | Se omite |
+| 12 — Referencia | El origen expone configuración, CLI, códigos de salida o interfaces | Se omite |
 
 ### Arquetipos disponibles
 
@@ -165,6 +158,7 @@ se aplica cuando el proyecto tiene agentes IA configurados sin documentar.
 | AC-09 | Proyecto con CLI o variables de entorno | Se ejecuta `/document-project` | Existe `docs/reference/index.md` con las 6 secciones del Arquetipo 12 y la entrada "Referencia del Sistema" en `mkdocs.yml`; en una librería sin superficie de usuario no se genera | `tests/test_docs_conformance.py::test_reference_follows_archetype_12` |
 | AC-10 | Página de Arquetipo 1, 2 o 12 generada | Se revisa el documento | Termina con el bloque plegable "Evidencia"; cada regla, contrato y criterio tiene fila con su fuente y su confianza | `tests/test_docs_conformance.py::test_functional_pages_follow_archetype_1`, `tests/test_docs_conformance.py::test_api_pages_follow_archetype_2`, `tests/test_docs_conformance.py::test_reference_follows_archetype_12` |
 | AC-11 | Diagrama Mermaid con `@`, `(`, `)`, `{` o `}` en una etiqueta | Se genera el bloque | La etiqueta va entre comillas dobles y no contiene entidades HTML (`&#40;`), que Mermaid pintaría con un `&` sobrante | `tests/test_docs_conformance.py::test_mermaid_no_html_entities`, `tests/test_docs_conformance.py::test_mermaid_special_chars_quoted` |
+| AC-12 | Diagrama Mermaid en cualquier página | Se genera o rediseña | Tiene como máximo 12 nodos, y 8 en las páginas del Arquetipo 6; si no hay flujo, se usa una tabla | `tests/test_docs_conformance.py::test_mermaid_max_nodes` |
 
 Verificación: `python -m mkdocs build --strict` sin warnings tras generar cualquier arquetipo.
 Los arquetipos se aplican en el chat y no tienen tests automatizados.
@@ -213,3 +207,4 @@ Los tests verifican el **resultado** sobre la documentación de doc_ia (dogfoodi
     | AC-09 | `.github/DOCUMENTATION_STANDARD.md::3.15` (6 secciones, sección MkDocs) | ✅ |
     | AC-10 | `.github/DOCUMENTATION_STANDARD.md::3.16` (Revisión) | ✅ |
     | AC-11 | `.github/DOCUMENTATION_STANDARD.md::3.17` (Etiquetas) | ✅ |
+    | AC-12 | `.github/DOCUMENTATION_STANDARD.md::3.17` (Tamaño) | ✅ |

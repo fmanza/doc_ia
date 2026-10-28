@@ -47,23 +47,22 @@ inválida) para no gastar tiempo en ficheros dañados. Más detalle en la
 
 ```mermaid
 flowchart TD
+    accTitle: Conversión de documentos a Markdown
+    accDescr: Si el origen no existe, falla. En modo solo validar revisa los ficheros sin convertir. En modo normal comprueba el motor, reúne los ficheros que admite, omite los ya convertidos, rechaza los inválidos y convierte el resto; cualquier error hace fallar el resultado global.
     A([Inicio]) --> B{¿Existe el origen?}
-    B -- No --> E[Error → fallo]
+    B -- No --> FALLO([Fallo])
     B -- Sí --> VO{¿Solo validar?}
-    VO -- Sí --> VAL[Validar ficheros\nsin convertir]
-    VAL --> VALR{¿Errores?}
-    VALR -- No --> VALOK[Éxito]
-    VALR -- Sí --> VALERR[Fallo]
+    VO -- Sí --> VAL[Validar ficheros<br/>sin convertir]
+    VAL -- con errores --> FALLO
+    VAL -- sin errores --> EXITO([Éxito])
     VO -- No --> ENG{¿Motor disponible?}
-    ENG -- No --> ENGERR[Error con motores\nalternativos → fallo]
-    ENG -- Sí --> CF[Reunir ficheros\nque admite el motor]
-    CF --> G{¿Hay ficheros?}
-    G -- No --> H[Aviso → éxito]
-    G -- Sí --> PRE[Omitir ya convertidos\ny rechazar inválidos]
+    ENG -- No, sugiere alternativas --> FALLO
+    ENG -- Sí --> CF[Reunir ficheros<br/>que admite el motor]
+    CF -- ninguno, aviso --> EXITO
+    CF --> PRE[Omitir ya convertidos<br/>y rechazar inválidos]
     PRE --> CONV[Convertir a md/]
-    CONV --> Q{¿Algún error?}
-    Q -- Sí --> R[Fallo]
-    Q -- No --> S[Éxito]
+    CONV -- algún error --> FALLO
+    CONV -- todo convertido --> EXITO
 ```
 
 El usuario indica un fichero o carpeta de origen. Si no existe, se informa y termina con

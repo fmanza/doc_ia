@@ -57,20 +57,20 @@ Regla de capas: `scripts/` no importa de `docs/` ni `.github/`; `hooks/` no impo
 Operación típica — documentar un proyecto con `/document-project`:
 
 ```mermaid
-flowchart TD
-    A[Usuario en chat IA] --> B[Comando document-project<br/>VALIDACIÓN de 4 inputs]
-    B -- inputs incompletos --> A
-    B --> B0{¿≥2 orígenes o<br/>no es CÓDIGO?}
-    B0 -- Sí --> F0a[Fase 0a — Clasificar orígenes<br/>8 tipos posibles]
-    F0a --> B1
-    B0 -- No --> B1[Fase 0b — Sincronización visual<br/>assets + mkdocs.yml + .gitignore]
-    B1 --> C[Fase 1 — Inventario<br/>Estado A / B / C<br/>Señales ZIP offline]
-    C --> D[Fases 2-4 — Generación por arquetipos<br/>funcional · técnica · referencia · ejemplos · guías]
-    D --> E[Fase 5 — Sincronización de mkdocs.yml]
-    E --> F[Fase 6 — Revisión Markdown · enlaces · Mermaid]
-    F --> G[Fase 7 — Build opt-in + downloads.md]
-    G --> H[Cierre — .ai/sessions/ + commit]
+flowchart LR
+    accTitle: Operación típica de doc_ia
+    accDescr: Resumen del flujo document-project: el usuario lo invoca desde el chat, se validan los parámetros, se clasifica y prepara el destino, se inventaría, se genera por arquetipos, se revisa y se cierra la sesión.
+    A[Usuario en chat IA] -- invoca --> B[document-project<br/>valida 4 parámetros]
+    B --> C[Clasificación y<br/>sincronización visual]
+    C --> D[Inventario<br/>y PLAN_DOC]
+    D --> E[Generación<br/>por arquetipos]
+    E --> F[Navegación, revisión<br/>y build opcional]
+    F --> G[Cierre de sesión<br/>y commit]
 ```
+
+El detalle está en dos vistas: la del usuario en
+[Documentar un Proyecto](functional/document_project.md#3-flujo-principal) y la máquina de fases
+interna en [document_project (técnica)](api/document_project.md#1-arquitectura-y-diseno).
 
 ### Despliegue
 

@@ -13,15 +13,25 @@ Trazabilidad determinista entre la documentación y el código: sella huellas SH
 
 ```mermaid
 flowchart TD
-    CLI[main · argparse] --> D{subcomando}
-    D -- drift --> DR[check_drift] --> RM[read_page_meta] --> FP[fingerprint]
-    D -- stamp --> ST[stamp_page] --> FP
-    ST --> FF[format_frontmatter]
-    D -- matrix --> CC[collect_criteria] --> BM[build_matrix]
-    D -- matrix --> CT[collect_test_ids · ast] --> BM
-    D -- llms --> BL[build_llms_txt] --> NV[_nav_entries + _page_url]
-    RM --> Y[_load_yaml · PyYAML]
-    BL --> Y
+    accTitle: Subcomandos de doc_trace y sus funciones
+    accDescr: main despacha a cuatro subcomandos; drift y stamp comparten la lectura del frontmatter y el cálculo de huellas, matrix cruza criterios con los IDs de test y llms recorre el nav; la lectura YAML es común a frontmatter y llms.
+    CLI[main · argparse] --> sdrift & sstamp & smatrix & sllms
+    subgraph sdrift[drift]
+        DR[check_drift]
+    end
+    subgraph sstamp[stamp]
+        ST[stamp_page] --> FF[format_frontmatter]
+    end
+    subgraph smatrix[matrix]
+        CC[collect_criteria] --> BM[build_matrix]
+        CT[collect_test_ids · ast] --> BM
+    end
+    subgraph sllms[llms]
+        BL[build_llms_txt] --> NV[_nav_entries + _page_url]
+    end
+    DR & ST --> RM[read_page_meta]
+    DR & ST --> FP[fingerprint]
+    RM & BL --> Y[_load_yaml · PyYAML]
 ```
 
 Script standalone sin dependencias de otros módulos del proyecto. Cada subcomando es una

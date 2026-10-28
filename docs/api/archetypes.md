@@ -5,7 +5,7 @@ fuentes:
   .github/agents/documentation-generator.agent.md: b7f50b94ebc1
   .github/prompts/example_doc.prompt.md: 6041f616e0c3
   mkdocs.yml: 66d3b81c502c
-  tests/test_docs_conformance.py: 483c92783560
+  tests/test_docs_conformance.py: 8f2efe5e8244
 revisado: 2026-10-28
 ---
 # archetypes
@@ -16,26 +16,20 @@ Sistema de doce arquetipos de documentación (más variante 3b) con estructura f
 
 ```mermaid
 flowchart TD
-    DS[DOCUMENTATION_STANDARD.md\n§3 — define 12 arquetipos + 3b] --> P[Prompts por arquetipo\n.github/prompts/]
-    P --> AG[Documentation Generator\nagent — orquesta los prompts]
-    AG --> DP[document_project\nflujo de entrada único]
-
-    DS --> A1[Arq. 1 — Funcional\nfunctional_doc.prompt.md]
-    DS --> A2[Arq. 2 — Técnica\ntechnical_doc.prompt.md]
-    DS --> A3a[Arq. 3a — How-to\nhowto_doc.prompt.md]
-    DS --> A3b[Arq. 3b — Tutorial\ntutorial_doc.prompt.md]
-    DS --> A4[Arq. 4 — Ejemplos\nexample_doc.prompt.md]
-    DS --> A5[Arq. 5 — ADR/MADR 4.0\narchitecture_doc.prompt.md]
-    DS --> A6[Arq. 6 — Landing A/B/C/D\nlanding_doc.prompt.md]
-    DS --> A7[Arq. 7 — Onboarding\nonboarding_dev.prompt.md]
-    DS --> A8[Arq. 8 — Normativa\nnormative_traceability.prompt.md\nCONDICIONAL]
-    DS --> A9[Arq. 9 — Changelog\nchangelog.prompt.md]
-    DS --> A10[Arq. 10 — Config IA\nai_config_doc.prompt.md]
-    DS --> A11[Arq. 11 — Contribución\ncontributing_doc.prompt.md]
-    DS --> A12[Arq. 12 — Referencia\nreference_doc.prompt.md\nCONDICIONAL]
-
+    accTitle: Estructura del sistema de arquetipos
+    accDescr: DOCUMENTATION_STANDARD.md define los arquetipos, cada uno con su prompt; el agente Documentation Generator orquesta los prompts y document_project es el flujo de entrada único. Los prompts técnico y de ejemplos se enlazan en ambos sentidos.
+    DS["DOCUMENTATION_STANDARD.md<br/>§3 — define 12 arquetipos + 3b"] --> P
+    subgraph P[Prompts por arquetipo · .github/prompts]
+        A2[technical_doc<br/>Arquetipo 2]
+        A4[example_doc<br/>Arquetipo 4]
+        OTROS[Otros 11 prompts<br/>tabla de §2]
+    end
     A2 <-->|enlace bidireccional §5| A4
+    P --> AG[Documentation Generator<br/>agent — orquesta los prompts]
+    AG --> DP[document_project<br/>flujo de entrada único]
 ```
+
+La relación arquetipo → prompt → ubicación de salida está en la tabla de §2.
 
 ## 2. Modelo de Datos / Contratos
 
