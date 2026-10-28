@@ -9,7 +9,7 @@ fuentes:
   mkdocs_hooks.py: 2f510611cb6f
   scripts/build_docs_zip.py: 0b48091d8aa9
   scripts/check_env.py: 474070bcf7f5
-  scripts/convert_to_md.py: 8f5b3676ae87
+  scripts/convert_to_md.py: e7e60518d96f
   scripts/doc_trace.py: a1824b159937
   scripts/start-server.py: ec67386821f7
 revisado: 2026-10-28
@@ -197,7 +197,7 @@ erDiagram
 | Frontmatter | `source` | cadena | Nombre del fichero origen (sin ruta) | interna |
 | Frontmatter | `engine` | cadena | `docling` \| `markitdown` \| `pandoc` | pública |
 | Frontmatter | `converted_at` | fecha-hora UTC | Formato `YYYY-MM-DDTHH:MM:SS` | pública |
-| Frontmatter | `engine_version` | cadena | Solo con `docling`; `unknown` si no se puede leer | pública |
+| Frontmatter | `engine_version` | cadena | Solo con `docling`: versión del paquete instalado (p. ej. `2.107.0`); `unknown` si no está instalado | pública |
 | Frontmatter | `title` | cadena | Solo con `docling`; nombre del documento o del fichero | interna |
 | Manifiesto `_manifest.json` | `id` | entero | Correlativo desde 1 | pública |
 | Manifiesto `_manifest.json` | `file` | cadena | `NNN.md` (3 dígitos) dentro de `chunks/<documento>/`, junto al `.md` convertido | pública |
@@ -234,7 +234,7 @@ convertido: hereda la sensibilidad del origen.
     | `on_post_build` + `start-server.py` en el ZIP | `mkdocs_hooks.py::on_post_build` | ✅ |
     | Release `docs-v{versión}` | `.github/workflows/docs-zip-release.yml::build-and-publish` | ✅ |
     | Salida `md/` de `convert_to_md.py` | `scripts/convert_to_md.py::output_path` | ✅ |
-    | Campos del frontmatter | `scripts/convert_to_md.py::_build_metadata_basic`, `::_convert_with_docling` | ✅ |
+    | Campos del frontmatter | `scripts/convert_to_md.py::_build_metadata_basic`, `::_convert_with_docling`, `::_docling_version` | ✅ |
     | Serialización YAML del frontmatter | `scripts/convert_to_md.py::_format_frontmatter` | ✅ |
     | Manifiesto y chunks | `scripts/convert_to_md.py::_run_chunking` | ✅ |
     | Formato `.sha256` y `CHECKSUMS.txt` | `scripts/build_docs_zip.py::_create_checksum_files` | ✅ |

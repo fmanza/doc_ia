@@ -1,8 +1,8 @@
 ---
 arquetipo: "2"
 fuentes:
-  scripts/convert_to_md.py: 8f5b3676ae87
-  tests/test_convert_to_md.py: 10a39c214291
+  scripts/convert_to_md.py: e7e60518d96f
+  tests/test_convert_to_md.py: 844463d311c9
 revisado: 2026-10-28
 ---
 # convert_to_md
@@ -179,7 +179,7 @@ Verificar entorno: `python scripts/check_env.py` (reporta disponibilidad de docl
 
 ## 6. Verificación y Tests
 
-74 tests en `tests/test_convert_to_md.py`, agrupados por prefijo:
+76 tests en `tests/test_convert_to_md.py`, agrupados por prefijo:
 
 | Test | Qué verifica | Tipo |
 |---|---|---|
@@ -194,6 +194,7 @@ Verificar entorno: `python scripts/check_env.py` (reporta disponibilidad de docl
 | `test_engine_extensions_keys`, `test_docling_covers_markitdown_formats`, `test_pandoc_has_unique_formats` (3) | Coherencia de los conjuntos de extensiones por motor | unitario |
 | `test_detect_device_*` (7) | `_detect_device`: `cpu`, `auto` con y sin CUDA, `cuda` sin GPU, respeto de `CUDA_VISIBLE_DEVICES` del usuario, `auto` ignora el valor por defecto del import | unitario |
 | `test_cuda_available_*` (3) | `_cuda_available`: sin `nvidia-smi`, respuesta correcta, timeout | unitario |
+| `test_docling_version_*` (2) | `_docling_version`: versión desde los metadatos del paquete; `unknown` si docling no está instalado | unitario |
 | `test_convert_options_new_fields_defaults` (1) | Valores por defecto de `ConvertOptions` | unitario |
 
 Sin cubrir: conversiones reales con los motores instalados (los tests simulan su ausencia o usan
@@ -225,4 +226,4 @@ python -m pytest tests/test_convert_to_md.py -q
     | `_detect_device` solo se llama con docling y sin `--dry-run` | `scripts/convert_to_md.py::main` | ✅ |
     | Componentes de motor, validación, CUDA, chunking y metadata | `scripts/convert_to_md.py::_convert_with_docling`, `::_convert_batch_docling`, `::_convert_with_markitdown`, `::_convert_with_pandoc`, `::_validate_only_report`, `::_cuda_available`, `::_run_chunking`, `::_build_metadata_basic`, `::_format_frontmatter` | ✅ |
     | Dependencias docling, markitdown, pandoc, `nvidia-smi` | `scripts/convert_to_md.py::engine_available`, `::_cuda_available` | ✅ |
-    | Grupos de tests del §6 | `tests/test_convert_to_md.py` (74 tests recogidos por pytest) | ✅ |
+    | Grupos de tests del §6 | `tests/test_convert_to_md.py` (76 tests recogidos por pytest) | ✅ |

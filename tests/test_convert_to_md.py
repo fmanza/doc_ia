@@ -15,6 +15,7 @@ from scripts.convert_to_md import (
     ConvertOptions,
     _cuda_available,
     _detect_device,
+    _docling_version,
     _parse_args,
     _prefilter_files,
     _validate_only_report,
@@ -524,6 +525,22 @@ def test_parse_args_workers_requires_docling() -> None:
 
 
 # --- ConvertOptions nuevos campos ---
+
+
+def test_docling_version_reads_package_metadata() -> None:
+    """docling no expone __version__: la versión sale de los metadatos del paquete."""
+    with patch("scripts.convert_to_md.importlib.metadata.version", return_value="2.107.0"):
+        assert _docling_version() == "2.107.0"
+
+
+def test_docling_version_unknown_when_not_installed() -> None:
+    import importlib.metadata as md
+
+    with patch(
+        "scripts.convert_to_md.importlib.metadata.version",
+        side_effect=md.PackageNotFoundError("docling"),
+    ):
+        assert _docling_version() == "unknown"
 
 
 def test_convert_options_new_fields_defaults() -> None:

@@ -62,6 +62,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
   se reconvertía a `md/` sin necesidad.
 - `check_env.py` ya no se interrumpe con `UnicodeEncodeError` al mostrar avisos en una consola
   Windows (cp1252): la salida se reconfigura a UTF-8.
+- `convert_to_md.py --metadata` con docling escribe la versión real del motor en `engine_version`
+  (antes siempre `unknown`: docling no expone `__version__`).
 
 ## [0.1.0] — 2026-06-10
 

@@ -17,6 +17,7 @@ archivos vacíos, corruptos o con formatos incompatibles.
 from __future__ import annotations
 
 import argparse
+import importlib.metadata
 import importlib.util
 import json
 import os
@@ -307,6 +308,14 @@ def output_path(source_file: Path, source_root: Path, md_root: Path) -> Path:
 # ---------------------------------------------------------------------------
 
 
+def _docling_version() -> str:
+    """Versión instalada de docling (el paquete no expone ``__version__``)."""
+    try:
+        return importlib.metadata.version("docling")
+    except importlib.metadata.PackageNotFoundError:
+        return "unknown"
+
+
 def _build_metadata_basic(source_file: Path, engine: str) -> dict[str, object]:
     """Metadatos básicos disponibles para cualquier motor."""
     return {
@@ -362,12 +371,7 @@ def _convert_with_docling(
 
         if options.metadata:
             metadata = _build_metadata_basic(source_file, "docling")
-            try:
-                import docling  # noqa: PLC0415
-
-                metadata["engine_version"] = getattr(docling, "__version__", "unknown")
-            except Exception:  # noqa: BLE001
-                pass
+            metadata["engine_version"] = _docling_version()
             metadata["title"] = getattr(doc, "name", source_file.stem) or source_file.stem
             md_content = _format_frontmatter(metadata) + md_content
 
@@ -784,12 +788,7 @@ def _process_batch_result(
 
     if options.metadata:
         metadata = _build_metadata_basic(src_file, "docling")
-        try:
-            import docling  # noqa: PLC0415
-
-            metadata["engine_version"] = getattr(docling, "__version__", "unknown")
-        except Exception:  # noqa: BLE001
-            pass
+        metadata["engine_version"] = _docling_version()
         metadata["title"] = getattr(doc, "name", src_file.stem) or src_file.stem
         md_content = _format_frontmatter(metadata) + md_content
 
