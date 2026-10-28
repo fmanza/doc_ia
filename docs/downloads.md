@@ -21,9 +21,9 @@ La documentación completa está disponible como un archivo ZIP comprimido que p
 
 | Versión | Tamaño | Checksum | Fecha |
 |---|---|---|---|
-| <a href="../doc_ia-docs-latest.zip">doc_ia-docs-latest.zip</a> | ~1.0 MB | <a href="../doc_ia-docs-latest.zip.sha256">.sha256</a> | 2026-06-18 |
+| <a href="../doc_ia-docs-latest.zip">doc_ia-docs-latest.zip</a> | ~1.1 MB | <a href="../doc_ia-docs-latest.zip.sha256">.sha256</a> | 2026-10-28 |
 
-**doc_ia 0.1.0** — Instrucciones IA y tooling para documentar proyectos de desarrollo
+**doc_ia 0.2.0** — Instrucciones IA y tooling para documentar proyectos de desarrollo
 
 ---
 
@@ -129,6 +129,6 @@ Releases publicadas: [github.com/fmanza/doc_ia/releases](https://github.com/fman
 
 ## 📝 Información de versión
 
-- **Versión de doc_ia**: 0.1.0
-- **Generador**: MkDocs + Material for MkDocs + Mermaid.js
-- **Actualización**: 2026-06-12
+- **Versión de doc_ia**: 0.2.0
+- **Generador**: MkDocs + Material for MkDocs (Mermaid con la integración nativa del tema)
+- **Actualización**: 2026-10-28

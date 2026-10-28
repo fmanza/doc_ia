@@ -50,7 +50,11 @@ recomendable la migración. Puede consultarse información en internet. PLAN y A
 | — | push de `develop` (`6ee016a..f370cbf`) → CI run 40743109579: 3.12 y 3.14 en verde | — | HECHO |
 | F2b | `ci(docs): resultado de la paridad Zensical visible como anotación` | `b20b015` | HECHO |
 | — | CI run 40743567252 (`b20b015`): verde; anotación `Paridad Zensical - OK` en 3.12 y 3.14 → arranca C2 | — | HECHO |
-| — | `chore(ci): actions de GitHub a sus versiones mayores actuales (Node 24)` | (este commit) | HECHO |
+| — | `chore(ci): actions de GitHub a sus versiones mayores actuales (Node 24)` | `4b9b45e` | HECHO |
+| — | CI run 40757387496 (`4b9b45e`): verde, sin avisos de Node 20; paridad OK en 3.12 y 3.14 | — | HECHO |
+| — | `docs(trace): aclarar que stamp --source sustituye la lista de fuentes` | `bf7763e` | HECHO |
+| — | CI run 40757783481 (`bf7763e`): verde; paridad OK en 3.12 y 3.14 | — | HECHO |
+| VERSION | `release: v0.2.0 - …` + merge a `main` + tag `v0.2.0` (`03_VERSION_CLOSURE.md`) | (este commit) | HECHO |
 | F7-F10, F12 | ver `02_PLAN_FASES.md` | — | PENDIENTE (gates) |
 
 ### F1 — verificación
@@ -161,8 +165,14 @@ recomendable la migración. Puede consultarse información en internet. PLAN y A
   checkout v7 bloquea PR de forks en `pull_request_target`/`workflow_run` (no se usan) y v6 guarda
   las credenciales en un fichero aparte; upload-artifact v7 añade `archive` (por defecto `true`, igual).
 
+### Hallazgo — `stamp --source`
+- Al re-sellar `docs/reference/index.md` con `--source <ruta>` la página se quedó con una sola
+  fuente: `--source` sustituye la lista (diseño correcto para el primer sellado). Detectado en el
+  diff antes del commit; `CLAUDE.md` lo mostraba como forma de re-sellar → aclarado en `bf7763e`.
+
 ## Veredicto final
-Veredicto: F0-F5, F11 GO · F6 GO_CONDICIONAL (C6, C7) · F7 gate 0.1 · F8 gate C2-C5 ·
-F9/F10/F12 tras F8
+Veredicto: bloque A (F0-F6, F2b, F11) GO y publicado en **v0.2.0** (2026-10-28) · F6 C6/C7 cumplidas ·
+F7 gate Zensical 0.1 · F8 gate C2-C5 (C2 desde 2026-10-28) · F9/F10/F12 tras F8
 Pendientes al cierre:
-- GO del usuario para ejecutar F1.
+- F7: al publicarse Zensical 0.1 en PyPI (anunciada 2026-11-05).
+- F8: no antes del 2026-11-11, con C2-C5 cumplidas y GO del usuario.

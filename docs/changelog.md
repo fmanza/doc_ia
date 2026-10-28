@@ -5,6 +5,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-10-28
+
 ### Added
 
 - **Arquetipo 12 — Referencia del Sistema** (`docs/reference/`, condicional): configuración,
@@ -72,7 +74,6 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
   `Paridad Zensical` (OK/FALLO), porque `continue-on-error` marca el paso como `success` aunque falle.
 - Workflows: `actions/checkout` y `actions/setup-python` v4 → v7, `actions/upload-artifact` v4 → v7 y
   `softprops/action-gh-release` v2 → v3 (Node 24 nativo; GitHub ya no admite Node 20 en los runners).
-
 - Norma del Arquetipo 1 alineada con su prompt (8 secciones); las páginas con la estructura v1
   siguen siendo válidas en transición.
 - Prompt del Arquetipo 2 alineado con la norma (§2 "Modelo de Datos / Contratos"); la directiva
@@ -141,5 +142,6 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - Restauración de `config-reviewer.agent.md` y creación de `docs.instructions.md`
   tras corrupción del bootstrap.
 
-[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/fmanza/doc_ia/releases/tag/v0.1.0
+[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/fmanza/doc_ia/compare/docs-v0.1.0...v0.2.0
+[0.1.0]: https://github.com/fmanza/doc_ia/releases/tag/docs-v0.1.0
