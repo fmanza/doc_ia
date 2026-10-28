@@ -2,7 +2,7 @@
 arquetipo: "1"
 fuentes:
   .claude/commands/document-project.md: 0c40f2025589
-  .github/DOCUMENTATION_STANDARD.md: 40584ca88ec3
+  .github/DOCUMENTATION_STANDARD.md: aab10203cb20
   hooks/sync_root_docs.py: ef5e576436c6
   tests/test_docs_conformance.py: 483c92783560
 revisado: 2026-10-28
@@ -118,6 +118,7 @@ se aplica cuando el proyecto tiene agentes IA configurados sin documentar.
 | Arquetipo 8 condicional | La trazabilidad normativa solo se genera si el proyecto origen referencia normativa de obligado cumplimiento; si no, se omite | Generación innecesaria de páginas vacías o sin valor en proyectos sin normativa |
 | Arquetipo 12 condicional | La Referencia del Sistema solo se genera si el proyecto expone configuración, comandos, códigos de salida, eventos o interfaces publicadas | Páginas de referencia vacías en librerías sin superficie de usuario |
 | Evidencia verificable | Las páginas funcionales, técnicas y de referencia terminan con un bloque plegable "Evidencia" que indica el origen de cada regla, contrato o criterio y su grado de confianza (✅ ⚠️ 🔍 ❌), y declaran al principio de qué ficheros derivan, con una huella que permite detectar cuándo esos ficheros cambian | Afirmaciones imposibles de auditar; lo inferido se confunde con lo verificado |
+| Diagramas conformes | Cada diagrama declara título y descripción accesibles, no supera 12 nodos (8 en las páginas de navegación), muestra la perspectiva de su arquetipo sin repetir el de otra página y se sustituye por una tabla cuando no hay flujo | Diagramas ilegibles, inaccesibles para lectores de pantalla o duplicados que divergen al mantenerlos |
 | Arquetipos 9 y 11 opt-in | Changelog (9) y Guía de Contribución (11) **no se generan por defecto** en `/document-project`; deben solicitarse explícitamente con el parámetro `Arquetipos: changelog` o `Arquetipos: contribución` | Generación de CHANGELOG.md y CONTRIBUTING.md sin que el usuario los haya pedido |
 
 ## 6. Límites, Flujos Alternativos y Casos Especiales
@@ -195,6 +196,7 @@ Los tests verifican el **resultado** sobre la documentación de doc_ia (dogfoodi
     | Regla «Arquetipo 8 condicional» | `.github/DOCUMENTATION_STANDARD.md::3.8` (Condición de activación) | ✅ |
     | Regla «Arquetipo 12 condicional» | `.github/DOCUMENTATION_STANDARD.md::3.15` (Condición de activación) | ✅ |
     | Regla «Evidencia verificable» | `.github/DOCUMENTATION_STANDARD.md::3.16` | ✅ |
+    | Regla «Diagramas conformes» | `.github/DOCUMENTATION_STANDARD.md::3.17` | ✅ |
     | Regla «Arquetipos 9 y 11 opt-in» | `.claude/commands/document-project.md::Inputs requeridos` (Arquetipos) | ✅ |
     | Postcondición «copia sincronizada en `docs/`» | `hooks/sync_root_docs.py::PAIRS` | ✅ |
     | Postcondición «Mapa Funcional» | `.github/DOCUMENTATION_STANDARD.md::3.1` (Variante 1-I) | ✅ |
@@ -210,4 +212,4 @@ Los tests verifican el **resultado** sobre la documentación de doc_ia (dogfoodi
     | AC-08 | `.github/DOCUMENTATION_STANDARD.md::3.11` (Reglas, nombre de fichero) | ✅ |
     | AC-09 | `.github/DOCUMENTATION_STANDARD.md::3.15` (6 secciones, sección MkDocs) | ✅ |
     | AC-10 | `.github/DOCUMENTATION_STANDARD.md::3.16` (Revisión) | ✅ |
-    | AC-11 | `.github/agents/documentation-generator.agent.md::Diagramas Mermaid` (labels con caracteres especiales) | ✅ |
+    | AC-11 | `.github/DOCUMENTATION_STANDARD.md::3.17` (Etiquetas) | ✅ |

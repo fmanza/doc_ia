@@ -2,8 +2,8 @@
 arquetipo: "2"
 fuentes:
   .claude/commands/document-project.md: 0c40f2025589
-  .github/agents/documentation-generator.agent.md: 1373e0c3cc2c
-  .github/prompts/document_project.prompt.md: ca30b7fa7021
+  .github/agents/documentation-generator.agent.md: b7f50b94ebc1
+  .github/prompts/document_project.prompt.md: a508e0ad23c8
   mkdocs.yml: 66d3b81c502c
 revisado: 2026-10-28
 ---
@@ -99,7 +99,7 @@ Once bloques en el chat, en este orden:
 | Dependencia | Propósito | Requerida | Comportamiento sin ella |
 |---|---|---|---|
 | `.github/DOCUMENTATION_STANDARD.md` | Define los 12 arquetipos formales y sus estructuras | Sí | Las fases de generación no tienen plantilla de referencia |
-| `.github/instructions/docs.instructions.md` | Reglas operativas (Mermaid, snippets, MkDocs) | Sí | Riesgo de inconsistencias de estilo y formato |
+| `.github/instructions/docs.instructions.md` | Reglas operativas (resumen de Mermaid, snippets, MkDocs; reglas de diagramas en `DOCUMENTATION_STANDARD.md` §3.17) | Sí | Riesgo de inconsistencias de estilo y formato |
 | `mkdocs.yml` (destino) | Navegación que se sincroniza en Fase 5 | Sí, con cualquiera de los dos generadores | Sin él, SYNC NAV no puede actualizar la navegación |
 | Prompts de arquetipo (`.github/prompts/`) | Plantillas de cada tipo de documento | Sí | Las fases 2-4 no tienen instrucciones para generar cada arquetipo |
 | `python -m mkdocs build` | Verificación de build (Fase 7) | Solo con `--verify-build` | Si falta, la fase 7 no se puede ejecutar |

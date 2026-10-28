@@ -87,7 +87,8 @@ No inventar convenciones — leer pyproject.toml y SHARED_INSTRUCTIONS.md.
 Estrategia de ramas, convenciones de commit (Conventional Commits si aplica), proceso de PR/MR.
 Leer SHARED_INSTRUCTIONS.md para el flujo canónico del proyecto.
 Si el proyecto tiene una estrategia de branching definida (main + feature branches + releases),
-incluir un diagrama `gitgraph` Mermaid que visualice el modelo de ramas típico. Omitir el
+se puede incluir un diagrama `gitgraph` Mermaid (opcional: el tema no le aplica colores; ver
+`DOCUMENTATION_STANDARD.md` §3.17) que visualice el modelo de ramas típico. Omitir el
 diagrama si el proyecto solo usa la rama main sin estrategia formal.
 
 ## 10. Verificación del Entorno

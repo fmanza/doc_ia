@@ -1,8 +1,8 @@
 ---
 arquetipo: "2"
 fuentes:
-  .github/DOCUMENTATION_STANDARD.md: 40584ca88ec3
-  .github/agents/documentation-generator.agent.md: 1373e0c3cc2c
+  .github/DOCUMENTATION_STANDARD.md: aab10203cb20
+  .github/agents/documentation-generator.agent.md: b7f50b94ebc1
   .github/prompts/example_doc.prompt.md: 6041f616e0c3
   mkdocs.yml: 66d3b81c502c
   tests/test_docs_conformance.py: 483c92783560
@@ -10,7 +10,7 @@ revisado: 2026-10-28
 ---
 # archetypes
 
-Sistema de doce arquetipos de documentación (más variante 3b) con estructura fija, audiencia definida y ubicación establecida que garantiza coherencia y auditabilidad en todos los proyectos documentados con doc_ia. Los arquetipos 1–8 son la base; 3b y 9–11 son las adiciones 2024-2025; el 12 y la regla transversal de evidencia (`DOCUMENTATION_STANDARD.md` §3.16) son las adiciones 2026.
+Sistema de doce arquetipos de documentación (más variante 3b) con estructura fija, audiencia definida y ubicación establecida que garantiza coherencia y auditabilidad en todos los proyectos documentados con doc_ia. Los arquetipos 1–8 son la base; 3b y 9–11 son las adiciones 2024-2025; el 12 y las reglas transversales de evidencia (`DOCUMENTATION_STANDARD.md` §3.16) y de diagramas (§3.17) son las adiciones 2026.
 
 ## 1. Arquitectura y Diseño
 
@@ -88,7 +88,7 @@ Cada arquetipo produce un archivo Markdown con las secciones numeradas obligator
 | Estándar de documentación | `.github/DOCUMENTATION_STANDARD.md` §3 | Define estructura obligatoria, audiencia y ubicación de cada arquetipo |
 | Prompts de arquetipos | `.github/prompts/*_doc.prompt.md` | Instrucciones de generación por arquetipo; uno por arquetipo |
 | Trazabilidad determinista | `scripts/doc_trace.py` | Sella el frontmatter `fuentes` de las páginas con Evidencia y detecta drift, tests citados inexistentes y `llms.txt` desactualizado (§3.16) |
-| Reglas operativas | `.github/instructions/docs.instructions.md` | Mermaid, snippets `--8<--`, MkDocs, reglas de sección vacía |
+| Reglas operativas | `.github/instructions/docs.instructions.md` | Resumen de Mermaid (reglas completas en §3.17 del estándar), snippets `--8<--`, MkDocs, reglas de sección vacía |
 
 ## 4. Dependencias y Requisitos
 
@@ -134,6 +134,7 @@ norma y los prompts (como la corregida en ADR-002).
     | 12 arquetipos + 3b y sus ubicaciones | `.github/DOCUMENTATION_STANDARD.md` §3.1–§3.15 | ✅ |
     | Un prompt por arquetipo | `.github/prompts/` (`functional_doc`, `technical_doc`, `howto_doc`, `tutorial_doc`, `example_doc`, `architecture_doc`, `landing_doc`, `onboarding_dev`, `normative_traceability`, `changelog`, `ai_config_doc`, `contributing_doc`, `reference_doc`) | ✅ |
     | Regla transversal de evidencia | `.github/DOCUMENTATION_STANDARD.md` §3.16 | ✅ |
+    | Regla transversal de diagramas | `.github/DOCUMENTATION_STANDARD.md` §3.17 | ✅ |
     | Sección vacía → `*No aplica para este módulo.*` | `.github/DOCUMENTATION_STANDARD.md` §3.1, §3.2 | ✅ |
     | Marcador "Pendiente" en Arq. 2 §5 | `.github/DOCUMENTATION_STANDARD.md` §3.2 | ✅ |
     | Arquetipo 8 condicional | `.github/DOCUMENTATION_STANDARD.md` §3.8 | ✅ |

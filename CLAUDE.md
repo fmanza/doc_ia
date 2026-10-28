@@ -144,7 +144,7 @@ Fase 2  — Mapeo funcional (Senior Product Owner): objetivo, precondiciones, fl
 Fase 3  — Documentación técnica: responsabilidad, Mermaid, API pública, contratos, errores
 Fase 4  — Ejemplos verificables: código real, resultado determinista, sin credenciales
 Fase 5  — Sincronizar mkdocs.yml: añadir/mover/retirar entradas de navegación
-Fase 6  — Revisión final: validar Markdown, enlaces relativos y sintaxis Mermaid
+Fase 6  — Revisión final: validar Markdown, enlaces relativos y Mermaid (§3.17 del estándar)
 Fase 7  — Verificación de build (opt-in --verify-build): python -m mkdocs build --strict + leer site/
 ```
 

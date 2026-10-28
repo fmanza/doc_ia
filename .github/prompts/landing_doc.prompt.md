@@ -100,7 +100,8 @@ Estilo arquitectónico (capas / niveles), principios rectores y frontera del pro
 (qué hace y qué deja fuera). Basado en .github/SHARED_INSTRUCTIONS.md, no en suposiciones.
 Incluye:
 - Tabla de **objetivos de calidad** (máx. 3-5): | Objetivo de calidad | Por qué importa |
-- **Diagrama de contexto (C4 nivel 1)** en Mermaid (`flowchart`, máx. 12 nodos): quién consume
+- **Diagrama de contexto (C4 nivel 1)** en Mermaid (`flowchart`, máx. 8 nodos, relación como
+  etiqueta en cada flecha): quién consume
   el proyecto y contra qué sistemas externos opera (plataformas IA en chat, proyectos origen,
   GitHub Actions). C4Context nativo de Mermaid es opcional (experimental); preferir `flowchart`
   por estabilidad de render.
@@ -116,14 +117,16 @@ de módulos cuando el proyecto tiene más de 6 áreas funcionales (no sustituye 
 ## 3. Flujo en Ejecución (Runtime) y Despliegue
 
 ### Runtime
-Diagrama Mermaid (`flowchart TD` o `sequenceDiagram`, máx. 12 nodos) que muestre cómo fluye
+Diagrama Mermaid (`flowchart TD` o `sequenceDiagram`, máx. 8 nodos) que resuma cómo fluye
 una operación típica (p. ej. usuario → chat IA → prompts de arquetipo → docs/ → mkdocs build → site/).
-Solo componentes que existan en el repositorio.
+Solo componentes que existan en el repositorio. Si una página funcional o técnica ya detalla
+ese flujo, aquí va el resumen y un enlace a ella, no una copia.
 
 ### Despliegue
 Vista arc42 §7: dónde se ejecuta y se publica cada componente. Fuentes: material
 INFRAESTRUCTURA (Dockerfile, docker-compose, k8s/, .tf, Ansible) y `.github/workflows/`.
-- Diagrama `architecture-beta` o `flowchart LR` (máx. 12 nodos): entornos, nodos y artefactos.
+- Diagrama `flowchart LR` con un `subgraph` por entorno (máx. 8 nodos): entornos, nodos y artefactos
+  (`architecture-beta` es opcional: sin colores del tema ni render en GitHub).
 - Tabla: | Entorno | Infraestructura | Componentes / artefactos | Fuente |
   (Fuente como código inline `ruta`, nunca como enlace a ficheros fuera de docs/.)
 Si el proyecto no se despliega (librería o tooling local sin publicación):
@@ -159,7 +162,8 @@ Restricciones (todas las variantes):
 - Todo bloque de código Python debe usar solo símbolos exportados en `__all__`
 - NO uses la directiva --8<-- aquí; embebe el código directamente en bloques fenced
 - Enlaces siempre relativos y a páginas que existan en docs/
-- Diagramas en Mermaid (no Graphviz); máximo 12 nodos
+- Diagramas en Mermaid (no Graphviz); máximo 8 nodos, con accTitle y accDescr
+  (DOCUMENTATION_STANDARD.md §3.17)
 - Si falta información, añade subsección "### Pendiente de verificación" con preguntas concretas
 - Responde SOLO con el Markdown de la página, sin texto introductorio ni cierre
 ```

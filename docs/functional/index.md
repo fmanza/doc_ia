@@ -1,7 +1,7 @@
 ---
 arquetipo: "1-I"
 fuentes:
-  docs/functional/archetypes.md: de234e9e79ba
+  docs/functional/archetypes.md: b1ebe52b1d9e
   docs/functional/bootstrap.md: c3f3aa31f605
   docs/functional/build_docs_zip.md: 9926058a0826
   docs/functional/check_env.md: 50d36e2a0f15

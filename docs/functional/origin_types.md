@@ -1,8 +1,8 @@
 ---
 arquetipo: "1"
 fuentes:
-  .github/DOCUMENTATION_STANDARD.md: 40584ca88ec3
-  .github/prompts/document_project.prompt.md: ca30b7fa7021
+  .github/DOCUMENTATION_STANDARD.md: aab10203cb20
+  .github/prompts/document_project.prompt.md: a508e0ad23c8
 revisado: 2026-10-28
 ---
 # Catálogo de Tipos de Origen

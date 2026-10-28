@@ -58,10 +58,14 @@
 - Verifica que cada página nueva o existente esté publicada o excluida intencionalmente en `mkdocs.yml`.
 - Comprueba que Mermaid se use en bloques fenced y sin detalles sensibles.
 - Verifica que el tipo de diagrama Mermaid sea el adecuado para el patrón del módulo
-  (ver criterios en `docs.instructions.md`): no `stateDiagram-v2` para un pipeline lineal
+  (`DOCUMENTATION_STANDARD.md` §3.17): no `stateDiagram-v2` para un pipeline lineal
   sin estados nombrados, no `gitgraph` sin estrategia de branching definida, no `erDiagram`
-  sin modelo de datos relacional verificable en el código. Los tipos OPCIONAL (`mindmap`,
-  `quadrantChart`, `timeline`) solo deben aparecer cuando aportan valor visual demostrable.
+  sin modelo de datos verificable en el código, tabla en lugar de diagrama cuando no hay flujo.
+  Los tipos OPCIONAL (`gitgraph`, `mindmap`, `quadrantChart`, `timeline`, `architecture-beta`)
+  solo deben aparecer cuando aportan valor visual demostrable.
+- Verifica en cada diagrama: `accTitle`/`accDescr`, ≤12 nodos (8 en Arquetipo 6), labels con
+  `@ ( ) { }` entre comillas y sin entidades HTML, y que no repite el diagrama de otra página
+  (cada arquetipo muestra su perspectiva).
 - Señala si se propone un único prompt masivo para todo el proyecto; recomienda dividir en fases.
 - Excluye por el momento recomendaciones para generación mediante APIs externas.
 

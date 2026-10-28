@@ -243,7 +243,8 @@ Fase 5 — Sincronizar navegación y verificar configuración estándar del gene
          c. Assets: si alguno de los tres ficheros de docs/assets/ (js/sidebar-toggle.js,
             css/mermaid.css, css/nav.css) no existe en el destino,
             indicarlo explícitamente en RESUMEN con la acción: "Copiar desde doc_ia/docs/assets/".
-Fase 6 — Revisión final: Markdown, enlaces relativos, sintaxis Mermaid, secciones de arquetipo completas.
+Fase 6 — Revisión final: Markdown, enlaces relativos, sintaxis y conformidad Mermaid (§3.17 del
+          estándar), secciones de arquetipo completas.
          Trazabilidad (§3.16): frontmatter `fuentes` en páginas con Evidencia; si existe
          scripts/doc_trace.py → `stamp` + `drift` + `matrix` + `llms` (todos con exit 0).
 Fase 7 — Verificación de build (solo con --verify-build): build --strict del generador + lectura del HTML.
@@ -421,11 +422,12 @@ ADR-003).
 Reglas transversales: idioma indicado en todo el contenido generado; no inventar módulos,
 APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reglas operativas de
 `.github/instructions/docs.instructions.md`.
-**Mermaid — sintaxis de nodos y subgrafos:**
+**Mermaid — reglas completas en `DOCUMENTATION_STANDARD.md` §3.17; las que rompen el render:**
+- `accTitle:` y `accDescr:` en todo bloque; máximo 12 nodos (8 en el Arquetipo 6).
 - Labels de nodo con `@`, `#`, `(`, `)`, `{`, `}`: escribir la label **entre comillas dobles**
   (`A["Cl@ve (firma)"]`). Una `"` dentro de la label se escribe `#quot;`. **Prohibidas las
   entidades HTML** (`&#64;`, `&#40;`…): Mermaid no las decodifica y pinta un `&` sobrante.
-- **`/` al inicio de `[...]` — PROHIBIDO**: `[/texto/]` es nodo paralelogramo en Mermaid 11.
+- **`/` al inicio de `[...]` sin comillas — PROHIBIDO**: `[/texto/]` es nodo paralelogramo en Mermaid.
   Sin `/` de cierre → lexical error en la línea siguiente. Sustituir rutas UNIX/Windows por
   nombres descriptivos o usar `·` como separador. `<br/>` dentro de labels es seguro.
 - `subgraph`: usar `subgraph id[título]` con ID alfanumérico sin hifens. Si el título contiene
