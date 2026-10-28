@@ -63,3 +63,13 @@ jobs:
 
       - name: Build estricto de la documentación
         run: python -m mkdocs build --strict
+
+      # Paridad con Zensical (sucesor de Material for MkDocs). No bloqueante mientras Zensical
+      # esté en alfa: build_docs_zip.py ejecuta los hooks que Zensical ignora y el ZIP latest
+      # debe existir al terminar.
+      - name: Build Zensical (paridad, no bloqueante)
+        continue-on-error: true
+        run: |
+          python scripts/build_docs_zip.py --builder zensical --output-dir "$RUNNER_TEMP/zdist"
+          test -f site/doc_ia-docs-latest.zip
+          test -f site/doc_ia-docs-latest.zip.sha256

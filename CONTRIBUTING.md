@@ -82,10 +82,12 @@ python scripts/doc_trace.py drift                # Páginas desactualizadas resp
 python scripts/doc_trace.py matrix               # Criterios de aceptación ↔ tests
 python scripts/doc_trace.py llms --check         # docs/llms.txt al día
 python -m mkdocs build --strict                  # Build de docs
+python scripts/build_docs_zip.py --builder zensical --output-dir <tmp>  # Paridad Zensical (no bloqueante)
 ```
 
 El workflow `.github/workflows/ci.yml` ejecuta estos mismos comandos (Python 3.12 y 3.14) en cada
-push y PR a `develop` y `main`. Un PR que falle en cualquiera de ellos no será mergeado. Si
+push y PR a `develop` y `main`. Un PR que falle en cualquiera de ellos no será mergeado, salvo
+el build de paridad con Zensical, que es informativo mientras Zensical esté en alfa. Si
 `drift` falla, revisa la página contra el cambio de la fuente y re-séllala con
 `python scripts/doc_trace.py stamp <página>`.
 

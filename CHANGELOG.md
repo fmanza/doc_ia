@@ -42,6 +42,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 ### Changed
 
 - `build_docs_zip.py` invoca Zensical como `python -m zensical` (antes `zensical` desde el PATH).
+- CI: build de paridad con Zensical (`build_docs_zip.py --builder zensical`, no bloqueante) que
+  verifica además el ZIP `latest`. `zensical==0.0.73` fijado en `requirements-dev.txt` y
+  `requirements.txt` (con `deepmerge` y `tomli`).
 
 - Norma del Arquetipo 1 alineada con su prompt (8 secciones); las páginas con la estructura v1
   siguen siendo válidas en transición.
