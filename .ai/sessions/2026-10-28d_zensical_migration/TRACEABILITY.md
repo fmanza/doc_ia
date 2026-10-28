@@ -46,7 +46,9 @@ recomendable la migración. Puede consultarse información en internet. PLAN y A
 | F5 | `docs(adr): ADR-003 Zensical como generador por defecto (propuesto)` | `5cc8bfc` | HECHO |
 | F11 | `feat(prompts): soporte completo de Zensical en document_project` | `d059533` | HECHO |
 | F6a | `fix(docs): diagrama Runtime de architecture con nodo paralelogramo inválido` | `a96de4b` | HECHO |
-| F6 | `refactor(docs): Mermaid con la integración nativa del tema` | (este commit) | HECHO |
+| F6 | `refactor(docs): Mermaid con la integración nativa del tema` | `f370cbf` | HECHO |
+| — | push de `develop` (`6ee016a..f370cbf`) → CI run 40743109579: 3.12 y 3.14 en verde | — | HECHO |
+| F2b | `ci(docs): resultado de la paridad Zensical visible como anotación` | (este commit) | HECHO |
 | F7-F10, F12 | ver `02_PLAN_FASES.md` | — | PENDIENTE (gates) |
 
 ### F1 — verificación
@@ -131,6 +133,20 @@ recomendable la migración. Puede consultarse información en internet. PLAN y A
   (el plan decía "se tolera"; la evidencia de errores ocultos justifica retirarlos).
 - Limitación conocida (sin cambio): el tema carga Mermaid desde CDN → el ZIP offline necesita
   red para los diagramas hasta F10 (`privacy`).
+
+### Primer push y CI en GitHub (repo ya público)
+- Los 3 runs anteriores en `develop` (`7718e2d`, `b6f80ab`, `6ee016a`) **no llegaron a arrancar**:
+  "recent account payments have failed or your spending limit needs to be increased". Era
+  facturación de Actions con el repo privado, no el código. Con el repo público, el run
+  40743109579 (`f370cbf`) arranca y termina en verde en 3.12 y 3.14 (todos los pasos).
+- **C4 de 2026-10-28c cerrada**: CI validada en GitHub, incluida la matriz 3.12.
+- Los logs de jobs piden permisos de admin incluso en repo público, y `continue-on-error` marca el
+  paso de paridad como `success` aunque falle → **F2b**: paso final que publica
+  `steps.zensical.outcome` como anotación `Paridad Zensical` (legible con
+  `GET /repos/fmanza/doc_ia/check-runs/<job>/annotations`). Así se mide C2 (≥ 2 semanas en verde).
+- Avisos de GitHub (sin impacto hoy): `actions/checkout@v4` y `actions/setup-python@v4` apuntan a
+  Node 20 y se ejecutan forzados en Node 24; `ubuntu-latest` migra a Ubuntu 26 desde el
+  2026-10-19. Candidato a `chore(ci)`: subir a las versiones mayores actuales de esas actions.
 
 ## Veredicto final
 Veredicto: F0-F5, F11 GO · F6 GO_CONDICIONAL (C6, C7) · F7 gate 0.1 · F8 gate C2-C5 ·

@@ -68,8 +68,20 @@ jobs:
       # esté en alfa: build_docs_zip.py ejecuta los hooks que Zensical ignora y el ZIP latest
       # debe existir al terminar.
       - name: Build Zensical (paridad, no bloqueante)
+        id: zensical
         continue-on-error: true
         run: |
           python scripts/build_docs_zip.py --builder zensical --output-dir "$RUNNER_TEMP/zdist"
           test -f site/doc_ia-docs-latest.zip
           test -f site/doc_ia-docs-latest.zip.sha256
+
+      # Con continue-on-error el paso anterior figura como "success" aunque falle. El resultado real
+      # se publica como anotación (legible por la API pública) para medir la condición C2 de ADR-003.
+      - name: Resultado de la paridad Zensical
+        if: always()
+        run: |
+          if [ "${{ steps.zensical.outcome }}" = "success" ]; then
+            echo "::notice title=Paridad Zensical::OK (Python ${{ matrix.python-version }})"
+          else
+            echo "::warning title=Paridad Zensical::FALLO (Python ${{ matrix.python-version }}): ${{ steps.zensical.outcome }}"
+          fi
