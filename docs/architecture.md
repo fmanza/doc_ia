@@ -58,7 +58,7 @@ Operación típica — documentar un proyecto con `/document-project`:
 
 ```mermaid
 flowchart TD
-    A[Usuario en chat IA] --> B[/document-project<br/>VALIDACIÓN de 4 inputs]
+    A[Usuario en chat IA] --> B[Comando document-project<br/>VALIDACIÓN de 4 inputs]
     B -- inputs incompletos --> A
     B --> B0{¿≥2 orígenes o<br/>no es CÓDIGO?}
     B0 -- Sí --> F0a[Fase 0a — Clasificar orígenes<br/>8 tipos posibles]
@@ -100,7 +100,7 @@ flowchart LR
 | Entorno | Infraestructura | Componentes / artefactos | Fuente |
 |---|---|---|---|
 | Local | Python ≥ 3.12 + venv; chat de plataforma IA | `site/`, `site/doc_ia-docs-latest.zip` + `.sha256`, `dist/doc_ia-docs-{versión}.zip` | `mkdocs_hooks.py::on_post_build`, `scripts/build_docs_zip.py::main` |
-| CI — calidad | GitHub Actions `ubuntu-latest`, Python 3.12 y 3.14 | ruff, mypy, pytest, `doc_trace` (drift bloqueante, matrix, llms) y build `--strict` en cada push/PR a `develop` y `main` | `.github/workflows/ci.yml::quality` |
+| CI — calidad | GitHub Actions `ubuntu-latest`, Python 3.12 y 3.14 | ruff, mypy, pytest, `doc_trace` (drift bloqueante, matrix, llms), build `--strict` con MkDocs y build de paridad con Zensical (no bloqueante) en cada push/PR a `develop` y `main` | `.github/workflows/ci.yml::quality` |
 | CI — ZIP de docs | GitHub Actions `ubuntu-latest`, Python 3.12 | Build `--strict`, artifact de 30 días, release `docs-v{versión}` | `.github/workflows/docs-zip-release.yml::build-and-publish` |
 | CI — release de versión | GitHub Actions `ubuntu-latest`, Python 3.12 | ZIP adjunto a la release del tag `v*` | `.github/workflows/docs-release.yml::build-and-upload` |
 | Sitio web | No se publica (decisión 2026-10-28) | `site_url` solo da la URL canónica del sitemap y de los enlaces de `llms.txt`; la distribución oficial es el ZIP offline | `mkdocs.yml::site_url` |
@@ -112,7 +112,7 @@ flowchart LR
 | Seguridad | Sin API keys ni credenciales (`.gitignore` bloquea `.env`, `*.key`); el código nunca invoca servicios IA |
 | Observabilidad | Salida por stdout con prefijos + códigos de retorno (`0`/`≠0`) aptos para CI y hooks |
 | Rendimiento | Build incremental de MkDocs; ZIP por `shutil.make_archive`; sin servicios pesados |
-| Compatibilidad | MkDocs Material por defecto; Zensical recíproco sobre el mismo `mkdocs.yml` (ver ADR-001) |
+| Compatibilidad | MkDocs Material por defecto; Zensical recíproco sobre el mismo `mkdocs.yml` (ver ADR-001), con build de paridad en CI y propuesta de pasar a ser el defecto (ADR-003) |
 | Robustez/Errores | Fail-fast con `sys.exit` y mensajes explícitos; build estricto bloquea docs rotas |
 | Tipado/Calidad | `mypy --strict` sobre `scripts/`, `ruff` lint+format, pytest determinista, hooks PostToolUse |
 
@@ -129,7 +129,8 @@ flowchart LR
 ## 5. Decisiones, Extensión y Límites
 
 - **Registro de decisiones**: [ADR-001 — MkDocs Material por defecto](adr/ADR-001-mkdocs-material-por-defecto.md) ·
-  [ADR-002 — Arquetipos con evidencia verificable](adr/ADR-002-arquetipos-con-evidencia.md).
+  [ADR-002 — Arquetipos con evidencia verificable](adr/ADR-002-arquetipos-con-evidencia.md) ·
+  [ADR-003 — Zensical por defecto (propuesto)](adr/ADR-003-zensical-por-defecto.md).
 - **Extensión soportada**: añadir un arquetipo (prompt nuevo en `.github/prompts/` +
   registro en `DOCUMENTATION_STANDARD.md`), un agente (`.github/agents/` + `AGENTS.md`),
   un slash command (`.claude/commands/` + tabla en `CLAUDE.md`) o un script determinista

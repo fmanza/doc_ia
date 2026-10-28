@@ -109,7 +109,9 @@ Cuando se pida revisar todo el proyecto, sigue estas fases:
 - `mkdocs.yml` desactualizado o con páginas inexistentes
 - Guías de troubleshooting ausentes
 - Tipos de error no documentados
-- Incompatibilidades entre generadores de documentación no aclaradas
+- Incompatibilidades entre generadores de documentación no aclaradas (con Zensical: `hooks:` sin
+  pipeline en el script de build, o plugins fuera de `https://zensical.org/compatibility/plugins/`,
+  que se ignoran en silencio)
 
 ### Nivel 3: Recomendado (mejora experiencia)
 - Ejemplos avanzados no cubiertos

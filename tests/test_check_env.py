@@ -4,9 +4,37 @@ import shutil
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
+import check_env  # noqa: E402
 from check_env import missing_system_tools, missing_tools  # noqa: E402
+
+
+def _only_missing(*absent: str) -> object:
+    """Sustituto de ``missing_tools`` que da por ausentes solo las herramientas indicadas."""
+
+    def fake(tools: tuple[str, ...] = check_env.REQUIRED_TOOLS) -> list[str]:
+        return [tool for tool in tools if tool in absent]
+
+    return fake
+
+
+def test_main_warns_when_zensical_missing(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setattr(check_env, "missing_tools", _only_missing("zensical"))
+    assert check_env.main() == 0
+    assert "zensical no instalado (opcional)" in capsys.readouterr().out
+
+
+def test_main_no_zensical_warning_when_installed(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setattr(check_env, "missing_tools", _only_missing())
+    assert check_env.main() == 0
+    assert "zensical" not in capsys.readouterr().out
 
 
 def test_missing_tools_empty_when_tools_exist() -> None:

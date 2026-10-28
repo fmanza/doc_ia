@@ -6,23 +6,32 @@ Usage:
     python scripts/build_docs_zip.py --builder zensical
     python scripts/build_docs_zip.py --no-build          # only zip an existing site/
     python scripts/build_docs_zip.py --output-dir /tmp
+
+Zensical ignores the ``hooks:`` key of mkdocs.yml, so for that builder this script runs the
+hooks itself: ``hooks/sync_root_docs.py`` before the build and ``mkdocs_hooks.py`` (latest
+ZIP in site/) after a successful build.
 """
 
 from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import shutil
 import subprocess
 import sys
 import tomllib
 from datetime import datetime
 from pathlib import Path
+from types import ModuleType
 
 ROOT = Path(__file__).resolve().parent.parent
 SITE_DIR = ROOT / "site"
 PYPROJECT = ROOT / "pyproject.toml"
 ZIP_PREFIX = "doc_ia-docs"
+
+# Builders that do not execute the `hooks:` declared in mkdocs.yml.
+HOOKLESS_BUILDERS: frozenset[str] = frozenset({"zensical"})
 
 
 def _version() -> str:
@@ -31,17 +40,40 @@ def _version() -> str:
     return version
 
 
+def _load_hook(relative_path: str) -> ModuleType:
+    """Load a hook module by path (the repo root is not on sys.path when run as a script)."""
+    path = ROOT / relative_path
+    spec = importlib.util.spec_from_file_location(path.stem, path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Cannot load hook module: {path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _pre_build() -> None:
+    print("[build_docs_zip] Pre-build: hooks/sync_root_docs.py")
+    _load_hook("hooks/sync_root_docs.py").main()
+
+
+def _post_build() -> None:
+    print("[build_docs_zip] Post-build: mkdocs_hooks.py")
+    _load_hook("mkdocs_hooks.py").on_post_build({"site_dir": str(SITE_DIR)})
+
+
 def _build(builder: str, strict: bool) -> None:
-    if builder == "mkdocs":
-        cmd = [sys.executable, "-m", "mkdocs", "build"]
-    else:
-        cmd = [builder, "build"]
+    hookless = builder in HOOKLESS_BUILDERS
+    cmd = [sys.executable, "-m", builder, "build"]
     if strict:
         cmd.append("--strict")
+    if hookless:
+        _pre_build()
     print(f"[build_docs_zip] Building with: {' '.join(cmd)}")
     result = subprocess.run(cmd, cwd=ROOT)
     if result.returncode != 0:
         sys.exit(result.returncode)
+    if hookless:
+        _post_build()
 
 
 def _zip(output_dir: Path, version: str) -> Path:

@@ -69,7 +69,7 @@ Idioma: es
 | Ejemplos | Casos ejecutables verificables ([verificar entorno](examples/check_env_usage.md), [ZIP offline](examples/build_docs_zip_offline.md)) |
 | Guías | [Onboarding](guides/onboarding_dev.md), [troubleshooting](guides/troubleshooting.md), [Codex](guides/codex_guide.md) |
 | Configuración IA | Configuración de agentes por plataforma ([Claude Code](ai-config/claude.md)) |
-| [Arquitectura](architecture.md) | Vista panorámica y de despliegue + ADR ([001](adr/ADR-001-mkdocs-material-por-defecto.md), [002](adr/ADR-002-arquetipos-con-evidencia.md)) |
+| [Arquitectura](architecture.md) | Vista panorámica y de despliegue + ADR ([001](adr/ADR-001-mkdocs-material-por-defecto.md), [002](adr/ADR-002-arquetipos-con-evidencia.md), [003](adr/ADR-003-zensical-por-defecto.md)) |
 | [Descargas](downloads.md) | Documentación offline (ZIP + SHA256) |
 | [Changelog](changelog.md) | Historial de cambios por versión |
 

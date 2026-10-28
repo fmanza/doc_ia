@@ -25,11 +25,11 @@ jobs:
       contents: write   # required to create/update GitHub Releases
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
@@ -41,7 +41,7 @@ jobs:
         run: python scripts/build_docs_zip.py --builder mkdocs
 
       - name: Upload ZIP to GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: dist/doc_ia-docs-*.zip
           fail_on_unmatched_files: true

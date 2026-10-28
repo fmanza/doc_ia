@@ -36,7 +36,7 @@ doc_ia/
     ai-config/            # Arquetipo 10 — configuración de Claude Code
     adr/                  # Arquetipo 5 — ADR-001 (MADR 4.0)
     assets/css/           # nav.css, mermaid.css
-    assets/js/            # mermaid.js, sidebar-toggle.js
+    assets/js/            # sidebar-toggle.js (Mermaid lo carga el tema)
   .github/
     SHARED_INSTRUCTIONS.md      # Canónico multiplataforma
     copilot-instructions.md     # Entry point Copilot Chat

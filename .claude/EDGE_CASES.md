@@ -30,8 +30,8 @@
 - **Tratamiento**:
   1. Eliminar `navigation.sections` de `theme.features` en `mkdocs.yml`.
   2. Crear `docs/assets/css/nav.css`, `docs/assets/css/mermaid.css`,
-     `docs/assets/js/sidebar-toggle.js`, `docs/assets/js/mermaid.js`
-     (copiar desde `doc_ia/docs/assets/`; cambiar `STORAGE_KEY` en `sidebar-toggle.js`
+     `docs/assets/js/sidebar-toggle.js`
+     (copiar desde `doc_ia/docs/assets/`; desde 2026-10-28 ya no se copia `mermaid.js`, ver § Mermaid; cambiar `STORAGE_KEY` en `sidebar-toggle.js`
      al nombre del proyecto, ej. `dpss_sidebar_collapsed`).
   3. Añadir `extra_css` y `extra_javascript` en `mkdocs.yml` referenciando esos assets.
   4. Añadir features universales ausentes: `navigation.tabs.sticky`, `navigation.footer`,
@@ -91,4 +91,46 @@
 - **Causa**: MkDocs 1.6 ejecuta `on_post_build` antes de comprobar los avisos del modo estricto.
 - **Decisión (2026-10-28)**: aceptado. El ZIP local de un build fallido no se distribuye: los
   workflows solo publican si el build termina con 0. No usar `site/` tras un build fallido.
+  Con `build_docs_zip.py --builder zensical` no ocurre: el ZIP se genera solo tras un build OK.
 - **Sesión**: `.ai/sessions/2026-10-28c_quality_pending/`
+
+## [Zensical] — `hooks:` de `mkdocs.yml` se ignora en silencio
+
+- **Síntoma**: `zensical build --strict` falla con `changelog.md: page does not exist` en un
+  checkout limpio, o termina bien pero `site/` no contiene `doc_ia-docs-latest.zip` y los enlaces
+  de `docs/downloads.md` al ZIP quedan rotos (ningún `--strict` valida `<a href>` en HTML crudo).
+- **Causa**: Zensical (0.0.73) no soporta la clave `hooks:` ni la API de plugins de MkDocs y no
+  emite ningún aviso (zensical.org/compatibility/configuration). Los plugins no soportados
+  también se ignoran en silencio.
+- **Tratamiento**: construir siempre con `python scripts/build_docs_zip.py --builder zensical`,
+  que ejecuta `hooks/sync_root_docs.py` antes y `mkdocs_hooks.py` después de un build OK.
+  `python -m zensical serve` no sincroniza: tras editar `CHANGELOG.md`/`CONTRIBUTING.md`, ejecutar
+  `python hooks/sync_root_docs.py` (en Claude Code lo hace el PostToolUse).
+- **Guardas**: `tests/test_zensical_compat.py` falla si `mkdocs.yml` declara un plugin fuera de
+  `ZENSICAL_SUPPORTED_PLUGINS` o si los enlaces al ZIP de `docs/downloads.md` no resuelven al
+  ZIP `latest` (p. ej. al cambiar `use_directory_urls`). Al actualizar Zensical, revisar la lista
+  contra zensical.org/compatibility/plugins.
+- **Sesión**: `.ai/sessions/2026-10-28d_zensical_migration/` (F1, F4)
+
+## [Mermaid] — CDN propio + `mermaid.run()` duplican el render del tema
+
+- **Síntoma**: los diagramas se ven, pero cada bloque `.mermaid` contiene además un SVG de error
+  de Mermaid oculto. Con carreras de carga, en algún diagrama puede llegar a verse «Syntax error
+  in text».
+- **Causa** (verificada con Edge headless + CDP, `DOM.getDocument(pierce=True)`): con
+  `custom_fences: mermaid`, Material (y Zensical) cargan Mermaid por sí mismos y pintan cada
+  diagrama en un shadow root **cerrado**. El `mermaid.run()` de `assets/js/mermaid.js` (más el CDN
+  `mermaid@11`) procesa después el mismo bloque, ya transformado, y falla: 23/23 SVG de error
+  ocultos en doc_ia.
+- **Contraprueba**: sin `custom_fences` no se genera ningún `.mermaid` y el diagrama sale como
+  código. Ni el CDN ni `mermaid.js` lo arreglan, porque también buscan `.mermaid`. La pieza
+  imprescindible es `custom_fences`. La RCA de 2026-06-12a (socyalpro) atribuyó el fallo a la
+  falta del CDN.
+- **Tratamiento**: `extra_javascript` sin CDN de Mermaid ni `assets/js/mermaid.js`; `custom_fences`
+  obligatorio (Fase 0b / Fase 5). Verificado en doc_ia: 23/23 diagramas visibles con MkDocs y con
+  Zensical, en claro y en oscuro; en oscuro el tema aplica sus colores. Mermaid se sigue cargando
+  desde CDN (lo hace el tema): el ZIP offline necesita red para los diagramas hasta F10 (`privacy`).
+- **Prevención**: `tests/test_docs_conformance.py::test_mermaid_nodes_do_not_start_with_slash`
+  para errores de sintaxis que `--strict` no ve; verificación visual con CDP antes de cambiar la
+  integración.
+- **Sesión**: `.ai/sessions/2026-10-28d_zensical_migration/` (F6a, F6)

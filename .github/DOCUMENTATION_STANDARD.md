@@ -23,7 +23,9 @@ Estandarizar instrucciones de documentación para asegurar:
 - **Webs de referencia oficial** (consultar con `--verify-tools` para validar versiones y plugins):
   - MkDocs: `https://www.mkdocs.org/about/release-notes/`
   - Material for MkDocs: `https://squidfunk.github.io/mkdocs-material/plugins/`
-  - Zensical: `https://zensical.org/`
+  - Zensical: `https://zensical.org/` — lee el mismo `mkdocs.yml`, pero no ejecuta `hooks:` ni
+    los plugins que no soporta (`https://zensical.org/compatibility/plugins/`). Reglas para
+    destinos con Zensical: `document_project.prompt.md` § *Reglas por generador: Zensical*.
 - **Secciones existentes**:
   - ✅ Guías (DUPLICATE_PROJECT_GUIDE, NEXT_STEPS, README_DUPLICADOR, ARCHITECTURE_VISUAL)
   - ✅ Funcional (`docs/functional/`) — 8 módulos
@@ -968,7 +970,7 @@ repositorio). El tooling determinista `scripts/doc_trace.py` (si el destino lo i
 
 | Subcomando | Qué hace | Código de salida |
 |---|---|---|
-| `stamp <página> --source <ruta>…` | Calcula y escribe las huellas | `0` / `1` si una fuente falta o sale del repo |
+| `stamp <página> [--source <ruta>…]` | Calcula y escribe las huellas. Sin `--source` re-sella las fuentes del frontmatter; con `--source` la lista **se sustituye** entera (no se añade) | `0` / `1` si una fuente falta o sale del repo |
 | `drift` | Lista páginas cuyas fuentes cambiaron (`stale`, `missing`, `outside_repo`) | `0` sin drift / `1` con drift |
 | `matrix` | Cruza los `AC-xx` del Arq. 1 §7 con los tests reales; lista citados inexistentes y tests sin criterio | `0` / `1` si hay tests citados inexistentes |
 | `llms` | Genera `docs/llms.txt` ([llmstxt.org](https://llmstxt.org/)) desde el `nav` | `0` / `1` con `--check` si está desactualizado |
@@ -1122,9 +1124,8 @@ extra:
     # - icon: fontawesome/brands/python
     #   link: https://pypi.org/project/[nombre]/
 
+# Mermaid: integración nativa del tema vía pymdownx.superfences custom_fences (sin CDN propio)
 extra_javascript:
-  - https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js
-  - assets/js/mermaid.js        # ← copia desde doc_ia/docs/assets/
   - assets/js/sidebar-toggle.js # ← copia desde doc_ia/docs/assets/
 
 extra_css:
@@ -1134,9 +1135,9 @@ extra_css:
 
 **Notas críticas:**
 - `!!python/name:` genera advertencias en linters YAML estándar — falso positivo; válido para MkDocs.
-- Sin `extra_javascript` (CDN Mermaid + `assets/js/mermaid.js`), los diagramas no se renderizan en el browser aunque el build pase.
+- Sin `custom_fences` de `mermaid` en `pymdownx.superfences`, los diagramas salen como bloque de código aunque el build pase. Con él, el tema (Material o Zensical) carga Mermaid y lo renderiza con los colores del esquema claro/oscuro. **No** añadir el CDN de Mermaid ni un `mermaid.run()` propio: el render se duplica y deja SVG de error ocultos (`.claude/EDGE_CASES.md § Mermaid`).
 - `navigation.sections` y `navigation.tabs` son compatibles técnicamente, pero con tabs activados los grupos de área se muestran en la sidebar del tab activo; `navigation.sections` no aporta valor adicional. No incluir ambos.
-- Los cuatro assets (`assets/js/mermaid.js`, `assets/js/sidebar-toggle.js`, `assets/css/mermaid.css`, `assets/css/nav.css`) deben copiarse desde `doc_ia/docs/assets/` sin modificación.
+- Los tres assets (`assets/js/sidebar-toggle.js`, `assets/css/mermaid.css`, `assets/css/nav.css`) deben copiarse desde `doc_ia/docs/assets/` sin modificación.
 - La indentación de `nav:` usa **4 espacios extra por nivel**: secciones a 2 espacios, ítems de primer nivel a 6, segundo nivel a 10.
 
 ---

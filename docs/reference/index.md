@@ -2,13 +2,13 @@
 arquetipo: "12"
 fuentes:
   .claude/settings.json.example: e1c10842aa20
-  .github/workflows/docs-zip-release.yml: 20d18f9f3c59
-  CLAUDE.md: a167ad648656
+  .github/workflows/docs-zip-release.yml: 09d54c255eb8
+  CLAUDE.md: 301a256778f8
   hooks/sync_root_docs.py: ef5e576436c6
-  mkdocs.yml: 417c1a6602da
+  mkdocs.yml: 66d3b81c502c
   mkdocs_hooks.py: 2f510611cb6f
-  scripts/build_docs_zip.py: 0b48091d8aa9
-  scripts/check_env.py: 1e80cb6d812b
+  scripts/build_docs_zip.py: b9a2694d122f
+  scripts/check_env.py: a30937ae040f
   scripts/convert_to_md.py: e7e60518d96f
   scripts/doc_trace.py: a1824b159937
   scripts/start-server.py: ec67386821f7
@@ -25,9 +25,9 @@ línea de comandos, códigos de salida y eventos de build. La API interna de cad
 | Clave | Origen | Tipo | Por defecto | Descripción |
 |---|---|---|---|---|
 | `CUDA_VISIBLE_DEVICES` | `env` | cadena | `""` (lo fija `convert_to_md.py` al importarse si no existe) | Visibilidad de GPU para docling. `--device cpu` la fija a `""`; `--device cuda` la elimina; `--device auto` respeta un valor exportado por el usuario e ignora el que fija el propio módulo |
-| `project.version` | fichero `pyproject.toml` | cadena SemVer | `0.1.0` (valor actual) | Versión usada en el nombre del ZIP (`doc_ia-docs-{versión}.zip`) y en la release `docs-v{versión}` |
+| `project.version` | fichero `pyproject.toml` | cadena SemVer | `0.2.0` (valor actual) | Versión usada en el nombre del ZIP (`doc_ia-docs-{versión}.zip`) y en la release `docs-v{versión}` |
 | `site_dir` | fichero `mkdocs.yml` | ruta | `site` | Directorio de salida del build; `mkdocs_hooks.py` lo lee de la configuración. `build_docs_zip.py` usa `site/` fijo |
-| `hooks` | fichero `mkdocs.yml` | lista de rutas | `hooks/sync_root_docs.py`, `mkdocs_hooks.py` | Hooks MkDocs cargados en cada build (ver §4) |
+| `hooks` | fichero `mkdocs.yml` | lista de rutas | `hooks/sync_root_docs.py`, `mkdocs_hooks.py` | Hooks MkDocs cargados en cada build (ver §4). Zensical los ignora: con `--builder zensical`, `build_docs_zip.py` los ejecuta él mismo |
 | `hooks.PostToolUse` | fichero `.claude/settings.json` (no versionado; plantilla en `.claude/settings.json.example`) | objeto JSON | `sync_root_docs.py` + ruff + mypy + pytest `--collect-only` sobre `Edit\|Write` | Sincronización y validaciones automáticas tras cada edición en Claude Code |
 
 !!! note "Sin secretos"
@@ -43,7 +43,7 @@ python scripts/build_docs_zip.py [--builder {mkdocs,zensical}] [--no-strict] [--
 
 | Opción / Argumento | Tipo | Por defecto | Descripción |
 |---|---|---|---|
-| `--builder` | `mkdocs` \| `zensical` | `mkdocs` | Generador usado en el build |
+| `--builder` | `mkdocs` \| `zensical` | `mkdocs` | Generador usado en el build (`python -m <builder> build`). Con `zensical` ejecuta antes `hooks/sync_root_docs.py` y, si el build termina con `0`, `mkdocs_hooks.py` |
 | `--no-strict` | flag | desactivado (build con `--strict`) | Construye sin `--strict` |
 | `--no-build` | flag | desactivado | Omite el build y empaqueta el `site/` existente |
 | `--output-dir` | ruta | `dist` | Directorio del ZIP; relativo a la raíz del repositorio si no es absoluto |
@@ -57,7 +57,7 @@ python scripts/check_env.py
 ```
 
 Sin opciones. Comprueba las herramientas obligatorias (`mkdocs`, `ruff`, `mypy`, `pytest`) y
-avisa de las opcionales (`docling`, `markitdown` y sus plugins, `pandoc`).
+avisa de las opcionales (`zensical`, `docling`, `markitdown` y sus plugins, `pandoc`).
 
 ### convert_to_md.py
 
@@ -99,7 +99,7 @@ python scripts/doc_trace.py [--root DIR] {drift,stamp,matrix,llms} [opciones]
 | `--root` | ruta | raíz del repositorio | Base para resolver las fuentes del frontmatter (global, antes del subcomando) |
 | `drift --docs` | ruta | `docs` | Carpeta donde buscar páginas con frontmatter `fuentes` |
 | `stamp <páginas…>` | rutas (obligatorio) | — | Páginas a sellar |
-| `stamp --source` | ruta (repetible) | fuentes actuales del frontmatter | Ficheros de los que deriva la página |
+| `stamp --source` | ruta (repetible) | fuentes actuales del frontmatter | Ficheros de los que deriva la página; si se indica, **sustituye** la lista entera |
 | `stamp --archetype` | cadena | el actual del frontmatter | Arquetipo de la página (`1`, `1-I`, `2`, `12`…) |
 | `stamp --date` | `YYYY-MM-DD` | hoy | Fecha `revisado` |
 | `matrix --docs` | ruta | `docs` | Se leen los `AC-xx` de `<docs>/functional/*.md` |
@@ -160,6 +160,7 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 |---|---|---|---|
 | `on_pre_build` | MkDocs | `hooks/sync_root_docs.py` | Configuración MkDocs (`docs_dir`); copia los ficheros raíz a `docs/` |
 | `on_post_build` | MkDocs | `mkdocs_hooks.py` | Configuración MkDocs (`site_dir`); genera `site/doc_ia-docs-latest.zip` + `.sha256` |
+| Pre/post-build sin hooks | `build_docs_zip.py --builder zensical` | `sync_root_docs.main()` / `mkdocs_hooks.on_post_build({"site_dir": ...})` | Mismo efecto que los dos eventos anteriores; el post-build solo si el build termina con `0` |
 | `PostToolUse` (`Edit\|Write`) | Claude Code | Comandos de `.claude/settings.json` | Ejecuta `sync_root_docs.py`, ruff, mypy y pytest `--collect-only`; salida truncada a 5–15 líneas |
 | Prefijos de log `[build_docs_zip]`, `[ZIP]`, `[OK]`, `[sync_root_docs]`, `[doc_ia-docs]` | Scripts y hooks | Usuario / CI | Texto libre por stdout; sin contrato estable más allá del prefijo |
 
@@ -232,6 +233,7 @@ convertido: hereda la sensibilidad del origen.
     | Código `0` de `sync_root_docs.py` | `hooks/sync_root_docs.py::main` | ✅ |
     | `on_pre_build` | `hooks/sync_root_docs.py::on_pre_build` | ✅ |
     | `on_post_build` + `start-server.py` en el ZIP | `mkdocs_hooks.py::on_post_build` | ✅ |
+    | Pre/post-build ejecutados por el script con `zensical` | `scripts/build_docs_zip.py::HOOKLESS_BUILDERS`, `::_pre_build`, `::_post_build` | ✅ |
     | Release `docs-v{versión}` | `.github/workflows/docs-zip-release.yml::build-and-publish` | ✅ |
     | Salida `md/` de `convert_to_md.py` | `scripts/convert_to_md.py::output_path` | ✅ |
     | Campos del frontmatter | `scripts/convert_to_md.py::_build_metadata_basic`, `::_convert_with_docling`, `::_docling_version` | ✅ |

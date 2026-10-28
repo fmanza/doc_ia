@@ -40,7 +40,8 @@ python scripts/build_docs_zip.py --no-build
 # Carpeta de salida alternativa
 python scripts/build_docs_zip.py --output-dir /tmp/releases
 
-# Builder alternativo (requiere zensical instalado)
+# Builder alternativo (requiere zensical instalado). El script ejecuta los hooks que
+# Zensical ignora: sincroniza CHANGELOG/CONTRIBUTING antes y genera el ZIP latest después
 python scripts/build_docs_zip.py --builder zensical
 ```
 

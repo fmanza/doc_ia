@@ -47,6 +47,9 @@ en `.github/prompts/*_doc.prompt.md`. Este fichero no las repite (DRY).
 
 El proyecto usa **MkDocs** con el tema **Material for MkDocs** como generador estático
 (Zensical es recíprocamente compatible; ver `scripts/build_docs_zip.py --builder`).
+Zensical no ejecuta `hooks:` ni los plugins que no soporta, y no avisa. Construir con
+`python scripts/build_docs_zip.py --builder zensical`; para destinos, ver
+`document_project.prompt.md` § *Reglas por generador: Zensical*.
 
 - Toda documentación generada debe tener su entrada en `mkdocs.yml` bajo `nav:`.
 - La estructura de navegación objetivo (secciones top-level y configuración de referencia)
@@ -156,9 +159,8 @@ extra:
     # - icon: fontawesome/brands/python
     #   link: https://pypi.org/project/<nombre>/
 
+# Mermaid: integración nativa del tema vía pymdownx.superfences custom_fences (sin CDN propio)
 extra_javascript:
-  - https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js
-  - assets/js/mermaid.js         # inicialización explícita de Mermaid
   - assets/js/sidebar-toggle.js  # botón ◀/▶ para ocultar/mostrar sidebar
 
 extra_css:
@@ -168,10 +170,9 @@ extra_css:
 
 **Notas críticas:**
 - `!!python/name:` genera advertencias en linters YAML estándar; es válido para MkDocs (falso positivo).
-- Sin `extra_javascript` (CDN Mermaid), los bloques mermaid se generan como `<code class="language-mermaid">` pero **no se renderizan en el browser**. Siempre incluir CDN + `assets/js/mermaid.js`.
+- Sin `custom_fences` de `mermaid` en `pymdownx.superfences`, los bloques mermaid salen como código resaltado y **no se renderizan**. Con él, el tema carga Mermaid por sí mismo. **No** añadir el CDN de Mermaid ni un `mermaid.run()` propio: duplican el render (`.claude/EDGE_CASES.md § Mermaid`).
 - `pymdownx.snippets.base_path: [docs]` → las rutas en `--8<--` son **relativas a `docs/`** (no a la raíz del repo). Ejemplo: `--8<-- "examples/mi_snippet.py"`, no `--8<-- "docs/examples/mi_snippet.py"`.
-- Los cuatro assets se copian íntegros desde `doc_ia/docs/assets/` sin modificación:
-  - `mermaid.js` — inicialización Mermaid (startOnLoad:false + mermaid.run)
+- Los tres assets se copian íntegros desde `doc_ia/docs/assets/` sin modificación:
   - `sidebar-toggle.js` — botón ◀/▶ fijo en desktop para ocultar/mostrar la sidebar; persiste en `localStorage`; desactivado automáticamente en móvil (viewport < 76.1875em)
   - `mermaid.css` — centrado y responsive de SVGs Mermaid
   - `nav.css` — grupos colapsables + `.md-grid { max-width: min(90vw, 1600px) }` + CSS del toggle
@@ -445,6 +446,7 @@ Activar cuando el usuario solicite comprobar compatibilidad de versiones o plugi
 #### Procedimiento
 
 1. Fetch la documentación oficial según el generador activo (`mkdocs.yml` → `theme.name`, o `zensical.toml`).
+   Con Zensical, contrastar además cada plugin con `https://zensical.org/compatibility/plugins/`.
 2. Contrasta las directivas del fichero de configuración con la documentación oficial.
 3. Reporta discrepancias con severidad:
    - **Nivel 1** — plugin o directiva inexistente en la versión instalada (build roto).

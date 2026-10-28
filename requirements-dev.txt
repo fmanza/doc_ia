@@ -1,6 +1,9 @@
 # Dependencias de desarrollo y CI: build de docs + calidad (sin docling/torch).
 # Uso: pip install -r requirements-dev.txt
 -r requirements-docs.txt
+# Build de paridad con Zensical (no bloqueante en CI). Versión exacta: Zensical está en alfa.
+# Mantén la misma versión en requirements.txt.
+zensical==0.0.73
 pytest==9.2.0
 ruff==0.17.3
 mypy==2.4.0

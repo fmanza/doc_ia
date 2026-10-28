@@ -140,6 +140,7 @@ nav:
       - Visión del Sistema: architecture.md
       - ADR-001 — MkDocs Material por defecto: adr/ADR-001-mkdocs-material-por-defecto.md
       - ADR-002 — Arquetipos con evidencia verificable: adr/ADR-002-arquetipos-con-evidencia.md
+      - ADR-003 — Zensical por defecto (propuesto): adr/ADR-003-zensical-por-defecto.md
 
   - Changelog: changelog.md
   - Contribuir: contributing.md
@@ -149,9 +150,9 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/fmanza/doc_ia
 
+# Mermaid lo carga la integración nativa del tema (pymdownx.superfences custom_fences);
+# no añadir el CDN ni un mermaid.run() propio: duplica el render (ver EDGE_CASES § Mermaid).
 extra_javascript:
-  - https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js
-  - assets/js/mermaid.js
   - assets/js/sidebar-toggle.js
 
 extra_css:

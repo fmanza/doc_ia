@@ -82,10 +82,12 @@ python scripts/doc_trace.py drift                # Páginas desactualizadas resp
 python scripts/doc_trace.py matrix               # Criterios de aceptación ↔ tests
 python scripts/doc_trace.py llms --check         # docs/llms.txt al día
 python -m mkdocs build --strict                  # Build de docs
+python scripts/build_docs_zip.py --builder zensical --output-dir <tmp>  # Paridad Zensical (no bloqueante)
 ```
 
 El workflow `.github/workflows/ci.yml` ejecuta estos mismos comandos (Python 3.12 y 3.14) en cada
-push y PR a `develop` y `main`. Un PR que falle en cualquiera de ellos no será mergeado. Si
+push y PR a `develop` y `main`. Un PR que falle en cualquiera de ellos no será mergeado, salvo
+el build de paridad con Zensical, que es informativo mientras Zensical esté en alfa. Si
 `drift` falla, revisa la página contra el cambio de la fuente y re-séllala con
 `python scripts/doc_trace.py stamp <página>`.
 
@@ -122,9 +124,8 @@ cp .github/templates/TEMPLATE_mkdocs.yml <destino>/mkdocs.yml
 Cuando documentes un nuevo proyecto con `/document-project`, verifica:
 
 - [ ] **mkdocs.yml existe**: Si no, copiar desde `.github/templates/TEMPLATE_mkdocs.yml`
-- [ ] **extra_javascript**: Incluye `https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js`
-- [ ] **extra_javascript**: Incluye `assets/js/mermaid.js`
-- [ ] **extra_javascript**: Incluye `assets/js/sidebar-toggle.js`
+- [ ] **extra_javascript**: Incluye `assets/js/sidebar-toggle.js` y **no** incluye el CDN de Mermaid ni `assets/js/mermaid.js` (duplican el render)
+- [ ] **markdown_extensions**: `pymdownx.superfences` con `custom_fences` para `mermaid` (imprescindible para los diagramas)
 - [ ] **extra_css**: Incluye `assets/css/mermaid.css`
 - [ ] **extra_css**: Incluye `assets/css/nav.css`
 - [ ] **Archivos existen**: Verificar que los 2 archivos personalizados existen en `docs/assets/`:
