@@ -47,6 +47,13 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - **ADR-003** (PROPUESTO) — Use Zensical as the default documentation generator: cambio
   escalonado con condiciones C1-C5 (Zensical ≥ 0.1, paridad en CI ≥ 2 semanas, revisión visual,
   ZIP `latest` cubierto, antes del fin de vida de Material el 2027-05-05).
+- `/document-project` con **Generador = `zensical`**: nueva sección *Reglas por generador: Zensical*
+  en `document_project.prompt.md`. Añade la señal `TIENE_PIPELINE_SIN_HOOKS` y el Gap A4 (script de
+  build sin pasos pre/post), la comprobación de plugins soportados, el build vía
+  `build_docs_zip.py --builder zensical` y la regla de no crear `zensical.toml`. Slash command,
+  agentes Generator/Reviewer, `docs.instructions.md` y la norma remiten a ella. AC-08 en
+  `functional/document_project.md`. MkDocs Material sigue siendo el generador por defecto para
+  destinos.
 
 ### Changed
 

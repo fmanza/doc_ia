@@ -207,6 +207,7 @@ Fase 1 — Inventariar y clasificar:
              (señales alternativas: plugin `*_documentation_zip` en mkdocs.yml,
               o directorio `{nombre}_docs/` con `docs_build_plugin.py`)
            · Si existe `.github/workflows/docs-zip-release.yml` (o equivalente)   → TIENE_WORKFLOW_GITHUB = true
+           · Solo con Generador = zensical: TIENE_PIPELINE_SIN_HOOKS y Gap A4 (ver § Reglas por generador: Zensical)
            Variante aplicable en Fase 7b:
              Al menos TIENE_ZIP_SCRIPT=true o TIENE_MKDOCS_PLUGIN=true            → Variante A
                · TIENE_ZIP_SCRIPT=false     → Gap A1: proponer crear script (patrón: doc_ia/scripts/build_docs_zip.py)
@@ -235,6 +236,7 @@ Fase 5 — Sincronizar navegación y verificar configuración estándar del gene
             · markdown_extensions: attr_list, md_in_html, pymdownx.snippets (base_path:[docs]),
               line_spans:__span y pygments_lang_class:true en pymdownx.highlight
             · plugins: search con lang del idioma del proyecto
+            · Generador = zensical: plugins soportados y `hooks:` (ver § Reglas por generador: Zensical)
          c. Assets: si alguno de los cuatro ficheros de docs/assets/ (js/mermaid.js,
             js/sidebar-toggle.js, css/mermaid.css, css/nav.css) no existe en el destino,
             indicarlo explícitamente en RESUMEN con la acción: "Copiar desde doc_ia/docs/assets/".
@@ -242,6 +244,7 @@ Fase 6 — Revisión final: Markdown, enlaces relativos, sintaxis Mermaid, secci
          Trazabilidad (§3.16): frontmatter `fuentes` en páginas con Evidencia; si existe
          scripts/doc_trace.py → `stamp` + `drift` + `matrix` + `llms` (todos con exit 0).
 Fase 7 — Verificación de build (solo con --verify-build): build --strict del generador + lectura del HTML.
+         Generador = zensical: comando según § Reglas por generador: Zensical.
 Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
          Crear o actualizar `docs/downloads.md` en el destino según la variante:
 
@@ -365,6 +368,46 @@ Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
              Añadir pendiente: "[ ] Publicación automática de ZIP en CI no implementada."
 ```
 
+### Reglas por generador: Zensical
+
+Aplican cuando **Generador = `zensical`**. Con `mkdocs-material` no cambia nada de lo anterior.
+Patrón de referencia: el propio doc_ia (`scripts/build_docs_zip.py`, `tests/test_zensical_compat.py`,
+ADR-003).
+
+- **Configuración**: Zensical lee el `mkdocs.yml` del destino de forma nativa. **No crear
+  `zensical.toml`** (fuente única) y aplicar la misma configuración estándar y los mismos assets
+  (Fase 0b / Fase 5): el DOM generado es el de Material.
+- **`hooks:` no se ejecuta, y Zensical no avisa** (`.claude/EDGE_CASES.md` § Zensical). Todo lo
+  que el destino haga en hooks (sincronizar ficheros raíz, ZIP `latest`) debe ejecutarlo el
+  script de build. Por eso, con Zensical:
+  - **Fase 1** — señal adicional `TIENE_PIPELINE_SIN_HOOKS = true` si el
+    `scripts/build_docs_zip.py` del origen define `HOOKLESS_BUILDERS` (o ejecuta los hooks antes y
+    después del build). `TIENE_MKDOCS_PLUGIN` se sigue detectando, pero **no basta**: sin el
+    pipeline, el ZIP `latest` no se genera.
+  - **Gap A4** (`TIENE_ZIP_SCRIPT = true` y `TIENE_PIPELINE_SIN_HOOKS = false`) → actualizar el
+    script siguiendo `doc_ia/scripts/build_docs_zip.py`: `HOOKLESS_BUILDERS`, `_load_hook`,
+    `_pre_build` (hooks de pre-build del destino), `_post_build` (`mkdocs_hooks.on_post_build`, solo
+    si el build termina con 0) e invocación `python -m <builder>`.
+  - **Gap A2 / Paso B4** — `mkdocs_hooks.py` se crea igual: es la plantilla que invoca el script.
+    Registrarlo en `hooks:` (Paso A2-2) solo si el destino también construye con MkDocs.
+  - **Paso B1** — al adaptar `build_docs_zip.py`, poner `default="zensical"` en `--builder`.
+- **Fase 5 — plugins**: cada plugin de `mkdocs.yml` debe figurar en
+  `https://zensical.org/compatibility/plugins/`; los demás **se ignoran en silencio** → reportarlos
+  en RESUMEN como hallazgo, nunca darlos por funcionando. `hooks:` presente sin pipeline → mismo
+  tratamiento.
+- **Fase 7 — build**:
+  - Con pipeline: `python scripts/build_docs_zip.py --builder zensical`.
+  - Sin pipeline: `python -m zensical build --strict`, advirtiendo de que no se ejecutan los hooks.
+  - Serve: `python -m zensical serve` (no ejecuta hooks: los ficheros sincronizados pueden estar
+    desfasados).
+- **Fase 7b — `downloads.md`**: "Para Desarrolladores" usa `python scripts/build_docs_zip.py
+  --builder zensical`; "Información de versión" indica Zensical. Los enlaces `../{nombre}-docs-latest.zip`
+  solo valen con `use_directory_urls: true` (ver Paso B3); con el plugin `offline` las URLs pasan a
+  `*.html` y el enlace debe ser `{nombre}-docs-latest.zip`.
+- **Dependencias del destino**: `zensical` con **versión exacta** (está en alfa); en DOWNLOADS y
+  RESUMEN, recordar que el workflow de release debe llamar a `build_docs_zip.py --builder zensical`.
+- **Salida 8b DOWNLOADS**: añadir el estado de `TIENE_PIPELINE_SIN_HOOKS` y, si aplica, el Gap A4.
+
 **Protocolo ACTUALIZAR (estado B) — obligatorio en Fases 2-4:**
 1. Leer el documento existente completo antes de escribir cualquier línea.
 2. Comparar sección a sección con el código actual del origen.
@@ -402,7 +445,7 @@ APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reg
 6. **SYNC NAV** (Fase 5) — diff de `mkdocs.yml` (o config del generador) del destino.
 7. **REVISIÓN** (Fase 6) — checklist de validación + hallazgos.
 8. **BUILD** (Fase 7, solo opt-in) — resultado de `--verify-build`.
-8b. **DOWNLOADS** (Fase 7b, siempre) — `downloads.md` creado/actualizado; indicar variante A o B; estado de las tres señales (TIENE_ZIP_SCRIPT, TIENE_MKDOCS_PLUGIN, TIENE_WORKFLOW_GITHUB); huecos (Gaps A1/A2/A3) reportados si alguna falta; entrada añadida al nav.
+8b. **DOWNLOADS** (Fase 7b, siempre) — `downloads.md` creado/actualizado; indicar variante A o B; estado de las tres señales (TIENE_ZIP_SCRIPT, TIENE_MKDOCS_PLUGIN, TIENE_WORKFLOW_GITHUB) y, con Zensical, TIENE_PIPELINE_SIN_HOOKS; huecos (Gaps A1/A2/A3 y, con Zensical, A4) reportados si alguna falta; entrada añadida al nav.
 9. **RESUMEN** — archivos generados/actualizados, entradas de nav, pendientes de verificación humana.
 10. **CIERRE DE SESIÓN** (siempre obligatorio) — crear artefacto `.ai/sessions/YYYY-MM-DD/` en el
     destino (`00_REQUEST.md`, `00_CONTEXT_SNAPSHOT.md`, `TRACEABILITY.md`) y proponer commit

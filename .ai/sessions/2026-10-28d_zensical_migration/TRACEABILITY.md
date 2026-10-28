@@ -43,8 +43,9 @@ recomendable la migración. Puede consultarse información en internet. PLAN y A
 | F2 | `ci(docs): build de paridad con Zensical (no bloqueante)` | `dd9266d` | HECHO |
 | F3 | `feat(env): check_env informa de Zensical como generador opcional` | `767e97b` | HECHO |
 | F4 | `test(docs): guardas de compatibilidad con Zensical` | `d7b89f6` | HECHO |
-| F5 | `docs(adr): ADR-003 Zensical como generador por defecto (propuesto)` | (este commit) | HECHO |
-| F6-F12 | ver `02_PLAN_FASES.md` | — | PENDIENTE |
+| F5 | `docs(adr): ADR-003 Zensical como generador por defecto (propuesto)` | `5cc8bfc` | HECHO |
+| F11 | `feat(prompts): soporte completo de Zensical en document_project` | (este commit) | HECHO |
+| F6-F10, F12 | ver `02_PLAN_FASES.md` | — | PENDIENTE |
 
 ### F1 — verificación
 - DoD local (`.venv`, Python 3.14): ruff, format, mypy, pytest **177**, drift 0, matrix
@@ -85,6 +86,19 @@ recomendable la migración. Puede consultarse información en internet. PLAN y A
 - Nav + `llms.txt` (+1 entrada); re-sellado por `mkdocs.yml` de `api/archetypes`,
   `api/document_project`, `functional/build_docs_zip` y `reference/index` (contenido no afectado).
 - DoD completa en verde; el ADR se genera con MkDocs y con Zensical.
+
+### F11 — verificación
+- DRY: una única sección canónica (`document_project.prompt.md` § *Reglas por generador:
+  Zensical*). Fases 1, 5, 7 y salida 8b, slash command, agentes Generator/Reviewer,
+  `docs.instructions.md` y `DOCUMENTATION_STANDARD.md` §2.1 remiten a ella.
+- Contenido: `TIENE_PIPELINE_SIN_HOOKS`, Gap A4, `mkdocs_hooks.py` como plantilla invocada por
+  el script, `default="zensical"` en el Paso B1, plugins soportados, comandos de build/serve,
+  enlaces de `downloads.md` según `use_directory_urls`/`offline`, versión exacta.
+- Páginas: `functional/document_project.md` (regla, flujo alternativo, AC-08 sin test) y
+  `api/document_project.md` actualizadas. `functional/archetypes`, `functional/origin_types` y
+  `api/archetypes` revisadas: no describen el generador → solo re-sellado.
+- No se ha ejecutado `/document-project` con Zensical sobre un destino real: la regla se
+  validará en la primera sesión de ese tipo (AC-08 sin test, como el resto del flujo IA).
 
 ## Veredicto final
 Veredicto: F0-F5, F11 GO · F6 GO_CONDICIONAL (C6, C7) · F7 gate 0.1 · F8 gate C2-C5 ·

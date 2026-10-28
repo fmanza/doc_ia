@@ -47,6 +47,9 @@ en `.github/prompts/*_doc.prompt.md`. Este fichero no las repite (DRY).
 
 El proyecto usa **MkDocs** con el tema **Material for MkDocs** como generador estático
 (Zensical es recíprocamente compatible; ver `scripts/build_docs_zip.py --builder`).
+Zensical no ejecuta `hooks:` ni los plugins que no soporta, y no avisa. Construir con
+`python scripts/build_docs_zip.py --builder zensical`; para destinos, ver
+`document_project.prompt.md` § *Reglas por generador: Zensical*.
 
 - Toda documentación generada debe tener su entrada en `mkdocs.yml` bajo `nav:`.
 - La estructura de navegación objetivo (secciones top-level y configuración de referencia)
@@ -445,6 +448,7 @@ Activar cuando el usuario solicite comprobar compatibilidad de versiones o plugi
 #### Procedimiento
 
 1. Fetch la documentación oficial según el generador activo (`mkdocs.yml` → `theme.name`, o `zensical.toml`).
+   Con Zensical, contrastar además cada plugin con `https://zensical.org/compatibility/plugins/`.
 2. Contrasta las directivas del fichero de configuración con la documentación oficial.
 3. Reporta discrepancias con severidad:
    - **Nivel 1** — plugin o directiva inexistente en la versión instalada (build roto).

@@ -23,7 +23,9 @@ Estandarizar instrucciones de documentación para asegurar:
 - **Webs de referencia oficial** (consultar con `--verify-tools` para validar versiones y plugins):
   - MkDocs: `https://www.mkdocs.org/about/release-notes/`
   - Material for MkDocs: `https://squidfunk.github.io/mkdocs-material/plugins/`
-  - Zensical: `https://zensical.org/`
+  - Zensical: `https://zensical.org/` — lee el mismo `mkdocs.yml`, pero no ejecuta `hooks:` ni
+    los plugins que no soporta (`https://zensical.org/compatibility/plugins/`). Reglas para
+    destinos con Zensical: `document_project.prompt.md` § *Reglas por generador: Zensical*.
 - **Secciones existentes**:
   - ✅ Guías (DUPLICATE_PROJECT_GUIDE, NEXT_STEPS, README_DUPLICADOR, ARCHITECTURE_VISUAL)
   - ✅ Funcional (`docs/functional/`) — 8 módulos

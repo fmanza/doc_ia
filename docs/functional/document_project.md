@@ -1,9 +1,9 @@
 ---
 arquetipo: "1"
 fuentes:
-  .claude/commands/document-project.md: 6e088419ade1
-  .github/DOCUMENTATION_STANDARD.md: a22d4e8ab738
-  .github/prompts/document_project.prompt.md: 2ab96b792358
+  .claude/commands/document-project.md: 62121e4162c3
+  .github/DOCUMENTATION_STANDARD.md: 9644319c8791
+  .github/prompts/document_project.prompt.md: 8622878f0f40
   CLAUDE.md: a167ad648656
 revisado: 2026-10-28
 ---
@@ -100,6 +100,7 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
 | Preservación de lo vigente | Las páginas clasificadas como vigentes (estado C) no se modifican; las desactualizadas (B) se actualizan conservando las secciones aún correctas | Se perdería documentación válida o se introduciría regresión de contenido |
 | `downloads.md` siempre obligatorio | Cada sesión genera o actualiza `docs/downloads.md` en el destino (Fase 7b); el flujo detecta tres señales de distribución offline (`TIENE_ZIP_SCRIPT`, `TIENE_MKDOCS_PLUGIN`, `TIENE_WORKFLOW_GITHUB`) y reporta los huecos | El destino quedaría sin una página de descarga offline o con datos desactualizados |
 | Sincronización visual obligatoria (Fase 0b) | Al inicio de toda sesión se verifican: assets CSS/JS en `docs/assets/`, configuración de `mkdocs.yml` (sin `navigation.sections` si `nav.css` presente), `.gitignore` con patrones estándar (`site/`, `*.pdf`, `*.doc`, `*.docx`). Aplica tanto en creación como en actualización ⚠️ | El destino tendría assets desincronizados, menú lateral sin colapso o binarios versionados por error |
+| Zensical sin pérdidas silenciosas | Con generador Zensical, que no ejecuta `hooks:` ni los plugins que no soporta, el flujo detecta si el script de build del destino ejecuta él mismo esos pasos (`TIENE_PIPELINE_SIN_HOOKS`), reporta el Gap A4 si no lo hace y señala los plugins no soportados; nunca crea `zensical.toml` | El destino perdería sin aviso la sincronización de ficheros raíz, el ZIP "latest" o la función de un plugin |
 | Documentos pre-convertidos (`md/`) | Si el origen contiene carpetas `md/` (generadas por `convert_to_md.py`), se usan como contexto de primera clase en Fases 2-4 sin re-conversión; no generan páginas propias ni reciben estado A/B/C | Se perdería contexto valioso de documentos binarios o se intentaría re-convertir innecesariamente |
 | Contexto persistente `.ai/*.md` | En la primera sesión de un destino nuevo (o si faltan), se crean los 5 ficheros de contexto raíz: `product.md`, `architecture.md`, `glossary.md`, `runtime.md`, `standards.md`; en sesiones posteriores se actualizan si el inventario detecta cambios relevantes | Una IA futura no tendría el snapshot del proyecto para su `00_CONTEXT_SNAPSHOT` |
 
@@ -134,6 +135,10 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
   informa que `/document-project` requiere al menos un origen de tipo CÓDIGO.
 - **Verificación de build**: paso opcional (`--verify-build`) que construye el sitio en
   modo estricto al final y confirma que compila sin errores.
+- **Generador Zensical**: la configuración y los assets son los mismos (Zensical lee el mismo
+  `mkdocs.yml`). Cambian el build, que se hace a través del script del destino para que se
+  ejecuten los pasos que Zensical ignora, la comprobación de plugins soportados y la señal
+  adicional del pipeline en la página de descargas.
 
 ### Casos especiales
 
@@ -156,6 +161,7 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
 | AC-05 | Dos orígenes: un proyecto Python y un PDF de normativa | Se invoca el flujo | La Fase 0a presenta una tabla con los tipos detectados (CÓDIGO y NORMATIVA), el usuario confirma, y el PDF enriquece las reglas de negocio de la documentación funcional sin generar página propia | Sin test |
 | AC-06 | Todos los orígenes indicados son MATERIAL (sin ningún proyecto de código) | Se inicia la ejecución | El flujo se detiene con un mensaje que informa que se requiere al menos un origen de tipo CÓDIGO y orienta al prompt de arquetipo directo | Sin test |
 | AC-07 | Cualquier sesión de `/document-project` completada | El flujo llega al RESUMEN | Existe el artefacto `.ai/sessions/YYYY-MM-DD/` con los tres ficheros obligatorios (`00_REQUEST.md`, `00_CONTEXT_SNAPSHOT.md`, `TRACEABILITY.md`) y se propone un commit Conventional Commits | Sin test |
+| AC-08 | Un destino con generador Zensical, `hooks:` en `mkdocs.yml` y un script de build que no ejecuta esos hooks | Se ejecuta el flujo | El inventario y DOWNLOADS reportan `TIENE_PIPELINE_SIN_HOOKS = false` y el Gap A4 con la acción de actualizar el script; los plugins no soportados aparecen como hallazgo en RESUMEN; no se crea `zensical.toml` | Sin test |
 
 Verificación: ejecutar `/document-project` (Claude Code) o
 `Lee y aplica .github/prompts/document_project.prompt.md` con los cuatro parámetros en
@@ -208,3 +214,4 @@ automatizados.
     | AC-05 | `.github/prompts/document_project.prompt.md::Fase 0a` | ✅ |
     | AC-06 | `.github/DOCUMENTATION_STANDARD.md::3.10 Documentación con Múltiples Orígenes` (caso degenerado) | ✅ |
     | AC-07 | `.github/prompts/document_project.prompt.md::Devuelve en este orden` (punto 10) | ✅ |
+    | Regla «Zensical sin pérdidas silenciosas» y AC-08 | `.github/prompts/document_project.prompt.md::Reglas por generador: Zensical` | ✅ |

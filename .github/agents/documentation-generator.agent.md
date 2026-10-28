@@ -129,7 +129,7 @@ Solo ejecutar cuando el usuario solicite verificar compatibilidad de versiones o
 
 - Fetch MkDocs release notes: `https://www.mkdocs.org/about/release-notes/`
 - Fetch Material for MkDocs plugins: `https://squidfunk.github.io/mkdocs-material/plugins/`
-- Fetch Zensical docs: `https://zensical.org/`
+- Fetch Zensical docs: `https://zensical.org/` (plugins soportados: `https://zensical.org/compatibility/plugins/`)
 
 **Propósito**: verificar que las directivas en `mkdocs.yml` son válidas para la versión instalada.
 
@@ -150,8 +150,13 @@ Ejecutar tras la fase de generación y validación cuando el usuario solicite co
 #### Modo A — build (por defecto dentro de `--verify-build`)
 
 ```bash
-python -m mkdocs build --strict   # alternativa: zensical build --strict
+python -m mkdocs build --strict   # Generador = zensical: ver nota
 ```
+
+> **Zensical**: no ejecuta `hooks:` de `mkdocs.yml` ni avisa. Si el destino tiene pipeline
+> (`HOOKLESS_BUILDERS` en `scripts/build_docs_zip.py`): `python scripts/build_docs_zip.py --builder zensical`.
+> Si no: `python -m zensical build --strict` + advertir que los hooks no corren (Gap A4). Reglas
+> completas: `document_project.prompt.md` § *Reglas por generador: Zensical*.
 
 Leer páginas clave de `site/` con el tool `Read` y comprobar:
 
@@ -169,7 +174,7 @@ Páginas a inspeccionar: priorizar las que contienen directivas `:::`, bloques M
 #### Modo B — serve (activar con `--verify-build --serve`)
 
 ```bash
-python -m mkdocs serve   # alternativa: zensical serve
+python -m mkdocs serve   # alternativa: python -m zensical serve (no ejecuta hooks)
 # lanza en background; confirmar con el usuario antes de arrancar el servidor
 ```
 

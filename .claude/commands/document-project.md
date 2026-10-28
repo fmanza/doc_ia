@@ -14,7 +14,9 @@ Documentar un proyecto (origen → destino) orquestando los arquetipos formales.
 
 - [ ] **Origen(es) a documentar**: Ruta(s) raíz del/los proyecto(s) (ej. `c:\repos\mi_api`)
 - [ ] **Destino de la documentación**: Ruta donde se escribe (ej. `c:\repos\mi_api\docs`)
-- [ ] **Generador**: `mkdocs-material` (por defecto) | `zensical`
+- [ ] **Generador**: `mkdocs-material` (por defecto) | `zensical` — con `zensical` aplicar
+  `.github/prompts/document_project.prompt.md` § *Reglas por generador: Zensical* (no ejecuta
+  `hooks:`; señal `TIENE_PIPELINE_SIN_HOOKS`, Gap A4, plugins soportados, build vía script)
 - [ ] **Idioma**: `es` | `en` | otro
 - [ ] **Tipo de cada origen** (opcional): `CÓDIGO` | `NORMATIVA` | `ESPECIFICACIÓN` | `UI/PANTALLAS` | `REFERENCIA` | `CONTRATO` | `INFRAESTRUCTURA` | `MANUAL` — autodetectado si se omite; el usuario confirma antes de continuar
 - [ ] **Estrategia** (solo con ≥2 orígenes CÓDIGO): `federado` | `hub+satélite` | `monorepo` — preguntar al usuario, nunca autodetectar
@@ -47,7 +49,8 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 
 **Recomendado**:
 - Iterar módulo a módulo dentro de cada fase; nunca un único prompt masivo
-- Cerrar con `python -m mkdocs build --strict` (o `--verify-build`) antes de publicar
+- Cerrar con `python -m mkdocs build --strict` (o `--verify-build`) antes de publicar; con
+  Zensical, `python scripts/build_docs_zip.py --builder zensical` (ejecuta los hooks que Zensical ignora)
 
 ## Sincronización de Configuración Visual (Fase 0b) ← OBLIGATORIO
 
