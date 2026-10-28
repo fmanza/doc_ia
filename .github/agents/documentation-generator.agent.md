@@ -96,7 +96,7 @@ Ejecutar siempre antes de cualquier otra fase cuando se reciben múltiples oríg
 | `UI/PANTALLAS` | Arquetipo 1 + Arquetipo 3 | §3 Casos de Uso (Arq. 1); §3 Pasos (Arq. 3) |
 | `REFERENCIA` | Arquetipo 2 o Arquetipo 5 | §4 Dependencias (Arq. 2); Decisión (Arq. 5) |
 | `CONTRATO` | Arquetipo 2 del proyecto principal | §1 Arquitectura (interfaces publicadas); §2 Modelo de Datos / Contratos |
-| `INFRAESTRUCTURA` | Arquetipos 2 + 6 del proyecto principal | Arq. 2 §4 Dependencias y Requisitos; Arq. 6D §3 (vista de despliegue) |
+| `INFRAESTRUCTURA` | Arquetipos 2 + 6 del proyecto principal | Arq. 2 §4 Dependencias y Requisitos; Arq. 6C §3 (vista de despliegue) |
 | `MANUAL` | Arquetipos 3a · 3b · 6 · 7 | Arq. 3a §3 Pasos; Arq. 3b §3 Contenido de aprendizaje; Arq. 6A/B §1 Descripción; Arq. 7 §3 y §5 |
 
 #### Estrategia para múltiples orígenes CÓDIGO

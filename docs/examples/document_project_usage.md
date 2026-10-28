@@ -137,7 +137,7 @@ CLASIFICACIÓN DE ORÍGENES
 |---------------------|-----------------|-------------------------------|---------------------------------------|
 | src/                | CÓDIGO          | .py, pyproject.toml, tests/   | Proyecto principal → arquetipos 1–7   |
 | api/openapi.yaml    | CONTRATO        | clave `openapi:` en YAML      | MATERIAL → enriquece Arq. 2 §1 y §2   |
-| infra/              | INFRAESTRUCTURA | .tf, variables.tf             | MATERIAL → enriquece Arq. 2 §4 y 6D   |
+| infra/              | INFRAESTRUCTURA | .tf, variables.tf             | MATERIAL → enriquece Arq. 2 §4 y 6C   |
 
 ¿Confirmas esta clasificación antes de continuar con el inventario?
 ```
@@ -160,7 +160,7 @@ CLASIFICACIÓN DE ORÍGENES
 - `Estrategia` solo aplica con ≥2 orígenes de tipo CÓDIGO y nunca se autodetecta.
 - Los tipos `CONTRATO` e `INFRAESTRUCTURA` son MATERIAL: no generan páginas propias sino que
   enriquecen el Arquetipo 2 del proyecto CÓDIGO (§2 Contratos para `CONTRATO`; §4 Dependencias
-  y §6D vista de despliegue para `INFRAESTRUCTURA`). Ver [Catálogo de Tipos de Origen](../functional/origin_types.md).
+  y §6C vista de despliegue para `INFRAESTRUCTURA`). Ver [Catálogo de Tipos de Origen](../functional/origin_types.md).
 - La generación ocurre **en el chat**, no en componentes programáticos: ningún paso
   llama a APIs de IA externas ni ejecuta Python para generar el texto de los documentos.
 

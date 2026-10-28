@@ -157,7 +157,7 @@ __pycache__/
      - `UI/PANTALLAS` — wireframes, mockups, capturas (`.png`, `.jpg`, `.pdf` de diseño); carpetas `mockups/`, `figma-exports/` → enriquece Arquetipo 1 §3 y Arquetipo 3
      - `REFERENCIA` — manuales de **terceros**, RFCs, especificaciones de protocolo **ajenas al proyecto** → enriquece Arquetipo 2 §4 o Arquetipo 5
      - `CONTRATO` — especificaciones machine-readable del **propio proyecto**: `openapi:` / `asyncapi:` YAML, `.graphql`, `.proto`, `.sql` DDL, `.dbml`; carpetas `api/`, `schemas/`, `proto/` → enriquece Arquetipo 2 §1 (interfaces) y §2 (contratos/datos)
-     - `INFRAESTRUCTURA` — IaC y despliegue: `.tf`, `Dockerfile`, `docker-compose.yml`, K8s YAML en `k8s/`/`deploy/`/`helm/`, Ansible → enriquece Arquetipo 2 §4 y Arquetipo 6D (vista despliegue)
+     - `INFRAESTRUCTURA` — IaC y despliegue: `.tf`, `Dockerfile`, `docker-compose.yml`, K8s YAML en `k8s/`/`deploy/`/`helm/`, Ansible → enriquece Arquetipo 2 §4 y Arquetipo 6C (vista despliegue)
      - `MANUAL` — documentación narrativa del **propio proyecto**: `.pdf`/`.docx`/`.md` con `manual`/`guide`/`runbook`/`ayuda`/`help` en nombre; carpetas `manuals/`, `help/`, `user-docs/` → enriquece Arquetipos 3a §3, 3b §3, 6A/B §1 y 7 §3+§5
    - Si hay ≥2 orígenes `CÓDIGO` → preguntar estrategia (nunca autodetectar):
      - `federado`: cada proyecto documenta de forma independiente (docs/ propio, mkdocs.yml propio)
