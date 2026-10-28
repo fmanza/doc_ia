@@ -64,7 +64,8 @@ Detalle completo: `CHANGELOG.md` § `[0.2.0] — 2026-10-28`.
 - [x] `CHANGELOG.md` → `[0.2.0] — 2026-10-28` (+ `docs/changelog.md` sincronizado)
 - [x] `doc_trace drift` sin drift y `llms --check` al día
 - [x] `mkdocs build --strict` + ZIP `dist/doc_ia-docs-0.2.0.zip`; tabla de `docs/downloads.md`
-- [ ] CI de `develop`, merge a `main`, tag `v0.2.0` y workflows de release (ver `TRACEABILITY.md`)
+- [x] CI de `develop` y de `main`, merge a `main` (`2e8da9d`) y tag `v0.2.0` → release `v0.2.0` correcta
+- [ ] Release `docs-v0.2.0`: recrear con `workflow_dispatch` (ver incidente en `TRACEABILITY.md`)
 
 ## Handoff
 
