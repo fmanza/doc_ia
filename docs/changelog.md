@@ -53,6 +53,10 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - mypy limpio sin los extras opcionales (overrides para `docling` y `markitdown`).
 - `CONTRIBUTING.md`: la sincronización visual pasa a §5.1 y «Release» vuelve a ser §6 (Arquetipo 11).
 - `docs/installation.md`: corregido que `requirements.txt` no incluye ruff ni mypy.
+- `requirements.txt` regenerado desde el entorno local completo (docling 2.107.0, markitdown con
+  plugins PDF/XLS); `pywin32` solo en Windows (`sys_platform == "win32"`), lo que permite instalarlo
+  en Linux/macOS. `requirements-docs.txt` y `requirements-dev.txt` alineados con sus versiones.
+- `check_env.py`: la ayuda de plugins de markitdown incluye `pdfminer.six`.
 
 ### Fixed
 

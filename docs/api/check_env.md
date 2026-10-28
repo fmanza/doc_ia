@@ -1,7 +1,7 @@
 ---
 arquetipo: "2"
 fuentes:
-  scripts/check_env.py: 474070bcf7f5
+  scripts/check_env.py: 1e80cb6d812b
   tests/test_check_env.py: 1d38d14c5c0b
 revisado: 2026-10-28
 ---

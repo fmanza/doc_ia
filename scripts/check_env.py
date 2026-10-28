@@ -40,7 +40,7 @@ _PANDOC_INSTALL = (
     "    Linux:   sudo apt install pandoc | sudo dnf install pandoc"
 )
 _MARKITDOWN_INSTALL = "    pip install markitdown"
-_MARKITDOWN_PLUGINS_INSTALL = "    pip install python-docx python-pptx openpyxl xlrd"
+_MARKITDOWN_PLUGINS_INSTALL = "    pip install pdfminer.six python-docx python-pptx openpyxl xlrd"
 _DOCLING_INSTALL = "    pip install docling"
 
 

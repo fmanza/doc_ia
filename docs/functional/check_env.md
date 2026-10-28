@@ -1,7 +1,7 @@
 ---
 arquetipo: "1"
 fuentes:
-  scripts/check_env.py: 474070bcf7f5
+  scripts/check_env.py: 1e80cb6d812b
 revisado: 2026-10-28
 ---
 # Verificación de Entorno

@@ -2,9 +2,9 @@
 # Versiones alineadas con requirements.txt (entorno local completo, incluye docling/torch).
 # Si cambias una versión aquí, cámbiala también en requirements.txt.
 mkdocs==1.6.1
-mkdocs-material==9.7.6
+mkdocs-material==9.8.0
 mkdocs-material-extensions==1.3.1
-pymdown-extensions==10.21.3
-Markdown==3.10.2
-Pygments==2.20.0
+pymdown-extensions==12.3
+Markdown==3.11.2
+Pygments==2.21.0
 PyYAML==6.0.3
