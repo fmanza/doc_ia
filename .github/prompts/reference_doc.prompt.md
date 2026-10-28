@@ -62,6 +62,16 @@ Contrato fuente: ruta como código inline al material CONTRATO (no copies la esp
 completa; resume operaciones y enlaza a la página de docs/ si existe).
 Si no hay interfaces publicadas: "*No aplica para este sistema.*"
 
+## 6. Datos
+SOLO con persistencia propia (ORM, DDL, migraciones, `.dbml`, `.avsc`) o ficheros con formato
+propio que el sistema lee y escribe. Fuentes: código + material CONTRATO.
+- `erDiagram` global (máx. 12 entidades; si hay más, agrupa por agregado y lista el resto).
+- Tabla: | Entidad | Campo | Tipo | Restricción | Sensibilidad |
+  Sensibilidad: pública / interna / personal / secreta. Campos personales → marcar "personal"
+  aunque no haya normativa (alimenta el Arquetipo 8 si se activa).
+- Entidades con estados: `stateDiagram-v2` con las transiciones reales del código.
+Si no hay persistencia ni formatos propios: "*No aplica para este sistema.*"
+
 ??? note "Evidencia"
     Bloque plegable final, sin número de sección (DOCUMENTATION_STANDARD.md §3.16).
     Tabla: | Elemento | Fuente | Confianza |
@@ -95,6 +105,7 @@ el arquetipo no aplica y `docs/reference/` no se crea:
 | `sys.exit(n)`, `process.exit(n)`, excepciones públicas exportadas | §3 |
 | Colas, webhooks, buses de eventos, hooks | §4 |
 | Material `CONTRATO` (OpenAPI, AsyncAPI, `.proto`, `.graphql`) | §5 |
+| ORM, DDL, migraciones, `.dbml`, `.avsc`, ficheros con formato propio | §6 |
 
 ## Cómo usar este prompt
 
@@ -120,6 +131,6 @@ Genera la referencia del sistema siguiendo las instrucciones del prompt.
 
 ## Output esperado
 
-Markdown con título H1 `# Referencia — …`, frase introductoria, las 5 secciones del
-Arquetipo 12 numeradas (`## 1.`–`## 5.`) y el bloque plegable `??? note "Evidencia"` final.
+Markdown con título H1 `# Referencia — …`, frase introductoria, las 6 secciones del
+Arquetipo 12 numeradas (`## 1.`–`## 6.`) y el bloque plegable `??? note "Evidencia"` final.
 Secciones vacías con `*No aplica para este sistema.*`.

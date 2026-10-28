@@ -153,7 +153,7 @@ __pycache__/
    - Tipos posibles:
      - `CÓDIGO` — archivos fuente (`.py`, `.js`, `.ts`, `.cs`, `.java`, `.go`, `.rs`, …), `pyproject.toml`, `package.json`, `pom.xml`, `src/`, `tests/` presentes → documentar como proyecto (arquetipos 1–7, y 12 si hay señales de configuración/CLI/códigos de salida)
      - `NORMATIVA` — PDFs/docs con nombres que contienen `ley`, `decreto`, `directiva`, `rgpd`, `gdpr`, `une`, `iso`, `reglamento` → activar Arquetipo 8; enriquece §2 Arquetipo 1 del proyecto principal
-     - `ESPECIFICACIÓN` — Word/PDF de requisitos, user stories, pliego, ficheros `.feature`; carpetas `specs/`, `requirements/`, `ux/` → enriquece Arquetipo 1 §2+§3+§4 del proyecto principal
+     - `ESPECIFICACIÓN` — Word/PDF de requisitos, user stories, pliego, ficheros `.feature`; carpetas `specs/`, `requirements/`, `ux/` → enriquece Arquetipo 1 §3+§5+§6+§7 del proyecto principal
      - `UI/PANTALLAS` — wireframes, mockups, capturas (`.png`, `.jpg`, `.pdf` de diseño); carpetas `mockups/`, `figma-exports/` → enriquece Arquetipo 1 §3 y Arquetipo 3
      - `REFERENCIA` — manuales de **terceros**, RFCs, especificaciones de protocolo **ajenas al proyecto** → enriquece Arquetipo 2 §4 o Arquetipo 5
      - `CONTRATO` — especificaciones machine-readable del **propio proyecto**: `openapi:` / `asyncapi:` YAML, `.graphql`, `.proto`, `.sql` DDL, `.dbml`; carpetas `api/`, `schemas/`, `proto/` → enriquece Arquetipo 2 §1 (interfaces) y §2 (contratos/datos) y Arquetipo 12 §5 (interfaces publicadas)

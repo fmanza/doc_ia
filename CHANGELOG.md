@@ -16,6 +16,13 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - **Variante 6C**: subapartado §3 › Despliegue (arc42 §7, condicional) y escenarios de calidad
   en §4 (arc42 §10). Aplicado en `docs/architecture.md`.
 - **ADR-002** — Use evidence-backed archetypes for repository documentation.
+- **Trazabilidad funcional y de pruebas** (P2): columna `Test` en los criterios de aceptación del
+  Arquetipo 1 §7, nueva §6 "Verificación y Tests" del Arquetipo 2 y subsección condicional
+  "Actores y permisos" en el Arquetipo 1 §2.
+- **Mapa Funcional** (Variante 1-I del Arquetipo 1, `docs/functional/index.md`): capacidades,
+  recorridos transversales, actores y glosario global del sistema.
+- **Arquetipo 12 §6 "Datos"** (condicional): `erDiagram` global y diccionario con sensibilidad
+  por campo; aplicado a los ficheros con formato propio de doc_ia.
 
 ### Changed
 

@@ -82,6 +82,7 @@ nav:
 
   # ── Audiencia: Product Owner, responsables de documentación ────────────────
   - Documentación Funcional:
+      - Mapa Funcional: functional/index.md
       - Tooling Determinista:
           - Verificación de Entorno: functional/check_env.md
           - ZIP de Documentación Offline: functional/build_docs_zip.md

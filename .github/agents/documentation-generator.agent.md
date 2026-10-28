@@ -92,9 +92,9 @@ Ejecutar siempre antes de cualquier otra fase cuando se reciben múltiples oríg
 
 | Tipo origen | Arquetipo enriquecido | Sección(es) afectadas |
 |-------------|----------------------|----------------------|
-| `NORMATIVA` | Arquetipo 8 + Arquetipo 1 del proyecto principal | §2 Reglas de Negocio |
-| `ESPECIFICACIÓN` | Arquetipo 1 del proyecto principal | §2 Reglas de Negocio, §3 Casos de Uso, §4 Criterios de Aceptación |
-| `UI/PANTALLAS` | Arquetipo 1 + Arquetipo 3 | §3 Casos de Uso (Arq. 1); §3 Pasos (Arq. 3) |
+| `NORMATIVA` | Arquetipo 8 + Arquetipo 1 del proyecto principal | §5 Reglas de Negocio |
+| `ESPECIFICACIÓN` | Arquetipo 1 del proyecto principal | §3 Flujo Principal, §5 Reglas de Negocio, §6 Flujos Alternativos, §7 Criterios de Aceptación |
+| `UI/PANTALLAS` | Arquetipo 1 + Arquetipo 3 | §3 Flujo Principal (Arq. 1); §3 Pasos (Arq. 3) |
 | `REFERENCIA` | Arquetipo 2 o Arquetipo 5 | §4 Dependencias (Arq. 2); Decisión (Arq. 5) |
 | `CONTRATO` | Arquetipos 2 + 12 del proyecto principal | Arq. 2 §1 Arquitectura y §2 Modelo de Datos / Contratos; Arq. 12 §5 Interfaces Publicadas |
 | `INFRAESTRUCTURA` | Arquetipos 2 + 6 del proyecto principal | Arq. 2 §4 Dependencias y Requisitos; Arq. 6C §3 › Despliegue |
@@ -249,6 +249,11 @@ Cuando el usuario pida documentar o actualizar todo el proyecto, usa este flujo 
 - Genera o actualiza `docs/functional/[nombre].md` con: objetivo de negocio, precondiciones,
   flujo `sequenceDiagram`, reglas críticas, ejemplo genérico verificable.
 - Marca como "Pendiente de verificación" cualquier sección sin evidencia en el código.
+- En §7 rellena la columna `Test` buscando en `tests/` el test que verifica cada criterio;
+  si no existe, `Sin test`.
+- Tras las páginas por módulo, genera (o actualiza) el **Mapa Funcional**
+  `docs/functional/index.md` (Variante 1-I de `functional_doc.prompt.md`) y colócalo como
+  primera entrada de "Documentación Funcional" en el `nav`.
 
 ### Fase 3 — Documentación técnica con Mermaid
 - Para cada módulo de tipo A o B, aplica `technical_doc.prompt.md`.

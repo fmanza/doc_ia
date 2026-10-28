@@ -1,6 +1,6 @@
 # Documentar un Proyecto
 
-## 1. Descripción General
+## 1. Objetivo y Descripción
 
 La documentación de un proyecto con doc_ia parte de una única operación de entrada:
 indicar el origen (o los orígenes) a documentar, el destino donde se escribirá la
@@ -19,24 +19,19 @@ Su valor está en que un único punto de entrada cubre todo el ciclo
 (inventariar → generar → revisar → publicar) sin necesidad de coordinar prompts ni
 decidir manualmente qué arquetipo aplicar a cada módulo.
 
-## 2. Reglas de Negocio
+## 2. Precondiciones
 
-| Regla | Descripción | Impacto si se viola |
-|---|---|---|
-| Cuatro parámetros obligatorios | Origen(es), Destino, Generador e Idioma son requeridos; el flujo se detiene y pregunta si falta alguno | Se documentaría un proyecto equivocado, en la ruta incorrecta o con el generador inadecuado |
-| Clasificación de orígenes | Con ≥2 orígenes, o cuando el único origen no es de tipo CÓDIGO, se ejecuta la Fase 0a antes del inventario; el usuario confirma la clasificación antes de continuar | Sin clasificación, un origen NORMATIVA o UI se trataría como proyecto de código y generaría páginas incorrectas |
-| Inventario previo a generación | Antes de escribir cualquier página se clasifica el estado de la documentación existente (sin doc / desactualizado / vigente) | Se sobreescribirían páginas vigentes o se ignorarían páginas desactualizadas |
-| Generación en el chat | Toda la generación documental ocurre en el chat de la plataforma IA (Claude Code, Gemini, Copilot, Cursor, Codex); nunca en código Python ni en CI | Violaría el principio innegociable del proyecto de ejecución sin APIs externas |
-| Sin inventar | El contenido generado se basa únicamente en el código y la documentación real del origen; no se inventan módulos, APIs, salidas ni dependencias | Documentación incorrecta que no corresponde al proyecto real |
-| Preservación de lo vigente | Las páginas clasificadas como vigentes (estado C) no se modifican; las desactualizadas (B) se actualizan conservando las secciones aún correctas | Se perdería documentación válida o se introduciría regresión de contenido |
-| `downloads.md` siempre obligatorio | Cada sesión genera o actualiza `docs/downloads.md` en el destino (Fase 7b); el flujo detecta tres señales de distribución offline (`TIENE_ZIP_SCRIPT`, `TIENE_MKDOCS_PLUGIN`, `TIENE_WORKFLOW_GITHUB`) y reporta los huecos | El destino quedaría sin una página de descarga offline o con datos desactualizados |
-| Sincronización visual obligatoria (Fase 0b) | Al inicio de toda sesión se verifican: assets CSS/JS en `docs/assets/`, configuración de `mkdocs.yml` (sin `navigation.sections` si `nav.css` presente), `.gitignore` con patrones estándar (`site/`, `*.pdf`, `*.doc`, `*.docx`). Aplica tanto en creación como en actualización | El destino tendría assets desincronizados, menú lateral sin colapso o binarios versionados por error |
-| Documentos pre-convertidos (`md/`) | Si el origen contiene carpetas `md/` (generadas por `convert_to_md.py`), se usan como contexto de primera clase en Fases 2-4 sin re-conversión; no generan páginas propias ni reciben estado A/B/C | Se perdería contexto valioso de documentos binarios o se intentaría re-convertir innecesariamente |
-| Contexto persistente `.ai/*.md` | En la primera sesión de un destino nuevo (o si faltan), se crean los 5 ficheros de contexto raíz: `product.md`, `architecture.md`, `glossary.md`, `runtime.md`, `standards.md`; en sesiones posteriores se actualizan si el inventario detecta cambios relevantes | Una IA futura no tendría el snapshot del proyecto para su `00_CONTEXT_SNAPSHOT` |
+- Una plataforma IA con acceso al repositorio doc_ia: Claude Code (comando `/document-project`)
+  o Gemini, Copilot, Cursor y Codex (prompt `document_project.prompt.md`).
+- Los cuatro parámetros obligatorios: **origen(es)**, **destino**, **generador**
+  (`mkdocs-material` por defecto, o `zensical`) e **idioma**.
+- Cada origen indicado existe y es legible.
+- Al menos uno de los orígenes es de tipo CÓDIGO.
+- Opcionales: tipo de cada origen, estrategia (solo con ≥2 orígenes CÓDIGO), alcance,
+  subconjunto de arquetipos y verificación (`--verify-tools`, `--verify-build`).
+- Para la verificación de build: el generador elegido instalado en el entorno.
 
-## 3. Casos de Uso
-
-### Flujo principal
+## 3. Flujo Principal
 
 ```mermaid
 flowchart TD
@@ -48,54 +43,115 @@ flowchart TD
     CL -- No --> F0b[Fase 0b — Sincronización visual<br/>assets + mkdocs.yml + .gitignore]
     F0b --> I[Inventariar el origen<br/>clasificar A / B / C<br/>detectar señales ZIP offline<br/>detectar carpetas md/]
     I --> P[PLAN_DOC<br/>CREAR A · ACTUALIZAR B · OMITIR C]
-    P --> G[Generar por arquetipos<br/>funcional · técnica · ejemplos · guías]
+    P --> G[Generar por arquetipos<br/>funcional + mapa · técnica · referencia · ejemplos · guías]
     G --> N[Sincronizar mkdocs.yml]
     N --> R[Revisión final<br/>Markdown · enlaces · Mermaid]
     R --> DL[Fase 7b — downloads.md<br/>Variante A o B · reportar huecos]
-    DL --> D[Documentación publicada]
-    D --> CS[Cierre de sesión<br/>.ai/sessions/YYYY-MM-DD/<br/>.ai/*.md contexto + commit]
+    DL --> CS[Cierre de sesión<br/>.ai/sessions/YYYY-MM-DD/<br/>.ai/*.md contexto + commit]
 ```
 
-### Flujos alternativos y de error
+El usuario invoca el flujo con los cuatro parámetros; si falta alguno, el flujo se detiene y
+pregunta. Con varios orígenes, o si el único no es código, se clasifican primero y el usuario
+confirma la clasificación. Después se sincroniza la configuración visual del destino y se
+inventaría el origen: cada módulo y página recibe un estado (A sin documentación, B
+desactualizada, C vigente) que decide la acción del plan (crear, actualizar u omitir). La
+generación recorre los arquetipos módulo a módulo —funcional y mapa funcional, técnica,
+referencia del sistema si hay superficie de usuario, ejemplos y guías—, se sincroniza la
+navegación, se revisa el resultado, se genera o actualiza la página de descargas y se cierra
+la sesión con su artefacto de trazabilidad y una propuesta de commit.
+
+## 4. Postcondiciones y Efectos
+
+- Las páginas en estado A existen en el destino; las de estado B están actualizadas
+  conservando las secciones vigentes; las de estado C no se han modificado.
+- La navegación del generador en el destino (`mkdocs.yml`) incluye todas las páginas nuevas
+  y la configuración estándar verificada (tema, assets, Mermaid).
+- `docs/downloads.md` existe en el destino (variante A o B) y los huecos de distribución
+  offline quedan reportados en el resumen.
+- El destino tiene los cuatro assets visuales en `docs/assets/` y un `.gitignore` con los
+  patrones estándar.
+- Existe `.ai/sessions/YYYY-MM-DD/` en el destino con `00_REQUEST.md`,
+  `00_CONTEXT_SNAPSHOT.md` y `TRACEABILITY.md`; en la primera sesión se crean además los
+  cinco ficheros de contexto `.ai/*.md`.
+- Se **propone** un commit `docs(<scope>): …`; el flujo no lo ejecuta por sí mismo.
+- Con `--verify-build`: el sitio se ha construido en modo estricto y el resultado figura en
+  el informe.
+
+## 5. Reglas de Negocio
+
+| Regla | Descripción | Impacto si se viola |
+|---|---|---|
+| Cuatro parámetros obligatorios | Origen(es), Destino, Generador e Idioma son requeridos; el flujo se detiene y pregunta si falta alguno | Se documentaría un proyecto equivocado, en la ruta incorrecta o con el generador inadecuado |
+| Clasificación de orígenes | Con ≥2 orígenes, o cuando el único origen no es de tipo CÓDIGO, se ejecuta la Fase 0a antes del inventario; el usuario confirma la clasificación antes de continuar | Sin clasificación, un origen NORMATIVA o UI se trataría como proyecto de código y generaría páginas incorrectas |
+| Inventario previo a generación | Antes de escribir cualquier página se clasifica el estado de la documentación existente (sin doc / desactualizado / vigente) | Se sobreescribirían páginas vigentes o se ignorarían páginas desactualizadas |
+| Generación en el chat | Toda la generación documental ocurre en el chat de la plataforma IA (Claude Code, Gemini, Copilot, Cursor, Codex); nunca en código Python ni en CI | Violaría el principio innegociable del proyecto de ejecución sin APIs externas |
+| Sin inventar | El contenido generado se basa únicamente en el código y la documentación real del origen; no se inventan módulos, APIs, salidas ni dependencias | Documentación incorrecta que no corresponde al proyecto real |
+| Preservación de lo vigente | Las páginas clasificadas como vigentes (estado C) no se modifican; las desactualizadas (B) se actualizan conservando las secciones aún correctas | Se perdería documentación válida o se introduciría regresión de contenido |
+| `downloads.md` siempre obligatorio | Cada sesión genera o actualiza `docs/downloads.md` en el destino (Fase 7b); el flujo detecta tres señales de distribución offline (`TIENE_ZIP_SCRIPT`, `TIENE_MKDOCS_PLUGIN`, `TIENE_WORKFLOW_GITHUB`) y reporta los huecos | El destino quedaría sin una página de descarga offline o con datos desactualizados |
+| Sincronización visual obligatoria (Fase 0b) | Al inicio de toda sesión se verifican: assets CSS/JS en `docs/assets/`, configuración de `mkdocs.yml` (sin `navigation.sections` si `nav.css` presente), `.gitignore` con patrones estándar (`site/`, `*.pdf`, `*.doc`, `*.docx`). Aplica tanto en creación como en actualización ⚠️ | El destino tendría assets desincronizados, menú lateral sin colapso o binarios versionados por error |
+| Documentos pre-convertidos (`md/`) | Si el origen contiene carpetas `md/` (generadas por `convert_to_md.py`), se usan como contexto de primera clase en Fases 2-4 sin re-conversión; no generan páginas propias ni reciben estado A/B/C | Se perdería contexto valioso de documentos binarios o se intentaría re-convertir innecesariamente |
+| Contexto persistente `.ai/*.md` | En la primera sesión de un destino nuevo (o si faltan), se crean los 5 ficheros de contexto raíz: `product.md`, `architecture.md`, `glossary.md`, `runtime.md`, `standards.md`; en sesiones posteriores se actualizan si el inventario detecta cambios relevantes | Una IA futura no tendría el snapshot del proyecto para su `00_CONTEXT_SNAPSHOT` |
+
+## 6. Límites, Flujos Alternativos y Casos Especiales
+
+### Qué NO hace esta funcionalidad
+
+- No genera contenido mediante APIs de IA ni desde código: todo ocurre en el chat.
+- No documenta orígenes compuestos solo por MATERIAL (sin ningún proyecto de código).
+- No decide la estrategia con varios proyectos de código: siempre la pregunta.
+- No modifica páginas vigentes (estado C).
+- No ejecuta el build del sitio salvo que se pida `--verify-build`.
+- No está pensado para una sola página suelta: para eso se aplica directamente el prompt
+  del arquetipo correspondiente.
+- No hace el commit: lo propone al cierre de la sesión.
+
+### Flujos alternativos
 
 - **Parámetro faltante o ambiguo**: el flujo se detiene y pregunta al usuario antes de
   inventariar. No se asume destino ni idioma por defecto.
 - **Origen no legible**: si la ruta indicada no existe o no es accesible, se pide
   confirmación antes de continuar.
 - **Orígenes heterogéneos**: con ≥2 orígenes o cuando el único origen no es CÓDIGO, la
-  Fase 0a detecta el tipo de cada uno (CÓDIGO, NORMATIVA, ESPECIFICACIÓN, UI/PANTALLAS,
-  REFERENCIA) y presenta una tabla al usuario para confirmación antes de inventariar.
-  Los orígenes de tipo MATERIAL no generan páginas propias: su contenido enriquece
-  secciones concretas de los arquetipos del proyecto CÓDIGO principal.
+  Fase 0a detecta el tipo de cada uno (ver [Tipos de Origen](origin_types.md)) y presenta
+  una tabla al usuario para confirmación antes de inventariar. Los orígenes de tipo MATERIAL
+  no generan páginas propias: su contenido enriquece secciones concretas de los arquetipos
+  del proyecto CÓDIGO principal.
 - **Estrategia multi-CÓDIGO**: con ≥2 orígenes de tipo CÓDIGO, el flujo pregunta la
   estrategia de documentación (`federado`, `hub+satélite`, `monorepo`); nunca se
   autodetecta porque depende del contexto organizacional.
 - **Sin origen CÓDIGO**: si todos los orígenes son MATERIAL, el flujo se detiene e
   informa que `/document-project` requiere al menos un origen de tipo CÓDIGO.
+- **Verificación de build**: paso opcional (`--verify-build`) que construye el sitio en
+  modo estricto al final y confirma que compila sin errores.
+
+### Casos especiales
+
 - **Documentación parcialmente existente**: el inventario clasifica cada módulo y página
   de forma independiente; las páginas vigentes no se tocan.
 - **Alcance restringido**: se puede indicar un subconjunto de módulos o un subconjunto de
   arquetipos; el resto queda fuera del plan de generación.
-- **Verificación de build**: paso opcional (`--verify-build`) que ejecuta
-  `python -m mkdocs build --strict` al final y confirma que el sitio compila sin errores.
+- **Normativa detectada**: si el origen referencia normativa de obligado cumplimiento, el
+  flujo ofrece el Arquetipo 8; si no, lo omite.
+- **Carpetas `md/` pre-convertidas**: se reutilizan como contexto sin volver a convertir.
 
-## 4. Criterios de Aceptación
+## 7. Criterios de Aceptación
 
-| ID | Dado | Cuando | Entonces |
-|---|---|---|---|
-| AC-01 | Un proyecto con código fuente sin documentación previa | Se invoca el flujo con los cuatro parámetros completos | Se genera documentación para cada módulo detectado, el sitio compila sin errores, la navegación está actualizada y existe el artefacto `.ai/sessions/YYYY-MM-DD/` en el destino |
-| AC-02 | Un proyecto con documentación existente, parte vigente y parte desactualizada | Se invoca el flujo | Se actualiza solo lo desactualizado; lo vigente se conserva verbatim; no se crea contenido duplicado |
-| AC-03 | Un flujo invocado con el parámetro Destino vacío | Se inicia la ejecución | El flujo se detiene, informa del campo faltante y pide al usuario que lo complete antes de continuar |
-| AC-04 | Un proyecto con un módulo ya documentado que no ha cambiado | Se ejecuta el inventario | El módulo recibe estado C (vigente) y no se genera ni modifica ninguna página para él |
-| AC-05 | Dos orígenes: un proyecto Python y un PDF de normativa | Se invoca el flujo | La Fase 0a presenta una tabla con los tipos detectados (CÓDIGO y NORMATIVA), el usuario confirma, y el PDF enriquece §2 del funcional sin generar página propia |
-| AC-06 | Todos los orígenes indicados son MATERIAL (sin ningún proyecto de código) | Se inicia la ejecución | El flujo se detiene con un mensaje que informa que se requiere al menos un origen de tipo CÓDIGO y orienta al prompt de arquetipo directo |
-| AC-07 | Cualquier sesión de `/document-project` completada | El flujo llega al RESUMEN | Existe el artefacto `.ai/sessions/YYYY-MM-DD/` con los tres ficheros obligatorios (`00_REQUEST.md`, `00_CONTEXT_SNAPSHOT.md`, `TRACEABILITY.md`) y se propone un commit Conventional Commits |
+| ID | Dado | Cuando | Entonces | Test |
+|---|---|---|---|---|
+| AC-01 | Un proyecto con código fuente sin documentación previa | Se invoca el flujo con los cuatro parámetros completos | Se genera documentación para cada módulo detectado, el sitio compila sin errores, la navegación está actualizada y existe el artefacto `.ai/sessions/YYYY-MM-DD/` en el destino | Sin test |
+| AC-02 | Un proyecto con documentación existente, parte vigente y parte desactualizada | Se invoca el flujo | Se actualiza solo lo desactualizado; lo vigente se conserva verbatim; no se crea contenido duplicado | Sin test |
+| AC-03 | Un flujo invocado con el parámetro Destino vacío | Se inicia la ejecución | El flujo se detiene, informa del campo faltante y pide al usuario que lo complete antes de continuar | Sin test |
+| AC-04 | Un proyecto con un módulo ya documentado que no ha cambiado | Se ejecuta el inventario | El módulo recibe estado C (vigente) y no se genera ni modifica ninguna página para él | Sin test |
+| AC-05 | Dos orígenes: un proyecto Python y un PDF de normativa | Se invoca el flujo | La Fase 0a presenta una tabla con los tipos detectados (CÓDIGO y NORMATIVA), el usuario confirma, y el PDF enriquece las reglas de negocio de la documentación funcional sin generar página propia | Sin test |
+| AC-06 | Todos los orígenes indicados son MATERIAL (sin ningún proyecto de código) | Se inicia la ejecución | El flujo se detiene con un mensaje que informa que se requiere al menos un origen de tipo CÓDIGO y orienta al prompt de arquetipo directo | Sin test |
+| AC-07 | Cualquier sesión de `/document-project` completada | El flujo llega al RESUMEN | Existe el artefacto `.ai/sessions/YYYY-MM-DD/` con los tres ficheros obligatorios (`00_REQUEST.md`, `00_CONTEXT_SNAPSHOT.md`, `TRACEABILITY.md`) y se propone un commit Conventional Commits | Sin test |
 
 Verificación: ejecutar `/document-project` (Claude Code) o
 `Lee y aplica .github/prompts/document_project.prompt.md` con los cuatro parámetros en
-cualquier plataforma IA soportada.
+cualquier plataforma IA soportada. El flujo se ejecuta en el chat y no tiene tests
+automatizados.
 
-## 5. Glosario y Términos
+## 8. Glosario de Dominio
 
 | Término | Definición |
 |---|---|
@@ -108,8 +164,8 @@ cualquier plataforma IA soportada.
 | Generador | Herramienta de sitio estático que construye el HTML a partir de los archivos Markdown (`mkdocs-material` por defecto) |
 | Tipo de origen | Naturaleza del origen; determina el tratamiento documental. Ocho tipos: `CÓDIGO`, `NORMATIVA`, `ESPECIFICACIÓN`, `UI/PANTALLAS`, `REFERENCIA`, `CONTRATO`, `INFRAESTRUCTURA`, `MANUAL`. Catálogo completo: [Tipos de Origen](origin_types.md) |
 | MATERIAL | Término colectivo para orígenes que no son de tipo CÓDIGO; su contenido enriquece secciones de los arquetipos del proyecto CÓDIGO principal sin generar páginas propias |
-| `CONTRATO` | Especificaciones machine-readable de las APIs y modelos de datos del propio proyecto (OpenAPI, AsyncAPI, GraphQL, Protobuf, SQL DDL, DBML…); enriquece Arquetipo 2 §1 y §2 |
-| `INFRAESTRUCTURA` | Artefactos IaC y de despliegue del propio proyecto (Terraform, Kubernetes, Docker, Ansible…); enriquece Arquetipo 2 §4 y Arquetipo 6C |
+| `CONTRATO` | Especificaciones machine-readable de las APIs y modelos de datos del propio proyecto (OpenAPI, AsyncAPI, GraphQL, Protobuf, SQL DDL, DBML…); enriquece Arquetipo 2 §1 y §2 y Arquetipo 12 §5 |
+| `INFRAESTRUCTURA` | Artefactos IaC y de despliegue del propio proyecto (Terraform, Kubernetes, Docker, Ansible…); enriquece Arquetipo 2 §4 y Arquetipo 6C §3 › Despliegue |
 | `MANUAL` | Documentación narrativa ya escrita para el propio proyecto (manuales de usuario, guías de administrador, runbooks…); enriquece Arquetipos 3a, 3b, 6 y 7 |
 | Fase 0a | Paso de clasificación de orígenes ejecutado antes del inventario cuando hay ≥2 orígenes o el único origen no es CÓDIGO; requiere confirmación del usuario antes de continuar |
 | Fase 0b | Sincronización visual obligatoria al inicio de toda sesión: verificar assets CSS/JS, `mkdocs.yml` (sin `navigation.sections`), `.gitignore` con patrones estándar |
@@ -117,3 +173,27 @@ cualquier plataforma IA soportada.
 | Contexto `.ai/*.md` | Ficheros de contexto persistente del proyecto (`product.md`, `architecture.md`, `glossary.md`, `runtime.md`, `standards.md`); creados en la primera sesión de un destino nuevo |
 | Estrategia | Forma de documentar múltiples orígenes de tipo CÓDIGO: `federado` (cada proyecto independiente), `hub+satélite` (un proyecto concentra el destino), `monorepo` (un `mkdocs.yml` raíz agrupa secciones); nunca se autodetecta |
 | Cierre de sesión | Paso final obligatorio del flujo: crea los artefactos `.ai/sessions/YYYY-MM-DD/` en el destino, actualiza o crea `.ai/*.md` si es primera sesión, y propone un commit Conventional Commits con el resumen de la sesión |
+
+??? note "Evidencia"
+
+    | Elemento | Fuente | Confianza |
+    |---|---|---|
+    | Regla «Cuatro parámetros obligatorios» | `.github/prompts/document_project.prompt.md::VALIDACIÓN (bloqueante)` | ✅ |
+    | Regla «Clasificación de orígenes» | `.github/prompts/document_project.prompt.md::Fase 0a` | ✅ |
+    | Regla «Inventario previo a generación» | `.github/prompts/document_project.prompt.md::Fase 1` | ✅ |
+    | Regla «Generación en el chat» | `.github/prompts/document_project.prompt.md::Política innegociable` | ✅ |
+    | Regla «Sin inventar» | `CLAUDE.md::Contrato documental obligatorio` | ✅ |
+    | Regla «Preservación de lo vigente» | `.github/prompts/document_project.prompt.md::Protocolo ACTUALIZAR (estado B)` | ✅ |
+    | Regla «`downloads.md` siempre obligatorio» | `.github/prompts/document_project.prompt.md::Fase 7b` | ✅ |
+    | Regla «Sincronización visual (Fase 0b)» — el prompt llama "Fase 0b" a la conversión de documentos, el comando a la sincronización visual | `.claude/commands/document-project.md::Sincronización de Configuración Visual (Fase 0b)` | ⚠️ |
+    | Regla «Documentos pre-convertidos (`md/`)» | `.github/prompts/document_project.prompt.md::Fase 0b — Paso 0` | ✅ |
+    | Regla «Contexto persistente `.ai/*.md`» | `.claude/commands/document-project.md::Devuelve en este orden` (tabla de ficheros `.ai/`) | ✅ |
+    | Precondición «generador instalado para `--verify-build`» | `.github/prompts/document_project.prompt.md::Fase 7` | ✅ |
+    | Postcondición «commit propuesto, no ejecutado» | `.github/prompts/document_project.prompt.md::Devuelve en este orden` (punto 10) | ✅ |
+    | AC-01 | `.github/prompts/document_project.prompt.md::Devuelve en este orden` | 🔍 |
+    | AC-02 | `.github/prompts/document_project.prompt.md::Protocolo ACTUALIZAR (estado B)` | ✅ |
+    | AC-03 | `.github/prompts/document_project.prompt.md::VALIDACIÓN (bloqueante)` | ✅ |
+    | AC-04 | `.github/prompts/document_project.prompt.md::Fase 1` | ✅ |
+    | AC-05 | `.github/prompts/document_project.prompt.md::Fase 0a` | ✅ |
+    | AC-06 | `.github/DOCUMENTATION_STANDARD.md::3.10 Documentación con Múltiples Orígenes` (caso degenerado) | ✅ |
+    | AC-07 | `.github/prompts/document_project.prompt.md::Devuelve en este orden` (punto 10) | ✅ |

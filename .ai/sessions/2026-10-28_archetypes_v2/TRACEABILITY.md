@@ -5,7 +5,7 @@
 - fecha: 2026-10-28
 - rama: develop
 - skill: new_feature
-- fase: PLAN + AUDIT_PLAN (P1/P2/P3) + IMPLEMENT P1 + AUDIT_CODE P1
+- fase: PLAN + AUDIT_PLAN (P1/P2/P3) + IMPLEMENT P1 + AUDIT_CODE P1 + IMPLEMENT P2 + AUDIT_CODE P2
 
 ## Prompt issued
 "Analizar si se puede o se recomienda actualizar los arquetipos actuales, el objetivo es obtener
@@ -22,6 +22,26 @@ con lo propuesto" → "Adelante con las dos opciones" (guardar sesión + IMPLEME
 - IMPLEMENT P1 (ver `03_IMPLEMENT_P1.md`): 31 ficheros modificados, 4 nuevos.
 - Verificación: `python -m mkdocs build --strict` OK; bloque "Evidencia" renderizado como
   `<details>` con tabla (19 filas); `ruff` OK; `pytest` 76 OK. Sin cambios en código Python.
+
+## P2 (tras commit 51b6b57 de P1)
+- Norma/prompts: roles condicionales, columna `Test`, Variante 1-I, Arq. 2 §6, Arq. 12 §6.
+- Dogfooding con 3 forks en paralelo (ficheros disjuntos): 7 funcionales, 6 técnicas; el hilo
+  principal hizo `docs/reference/` §6, Mapa Funcional, nav y la renumeración v2 en la orquestación.
+- Verificación independiente: 25/25 tests citados existen; build estricto, ruff y pytest OK.
+
+## AUDIT_CODE (P2)
+- **Hechos falsos corregidos por los forks** en páginas existentes: ruta de chunks (`chunks/<doc>/`
+  junto al `.md`, no `md/chunks/`); `check_env` emite avisos además de la línea de estado;
+  `mkdocs_hooks.py::on_post_build` regenera el ZIP latest aunque `--strict` aborte (⚠️);
+  bootstrap exige 8 parámetros, no 4/5; capa D "credenciales" → "caches".
+- **Hallazgos colaterales (no corregidos)**:
+  - "Fase 0b" significa cosas distintas en `document_project.prompt.md` (conversión `md/`) y en
+    `.claude/commands/document-project.md` / `CLAUDE.md` (sincronización visual).
+  - `bootstrap_ai_config.prompt.md` cita `docs/codex_guide.md` (real: `docs/guides/codex_guide.md`)
+    y su lista de prompts de Capa B omite `ai_config_doc`, `reference_doc` y `normative_traceability`.
+  - `convert_to_md`: docling incluye `.md` en sus extensiones; `.md` del origen fuera de `md/` se
+    recogen como convertibles (por verificar).
+  - Cobertura: 15/52 criterios con test; `build_docs_zip.py` sin tests.
 
 ## AUDIT_CODE (P1)
 - **Bugs**: un heredoc convirtió `\n` de etiquetas Mermaid en saltos reales en
@@ -58,13 +78,15 @@ con lo propuesto" → "Adelante con las dos opciones" (guardar sesión + IMPLEME
 - **[arquetipos]**: las citas de evidencia son código inline `ruta::símbolo`; un enlace Markdown a
   código fuera de `docs/` rompe `mkdocs build --strict`.
 - **[Arq. 2]**: doc_ia no tiene mkdocstrings; no emitir directivas `:::` en `docs/api/`.
-- **[Arq. 1]**: las páginas `docs/functional/` de doc_ia siguen la estructura v1 (5 secciones)
-  hasta P2; no tratarlas como incumplimiento crítico antes de esa migración.
+- **[Arq. 1]**: desde P2 todas las páginas `docs/functional/` de doc_ia siguen la estructura v2
+  (8 secciones + columna `Test` + Evidencia); una página v1 nueva ya es incumplimiento.
+- **[trazabilidad]**: para validar la columna `Test`, extraer los ids con `def test_` de `tests/`;
+  `pytest --collect-only -q` en este repo solo imprime recuentos por fichero.
 - **[tooling]**: en ediciones vía heredoc de Bash, `\n` dentro de cadenas Python se convierte en
   salto real; para etiquetas Mermaid con `\n` literal usar Edit o un script en el scratchpad.
 
 ## Veredicto final
-Veredicto: GO (P1)
+Veredicto: GO (P1, commit 51b6b57) · GO (P2)
 Pendientes al cierre:
-- Commit de P1 (pendiente de confirmación del usuario).
-- P2 y P3 según `01_PLAN.md`.
+- Commit de P2 (pendiente de confirmación del usuario).
+- P3 según `01_PLAN.md` (frontmatter de trazabilidad + `scripts/doc_trace.py`).

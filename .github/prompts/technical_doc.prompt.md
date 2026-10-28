@@ -74,6 +74,14 @@ Si no existe ninguno:
 Formato:
 - [Ejemplo: Nombre del patrón](../examples/[nombre].md) — descripción de 1 línea
 
+## 6. Verificación y Tests
+Tabla: | Test | Qué verifica | Tipo |
+Test: `tests/<fichero>.py::<test>` (agrupa por prefijo si hay >10: `test_parse_args_*`).
+Tipo: unitario / integración / e2e.
+Cierra con el comando exacto: `python -m pytest tests/test_<modulo>.py -q`.
+Si el módulo no tiene tests: "*Sin tests automatizados.*" y una línea con el riesgo principal
+que queda sin cubrir. NUNCA cites tests inexistentes.
+
 ??? note "Evidencia"
     Bloque plegable final, sin número de sección (DOCUMENTATION_STANDARD.md §3.16).
     Tabla: | Elemento | Fuente | Confianza |
@@ -192,8 +200,8 @@ Si el flujo no puede inferirse con seguridad, declara qué información falta en
 
 ## Output esperado
 
-Markdown con título H1, párrafo introductorio de una frase y las 5 secciones del Arquetipo 2
-numeradas (`## 1.`–`## 5.`), incluyendo un bloque `mermaid` válido en `## 1.`, directiva
+Markdown con título H1, párrafo introductorio de una frase y las 6 secciones del Arquetipo 2
+numeradas (`## 1.`–`## 6.`), incluyendo un bloque `mermaid` válido en `## 1.`, directiva
 tablas de API pública y contratos en `## 2.` (autodoc solo si hay mkdocstrings), y al menos un enlace a ejemplo en `## 5.` o el
 placeholder de "Pendiente", más el bloque plegable `??? note "Evidencia"` final.
 Secciones vacías con `*No aplica para este módulo.*`.

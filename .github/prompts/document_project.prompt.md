@@ -84,9 +84,9 @@ Fase 0a — Clasificación de orígenes (solo con ≥2 orígenes, o si el único
              un origen de tipo CÓDIGO. Para documentar solo normativa o especificación,
              usa directamente normative_traceability.prompt.md o functional_doc.prompt.md."
          Mapeo MATERIAL → arquetipos (para orígenes no-CÓDIGO):
-            NORMATIVA        → Arquetipo 8 + enriquece §2 (Reglas de Negocio) del Arquetipo 1
-            ESPECIFICACIÓN   → enriquece Arquetipo 1 §2+§3+§4 del proyecto principal
-            UI/PANTALLAS     → enriquece Arquetipo 1 §3 (Casos de Uso) y Arquetipo 3
+            NORMATIVA        → Arquetipo 8 + enriquece §5 (Reglas de Negocio) del Arquetipo 1
+            ESPECIFICACIÓN   → enriquece Arquetipo 1 §3+§5+§6+§7 del proyecto principal
+            UI/PANTALLAS     → enriquece Arquetipo 1 §3 (Flujo Principal) y Arquetipo 3
             REFERENCIA       → enriquece Arquetipo 2 §4 (Dependencias) o Arquetipo 5 (ADR)
             CONTRATO         → enriquece Arquetipo 2 §1 (Arquitectura/interfaces) y §2 (Modelo de Datos/Contratos) y Arquetipo 12 §5 (Interfaces Publicadas)
             INFRAESTRUCTURA  → enriquece Arquetipo 2 §4 (Dependencias) y Arquetipo 6C §3 › Despliegue
@@ -210,6 +210,7 @@ Fase 1 — Inventariar y clasificar:
            · Si ya existe `docs/downloads.md` → asignar estado B si no coincide con la variante
              correcta o si la tabla tiene valores desactualizados (versión, tamaño, sha256, fecha)
 Fase 2 — Mapeo funcional (functional_doc.prompt.md) → [destino]/functional/
+         + Mapa Funcional del sistema (Variante 1-I) → [destino]/functional/index.md; columna Test en §7.
 Fase 3 — Documentación técnica con Mermaid (technical_doc.prompt.md) → [destino]/api/
          Referencia del sistema (reference_doc.prompt.md, Arquetipo 12) → [destino]/reference/
          SOLO si el INVENTARIO detecta señales (configuración, CLI, códigos de salida, eventos, CONTRATO).

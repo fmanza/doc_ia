@@ -40,8 +40,9 @@ Script standalone sin dependencias entre módulos del proyecto: usa solo
 ### Contrato de salida
 
 - `missing_tools` devuelve `list[str]` preservando el orden de entrada; lista vacía = entorno completo.
-- `main` escribe una única línea en stdout y devuelve el código de salida (`0`/`1`),
-  apto para CI y hooks (`sys.exit(main())`).
+- `main` escribe en stdout una línea de estado seguida, si procede, de avisos `⚠` sobre
+  herramientas opcionales, y devuelve el código de salida (`0`/`1`), apto para CI y hooks
+  (`sys.exit(main())`). Los avisos de opcionales no cambian el código (`0`).
 
 ### Errores y casos especiales
 
@@ -58,9 +59,41 @@ Script standalone sin dependencias entre módulos del proyecto: usa solo
 | Dependencia | Propósito | Requerida | Comportamiento sin ella |
 |---|---|---|---|
 | `importlib.util` (stdlib) | Detección de importabilidad sin importar realmente | Sí | — (siempre disponible) |
+| `shutil` (stdlib) | Búsqueda de binarios en el PATH (`pandoc`, `nvidia-smi`) | Sí | — (siempre disponible) |
 | `sys` (stdlib) | Código de salida del proceso | Sí | — (siempre disponible) |
 
 ## 5. Ejemplos Relacionados
 
 - [Ejemplo: Verificar Entorno](../examples/check_env_usage.md) — uso de `missing_tools`
   desde código propio y ejecución CLI con output esperado.
+
+## 6. Verificación y Tests
+
+| Test | Qué verifica | Tipo |
+|---|---|---|
+| `tests/test_check_env.py::test_missing_tools_empty_when_tools_exist` | Un módulo importable (`sys`) no aparece como ausente | unitario |
+| `tests/test_check_env.py::test_missing_tools_detects_absent_tool` | Un módulo inexistente aparece en la lista de ausentes | unitario |
+| `tests/test_check_env.py::test_missing_system_tools_detects_absent_tool` | Un binario inexistente aparece como ausente del PATH | unitario |
+| `tests/test_check_env.py::test_missing_system_tools_empty_when_tool_exists` | Un binario presente (`python`, `python3` o `git`) no aparece como ausente | unitario |
+
+Sin cubrir: `check_markitdown_plugins` y `main` (códigos de salida y avisos).
+
+```bash
+python -m pytest tests/test_check_env.py -q
+```
+
+??? note "Evidencia"
+
+    | Elemento | Fuente | Confianza |
+    |---|---|---|
+    | `REQUIRED_TOOLS` | `scripts/check_env.py::REQUIRED_TOOLS` | ✅ |
+    | `OPTIONAL_PYTHON_TOOLS` | `scripts/check_env.py::OPTIONAL_PYTHON_TOOLS` | ✅ |
+    | `SYSTEM_TOOLS` | `scripts/check_env.py::SYSTEM_TOOLS` | ✅ |
+    | `missing_tools` | `scripts/check_env.py::missing_tools` | ✅ |
+    | `missing_system_tools` | `scripts/check_env.py::missing_system_tools` | ✅ |
+    | `check_markitdown_plugins` y sus 5 plugins | `scripts/check_env.py::check_markitdown_plugins`, `::MARKITDOWN_PLUGINS` | ✅ |
+    | `main` — `1` si falta una requerida, `0` en otro caso | `scripts/check_env.py::main` | ✅ |
+    | `nvidia-smi` solo se consulta con docling instalado | `scripts/check_env.py::main` | ✅ |
+    | Sin excepciones propias | `scripts/check_env.py` (sin `raise`) | ✅ |
+    | Dependencias `importlib.util`, `shutil`, `sys` | `scripts/check_env.py` (imports) | ✅ |
+    | Tests del §6 | `tests/test_check_env.py` | ✅ |

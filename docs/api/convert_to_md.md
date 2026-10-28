@@ -135,6 +135,7 @@ python scripts/convert_to_md.py <source> [--engine {docling,markitdown,pandoc}]
 | Imagen con magic bytes incorrectos | `INVÁLID` — fichero corrupto |
 | Audio < 1KB | `INVÁLID` — demasiado pequeño |
 | `--device cuda` sin nvidia-smi | `exit 1` |
+| `--device auto` sin `CUDA_VISIBLE_DEVICES` exportado previamente | Resuelve a CPU: el módulo fija la variable a `""` al importarse y `auto` respeta ese valor ⚠️ |
 | `--chunk` con motor no docling | Error de argparse |
 
 ## 3. Componentes y Clases
@@ -168,3 +169,54 @@ Verificar entorno: `python scripts/check_env.py` (reporta disponibilidad de docl
 - [Ejemplo: Convertir Documentos a Markdown](../examples/convert_to_md_usage.md) — invocaciones
   por motor, validación, metadata, batch y chunking.
 - Integrado en el flujo [Documentar un Proyecto](../functional/document_project.md) § Fase 0b.
+
+## 6. Verificación y Tests
+
+72 tests en `tests/test_convert_to_md.py`, agrupados por prefijo:
+
+| Test | Qué verifica | Tipo |
+|---|---|---|
+| `test_validate_*` (14, excluye `test_validate_only_*`) | `validate_file`: fichero vacío o inexistente, cabeceras PDF/PNG/JPEG, ZIP de DOCX/XLSX, audio < 1 KB, texto plano | unitario |
+| `test_validate_only_*` (4) | `_validate_only_report`: todo válido, fichero inválido, motor no instalado, sin crear `md/` | unitario |
+| `test_main_validate_only_no_files` (1) | `main` con `--validate-only` y sin ficheros convertibles devuelve `0` | integración |
+| `test_collect_files_*` (6) | `collect_files`: fichero único, no convertible, directorio, anidado, exclusión de `md/`, filtro por motor | unitario |
+| `test_output_path_*` (2) | `output_path`: estructura plana y anidada | unitario |
+| `test_convert_file_*` (10) | `convert_file`: omisión si existe, inválido, `--dry-run` por motor, motor no instalado, formato no soportado, `--force` | unitario |
+| `test_prefilter_*` (3) | Pre-filtro del batch docling: omite existentes, rechaza inválidos, `--dry-run` | unitario |
+| `test_parse_args_*` (19) | `_parse_args`: valores por defecto, flags y restricciones entre opciones (`--chunk`, `--batch-size`, `--workers`, `--flash-attention`) | unitario |
+| `test_engine_extensions_keys`, `test_docling_covers_markitdown_formats`, `test_pandoc_has_unique_formats` (3) | Coherencia de los conjuntos de extensiones por motor | unitario |
+| `test_detect_device_*` (6) | `_detect_device`: `cpu`, `auto` con y sin CUDA, `cuda` sin GPU, respeto de `CUDA_VISIBLE_DEVICES` | unitario |
+| `test_cuda_available_*` (3) | `_cuda_available`: sin `nvidia-smi`, respuesta correcta, timeout | unitario |
+| `test_convert_options_new_fields_defaults` (1) | Valores por defecto de `ConvertOptions` | unitario |
+
+Sin cubrir: conversiones reales con los motores instalados (los tests simulan su ausencia o usan
+`--dry-run`) y el valor por defecto que fija el módulo al importarse:
+`test_detect_device_auto_with_cuda` limpia el entorno (`clear=True`) y no reproduce el caso ⚠️.
+
+```bash
+python -m pytest tests/test_convert_to_md.py -q
+```
+
+??? note "Evidencia"
+
+    | Elemento | Fuente | Confianza |
+    |---|---|---|
+    | `ConvertOptions` y sus 20 campos por defecto | `scripts/convert_to_md.py::ConvertOptions` | ✅ |
+    | `docling_available`, `markitdown_available`, `pandoc_available` | `scripts/convert_to_md.py::docling_available`, `::markitdown_available`, `::pandoc_available` | ✅ |
+    | `engine_available` | `scripts/convert_to_md.py::engine_available` | ✅ |
+    | `validate_file` | `scripts/convert_to_md.py::validate_file` | ✅ |
+    | `collect_files` (excluye `md/`) | `scripts/convert_to_md.py::collect_files` | ✅ |
+    | `output_path` | `scripts/convert_to_md.py::output_path` | ✅ |
+    | `convert_file` | `scripts/convert_to_md.py::convert_file` | ✅ |
+    | `main` — códigos `0`/`1` | `scripts/convert_to_md.py::main` | ✅ |
+    | Opciones CLI y restricciones (`parser.error`) | `scripts/convert_to_md.py::_parse_args` | ✅ |
+    | Constantes de extensiones | `scripts/convert_to_md.py::DOCLING_EXTENSIONS`, `::MARKITDOWN_EXTENSIONS`, `::PANDOC_EXTENSIONS`, `::ENGINE_EXTENSIONS`, `::CONVERTIBLE_EXTENSIONS` | ✅ |
+    | Líneas de stdout (`OMITIR`, `OK`, `CONV`, `ERROR`, `INVÁLID`, `NOSOPOR`, `DRY-RUN`) | `scripts/convert_to_md.py::convert_file`, `::_prefilter_files`, `::_process_batch_result`, `::_convert_with_markitdown`, `::_convert_with_pandoc` | ✅ |
+    | `--validate-only` con motor `NO INSTALADO` | `scripts/convert_to_md.py::_validate_only_report` | ✅ |
+    | Validaciones de cabecera, ZIP y audio | `scripts/convert_to_md.py::validate_file`, `::_validate_header`, `::_IMAGE_HEADERS` | ✅ |
+    | `--device cuda` sin `nvidia-smi` → `exit 1` | `scripts/convert_to_md.py::_detect_device` | ✅ |
+    | `--device auto` resuelve a CPU por el valor fijado al importar | `scripts/convert_to_md.py` (nivel de módulo, líneas 30–31), `::_detect_device` | ⚠️ |
+    | `_detect_device` solo se llama con docling y sin `--dry-run` | `scripts/convert_to_md.py::main` | ✅ |
+    | Componentes de motor, validación, CUDA, chunking y metadata | `scripts/convert_to_md.py::_convert_with_docling`, `::_convert_batch_docling`, `::_convert_with_markitdown`, `::_convert_with_pandoc`, `::_validate_only_report`, `::_cuda_available`, `::_run_chunking`, `::_build_metadata_basic`, `::_format_frontmatter` | ✅ |
+    | Dependencias docling, markitdown, pandoc, `nvidia-smi` | `scripts/convert_to_md.py::engine_available`, `::_cuda_available` | ✅ |
+    | Grupos de tests del §6 | `tests/test_convert_to_md.py` (72 tests recogidos por pytest) | ✅ |

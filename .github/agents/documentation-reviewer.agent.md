@@ -45,6 +45,10 @@ Lee antes de revisar:
     Arquetipos 1, 2 y 12 terminan con el bloque plegable "Evidencia"; cada regla, contrato,
     error y criterio de aceptación tiene fila; las citas usan `ruta::símbolo` en código inline
     (nunca enlaces) y el símbolo existe; ninguna fila ✅ carece de respaldo real.
+    Trazabilidad de pruebas: la columna `Test` del Arq. 1 §7 y la tabla del Arq. 2 §6 solo citan
+    tests que existen en `tests/` (`pytest --collect-only`); `Sin test` es válido, un test
+    inexistente es hallazgo de Nivel 1. Si hay ≥2 páginas funcionales, existe el Mapa Funcional
+    (`docs/functional/index.md`, Variante 1-I) y cada capacidad enlaza a una página real.
 12. **Referencia del sistema (condicional)**: si el código expone configuración, CLI, códigos
     de salida, eventos o interfaces publicadas, existe `docs/reference/` (Arquetipo 12) y el
     Arquetipo 2 la enlaza en lugar de duplicarla.

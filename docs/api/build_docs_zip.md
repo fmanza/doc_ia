@@ -82,7 +82,9 @@ del hook también es privada.
 - **Script** — build fallido: proceso termina con el código de salida del builder (`sys.exit`).
 - **Script** — `--no-build` sin `site/` existente: mensaje `ERROR` por stderr y código `1`.
 - **Script** — `CHECKSUMS.txt` es acumulativo (modo append): conserva el histórico.
-- **Hook** — MkDocs no invoca `on_post_build` si el build falla; el ZIP "latest" no se sobreescribe.
+- **Hook** — si el build lanza una excepción, MkDocs no invoca `on_post_build` y el ZIP "latest"
+  no se sobreescribe. Con `--strict`, en cambio, MkDocs ejecuta `on_post_build` **antes** de
+  abortar por avisos: el ZIP "latest" se regenera aunque el build termine con error ⚠️.
 - **Hook** — si `site_dir` no existe en el momento de `on_post_build`: se imprime WARN y se retorna sin error fatal.
 
 ## 3. Componentes y Clases
@@ -91,7 +93,7 @@ del hook también es privada.
 |---|---|---|
 | `main` | `scripts/build_docs_zip.py` | CLI: parsea argumentos y orquesta el pipeline de build+ZIP |
 | `on_post_build` | `mkdocs_hooks.py` | Hook MkDocs: genera `site/doc_ia-docs-latest.zip` tras cada build |
-| `_sha256` | `mkdocs_hooks.py` | Calcula la huella SHA256 del ZIP y la escribe en `.sha256` |
+| `_sha256` | `mkdocs_hooks.py` | Calcula la huella SHA256 del ZIP (el `.sha256` lo escribe `on_post_build`) |
 
 El script (`build_docs_zip.py`) contiene solo funciones privadas (`_version`, `_build`, `_zip`,
 `_sha256_file`, `_create_checksum_files`) sin clases. El hook (`mkdocs_hooks.py`) es el patrón
@@ -111,3 +113,28 @@ canónico de referencia para otros proyectos: copiar y cambiar únicamente `zip_
 
 - [Ejemplo: Generar ZIP Offline](../examples/build_docs_zip_offline.md) — invocaciones CLI
   típicas, validación del checksum y output esperado.
+
+## 6. Verificación y Tests
+
+*Sin tests automatizados.* Riesgo principal sin cubrir: la convivencia de los dos mecanismos
+(script y hook) — nombre del ZIP, formato del `.sha256` y modo append de `CHECKSUMS.txt` solo se
+validan en el workflow `docs-zip-release.yml` al publicar.
+
+??? note "Evidencia"
+
+    | Elemento | Fuente | Confianza |
+    |---|---|---|
+    | `main` y opciones `--builder`, `--no-strict`, `--no-build`, `--output-dir` | `scripts/build_docs_zip.py::main` | ✅ |
+    | `on_post_build` | `mkdocs_hooks.py::on_post_build` | ✅ |
+    | Versión desde `pyproject.toml` | `scripts/build_docs_zip.py::_version` | ✅ |
+    | Build con `--strict` y salida con el código del builder | `scripts/build_docs_zip.py::_build` | ✅ |
+    | ZIP `doc_ia-docs-<versión>.zip` | `scripts/build_docs_zip.py::_zip`, `::ZIP_PREFIX` | ✅ |
+    | `.sha256` y `CHECKSUMS.txt` acumulativo | `scripts/build_docs_zip.py::_create_checksum_files` | ✅ |
+    | `--no-build` sin `site/` → stderr + código `1` | `scripts/build_docs_zip.py::main` | ✅ |
+    | Hook: `site_dir` desde la configuración, WARN si no existe | `mkdocs_hooks.py::on_post_build` | ✅ |
+    | Hook: excluye `.zip`/`.sha256` e incluye `start-server.py` | `mkdocs_hooks.py::on_post_build` | ✅ |
+    | Hook ejecutado antes del aborto por `--strict` | `mkdocs.commands.build::build` (MkDocs 1.6.1) | ⚠️ |
+    | `_sha256` | `mkdocs_hooks.py::_sha256` | ✅ |
+    | Dependencias stdlib del script y del hook | `scripts/build_docs_zip.py`, `mkdocs_hooks.py` (imports) | ✅ |
+    | `zensical` como builder alternativo | `scripts/build_docs_zip.py::_build` | ✅ |
+    | `start-server.py` opcional en el ZIP | `mkdocs_hooks.py::on_post_build` (`if server_script.exists()`) | ✅ |

@@ -80,6 +80,8 @@ Contexto de negocio y objetivo (2-3 párrafos, sin jerga técnica ni rutas de c�
 
 ## 2. Precondiciones
 Lista: herramientas, parámetros, ficheros o estado requeridos antes de usar la funcionalidad.
+### Actores y permisos          ← condicional: solo si el sistema distingue roles
+Tabla: | Rol | Puede | No puede |
 
 ## 3. Flujo Principal
 Diagrama Mermaid (sequenceDiagram o stateDiagram-v2, máx. 12 nodos) + párrafo paso a paso.
@@ -96,7 +98,8 @@ Tabla: | Regla | Descripción | Impacto si se viola |
 ### Casos especiales
 
 ## 7. Criterios de Aceptación      ← EJECUTABLE — derivar del código real
-Tabla: | ID | Dado | Cuando | Entonces |
+Tabla: | ID | Dado | Cuando | Entonces | Test |
+Test: `tests/x.py::test_y` (uno o varios) o `Sin test` — nunca un test inexistente.
 Subsección "Pendiente de validación QA" SOLO para criterios no derivables
 del código (fallback, no primera opción); si no hay, omitirla.
 
@@ -113,6 +116,28 @@ Tabla: | Término | Definición |
 > Criterios→§7 · Glosario→§8; §2 Precondiciones y §4 Postcondiciones se derivan del código.
 
 **Regla de sección vacía**: Si un subapartado queda vacío, escribe `*No aplica para este módulo.*` — nunca omitas la sección.
+
+**Variante 1-I — Mapa funcional** (`docs/functional/index.md`, una por sistema): vista funcional
+global que enlaza las páginas por módulo. Secciones:
+
+```
+# Mapa Funcional — [Nombre del sistema]
+
+## 1. Capacidades del Sistema
+Tabla: | Capacidad | Módulo(s) | Página funcional | Criterios | Tests |
+(Criterios: rango de IDs AC-xx; Tests: nº de criterios con test / total)
+
+## 2. Recorridos Transversales
+Flujos de usuario que cruzan ≥2 módulos: Mermaid (máx. 12 nodos) + párrafo por recorrido.
+
+## 3. Actores y Permisos
+Tabla global: | Rol | Capacidades | Restricciones |  — "No aplica" si no hay roles.
+
+## 4. Glosario Global
+Términos de dominio compartidos por ≥2 módulos (los propios de un módulo quedan en su §8).
+
+??? note "Evidencia"
+```
 
 **Diagramas recomendados**: `sequenceDiagram` (flujo principal), `flowchart TD` (decisiones),
 `stateDiagram-v2` (cuando el módulo tiene un ciclo de vida con estados discretos y transiciones).
@@ -164,6 +189,11 @@ Tabla: | Dependencia | Propósito | Requerida | Comportamiento sin ella |
 ## 5. Ejemplos Relacionados      ← OBLIGATORIO (enlace bidireccional con Arquetipo 4 §5)
 Lista de enlaces a docs/examples/ con descripción de lo que ilustra cada uno.
 Si no existe ningún ejemplo del módulo: "Pendiente — crear ejemplo en docs/examples/[nombre].md"
+
+## 6. Verificación y Tests       ← añadida en 2026-10-28, al final para preservar §5↔§5
+Tabla: | Test | Qué verifica | Tipo |   (Tipo: unitario / integración / e2e)
+Cierre: comando exacto para ejecutarlos (`python -m pytest tests/test_x.py -q`).
+Si el módulo no tiene tests: "*Sin tests automatizados.*" + riesgo principal sin cubrir.
 
 ??? note "Evidencia"          ← bloque plegable final, sin número (§3.16)
 ```
@@ -535,9 +565,9 @@ Cuando `/document-project` recibe más de un `Origen`, o cuando el único origen
 | Tipo | Señales de detección | Tratamiento documental |
 |------|---------------------|----------------------|
 | `CÓDIGO` | Archivos fuente (`.py`, `.js`, `.ts`, `.cs`, `.java`, `.go`, `.rs`, …), `pyproject.toml`, `package.json`, `pom.xml`, `Cargo.toml`, `go.mod`, `src/`, `tests/` | Documentar como proyecto: inventario completo + arquetipos 1–7 y 12 (si hay señales) |
-| `NORMATIVA` | PDFs/docs con palabras clave en nombre: `ley`, `decreto`, `directiva`, `rgpd`, `gdpr`, `une`, `iso`, `reglamento`, `compliance` | Activar Arquetipo 8; enriquece §2 (Reglas de Negocio) del Arquetipo 1 del proyecto principal |
-| `ESPECIFICACIÓN` | Word/PDF de requisitos, user stories, pliego, casos de uso; ficheros `.feature` (BDD/Gherkin); carpetas `specs/`, `requirements/`, `ux/`, `user-stories/` | Enriquece Arquetipo 1 §2+§3+§4 del proyecto principal |
-| `UI/PANTALLAS` | Wireframes, mockups, capturas (`.png`, `.jpg`, `.pdf` de diseño); carpetas `mockups/`, `screens/`, `wireframes/`, `figma-exports/` | Enriquece Arquetipo 1 §3 (Casos de Uso) y Arquetipo 3 (Guías) |
+| `NORMATIVA` | PDFs/docs con palabras clave en nombre: `ley`, `decreto`, `directiva`, `rgpd`, `gdpr`, `une`, `iso`, `reglamento`, `compliance` | Activar Arquetipo 8; enriquece §5 (Reglas de Negocio) del Arquetipo 1 del proyecto principal |
+| `ESPECIFICACIÓN` | Word/PDF de requisitos, user stories, pliego, casos de uso; ficheros `.feature` (BDD/Gherkin); carpetas `specs/`, `requirements/`, `ux/`, `user-stories/` | Enriquece Arquetipo 1 §3+§5+§6+§7 del proyecto principal |
+| `UI/PANTALLAS` | Wireframes, mockups, capturas (`.png`, `.jpg`, `.pdf` de diseño); carpetas `mockups/`, `screens/`, `wireframes/`, `figma-exports/` | Enriquece Arquetipo 1 §3 (Flujo Principal) y Arquetipo 3 (Guías) |
 | `REFERENCIA` | Manuales de terceros, RFCs, especificaciones de protocolo **ajenas al proyecto** | Enriquece Arquetipo 2 §4 (Dependencias) o Arquetipo 5 (ADR) |
 | `CONTRATO` | Especificaciones machine-readable de las APIs/datos del **propio proyecto**: `.yaml`/`.json` con clave `openapi:` o `asyncapi:`; `.graphql`/`.gql`; `.proto`; `.avsc`; `.sql` DDL en `db/`/`migrations/`; `.dbml`; carpetas `api/`, `contracts/`, `schemas/`, `proto/` | Enriquece Arquetipo 2 §1 (Arquitectura) y §2 (Modelo de Datos / Contratos) y Arquetipo 12 §5 (Interfaces Publicadas) |
 | `INFRAESTRUCTURA` | IaC y despliegue: `.tf`; `Dockerfile`, `docker-compose.yml`; YAML en `k8s/`, `deploy/`, `manifests/`, `helm/`; playbooks Ansible; CloudFormation en `cloudformation/` | Enriquece Arquetipo 2 §4 (Dependencias) y Arquetipo 6C §3 › Despliegue |
@@ -551,9 +581,9 @@ Cuando `/document-project` recibe más de un `Origen`, o cuando el único origen
 
 | Tipo origen | Arquetipo | Sección(es) que enriquece |
 |-------------|-----------|--------------------------|
-| `NORMATIVA` | 8 + 1 (proyecto principal) | Arq. 8 completo; Arq. 1 §2 Reglas de Negocio |
-| `ESPECIFICACIÓN` | 1 (proyecto principal) | §2 Reglas de Negocio, §3 Casos de Uso, §4 Criterios de Aceptación |
-| `UI/PANTALLAS` | 1 + 3 | Arq. 1 §3 Casos de Uso; Arq. 3 §3 Pasos |
+| `NORMATIVA` | 8 + 1 (proyecto principal) | Arq. 8 completo; Arq. 1 §5 Reglas de Negocio |
+| `ESPECIFICACIÓN` | 1 (proyecto principal) | §3 Flujo Principal, §5 Reglas de Negocio, §6 Flujos Alternativos, §7 Criterios de Aceptación |
+| `UI/PANTALLAS` | 1 + 3 | Arq. 1 §3 Flujo Principal; Arq. 3 §3 Pasos |
 | `REFERENCIA` | 2 o 5 | Arq. 2 §4 Dependencias; o Arq. 5 (decisión ADR) |
 | `CONTRATO` | 2 + 12 (proyecto principal) | Arq. 2 §1 Arquitectura y §2 Modelo de Datos / Contratos; Arq. 12 §5 Interfaces Publicadas |
 | `INFRAESTRUCTURA` | 2 + 6 | Arq. 2 §4 Dependencias y Requisitos; Arq. 6C §3 › Despliegue |
@@ -848,10 +878,17 @@ Tabla: | Evento / Mensaje | Productor | Consumidor | Payload / formato |
 ## 5. Interfaces Publicadas
 Tabla: | Interfaz | Tipo | Contrato fuente | Descripción |
 
+## 6. Datos                       ← condicional (persistencia, esquemas, ficheros con formato propio)
+`erDiagram` global (máx. 12 entidades) +
+Tabla: | Entidad | Campo | Tipo | Restricción | Sensibilidad |   (Sensibilidad: pública / interna / personal / secreta)
+Ciclos de vida de entidades con estados: `stateDiagram-v2`.
+
 ??? note "Evidencia"          ← bloque plegable final, sin número (§3.16)
 ```
 
 **Regla de sección vacía**: `*No aplica para este sistema.*` — nunca omitir la sección.
+La §6 absorbe el antiguo "Modelo de datos" propuesto como arquetipo propio (simplificación S1,
+ADR-002).
 
 **Delimitación con el Arquetipo 2**: ver §3.2. Regla práctica: si el dato lo consulta quien
 **ejecuta u opera** el sistema → Arquetipo 12; si lo consulta quien **integra o mantiene código**

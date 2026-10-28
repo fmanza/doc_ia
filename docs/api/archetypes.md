@@ -92,3 +92,27 @@ Cada arquetipo produce un archivo Markdown con las secciones numeradas obligator
 - [Ejemplo: Aplicar Arquetipos Individualmente](../examples/archetypes_usage.md) — cómo
   seleccionar el arquetipo correcto para un módulo e invocar su prompt directamente sin
   pasar por el flujo completo de `/document-project`.
+
+## 6. Verificación y Tests
+
+*Sin tests automatizados.* Los arquetipos son plantillas Markdown y prompts, no código Python.
+La única verificación automática es `python -m mkdocs build --strict` (enlaces y navegación); la
+conformidad de secciones, del enlace §5↔§5 y del bloque "Evidencia" depende del Documentation
+Reviewer. Riesgo principal sin cubrir: deriva entre la norma y los prompts (como la corregida en
+ADR-002).
+
+??? note "Evidencia"
+
+    | Elemento | Fuente | Confianza |
+    |---|---|---|
+    | 12 arquetipos + 3b y sus ubicaciones | `.github/DOCUMENTATION_STANDARD.md` §3.1–§3.15 | ✅ |
+    | Un prompt por arquetipo | `.github/prompts/` (`functional_doc`, `technical_doc`, `howto_doc`, `tutorial_doc`, `example_doc`, `architecture_doc`, `landing_doc`, `onboarding_dev`, `normative_traceability`, `changelog`, `ai_config_doc`, `contributing_doc`, `reference_doc`) | ✅ |
+    | Regla transversal de evidencia | `.github/DOCUMENTATION_STANDARD.md` §3.16 | ✅ |
+    | Sección vacía → `*No aplica para este módulo.*` | `.github/DOCUMENTATION_STANDARD.md` §3.1, §3.2 | ✅ |
+    | Marcador "Pendiente" en Arq. 2 §5 | `.github/DOCUMENTATION_STANDARD.md` §3.2 | ✅ |
+    | Arquetipo 8 condicional | `.github/DOCUMENTATION_STANDARD.md` §3.8 | ✅ |
+    | Arquetipos 9 y 11 opt-in | `.github/DOCUMENTATION_STANDARD.md` §3.9 (conjunto mínimo de guías) | ✅ |
+    | Arquetipo 12 condicional | `.github/DOCUMENTATION_STANDARD.md` §3.15 | ✅ |
+    | Citas como código inline | `.github/DOCUMENTATION_STANDARD.md` §3.16 (reglas de cita) | ✅ |
+    | Arquetipo 4 sin `.py` en flujos de chat | `.github/prompts/example_doc.prompt.md` | 🔍 |
+    | Dependencias: norma, `docs.instructions.md`, `mkdocs.yml` | `.github/agents/documentation-generator.agent.md` (contexto obligatorio) | ✅ |

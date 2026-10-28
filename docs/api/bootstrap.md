@@ -6,7 +6,7 @@ Traslada el sistema de instrucciones IA de doc_ia a un proyecto destino de cualq
 
 ```mermaid
 flowchart TD
-    U[Usuario en el proyecto DESTINO] --> INV[Lee bootstrap_ai_config.prompt.md\n+ 5 parámetros obligatorios]
+    U[Usuario en el proyecto DESTINO] --> INV[Lee bootstrap_ai_config.prompt.md\n+ 8 parámetros obligatorios]
     INV --> AN[ANÁLISIS\nClasificación A/B/C/D\nmatriz de equivalencias]
     AN --> PL[PLAN\nficheros a copiar·adaptar·regenerar]
     PL --> AP[AUDIT_PLAN\nriesgos funcionales·técnicos·seguridad\nVeredicto GO/GO_CONDICIONAL/NO_GO]
@@ -30,9 +30,11 @@ flowchart TD
 |---|---|---|---|
 | `Origen` | ruta | Ruta del repositorio doc_ia (solo lectura) | Obligatorio; el destino lee los ficheros del origen pero no los modifica |
 | `Destino` | ruta | Raíz del proyecto que recibirá el sistema IA | Obligatorio; el código real del destino debe ser accesible para regenerar Capa C |
-| `Lenguaje/arquitectura destino` | string | Stack real del destino (ej. TypeScript + NestJS) | Obligatorio; determina la matriz de equivalencias de comandos |
+| `Lenguaje y framework` + `Arquitectura destino` | string | Stack real del destino (ej. TypeScript + NestJS) y su patrón (capas, hexagonal, MVC…) | Obligatorios (dos campos); determinan la matriz de equivalencias de comandos |
 | `Plataformas IA activas` | lista | Plataformas a configurar (Claude Code, Gemini, Copilot, Cursor, Codex) | Obligatorio; determina qué entry points se crean |
-| `Generador de documentación` | string | `mkdocs-material`, `Docusaurus`, `Hugo`, `ninguno`… | Obligatorio si el destino publica docs; determina si `mkdocs.yml` se copia o se adapta |
+| `Herramientas de calidad` | lista | Linter, formateador, type-checker y test runner del destino | Obligatorio; sustituye `ruff`/`mypy`/`pytest` en la Capa A |
+| `Generador de documentación` | string | `mkdocs-material`, `Docusaurus`, `Hugo`, `ninguno`… | Obligatorio (admite `ninguno`); determina si `mkdocs.yml` se copia o se adapta |
+| `Gestor de paquetes / build` | string | Comando de instalación y build del destino | Obligatorio |
 | `Fase` | string | `PLAN y AUDIT_PLAN únicamente` o `completa` | Opcional; por defecto flujo completo |
 
 ### Capas de transferencia
@@ -53,9 +55,9 @@ Seis bloques en el chat, en este orden: ANÁLISIS → PLAN → AUDIT_PLAN → IM
 | Caso | Comportamiento |
 |---|---|
 | Parámetro obligatorio faltante | El flujo se detiene antes del ANÁLISIS y pide completarlo |
-| Generador de docs no indicado | Si el destino publica docs, el bootstrap pregunta antes de omitir `mkdocs.yml` |
-| Bootstrap lanzado desde el origen en lugar del destino | Riesgo de arrastrar suposiciones del stack origen; el prompt lo prohíbe explícitamente |
-| Fichero de Capa D presente en el origen | Se excluye siempre; no se copia ni con instrucciones explícitas del usuario |
+| Generador de docs no indicado | Como cualquier campo obligatorio: el flujo se detiene y lo pide (se admite `ninguno`) |
+| Bootstrap lanzado desde el origen en lugar del destino | Riesgo de arrastrar suposiciones del stack origen; el prompt exige invocarlo desde el destino y explica por qué |
+| Fichero de Capa D presente en el origen | Se excluye siempre; no se copia ni con instrucciones explícitas del usuario 🔍 |
 
 ## 3. Componentes y Clases
 
@@ -77,3 +79,24 @@ Seis bloques en el chat, en este orden: ANÁLISIS → PLAN → AUDIT_PLAN → IM
 - [Ejemplo: Bootstrap de Configuración IA](../examples/bootstrap_usage.md) — invocación
   a un servicio TypeScript + NestJS, salida esperada del ANÁLISIS y del PLAN, y resultado
   tras completar el IMPLEMENT.
+
+## 6. Verificación y Tests
+
+*Sin tests automatizados.* El bootstrap es un prompt ejecutado en el chat del proyecto destino.
+Riesgo principal sin cubrir: que la clasificación por capas (A/B/C/D) quede desfasada respecto a
+los ficheros reales de doc_ia; solo lo detecta la auditoría posterior del Config Reviewer.
+
+??? note "Evidencia"
+
+    | Elemento | Fuente | Confianza |
+    |---|---|---|
+    | `bootstrap_ai_config.prompt.md` | `.github/prompts/bootstrap_ai_config.prompt.md` | ✅ |
+    | `config-reviewer.agent.md` y veredicto APROBADO / APROBADO CON CONDICIONES / RECHAZADO | `.github/agents/config-reviewer.agent.md` | ✅ |
+    | 8 parámetros obligatorios | `.github/prompts/bootstrap_ai_config.prompt.md` (sección "Contexto a completar") | ✅ |
+    | `Fase` opcional (`PLAN y AUDIT_PLAN únicamente` o `completa`) | `.github/prompts/bootstrap_ai_config.prompt.md` (ejemplo de invocación) | ✅ |
+    | Capas A/B/C/D y sus acciones | `.github/prompts/bootstrap_ai_config.prompt.md` (sección "Clasificación por capas") | ✅ |
+    | Seis bloques ANÁLISIS → VERSION | `.github/prompts/bootstrap_ai_config.prompt.md` (salida esperada) | ✅ |
+    | Parada por parámetro faltante | `.github/prompts/bootstrap_ai_config.prompt.md` (VALIDACIÓN) | ✅ |
+    | Invocación desde el destino (modelo PULL) | `.github/prompts/bootstrap_ai_config.prompt.md` (sección "Método y dirección de la llamada") | ✅ |
+    | Capa D excluida aunque el usuario lo pida | `.github/prompts/bootstrap_ai_config.prompt.md` (Capa D: "Excluir explícitamente", sin mención a peticiones del usuario) | 🔍 |
+    | Dependencias: código del destino, Capa A+B del origen, norma documental | `.github/prompts/bootstrap_ai_config.prompt.md` | ✅ |

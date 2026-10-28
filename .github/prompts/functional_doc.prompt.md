@@ -49,6 +49,11 @@ herramientas instaladas, parámetros requeridos (proyecto origen / destino), fic
 Un ítem por precondición.
 Si no hay precondiciones verificables en el código: "*No aplica para este módulo.*"
 
+### Actores y permisos
+SOLO si el sistema distingue roles o permisos (autenticación, RBAC, ACL, propietario/invitado).
+Tabla: | Rol | Puede | No puede |
+Si no hay roles: omitir esta subsección (no escribir "No aplica").
+
 ## 3. Flujo Principal
 Diagrama Mermaid: usa `sequenceDiagram` para flujo I/O con actores secuenciales, o
 `stateDiagram-v2` cuando el módulo tiene un ciclo de vida con estados discretos y
@@ -85,8 +90,10 @@ Si no hay: "*No aplica para este módulo.*"
 ## 7. Criterios de Aceptación
 Derivar del código cuando sea posible. Formato Given/When/Then.
 
-Tabla: | ID | Dado | Cuando | Entonces |
-Ejemplo de fila: | AC-01 | El entorno tiene mkdocs instalado y site/ generado | Se ejecuta build_docs_zip.py | Se crea dist/doc_ia-docs-{versión}.zip con su .sha256 |
+Tabla: | ID | Dado | Cuando | Entonces | Test |
+Ejemplo de fila: | AC-01 | Falta una herramienta obligatoria | Se verifica el entorno | Se informa de la herramienta ausente | `tests/test_check_env.py::test_missing_tools_detects_absent_tool` |
+Columna Test: uno o varios `tests/<fichero>.py::<test>` que verifican el criterio, o `Sin test`.
+Busca en tests/ por el símbolo implicado; NUNCA cites un test que no exista.
 
 ### Pendiente de validación QA
 Si algún criterio no puede derivarse del código, listar aquí con la pregunta concreta al equipo QA.
@@ -167,6 +174,32 @@ Fase 4 — Revisión cruzada:
   para detectar inconsistencias.
 ```
 
+## Variante índice — Mapa funcional (1-I)
+
+Una vez por sistema, tras generar las páginas por módulo, genera `docs/functional/index.md`:
+
+```
+Lee todas las páginas de docs/functional/ y genera el Mapa Funcional del sistema con estas
+4 secciones (DOCUMENTATION_STANDARD.md §3.1, Variante 1-I):
+
+# Mapa Funcional — [Nombre del sistema]
+## 1. Capacidades del Sistema
+Tabla: | Capacidad | Módulo(s) | Página funcional | Criterios | Tests |
+Una fila por página funcional. Criterios = rango de IDs AC; Tests = "n/total" con test.
+## 2. Recorridos Transversales
+Solo flujos que crucen ≥2 módulos y estén verificados en las páginas por módulo.
+Mermaid (máx. 12 nodos) + un párrafo por recorrido.
+## 3. Actores y Permisos
+Consolidación de las subsecciones "Actores y permisos" de las páginas; "*No aplica para este
+sistema.*" si ninguna las tiene.
+## 4. Glosario Global
+Términos que aparecen en el §8 de ≥2 páginas, con una única definición.
+
+??? note "Evidencia" — una fila por capacidad y recorrido, con la página funcional de origen.
+
+No inventes capacidades: cada fila de §1 corresponde a una página existente.
+```
+
 ## Prompt para diagramas Mermaid
 
 Para generar únicamente el diagrama de secuencia de un módulo:
@@ -185,6 +218,6 @@ Un fichero Markdown con:
 - 8 secciones numeradas (`## 1.` — `## 8.`)
 - Al menos un diagrama Mermaid (`sequenceDiagram` o `stateDiagram-v2`) en `## 3.`
 - Tabla en `## 5.` con 3 columnas
-- `## 7.` con tabla Given/When/Then (`| ID | Dado | Cuando | Entonces |`) y/o placeholder QA estructurado
+- `## 7.` con tabla Given/When/Then (`| ID | Dado | Cuando | Entonces | Test |`) y/o placeholder QA estructurado
 - `## 8.` con tabla de términos o `*No aplica para este módulo.*`
 - Bloque plegable `??? note "Evidencia"` final con `| Elemento | Fuente | Confianza |`

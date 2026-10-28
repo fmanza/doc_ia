@@ -14,8 +14,8 @@ flowchart TD
     F0b --> F0[Fase 0 — Normativa\nArquetipo 8 si aplica]
     F0 --> F1[Fase 1 — Inventario\nEstado A · B · C\nDetección ZIP offline\nDetección carpetas md/]
     F1 --> PD[PLAN_DOC\nCREAR A · ACTUALIZAR B · OMITIR C]
-    PD --> F2[Fase 2 — Funcional\nArquetipo 1]
-    F2 --> F3[Fase 3 — Técnica\nArquetipo 2]
+    PD --> F2[Fase 2 — Funcional\nArquetipo 1 + Mapa 1-I]
+    F2 --> F3[Fase 3 — Técnica\nArquetipo 2 · Arquetipo 12 si aplica]
     F3 --> F4[Fase 4 — Ejemplos + Guías\nArquetipos 3 · 4 · 6 · 7]
     F4 --> F5[Fase 5 — SYNC NAV\nmkdocs.yml]
     F5 --> F6[Fase 6 — Revisión\nMarkdown · enlaces · Mermaid]
@@ -100,3 +100,28 @@ Once bloques en el chat, en este orden:
 - [Ejemplo: Documentar un Proyecto](../examples/document_project_usage.md) — invocación
   con 6 escenarios (sin doc, parcial, `--verify-build`, orígenes heterogéneos, opt-in
   changelog, CONTRATO+INFRAESTRUCTURA) y output esperado de cada fase.
+
+## 6. Verificación y Tests
+
+*Sin tests automatizados.* El flujo es un conjunto de instrucciones ejecutadas en el chat, no
+código Python. Riesgo principal sin cubrir: que el comando, el prompt y el agente se desincronicen
+(fases, bloques de salida, mapeos MATERIAL → arquetipos). Hoy solo lo detecta una revisión manual
+o el Documentation Reviewer.
+
+??? note "Evidencia"
+
+    | Elemento | Fuente | Confianza |
+    |---|---|---|
+    | `/document-project` | `.claude/commands/document-project.md` | ✅ |
+    | Prompt multiplataforma | `.github/prompts/document_project.prompt.md` | ✅ |
+    | Agente por fases | `.github/agents/documentation-generator.agent.md` | ✅ |
+    | 4 parámetros obligatorios y 5 opcionales | `.github/prompts/document_project.prompt.md` (sección "Contexto a completar") | ✅ |
+    | Estrategia nunca autodetectada | `.github/prompts/document_project.prompt.md` (opcional "Estrategia") | ✅ |
+    | Once bloques de salida (1–10 + 8b) | `.github/prompts/document_project.prompt.md` (sección "Devuelve en este orden") | ✅ |
+    | Fase 2 con Mapa Funcional y Fase 3 con Arquetipo 12 | `.github/prompts/document_project.prompt.md` (Fases 2 y 3) | ✅ |
+    | Parada por parámetro faltante | `.github/prompts/document_project.prompt.md` (sección "VALIDACIÓN") | ✅ |
+    | Origen no legible o fuera del workspace | `.claude/commands/document-project.md` (casos límite) | ✅ |
+    | Caso degenerado sin origen CÓDIGO | `.github/prompts/document_project.prompt.md` (Fase 0a, paso 5) | ✅ |
+    | Estado B: secciones vigentes verbatim | `.github/prompts/document_project.prompt.md` (protocolo ACTUALIZAR) | ✅ |
+    | Cierre de sesión obligatorio | `.github/prompts/document_project.prompt.md` (bloque 10) | ✅ |
+    | Dependencias: norma, `docs.instructions.md`, `mkdocs.yml`, prompts, `mkdocs build` | `.github/prompts/document_project.prompt.md`, `.github/agents/documentation-generator.agent.md` | ✅ |

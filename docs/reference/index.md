@@ -129,6 +129,38 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 | Release `docs-v{versión}` | GitHub Release | `.github/workflows/docs-zip-release.yml` | ZIP + `.sha256` + `CHECKSUMS.txt`; se actualiza en cada push a `main` con cambios en `docs/` |
 | Ficheros `<origen>/md/**/*.md` | Fichero de salida | `scripts/convert_to_md.py::output_path` | Estructura reflejada del origen; frontmatter opcional con `--metadata` |
 
+## 6. Datos
+
+doc_ia no tiene base de datos. Sus datos son los **ficheros con formato propio** que escribe el
+tooling.
+
+```mermaid
+erDiagram
+    DOCUMENTO_ORIGEN ||--|| MARKDOWN : "convert_to_md genera"
+    MARKDOWN ||--o| FRONTMATTER : "incluye con --metadata"
+    MARKDOWN ||--o{ CHUNK : "se divide con --chunk"
+    MANIFIESTO ||--|{ CHUNK : "indexa"
+    ZIP_OFFLINE ||--|| SHA256 : "acompañado de"
+    ZIP_OFFLINE ||--o{ LINEA_CHECKSUMS : "registrado en"
+```
+
+| Entidad | Campo | Tipo | Restricción | Sensibilidad |
+|---|---|---|---|---|
+| Frontmatter | `source` | cadena | Nombre del fichero origen (sin ruta) | interna |
+| Frontmatter | `engine` | cadena | `docling` \| `markitdown` \| `pandoc` | pública |
+| Frontmatter | `converted_at` | fecha-hora UTC | Formato `YYYY-MM-DDTHH:MM:SS` | pública |
+| Frontmatter | `engine_version` | cadena | Solo con `docling`; `unknown` si no se puede leer | pública |
+| Frontmatter | `title` | cadena | Solo con `docling`; nombre del documento o del fichero | interna |
+| Manifiesto `_manifest.json` | `id` | entero | Correlativo desde 1 | pública |
+| Manifiesto `_manifest.json` | `file` | cadena | `NNN.md` (3 dígitos) dentro de `chunks/<documento>/`, junto al `.md` convertido | pública |
+| Manifiesto `_manifest.json` | `preview` | cadena | Primeros 80 caracteres del chunk | interna |
+| Manifiesto `_manifest.json` | `chars` | entero | Longitud del chunk | pública |
+| `.zip.sha256` | línea única | texto | `<sha256>  <nombre.zip>` (formato `sha256sum`) | pública |
+| `CHECKSUMS.txt` | una línea por build | texto | `<sha256>  <nombre.zip>  (<ISO-8601 local>)`; solo se añaden líneas | pública |
+
+La sensibilidad `interna` indica que el campo reproduce contenido o nombres del documento
+convertido: hereda la sensibilidad del origen.
+
 ??? note "Evidencia"
 
     | Elemento | Fuente | Confianza |
@@ -151,3 +183,7 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
     | `on_post_build` + `start-server.py` en el ZIP | `mkdocs_hooks.py::on_post_build` | ✅ |
     | Release `docs-v{versión}` | `.github/workflows/docs-zip-release.yml::build-and-publish` | ✅ |
     | Salida `md/` de `convert_to_md.py` | `scripts/convert_to_md.py::output_path` | ✅ |
+    | Campos del frontmatter | `scripts/convert_to_md.py::_build_metadata_basic`, `::_convert_with_docling` | ✅ |
+    | Serialización YAML del frontmatter | `scripts/convert_to_md.py::_format_frontmatter` | ✅ |
+    | Manifiesto y chunks | `scripts/convert_to_md.py::_run_chunking` | ✅ |
+    | Formato `.sha256` y `CHECKSUMS.txt` | `scripts/build_docs_zip.py::_create_checksum_files` | ✅ |

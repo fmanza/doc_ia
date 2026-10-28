@@ -10,6 +10,7 @@
 | **Tipo de origen** | Naturaleza del origen que determina su tratamiento documental. 8 tipos: `CÓDIGO`, `NORMATIVA`, `ESPECIFICACIÓN`, `UI/PANTALLAS`, `REFERENCIA`, `CONTRATO`, `INFRAESTRUCTURA`, `MANUAL`. Los tipos no-CÓDIGO se agrupan como MATERIAL. |
 | **Bloque Evidencia** | Bloque plegable `??? note "Evidencia"` sin número de sección que cierra las páginas de los Arquetipos 1, 2 y 12. Tabla `Elemento \| Fuente \| Confianza` con citas `ruta::símbolo` en código inline. Ver `DOCUMENTATION_STANDARD.md` §3.16. |
 | **Leyenda de confianza** | ✅ verificado · ⚠️ parcial · 🔍 inferido · ❌ gap. Nacida en el Arquetipo 8 y generalizada a todos los arquetipos en 2026-10-28. ✅ es implícito en el cuerpo de la página. |
+| **Mapa Funcional** | Variante 1-I del Arquetipo 1 (`docs/functional/index.md`): capacidades del sistema con su página, criterios y tests, recorridos transversales y glosario global. Una por sistema. |
 | **MATERIAL** | Término colectivo para orígenes no-CÓDIGO. Su contenido enriquece secciones de los arquetipos del proyecto CÓDIGO principal sin generar páginas propias. |
 | **CONTRATO** | Tipo de origen: especificaciones machine-readable del proyecto (OpenAPI, AsyncAPI, GraphQL, Protobuf, SQL DDL, DBML). Enriquece Arquetipo 2 §1 y §2. |
 | **INFRAESTRUCTURA** | Tipo de origen: artefactos IaC y de despliegue (Terraform, Kubernetes, Docker, Ansible). Enriquece Arquetipo 2 §4 y Arquetipo 6D. |
