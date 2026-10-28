@@ -44,7 +44,7 @@ termina con `0`**. Ambos módulos se cargan por ruta desde la raíz del reposito
 
 ```mermaid
 flowchart TD
-    MK[mkdocs build] --> H[on_post_build&#40;config&#41;]
+    MK[mkdocs build] --> H["on_post_build(config)"]
     H --> Z[zipfile.ZipFile sobre site/\nexcluye .zip y .sha256]
     Z --> S[start-server.py incluido en ZIP]
     S --> C2[hashlib.sha256 → .zip.sha256]

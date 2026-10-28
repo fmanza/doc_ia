@@ -4,7 +4,7 @@ fuentes:
   .claude/commands/document-project.md: 0c40f2025589
   .github/DOCUMENTATION_STANDARD.md: 40584ca88ec3
   hooks/sync_root_docs.py: ef5e576436c6
-  tests/test_docs_conformance.py: 14ba445df5a0
+  tests/test_docs_conformance.py: 483c92783560
 revisado: 2026-10-28
 ---
 # Arquetipos Formales de Documentación
@@ -163,6 +163,7 @@ se aplica cuando el proyecto tiene agentes IA configurados sin documentar.
 | AC-08 | Arquetipo 3a (how-to) vs. 3b (tutorial) | Se selecciona el arquetipo | El fichero de destino usa `_howto.md` o `_tutorial.md` según corresponda; nunca los dos tipos mezclados en el mismo fichero | `tests/test_docs_conformance.py::test_guides_naming_convention` |
 | AC-09 | Proyecto con CLI o variables de entorno | Se ejecuta `/document-project` | Existe `docs/reference/index.md` con las 6 secciones del Arquetipo 12 y la entrada "Referencia del Sistema" en `mkdocs.yml`; en una librería sin superficie de usuario no se genera | `tests/test_docs_conformance.py::test_reference_follows_archetype_12` |
 | AC-10 | Página de Arquetipo 1, 2 o 12 generada | Se revisa el documento | Termina con el bloque plegable "Evidencia"; cada regla, contrato y criterio tiene fila con su fuente y su confianza | `tests/test_docs_conformance.py::test_functional_pages_follow_archetype_1`, `tests/test_docs_conformance.py::test_api_pages_follow_archetype_2`, `tests/test_docs_conformance.py::test_reference_follows_archetype_12` |
+| AC-11 | Diagrama Mermaid con `@`, `(`, `)`, `{` o `}` en una etiqueta | Se genera el bloque | La etiqueta va entre comillas dobles y no contiene entidades HTML (`&#40;`), que Mermaid pintaría con un `&` sobrante | `tests/test_docs_conformance.py::test_mermaid_no_html_entities`, `tests/test_docs_conformance.py::test_mermaid_special_chars_quoted` |
 
 Verificación: `python -m mkdocs build --strict` sin warnings tras generar cualquier arquetipo.
 Los arquetipos se aplican en el chat y no tienen tests automatizados.
@@ -209,3 +210,4 @@ Los tests verifican el **resultado** sobre la documentación de doc_ia (dogfoodi
     | AC-08 | `.github/DOCUMENTATION_STANDARD.md::3.11` (Reglas, nombre de fichero) | ✅ |
     | AC-09 | `.github/DOCUMENTATION_STANDARD.md::3.15` (6 secciones, sección MkDocs) | ✅ |
     | AC-10 | `.github/DOCUMENTATION_STANDARD.md::3.16` (Revisión) | ✅ |
+    | AC-11 | `.github/agents/documentation-generator.agent.md::Diagramas Mermaid` (labels con caracteres especiales) | ✅ |

@@ -134,3 +134,19 @@
   para errores de sintaxis que `--strict` no ve; verificación visual con CDP antes de cambiar la
   integración.
 - **Sesión**: `.ai/sessions/2026-10-28d_zensical_migration/` (F6a, F6)
+
+## [Mermaid] — Entidades HTML en labels se pintan con un `&` sobrante
+
+- **Síntoma**: `H[on_post_build&#40;config&#41;]` se ve como `on_post_build&(config&)`; la regla
+  `@` → `&#64;` (sesión 2026-06-12b) pinta `Cl&@ve`. El build `--strict` pasa y Mermaid no da error.
+- **Causa** (verificada renderizando con mermaid@11 y @12 en Edge headless): Mermaid no decodifica
+  entidades HTML; su sintaxis propia es `#64;` (sin `&`). El `&` queda como texto.
+- **Diagnóstico previo correcto, remedio incorrecto**: sin comillas, `@`, `(`, `)`, `{` o `}`
+  dentro de `[...]` o `{...}` sí son parse error en v11 y v12.
+- **Tratamiento**: label entre comillas dobles (`A["Cl@ve (firma)"]`); una `"` interna → `#quot;`.
+  `#`, `#64;`, `A@{ shape: … }` y `["/ruta"]` entre comillas renderizan bien.
+- **Prevención**: `tests/test_docs_conformance.py::test_mermaid_no_html_entities` y
+  `::test_mermaid_special_chars_quoted` (detector calibrado con fixtures renderizadas).
+- **Pendiente fuera de doc_ia**: los destinos que aplicaron la regla `&#64;` (socyalpro) muestran
+  el `&`; corregir con un hotfix en cada repositorio.
+- **Sesión**: `.ai/sessions/2026-10-28e_mermaid_diagrams/` (M0)

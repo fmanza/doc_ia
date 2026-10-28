@@ -150,6 +150,62 @@ def test_mermaid_nodes_do_not_start_with_slash() -> None:
     assert not offenders, offenders
 
 
+MERMAID_RE = re.compile(r"^```mermaid\n(.*?)^```", re.M | re.S)
+# Mermaid no decodifica entidades HTML: `&#40;` se pinta como `&(`. Su sintaxis es `#40;`.
+HTML_ENTITY_RE = re.compile(r"&#?[A-Za-z0-9]+;")
+# Label sin comillas de `[...]` o `{...}` (no formas compuestas como `[(`, `[[`, `{{`, `[/`).
+UNQUOTED_LABEL_RE = re.compile(r"(?<=\w)[\[{](?![\"(\[{/\\])([^\]}\n\"]*?)[\]}]")
+
+
+def _mermaid_blocks() -> list[tuple[str, str]]:
+    return [
+        (page.relative_to(DOCS).as_posix(), block)
+        for page in sorted(DOCS.rglob("*.md"))
+        for block in MERMAID_RE.findall(page.read_text(encoding="utf-8"))
+    ]
+
+
+def test_mermaid_no_html_entities() -> None:
+    """Sin entidades HTML en diagramas: Mermaid pinta un `&` sobrante (AC-11)."""
+    offenders = [
+        f"{page}: {line.strip()}"
+        for page, block in _mermaid_blocks()
+        for line in block.splitlines()
+        if HTML_ENTITY_RE.search(line)
+    ]
+    assert not offenders, offenders
+
+
+def test_mermaid_special_chars_quoted() -> None:
+    """`@ ( ) { }` en label de flowchart sin comillas → parse error en Mermaid 11 y 12 (AC-11)."""
+    offenders = [
+        f"{page}: {label}"
+        for page, block in _mermaid_blocks()
+        if block.split(maxsplit=1)[0] in {"flowchart", "graph"}
+        for label in UNQUOTED_LABEL_RE.findall(block)
+        if re.search(r"[@(){}]", label)
+    ]
+    assert not offenders, offenders
+
+
+@pytest.mark.parametrize(
+    ("line", "bad"),
+    [
+        ("A{¿x (y)?} --> B", True),
+        ("A[x{y}] --> B", True),
+        ("A[Cl@ve] --> B", True),
+        ('A["Cl@ve (firma)"] --> B', False),
+        ('C@{ shape: doc, label: "Doc" } --> A', False),
+        ("A([Inicio]) --> B[(Base de datos)]", False),
+        ("A[a#b] --> B[c: d]", False),
+    ],
+)
+def test_unquoted_label_detector(line: str, bad: bool) -> None:
+    """Fixtures calibradas renderizando con mermaid@11 y @12 (sesión 2026-10-28e)."""
+    found = any(re.search(r"[@(){}]", lb) for lb in UNQUOTED_LABEL_RE.findall(line))
+    assert found is bad
+
+
 def test_guides_naming_convention() -> None:
     """Guías en minúsculas con guion bajo y sin subcarpetas; how-to ≠ tutorial (AC-08)."""
     guides = DOCS / "guides"

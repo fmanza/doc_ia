@@ -2,8 +2,8 @@
 arquetipo: "2"
 fuentes:
   .claude/commands/document-project.md: 0c40f2025589
-  .github/agents/documentation-generator.agent.md: d94647bfac37
-  .github/prompts/document_project.prompt.md: eb1288bb24e5
+  .github/agents/documentation-generator.agent.md: 1373e0c3cc2c
+  .github/prompts/document_project.prompt.md: ca30b7fa7021
   mkdocs.yml: 66d3b81c502c
 revisado: 2026-10-28
 ---

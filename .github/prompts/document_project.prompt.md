@@ -422,8 +422,9 @@ Reglas transversales: idioma indicado en todo el contenido generado; no inventar
 APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reglas operativas de
 `.github/instructions/docs.instructions.md`.
 **Mermaid — sintaxis de nodos y subgrafos:**
-- Caracteres prohibidos en labels de nodo (`[...]`, `(...)`, `{...}`): `@`, `#`, `"`.
-  Sustituir con entidad HTML: `@` → `&#64;`, `#` → `&#35;`.
+- Labels de nodo con `@`, `#`, `(`, `)`, `{`, `}`: escribir la label **entre comillas dobles**
+  (`A["Cl@ve (firma)"]`). Una `"` dentro de la label se escribe `#quot;`. **Prohibidas las
+  entidades HTML** (`&#64;`, `&#40;`…): Mermaid no las decodifica y pinta un `&` sobrante.
 - **`/` al inicio de `[...]` — PROHIBIDO**: `[/texto/]` es nodo paralelogramo en Mermaid 11.
   Sin `/` de cierre → lexical error en la línea siguiente. Sustituir rutas UNIX/Windows por
   nombres descriptivos o usar `·` como separador. `<br/>` dentro de labels es seguro.

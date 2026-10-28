@@ -214,9 +214,10 @@ No modifica ningún fichero basándose solo en hallazgos del HTML; propone cambi
   estrategias de branching, `erDiagram` para modelos de datos relacionales.
   Ver tabla completa de criterios y niveles de prescripción en `docs.instructions.md`
 - Si el flujo no se puede inferir con seguridad, documentar la incertidumbre en vez de inventar pasos
-- **Caracteres prohibidos en labels de nodos** (`[...]`, `(...)`, `{...}`): `@`, `#`, `"`, `{`, `}`.
-  Sustituir con entidad HTML: `@` → `&#64;`, `#` → `&#35;`. El resto del Markdown (fuera del bloque
-  mermaid) puede usar estos caracteres libremente.
+- **Labels de nodo con `@`, `#`, `(`, `)`, `{`, `}`**: escribir la label **entre comillas dobles**
+  (`A["Cl@ve (firma)"]`). Una `"` dentro de la label se escribe `#quot;`. **Prohibidas las entidades
+  HTML** (`&#64;`, `&#40;`…): Mermaid no las decodifica y pinta un `&` sobrante. El resto del
+  Markdown (fuera del bloque mermaid) puede usar estos caracteres libremente.
 - **`/` al inicio de `[...]` — PROHIBIDO**: Mermaid 11 interpreta `[/texto/]` como nodo paralelogramo.
   Si falta el `/` de cierre → lexical error en la línea siguiente. Sustituir rutas (`/opt/data`) por
   nombres descriptivos (`data`) o usar `·` como separador. `<br/>` dentro de labels es seguro.
