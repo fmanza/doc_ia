@@ -47,15 +47,15 @@
 
 ## AUDIT_CODE
 - **C2**: verificada tras instalar docling (ver sección anterior).
-- **C4**: CI no ejecutada en GitHub (sin push en esta sesión). Python 3.12 no está instalado en
-  local: la matriz de CI lo validará en el primer push.
+- **C4**: push a `develop` hecho (`7718e2d`); el resultado de `ci.yml` (incluida la matriz 3.12) se
+  revisa en la pestaña Actions del repositorio (privado: no consultable sin credenciales).
 - **Regresiones**: ninguna en tests; `requirements.txt` intacto (entorno local completo).
 - **Riesgo T1**: `requirements-docs.txt` debe mantenerse alineado con `requirements.txt`
   (comentario en el fichero; la CI construye con él).
 
 ## Directrices para Futuras IAs
-- **[entorno]**: `.venv` y el Python global de esta máquina son 3.14 y no tienen docling; para
-  reproducir la CI usar un venv limpio con `requirements-dev.txt`.
+- **[entorno]**: `.venv` (Python 3.14) tiene docling 2.107.0 desde 2026-10-28; para reproducir la
+  CI (sin docling) usar un venv limpio con `requirements-dev.txt`.
 - **[docs]**: `tests/test_docs_conformance.py` es la verificación automática de los arquetipos
   sobre `docs/`; una página nueva que no cumpla la estructura rompe la CI.
 - **[doc_trace]**: al citar un fichero de tests nuevo en una página, añadirlo a `fuentes` con
