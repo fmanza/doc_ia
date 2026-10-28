@@ -44,6 +44,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - `tests/test_zensical_compat.py`: guardas para lo que ningún `--strict` detecta. Falla si
   `mkdocs.yml` declara un plugin que Zensical ignoraría en silencio o si los enlaces al ZIP de
   `docs/downloads.md` no resuelven al ZIP `latest`. AC-09 en `functional/build_docs_zip.md`.
+- **ADR-003** (PROPUESTO) — Use Zensical as the default documentation generator: cambio
+  escalonado con condiciones C1-C5 (Zensical ≥ 0.1, paridad en CI ≥ 2 semanas, revisión visual,
+  ZIP `latest` cubierto, antes del fin de vida de Material el 2027-05-05).
 
 ### Changed
 

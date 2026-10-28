@@ -203,7 +203,7 @@ fases posteriores **salvo** las que dependen de él según el grafo.
     - `docs-release.yml` y `docs-zip-release.yml`: `build_docs_zip.py --builder zensical`; el
       segundo deja de llamar a `mkdocs build` directamente.
   - Entorno local: `.vscode/tasks.json`.
-  - ADRs: ADR-003 pasa a ACEPTADO; ADR-001 pasa a SUSTITUIDO.
+  - ADRs: ADR-003 pasa a ACEPTADO; ADR-001 pasa a `REEMPLAZADO POR ADR-003` (vocabulario MADR de `architecture_doc.prompt.md`).
   - Re-sellados.
 - **Commit**: `feat(build)!: Zensical como generador por defecto`
   - Pie del commit: `BREAKING CHANGE: build_docs_zip.py usa zensical por defecto`.

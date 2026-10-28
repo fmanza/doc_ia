@@ -4,7 +4,7 @@ fuentes:
   .claude/commands/document-project.md: 6e088419ade1
   .github/agents/documentation-generator.agent.md: 7b067d1a3238
   .github/prompts/document_project.prompt.md: 2ab96b792358
-  mkdocs.yml: 417c1a6602da
+  mkdocs.yml: 2a7d695ddd8d
 revisado: 2026-10-28
 ---
 # document_project

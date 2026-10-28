@@ -60,3 +60,4 @@
 - [Visión del Sistema](https://fmanza.github.io/doc_ia/architecture/)
 - [ADR-001 — MkDocs Material por defecto](https://fmanza.github.io/doc_ia/adr/ADR-001-mkdocs-material-por-defecto/)
 - [ADR-002 — Arquetipos con evidencia verificable](https://fmanza.github.io/doc_ia/adr/ADR-002-arquetipos-con-evidencia/)
+- [ADR-003 — Zensical por defecto (propuesto)](https://fmanza.github.io/doc_ia/adr/ADR-003-zensical-por-defecto/)

@@ -4,7 +4,7 @@ fuentes:
   .github/DOCUMENTATION_STANDARD.md: a22d4e8ab738
   .github/agents/documentation-generator.agent.md: 7b067d1a3238
   .github/prompts/example_doc.prompt.md: 6041f616e0c3
-  mkdocs.yml: 417c1a6602da
+  mkdocs.yml: 2a7d695ddd8d
   tests/test_docs_conformance.py: 8bd5c919f184
 revisado: 2026-10-28
 ---

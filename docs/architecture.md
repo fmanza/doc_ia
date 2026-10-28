@@ -112,7 +112,7 @@ flowchart LR
 | Seguridad | Sin API keys ni credenciales (`.gitignore` bloquea `.env`, `*.key`); el código nunca invoca servicios IA |
 | Observabilidad | Salida por stdout con prefijos + códigos de retorno (`0`/`≠0`) aptos para CI y hooks |
 | Rendimiento | Build incremental de MkDocs; ZIP por `shutil.make_archive`; sin servicios pesados |
-| Compatibilidad | MkDocs Material por defecto; Zensical recíproco sobre el mismo `mkdocs.yml` (ver ADR-001) |
+| Compatibilidad | MkDocs Material por defecto; Zensical recíproco sobre el mismo `mkdocs.yml` (ver ADR-001), con build de paridad en CI y propuesta de pasar a ser el defecto (ADR-003) |
 | Robustez/Errores | Fail-fast con `sys.exit` y mensajes explícitos; build estricto bloquea docs rotas |
 | Tipado/Calidad | `mypy --strict` sobre `scripts/`, `ruff` lint+format, pytest determinista, hooks PostToolUse |
 
@@ -129,7 +129,8 @@ flowchart LR
 ## 5. Decisiones, Extensión y Límites
 
 - **Registro de decisiones**: [ADR-001 — MkDocs Material por defecto](adr/ADR-001-mkdocs-material-por-defecto.md) ·
-  [ADR-002 — Arquetipos con evidencia verificable](adr/ADR-002-arquetipos-con-evidencia.md).
+  [ADR-002 — Arquetipos con evidencia verificable](adr/ADR-002-arquetipos-con-evidencia.md) ·
+  [ADR-003 — Zensical por defecto (propuesto)](adr/ADR-003-zensical-por-defecto.md).
 - **Extensión soportada**: añadir un arquetipo (prompt nuevo en `.github/prompts/` +
   registro en `DOCUMENTATION_STANDARD.md`), un agente (`.github/agents/` + `AGENTS.md`),
   un slash command (`.claude/commands/` + tabla en `CLAUDE.md`) o un script determinista

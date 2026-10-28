@@ -42,8 +42,9 @@ recomendable la migración. Puede consultarse información en internet. PLAN y A
 | F1 | `feat(build): pipeline sin hooks para construir con Zensical` | `28fd055` | HECHO |
 | F2 | `ci(docs): build de paridad con Zensical (no bloqueante)` | `dd9266d` | HECHO |
 | F3 | `feat(env): check_env informa de Zensical como generador opcional` | `767e97b` | HECHO |
-| F4 | `test(docs): guardas de compatibilidad con Zensical` | (este commit) | HECHO |
-| F5-F12 | ver `02_PLAN_FASES.md` | — | PENDIENTE |
+| F4 | `test(docs): guardas de compatibilidad con Zensical` | `d7b89f6` | HECHO |
+| F5 | `docs(adr): ADR-003 Zensical como generador por defecto (propuesto)` | (este commit) | HECHO |
+| F6-F12 | ver `02_PLAN_FASES.md` | — | PENDIENTE |
 
 ### F1 — verificación
 - DoD local (`.venv`, Python 3.14): ruff, format, mypy, pytest **177**, drift 0, matrix
@@ -76,6 +77,14 @@ recomendable la migración. Puede consultarse información en internet. PLAN y A
 - Mutaciones (revertidas tras comprobarlas): plugin `git-revision-date` añadido →
   falla la guarda de plugins; `use_directory_urls: false` → falla la de enlaces (`../` sale de
   `site/`, el caso previsto para F10); nombre de ZIP cambiado en `downloads.md` → falla.
+
+### F5 — verificación
+- ADR-003 MADR 4.0 FULL (5 secciones) con C1-C5; ADR-001 conserva ACEPTADO y enlaza la propuesta.
+- Ajuste del plan: en F8 ADR-001 pasa a `REEMPLAZADO POR ADR-003` (vocabulario de
+  `architecture_doc.prompt.md`), no "SUSTITUIDO".
+- Nav + `llms.txt` (+1 entrada); re-sellado por `mkdocs.yml` de `api/archetypes`,
+  `api/document_project`, `functional/build_docs_zip` y `reference/index` (contenido no afectado).
+- DoD completa en verde; el ADR se genera con MkDocs y con Zensical.
 
 ## Veredicto final
 Veredicto: F0-F5, F11 GO · F6 GO_CONDICIONAL (C6, C7) · F7 gate 0.1 · F8 gate C2-C5 ·

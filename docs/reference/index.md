@@ -5,7 +5,7 @@ fuentes:
   .github/workflows/docs-zip-release.yml: 20d18f9f3c59
   CLAUDE.md: a167ad648656
   hooks/sync_root_docs.py: ef5e576436c6
-  mkdocs.yml: 417c1a6602da
+  mkdocs.yml: 2a7d695ddd8d
   mkdocs_hooks.py: 2f510611cb6f
   scripts/build_docs_zip.py: b9a2694d122f
   scripts/check_env.py: a30937ae040f
