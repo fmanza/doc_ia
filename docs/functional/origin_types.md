@@ -1,7 +1,7 @@
 ---
 arquetipo: "1"
 fuentes:
-  .github/DOCUMENTATION_STANDARD.md: 550ceb9e28bc
+  .github/DOCUMENTATION_STANDARD.md: 40584ca88ec3
   .github/prompts/document_project.prompt.md: eb1288bb24e5
 revisado: 2026-10-28
 ---

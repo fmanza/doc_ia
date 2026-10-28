@@ -92,6 +92,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
   plugins PDF/XLS); `pywin32` solo en Windows (`sys_platform == "win32"`), lo que permite instalarlo
   en Linux/macOS. `requirements-docs.txt` y `requirements-dev.txt` alineados con sus versiones.
 - `check_env.py`: la ayuda de plugins de markitdown incluye `pdfminer.six`.
+- `doc_trace.py stamp --source`: `CLAUDE.md`, la norma §3.16 y las páginas `api`/`reference` aclaran que
+  `--source` sustituye la lista entera de fuentes; para re-sellar se usa `stamp <página>` sin él.
 
 ### Fixed
 

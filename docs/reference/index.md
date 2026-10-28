@@ -3,7 +3,7 @@ arquetipo: "12"
 fuentes:
   .claude/settings.json.example: e1c10842aa20
   .github/workflows/docs-zip-release.yml: 09d54c255eb8
-  CLAUDE.md: b6c5605fe488
+  CLAUDE.md: 301a256778f8
   hooks/sync_root_docs.py: ef5e576436c6
   mkdocs.yml: 66d3b81c502c
   mkdocs_hooks.py: 2f510611cb6f
@@ -99,7 +99,7 @@ python scripts/doc_trace.py [--root DIR] {drift,stamp,matrix,llms} [opciones]
 | `--root` | ruta | raíz del repositorio | Base para resolver las fuentes del frontmatter (global, antes del subcomando) |
 | `drift --docs` | ruta | `docs` | Carpeta donde buscar páginas con frontmatter `fuentes` |
 | `stamp <páginas…>` | rutas (obligatorio) | — | Páginas a sellar |
-| `stamp --source` | ruta (repetible) | fuentes actuales del frontmatter | Ficheros de los que deriva la página |
+| `stamp --source` | ruta (repetible) | fuentes actuales del frontmatter | Ficheros de los que deriva la página; si se indica, **sustituye** la lista entera |
 | `stamp --archetype` | cadena | el actual del frontmatter | Arquetipo de la página (`1`, `1-I`, `2`, `12`…) |
 | `stamp --date` | `YYYY-MM-DD` | hoy | Fecha `revisado` |
 | `matrix --docs` | ruta | `docs` | Se leen los `AC-xx` de `<docs>/functional/*.md` |

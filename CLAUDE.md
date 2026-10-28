@@ -239,7 +239,8 @@ python scripts/build_docs_zip.py     # ZIP offline con SHA256
 python scripts/doc_trace.py drift    # Páginas cuyas fuentes de código han cambiado
 python scripts/doc_trace.py matrix   # Criterios de aceptación ↔ tests reales
 python scripts/doc_trace.py llms     # Regenera docs/llms.txt desde el nav
-python scripts/doc_trace.py stamp <página> --source <ruta>  # Sella huellas tras editar una página
+python scripts/doc_trace.py stamp <página>  # Re-sella las fuentes actuales tras revisar una página
+python scripts/doc_trace.py stamp <página> --source <ruta>…  # Primer sellado: --source SUSTITUYE la lista entera
 python scripts/convert_to_md.py <ruta>                            # Convierte a Markdown con docling (default) en <ruta>/md/
 python scripts/convert_to_md.py <ruta> --engine markitdown        # Convierte con markitdown (sin docling)
 python scripts/convert_to_md.py <ruta> --engine pandoc            # Convierte con pandoc (DOC/ODT/RST/TEX)

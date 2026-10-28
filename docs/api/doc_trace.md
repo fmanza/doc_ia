@@ -55,7 +55,7 @@ ejercitan con repositorios temporales sin red ni git.
 | `--root` | `Path` | Raíz del repositorio (opción global, antes del subcomando) | Por defecto, el padre de `scripts/` |
 | `drift --docs` | `Path` | Carpeta de documentación | Por defecto `docs/` |
 | `stamp pages` | `Path` (1..n) | Páginas a sellar | Deben existir |
-| `stamp --source` | `str` (repetible) | Fuente relativa a `--root` | Dentro del repositorio y existente; si se omite, se reutilizan las del frontmatter |
+| `stamp --source` | `str` (repetible) | Fuente relativa a `--root` | Dentro del repositorio y existente; si se omite, se reutilizan las del frontmatter; si se indica, sustituye la lista completa (no añade) |
 | `stamp --archetype` / `--date` | `str` | Arquetipo y fecha `YYYY-MM-DD` | Por defecto, el arquetipo actual y la fecha del día |
 | `matrix --docs` / `--tests` / `--output` | `Path` | Carpetas de docs y tests; fichero de salida opcional | Lee `--docs/functional/*.md` (no recursivo) |
 | `llms --config` / `--output` / `--site-url` / `--check` | `Path` / `str` / flag | Configuración MkDocs, destino, URL base, modo comprobación | Por defecto `mkdocs.yml`, `docs/llms.txt` y `site_url` del config |
