@@ -196,6 +196,14 @@ def test_collect_files_engine_filter(tmp_path: Path) -> None:
     assert not any(p.suffix == ".png" for p in pandoc_result)
 
 
+def test_collect_files_skips_existing_markdown(tmp_path: Path) -> None:
+    """Un .md del origen ya es legible: ningún motor debe reconvertirlo."""
+    (tmp_path / "README.md").write_text("# Ya es Markdown\n", encoding="utf-8")
+    (tmp_path / "doc.pdf").write_bytes(b"%PDF-1.4")
+    for engine in ("docling", "markitdown", "pandoc"):
+        assert not any(p.suffix == ".md" for p in collect_files(tmp_path, engine))
+
+
 # --- output_path ---
 
 

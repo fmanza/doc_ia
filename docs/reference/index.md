@@ -9,7 +9,7 @@ fuentes:
   mkdocs_hooks.py: 2f510611cb6f
   scripts/build_docs_zip.py: 0b48091d8aa9
   scripts/check_env.py: 5a2a60e20da2
-  scripts/convert_to_md.py: a1636c5b204b
+  scripts/convert_to_md.py: f83b67fcc7be
   scripts/doc_trace.py: a1824b159937
   scripts/start-server.py: ec67386821f7
 revisado: 2026-10-28

@@ -1,8 +1,8 @@
 ---
 arquetipo: "2"
 fuentes:
-  scripts/convert_to_md.py: a1636c5b204b
-  tests/test_convert_to_md.py: 42d0d78e54a6
+  scripts/convert_to_md.py: f83b67fcc7be
+  tests/test_convert_to_md.py: 10a39c214291
 revisado: 2026-10-28
 ---
 # convert_to_md
@@ -179,14 +179,14 @@ Verificar entorno: `python scripts/check_env.py` (reporta disponibilidad de docl
 
 ## 6. Verificación y Tests
 
-72 tests en `tests/test_convert_to_md.py`, agrupados por prefijo:
+74 tests en `tests/test_convert_to_md.py`, agrupados por prefijo:
 
 | Test | Qué verifica | Tipo |
 |---|---|---|
 | `test_validate_*` (14, excluye `test_validate_only_*`) | `validate_file`: fichero vacío o inexistente, cabeceras PDF/PNG/JPEG, ZIP de DOCX/XLSX, audio < 1 KB, texto plano | unitario |
 | `test_validate_only_*` (4) | `_validate_only_report`: todo válido, fichero inválido, motor no instalado, sin crear `md/` | unitario |
 | `test_main_validate_only_no_files` (1) | `main` con `--validate-only` y sin ficheros convertibles devuelve `0` | integración |
-| `test_collect_files_*` (6) | `collect_files`: fichero único, no convertible, directorio, anidado, exclusión de `md/`, filtro por motor | unitario |
+| `test_collect_files_*` (7) | `collect_files`: fichero único, no convertible, directorio, anidado, exclusión de `md/`, filtro por motor, `.md` del origen nunca se recoge | unitario |
 | `test_output_path_*` (2) | `output_path`: estructura plana y anidada | unitario |
 | `test_convert_file_*` (10) | `convert_file`: omisión si existe, inválido, `--dry-run` por motor, motor no instalado, formato no soportado, `--force` | unitario |
 | `test_prefilter_*` (3) | Pre-filtro del batch docling: omite existentes, rechaza inválidos, `--dry-run` | unitario |
@@ -225,4 +225,4 @@ python -m pytest tests/test_convert_to_md.py -q
     | `_detect_device` solo se llama con docling y sin `--dry-run` | `scripts/convert_to_md.py::main` | ✅ |
     | Componentes de motor, validación, CUDA, chunking y metadata | `scripts/convert_to_md.py::_convert_with_docling`, `::_convert_batch_docling`, `::_convert_with_markitdown`, `::_convert_with_pandoc`, `::_validate_only_report`, `::_cuda_available`, `::_run_chunking`, `::_build_metadata_basic`, `::_format_frontmatter` | ✅ |
     | Dependencias docling, markitdown, pandoc, `nvidia-smi` | `scripts/convert_to_md.py::engine_available`, `::_cuda_available` | ✅ |
-    | Grupos de tests del §6 | `tests/test_convert_to_md.py` (72 tests recogidos por pytest) | ✅ |
+    | Grupos de tests del §6 | `tests/test_convert_to_md.py` (74 tests recogidos por pytest) | ✅ |

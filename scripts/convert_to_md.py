@@ -63,7 +63,6 @@ DOCLING_EXTENSIONS: frozenset[str] = frozenset(
         ".webp",
         ".eml",
         ".msg",
-        ".md",
         ".tex",
         ".latex",
         ".wav",

@@ -1,8 +1,8 @@
 ---
 arquetipo: "1"
 fuentes:
-  scripts/convert_to_md.py: a1636c5b204b
-  tests/test_convert_to_md.py: 42d0d78e54a6
+  scripts/convert_to_md.py: f83b67fcc7be
+  tests/test_convert_to_md.py: 10a39c214291
 revisado: 2026-10-28
 ---
 # Conversión de Documentos a Markdown (`convert_to_md`)
@@ -112,6 +112,7 @@ resultado global sea fallo; el resto de ficheros se convierte igualmente.
 
 - No resume, traduce ni interpreta el contenido: solo cambia el formato.
 - No borra los `.md` de ficheros que ya no existen en el origen.
+- No reconvierte los `.md` que ya existen en el origen: el Markdown ya es legible por el agente.
 - No detecta si un original cambió después de convertirlo: si su `.md` existe, se omite
   (usar `--force` para regenerar).
 
@@ -149,6 +150,7 @@ resultado global sea fallo; el resto de ficheros se convierte igualmente.
 | AC-10 | El motor elegido no está instalado | Se convierte un fichero | La conversión de ese fichero falla | `tests/test_convert_to_md.py::test_convert_file_docling_not_installed`, `tests/test_convert_to_md.py::test_convert_file_markitdown_not_installed`, `tests/test_convert_to_md.py::test_convert_file_pandoc_not_installed` |
 | AC-11 | `--chunk`, `--batch-size >1` o `--workers >1` con un motor distinto de docling | Se lanzan las opciones | Se rechazan antes de convertir | `tests/test_convert_to_md.py::test_parse_args_chunk_requires_docling`, `tests/test_convert_to_md.py::test_parse_args_batch_requires_docling`, `tests/test_convert_to_md.py::test_parse_args_workers_requires_docling` |
 | AC-12 | Un origen que no existe | Se ejecuta la conversión | Se informa del error y termina con fallo (código 1) | Sin test |
+| AC-13 | Un origen con ficheros `.md` además de documentos convertibles | Se recogen los ficheros a convertir con cualquier motor | Los `.md` del origen no se incluyen | `tests/test_convert_to_md.py::test_collect_files_skips_existing_markdown` |
 
 Verificación: `python -m pytest tests/test_convert_to_md.py -q`.
 
@@ -191,3 +193,4 @@ Verificación: `python -m pytest tests/test_convert_to_md.py -q`.
     | AC-10 | `scripts/convert_to_md.py::convert_file` | ⚠️ (el mensaje con alternativas de `main` no está cubierto) |
     | AC-11 | `scripts/convert_to_md.py::_parse_args` | ✅ |
     | AC-12 | `scripts/convert_to_md.py::main` | ✅ |
+    | AC-13 | `scripts/convert_to_md.py::DOCLING_EXTENSIONS`, `::collect_files` | ✅ |
