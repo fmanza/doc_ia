@@ -47,6 +47,7 @@ Estandarizar instrucciones de documentación para asegurar:
 | **Prompt: functional_doc** | `.github/prompts/functional_doc.prompt.md` | ✅ Existente |
 | **Prompt: technical_doc** | `.github/prompts/technical_doc.prompt.md` | ✅ Existente |
 | **Prompt: landing_doc** | `.github/prompts/landing_doc.prompt.md` | ✅ Existente |
+| **Prompt: reference_doc** | `.github/prompts/reference_doc.prompt.md` | ✅ Existente (Arq. 12, 2026-10-28) |
 | **Prompt: documentation_review** | `.github/prompts/documentation_review.prompt.md` | ✅ Existente |
 
 ### 2.4 Gaps Actuales
@@ -67,34 +68,49 @@ Estandarizar instrucciones de documentación para asegurar:
 
 **Ubicación**: `docs/functional/[módulo].md`
 
-**Estructura obligatoria** (secciones numeradas, en este orden):
+**Prompt**: `.github/prompts/functional_doc.prompt.md` (fuente operativa; esta estructura es su espejo).
+
+**Estructura obligatoria** (8 secciones numeradas, en este orden):
 
 ```
 # [Título del Módulo/Funcionalidad]
 
-## 1. Descripción General
-Contexto de negocio y objetivo (2-3 párrafos, sin jerga técnica).
+## 1. Objetivo y Descripción
+Contexto de negocio y objetivo (2-3 párrafos, sin jerga técnica ni rutas de código).
 
-## 2. Reglas de Negocio
+## 2. Precondiciones
+Lista: herramientas, parámetros, ficheros o estado requeridos antes de usar la funcionalidad.
+
+## 3. Flujo Principal
+Diagrama Mermaid (sequenceDiagram o stateDiagram-v2, máx. 12 nodos) + párrafo paso a paso.
+
+## 4. Postcondiciones y Efectos
+Estado observable tras la operación: ficheros creados/modificados, artefactos, estado persistido.
+
+## 5. Reglas de Negocio
 Tabla: | Regla | Descripción | Impacto si se viola |
 
-## 3. Casos de Uso
-### Flujo principal
-Diagrama Mermaid sequenceDiagram (actor → módulo → salida).
-### Flujos alternativos y de error
-Variantes y casos de error verificables. Si no hay, "No aplica para este módulo."
+## 6. Límites, Flujos Alternativos y Casos Especiales
+### Qué NO hace esta funcionalidad
+### Flujos alternativos
+### Casos especiales
 
-## 4. Criterios de Aceptación      ← EJECUTABLE — derivar del código real
+## 7. Criterios de Aceptación      ← EJECUTABLE — derivar del código real
 Tabla: | ID | Dado | Cuando | Entonces |
-Derivar los criterios del código cuando sea posible (mismo formato que
-functional_doc.prompt.md §7). Cerrar con el comando de verificación real.
 Subsección "Pendiente de validación QA" SOLO para criterios no derivables
 del código (fallback, no primera opción); si no hay, omitirla.
 
-## 5. Glosario y Términos
+## 8. Glosario de Dominio
 Tabla: | Término | Definición |
-Si no hay términos específicos: "No aplica para este módulo."
+
+??? note "Evidencia"          ← bloque plegable final, sin número (§3.16)
 ```
+
+> **Cambio respecto a v1** (2026-10-28): la norma definía 5 secciones mientras el prompt ya
+> aplicaba 8. Se alinea la norma con el prompt (más información funcional). Las páginas
+> generadas con la estructura v1 (5 secciones) siguen siendo válidas en transición y se migran
+> al actualizarse. Mapeo v1→v2: Descripción General→§1 · Reglas→§5 · Casos de Uso→§3+§6 ·
+> Criterios→§7 · Glosario→§8; §2 Precondiciones y §4 Postcondiciones se derivan del código.
 
 **Regla de sección vacía**: Si un subapartado queda vacío, escribe `*No aplica para este módulo.*` — nunca omitas la sección.
 
@@ -129,6 +145,8 @@ de prescripción en docs.instructions.md.
 ## 2. Modelo de Datos / Contratos
 ### API pública
 Tabla: | Función/Clase | Firma simplificada | Descripción | Retorna |
+Directiva autodoc (`::: paquete.modulo.Clase`) SOLO si el destino tiene mkdocstrings
+o equivalente configurado en el generador; si no, omitirla (se renderizaría como texto).
 ### Contrato de entrada
 Tabla: | Parámetro | Tipo | Descripción | Restricciones |
 ### Contrato de salida
@@ -146,7 +164,16 @@ Tabla: | Dependencia | Propósito | Requerida | Comportamiento sin ella |
 ## 5. Ejemplos Relacionados      ← OBLIGATORIO (enlace bidireccional con Arquetipo 4 §5)
 Lista de enlaces a docs/examples/ con descripción de lo que ilustra cada uno.
 Si no existe ningún ejemplo del módulo: "Pendiente — crear ejemplo en docs/examples/[nombre].md"
+
+??? note "Evidencia"          ← bloque plegable final, sin número (§3.16)
 ```
+
+**Prompt**: `.github/prompts/technical_doc.prompt.md`.
+
+**Delimitación con el Arquetipo 12**: el Arquetipo 2 documenta la **API interna de un módulo**
+(quien integra código). La superficie que ve el usuario u operador de todo el sistema (CLI,
+configuración, códigos de salida, interfaces publicadas) pertenece al Arquetipo 12 (§3.15);
+el Arquetipo 2 la enlaza, no la duplica.
 
 **Regla de sección vacía**: Si un subapartado queda vacío, escribe `*No aplica para este módulo.*`.
 
@@ -318,7 +345,7 @@ Estas páginas entran directamente en `nav:` (nivel raíz), no bajo `functional/
 
 - **Variante A — Inicio**: Identidad y Propósito → Capacidades → Quick Start → Mapa de la Documentación → Compatibilidad y Soporte.
 - **Variante B — Instalación**: Requisitos → Instalación del Paquete → Drivers por Motor → Verificación → Solución de Problemas.
-- **Variante C — Arquitectura** (modelo **arc42-lite + C4**): Visión General y Objetivos de Calidad (C4 nivel 1) → Mapa de Módulos / Building Blocks (C4 nivel 3) → Flujo en Ejecución (Runtime) → Conceptos Transversales y Estándares No Funcionales (checklist NFR) → Decisiones, Extensión y Límites (enlace a `docs/adr/`).
+- **Variante C — Arquitectura** (modelo **arc42-lite + C4**): Visión General y Objetivos de Calidad (C4 nivel 1) → Mapa de Módulos / Building Blocks (C4 nivel 3) → Flujo en Ejecución (Runtime) y Despliegue (arc42 §6+§7; Despliegue condicional, alimentado por material `INFRAESTRUCTURA` y `.github/workflows/`) → Conceptos Transversales y Estándares No Funcionales (checklist NFR + 3–5 escenarios de calidad, arc42 §10) → Decisiones, Extensión y Límites (enlace a `docs/adr/`).
 - **Variante D — Quick Start**: Prerequisito mínimo → Primer comando → Primer resultado visible → Siguiente paso sugerido. Objetivo: tiempo hasta la primera experiencia exitosa < 5 min. Ubicación: `docs/quickstart.md`. Audiencia: visitante que llega por primera vez y quiere ver el producto funcionando antes de leer la documentación completa. No sustituye a la Variante B (instalación detallada); enlaza a ella al final.
 
 **Distinción con otros arquetipos**:
@@ -507,13 +534,13 @@ Cuando `/document-project` recibe más de un `Origen`, o cuando el único origen
 
 | Tipo | Señales de detección | Tratamiento documental |
 |------|---------------------|----------------------|
-| `CÓDIGO` | Archivos fuente (`.py`, `.js`, `.ts`, `.cs`, `.java`, `.go`, `.rs`, …), `pyproject.toml`, `package.json`, `pom.xml`, `Cargo.toml`, `go.mod`, `src/`, `tests/` | Documentar como proyecto: inventario completo + arquetipos 1–7 |
+| `CÓDIGO` | Archivos fuente (`.py`, `.js`, `.ts`, `.cs`, `.java`, `.go`, `.rs`, …), `pyproject.toml`, `package.json`, `pom.xml`, `Cargo.toml`, `go.mod`, `src/`, `tests/` | Documentar como proyecto: inventario completo + arquetipos 1–7 y 12 (si hay señales) |
 | `NORMATIVA` | PDFs/docs con palabras clave en nombre: `ley`, `decreto`, `directiva`, `rgpd`, `gdpr`, `une`, `iso`, `reglamento`, `compliance` | Activar Arquetipo 8; enriquece §2 (Reglas de Negocio) del Arquetipo 1 del proyecto principal |
 | `ESPECIFICACIÓN` | Word/PDF de requisitos, user stories, pliego, casos de uso; ficheros `.feature` (BDD/Gherkin); carpetas `specs/`, `requirements/`, `ux/`, `user-stories/` | Enriquece Arquetipo 1 §2+§3+§4 del proyecto principal |
 | `UI/PANTALLAS` | Wireframes, mockups, capturas (`.png`, `.jpg`, `.pdf` de diseño); carpetas `mockups/`, `screens/`, `wireframes/`, `figma-exports/` | Enriquece Arquetipo 1 §3 (Casos de Uso) y Arquetipo 3 (Guías) |
 | `REFERENCIA` | Manuales de terceros, RFCs, especificaciones de protocolo **ajenas al proyecto** | Enriquece Arquetipo 2 §4 (Dependencias) o Arquetipo 5 (ADR) |
-| `CONTRATO` | Especificaciones machine-readable de las APIs/datos del **propio proyecto**: `.yaml`/`.json` con clave `openapi:` o `asyncapi:`; `.graphql`/`.gql`; `.proto`; `.avsc`; `.sql` DDL en `db/`/`migrations/`; `.dbml`; carpetas `api/`, `contracts/`, `schemas/`, `proto/` | Enriquece Arquetipo 2 §1 (Arquitectura) y §2 (Modelo de Datos / Contratos) |
-| `INFRAESTRUCTURA` | IaC y despliegue: `.tf`; `Dockerfile`, `docker-compose.yml`; YAML en `k8s/`, `deploy/`, `manifests/`, `helm/`; playbooks Ansible; CloudFormation en `cloudformation/` | Enriquece Arquetipo 2 §4 (Dependencias) y Arquetipo 6C (Arquitectura — vista despliegue) |
+| `CONTRATO` | Especificaciones machine-readable de las APIs/datos del **propio proyecto**: `.yaml`/`.json` con clave `openapi:` o `asyncapi:`; `.graphql`/`.gql`; `.proto`; `.avsc`; `.sql` DDL en `db/`/`migrations/`; `.dbml`; carpetas `api/`, `contracts/`, `schemas/`, `proto/` | Enriquece Arquetipo 2 §1 (Arquitectura) y §2 (Modelo de Datos / Contratos) y Arquetipo 12 §5 (Interfaces Publicadas) |
+| `INFRAESTRUCTURA` | IaC y despliegue: `.tf`; `Dockerfile`, `docker-compose.yml`; YAML en `k8s/`, `deploy/`, `manifests/`, `helm/`; playbooks Ansible; CloudFormation en `cloudformation/` | Enriquece Arquetipo 2 §4 (Dependencias) y Arquetipo 6C §3 › Despliegue |
 | `MANUAL` | Documentación narrativa del **propio proyecto**: `.pdf`, `.docx`, `.md` con `manual`/`guide`/`runbook`/`ayuda`/`help` en nombre; carpetas `manuals/`, `help/`, `user-docs/`; `.chm` | Enriquece Arquetipos 3a §3, 3b §3, 6A/B §1 (Descripción) y 7 §3+§5 |
 
 **Regla**: la autodetección propone el tipo; el usuario confirma antes de continuar al INVENTARIO. Nunca se asume el tipo sin confirmación.
@@ -528,8 +555,8 @@ Cuando `/document-project` recibe más de un `Origen`, o cuando el único origen
 | `ESPECIFICACIÓN` | 1 (proyecto principal) | §2 Reglas de Negocio, §3 Casos de Uso, §4 Criterios de Aceptación |
 | `UI/PANTALLAS` | 1 + 3 | Arq. 1 §3 Casos de Uso; Arq. 3 §3 Pasos |
 | `REFERENCIA` | 2 o 5 | Arq. 2 §4 Dependencias; o Arq. 5 (decisión ADR) |
-| `CONTRATO` | 2 (proyecto principal) | §1 Arquitectura (interfaces publicadas); §2 Modelo de Datos / Contratos |
-| `INFRAESTRUCTURA` | 2 + 6 | Arq. 2 §4 Dependencias y Requisitos; Arq. 6C §3 (vista despliegue) |
+| `CONTRATO` | 2 + 12 (proyecto principal) | Arq. 2 §1 Arquitectura y §2 Modelo de Datos / Contratos; Arq. 12 §5 Interfaces Publicadas |
+| `INFRAESTRUCTURA` | 2 + 6 | Arq. 2 §4 Dependencias y Requisitos; Arq. 6C §3 › Despliegue |
 | `MANUAL` | 3a · 3b · 6 · 7 | Arq. 3a §3 Pasos; Arq. 3b §3; Arq. 6A/B §1; Arq. 7 §3 y §5 |
 
 Los orígenes MATERIAL **no generan páginas propias** en `docs/`; su contenido enriquece las secciones indicadas de los arquetipos del proyecto principal.
@@ -779,6 +806,112 @@ Referencia a SemVer. Quién tiene permisos de release. Enlace a CHANGELOG.md.
 
 ---
 
+### 3.15 Arquetipo 12 — Referencia del Sistema (`docs/reference/`)
+
+**Propósito**: Responder "¿Qué opciones, comandos, códigos e interfaces expone el sistema?"
+
+**Diátaxis**: cuadrante *Reference* — se consulta, no se lee de principio a fin.
+
+**Audiencia**: usuarios, operadores e integradores que necesitan un dato concreto (una clave
+de configuración, una opción de CLI, el significado de un código de salida).
+
+**Ubicación**: `docs/reference/index.md` (página única por defecto); `docs/reference/[ámbito].md`
+cuando la página supere ~300 líneas.
+
+**Prompt**: `.github/prompts/reference_doc.prompt.md`
+
+**Condición de activación**: el INVENTARIO detecta al menos una señal — lecturas de entorno o
+ficheros de configuración, parsers de CLI / `[project.scripts]`, `sys.exit(n)` o excepciones
+públicas, colas/webhooks/hooks, o material `CONTRATO`. Sin señales → no aplica y
+`docs/reference/` no se crea.
+
+**Estructura obligatoria** (secciones numeradas, en este orden):
+
+```
+# Referencia — [Nombre del sistema o ámbito]
+
+[Una frase: superficie cubierta y audiencia.]
+
+## 1. Configuración
+Tabla: | Clave | Origen | Tipo | Por defecto | Descripción |
+Secretos: nombre, tipo y obligatoriedad; nunca el valor.
+
+## 2. CLI y Comandos
+Una subsección ### por comando: sinopsis fenced + | Opción / Argumento | Tipo | Por defecto | Descripción |
+
+## 3. Errores y Códigos de Salida
+Tabla: | Código / Error | Origen | Cuándo ocurre | Acción recomendada |
+
+## 4. Eventos y Mensajes
+Tabla: | Evento / Mensaje | Productor | Consumidor | Payload / formato |
+
+## 5. Interfaces Publicadas
+Tabla: | Interfaz | Tipo | Contrato fuente | Descripción |
+
+??? note "Evidencia"          ← bloque plegable final, sin número (§3.16)
+```
+
+**Regla de sección vacía**: `*No aplica para este sistema.*` — nunca omitir la sección.
+
+**Delimitación con el Arquetipo 2**: ver §3.2. Regla práctica: si el dato lo consulta quien
+**ejecuta u opera** el sistema → Arquetipo 12; si lo consulta quien **integra o mantiene código**
+de un módulo → Arquetipo 2.
+
+**Sección MkDocs** (solo si el arquetipo aplica):
+
+```yaml
+- Referencia del Sistema: reference/index.md   # Tras "Referencia Técnica" (api/), antes de "Ejemplos"
+```
+
+---
+
+### 3.16 Evidencia y Confianza (transversal a todos los arquetipos)
+
+**Propósito**: que cada afirmación documental sea verificable contra el código y que el lector
+distinga lo verificado de lo inferido. Generaliza la leyenda del Arquetipo 8 a todo el estándar.
+
+**Aplica a**: Arquetipos 1, 2 y 12 (obligatorio) y Variante 6C §3–§4 (escenarios y despliegue).
+El resto de arquetipos puede usarlo de forma opcional.
+
+**Leyenda de confianza** (la misma del Arquetipo 8):
+
+| Símbolo | Significado | Cuándo se escribe |
+|---|---|---|
+| ✅ | Verificado en código, configuración o test | Implícito en el cuerpo; explícito solo en el bloque "Evidencia" |
+| ⚠️ | Parcial — verificado con gap conocido | Al final de la celda o frase afectada |
+| 🔍 | Inferido — evidencia insuficiente | Al final de la celda o frase afectada |
+| ❌ | Gap — documentado pero sin respaldo en el código | Al final de la celda o frase afectada |
+
+**Bloque "Evidencia"** — al final de la página, plegable y **sin número de sección** (no altera
+la numeración de los arquetipos):
+
+```markdown
+??? note "Evidencia"
+
+    | Elemento | Fuente | Confianza |
+    |---|---|---|
+    | Regla «herramientas obligatorias» | `scripts/check_env.py::REQUIRED_TOOLS` | ✅ |
+    | AC-03 | `scripts/build_docs_zip.py::main` | ⚠️ |
+```
+
+**Reglas de cita**:
+
+1. Formato por defecto `ruta::símbolo` (función, clase, clave de configuración, job de CI);
+   `ruta:línea` solo cuando no haya símbolo estable. Las líneas caducan con cualquier edición.
+2. Siempre como **código inline**, nunca como enlace Markdown: las rutas fuera de `docs/`
+   rompen `mkdocs build --strict` y no existen en el sitio publicado.
+3. Citar la **ubicación**, nunca el contenido de secretos, tokens ni URLs internas.
+4. Rutas relativas a la raíz del origen documentado; con varios orígenes CÓDIGO, prefijar con
+   el nombre del proyecto (`api_core/src/x.py::f`).
+5. En el Arquetipo 1 las rutas solo aparecen dentro del bloque "Evidencia" (el cuerpo sigue
+   sin jerga técnica).
+
+**Revisión**: el Documentation Reviewer marca como hallazgo (a) una regla, contrato, error o
+criterio de aceptación sin fila en "Evidencia", (b) una cita a un símbolo inexistente y
+(c) una fila ✅ cuya fuente no respalda la afirmación.
+
+---
+
 ## 4. Configuración Recomendada mkdocs.yml
 
 La siguiente configuración es la **referencia estándar** para todos los proyectos.
@@ -890,6 +1023,9 @@ nav:
   - Referencia Técnica:
       - [Área de dominio]:
           - [Nombre módulo]: api/[modulo].md
+
+  # ── Audiencia: usuarios y operadores (Arquetipo 12, condicional) ────────────
+  - Referencia del Sistema: reference/index.md
 
   # ── Ejemplos de código ──────────────────────────────────────────────────────
   - Ejemplos:
@@ -1135,6 +1271,8 @@ La estandarización se considera **completa** cuando:
 - [ ] Si hay releases: `CHANGELOG.md` sigue el estándar Keep a Changelog (Arquetipo 9) y tiene entrada `[Unreleased]`
 - [ ] Si hay ≥1 plataforma IA configurada: existe `docs/ai-config/[plataforma].md` derivado del fichero fuente real (Arquetipo 10)
 - [ ] Si el proyecto acepta contribuciones: `CONTRIBUTING.md` existe en raíz y enlaza desde README (Arquetipo 11)
+- [ ] Si el sistema expone configuración, CLI, códigos de salida o interfaces: existe `docs/reference/` (Arquetipo 12)
+- [ ] Las páginas de los Arquetipos 1, 2 y 12 terminan con el bloque plegable "Evidencia" y sus citas usan `ruta::símbolo` en código inline (§3.16)
 
 ---
 

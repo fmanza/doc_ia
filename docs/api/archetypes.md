@@ -1,12 +1,12 @@
 # archetypes
 
-Sistema de once arquetipos de documentación (más variante 3b) con estructura fija, audiencia definida y ubicación establecida que garantiza coherencia y auditabilidad en todos los proyectos documentados con doc_ia. Los arquetipos 1–8 son la base; 3b y 9–11 son las adiciones 2024-2025.
+Sistema de doce arquetipos de documentación (más variante 3b) con estructura fija, audiencia definida y ubicación establecida que garantiza coherencia y auditabilidad en todos los proyectos documentados con doc_ia. Los arquetipos 1–8 son la base; 3b y 9–11 son las adiciones 2024-2025; el 12 y la regla transversal de evidencia (`DOCUMENTATION_STANDARD.md` §3.16) son las adiciones 2026.
 
 ## 1. Arquitectura y Diseño
 
 ```mermaid
 flowchart TD
-    DS[DOCUMENTATION_STANDARD.md\n§3 — define 11 arquetipos + 3b] --> P[Prompts por arquetipo\n.github/prompts/]
+    DS[DOCUMENTATION_STANDARD.md\n§3 — define 12 arquetipos + 3b] --> P[Prompts por arquetipo\n.github/prompts/]
     P --> AG[Documentation Generator\nagent — orquesta los prompts]
     AG --> DP[document_project\nflujo de entrada único]
 
@@ -22,6 +22,7 @@ flowchart TD
     DS --> A9[Arq. 9 — Changelog\nchangelog.prompt.md]
     DS --> A10[Arq. 10 — Config IA\nai_config_doc.prompt.md]
     DS --> A11[Arq. 11 — Contribución\ncontributing_doc.prompt.md]
+    DS --> A12[Arq. 12 — Referencia\nreference_doc.prompt.md\nCONDICIONAL]
 
     A2 <-->|enlace bidireccional §5| A4
 ```
@@ -44,6 +45,7 @@ flowchart TD
 | **9 — Changelog** *(opt-in)* | `changelog.prompt.md` | `CHANGELOG.md` (raíz) | ¿Qué cambió en cada versión? |
 | **10 — Config Agente IA** | `ai_config_doc.prompt.md` | `docs/ai-config/` | ¿Cómo está configurado el agente IA? |
 | **11 — Guía de Contribución** *(opt-in)* | `contributing_doc.prompt.md` | `CONTRIBUTING.md` (raíz) | ¿Cómo contribuyo al proyecto? |
+| **12 — Referencia del Sistema** *(condicional)* | `reference_doc.prompt.md` | `docs/reference/` | ¿Qué configuración, comandos y códigos expone? |
 
 ### Contrato de entrada
 
@@ -65,6 +67,8 @@ Cada arquetipo produce un archivo Markdown con las secciones numeradas obligator
 | Enlace bidireccional Arg. 2 §5 → Arg. 4 aún sin crear | Escribir marcador "Pendiente — crear ejemplo en docs/examples/..." |
 | Arquetipo 8 invocado sin normativa de referencia | No aplica: el Arquetipo 8 solo se genera si el origen referencia normativa de obligado cumplimiento |
 | Arquetipo 9 o 11 no generados tras `/document-project` | Comportamiento esperado: son opt-in y no se incluyen por defecto; solicitarlos con `Arquetipos: changelog` o `Arquetipos: contribución` |
+| Arquetipo 12 sin señales en el inventario (sin configuración, CLI, códigos ni interfaces) | No se genera `docs/reference/` ni su entrada en `nav` |
+| Cita de evidencia a código fuera de `docs/` | Se escribe como código inline (`ruta::símbolo`), nunca como enlace: un enlace rompería `mkdocs build --strict` |
 | Arquetipo 4 sin archivo `.py` de soporte | Para flujos de chat (no Python): usar bloques inline; no se requiere `.py` |
 
 ## 3. Componentes y Clases

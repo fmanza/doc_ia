@@ -47,7 +47,7 @@ si una fase parece requerir generación vía API externa, la respuesta es no —
   de concluir la sesión.
 - **Arquetipos documentales**: prompts formales en `.github/prompts/` (funcional, técnica, how-to,
   tutorial, ejemplos, ADR/MADR 4.0, navegación principal, onboarding, changelog, config IA,
-  contribución) parametrizables por proyecto.
+  contribución, referencia del sistema) parametrizables por proyecto.
 - **Flujo de trabajo canónico**: `PLAN → AUDIT_PLAN → IMPLEMENT → AUDIT_CODE → VERSION` con
   agentes (`.github/agents/`) y slash commands (`.claude/commands/`).
 - **Bootstrap multiplataforma**: `.github/prompts/bootstrap_ai_config.prompt.md` replica este
@@ -73,7 +73,7 @@ doc_ia/
   .github/
     SHARED_INSTRUCTIONS.md   # Este fichero (canónico)
     agents/                  # 12 agentes del flujo de trabajo
-    prompts/                 # Prompts de método + arquetipos documentales (11 activos)
+    prompts/                 # Prompts de método + arquetipos documentales (12 activos)
     instructions/            # Reglas por tipo de archivo (python, sync, docs)
     workflows/               # CI: build y release del ZIP de docs
   .claude/              # Slash commands, hooks, plantillas Claude Code
@@ -200,7 +200,8 @@ El patrón completo consta de **tres señales independientes**; el flujo de
 Toda la documentación pública sigue los **arquetipos formales** de
 `.github/DOCUMENTATION_STANDARD.md`. Arquetipos activos: funcional, técnica, how-to (3a),
 tutorial (3b), ejemplos, ADR/MADR 4.0, navegación + quick start (6), onboarding, trazabilidad
-normativa (condicional), changelog (9), config agente IA (10), guía de contribución (11).
+normativa (condicional), changelog (9), config agente IA (10), guía de contribución (11),
+referencia del sistema (12, condicional). Regla transversal de evidencia y confianza: §3.16.
 Los prompts están en `.github/prompts/*_doc.prompt.md`.
 
 ### 📦 Distribución de documentación offline

@@ -92,7 +92,7 @@ Errores reales de entorno/herramientas/build. Si no hay casos: "*No aplica para 
 (modelo arc42-lite + C4), NO un ADR individual: las decisiones puntuales viven en docs/adr/.]
 
 > Las 5 secciones mapean un subconjunto de arc42: §1≈arc42 1+3 (objetivos+contexto, C4 nivel 1),
-> §2≈arc42 5 (building blocks, C4 nivel 3), §3≈arc42 6 (runtime), §4≈arc42 8+10 (transversal+calidad),
+> §2≈arc42 5 (building blocks, C4 nivel 3), §3≈arc42 6+7 (runtime+despliegue), §4≈arc42 8+10 (transversal+calidad),
 > §5≈arc42 9+11 (decisiones+riesgos).
 
 ## 1. Visión General y Objetivos de Calidad
@@ -113,10 +113,21 @@ Una fila por carpeta de primer nivel verificable.
 Opcionalmente, complementar con un diagrama `mindmap` Mermaid para visualizar la jerarquía
 de módulos cuando el proyecto tiene más de 6 áreas funcionales (no sustituye a la tabla).
 
-## 3. Flujo en Ejecución (Runtime)
+## 3. Flujo en Ejecución (Runtime) y Despliegue
+
+### Runtime
 Diagrama Mermaid (`flowchart TD` o `sequenceDiagram`, máx. 12 nodos) que muestre cómo fluye
 una operación típica (p. ej. usuario → chat IA → prompts de arquetipo → docs/ → mkdocs build → site/).
 Solo componentes que existan en el repositorio.
+
+### Despliegue
+Vista arc42 §7: dónde se ejecuta y se publica cada componente. Fuentes: material
+INFRAESTRUCTURA (Dockerfile, docker-compose, k8s/, .tf, Ansible) y `.github/workflows/`.
+- Diagrama `architecture-beta` o `flowchart LR` (máx. 12 nodos): entornos, nodos y artefactos.
+- Tabla: | Entorno | Infraestructura | Componentes / artefactos | Fuente |
+  (Fuente como código inline `ruta`, nunca como enlace a ficheros fuera de docs/.)
+Si el proyecto no se despliega (librería o tooling local sin publicación):
+"*No aplica para este proyecto.*" con una frase que explique por qué.
 
 ## 4. Conceptos Transversales y Estándares No Funcionales
 Dos bloques:
@@ -126,6 +137,10 @@ Dos bloques:
   Dimensiones mínimas: Seguridad, Observabilidad, Rendimiento, Compatibilidad, Robustez/Errores, Tipado/Calidad.
   Cada fila debe anclarse a un mecanismo REAL del código (no aspiraciones). Usa `- [x]`/`- [ ]`
   para marcar lo ya cubierto vs pendiente.
+- **Escenarios de calidad** (arc42 §10, 3–5 filas, uno por objetivo de calidad de §1):
+  | Objetivo | Estímulo | Respuesta esperada | Mecanismo / evidencia |
+  Respuesta medible u observable (código de salida, tiempo, fichero producido). Sin mecanismo
+  real verificable → marcar la fila con 🔍 y no inventar cifras.
 
 ## 5. Decisiones, Extensión y Límites
 Tres bloques:

@@ -65,7 +65,7 @@ doc_ia/
   hooks/            # sync_root_docs.py: copia CHANGELOG.md/CONTRIBUTING.md a docs/
   mkdocs_hooks.py   # Hook MkDocs: genera ZIP offline en site/ en cada build
   tests/            # Tests pytest (importan scripts/ vía sys.path)
-  docs/             # Sitio MkDocs Material (este sitio, 31 páginas)
+  docs/             # Sitio MkDocs Material (este sitio, 33 páginas)
   .github/          # Canónico, 12 agentes, 25 prompts, 3 instructions, 2 workflows
   .claude/          # 9 slash commands, hooks PostToolUse, plantillas
   .ai/              # Contexto persistente para agentes IA + sesiones trazadas

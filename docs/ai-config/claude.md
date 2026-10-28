@@ -29,7 +29,7 @@ Claude Code lee estos ficheros antes de actuar en el proyecto:
 | `.claude/settings.json` | Permisos explícitos y hooks PostToolUse activos |
 | `.ai/product.md` | Identidad y propósito del producto (contexto de negocio) |
 | `.ai/architecture.md` | Arquitectura técnica del proyecto |
-| `.github/DOCUMENTATION_STANDARD.md` | Especificación de los 11 arquetipos formales |
+| `.github/DOCUMENTATION_STANDARD.md` | Especificación de los 12 arquetipos formales |
 
 ## 3. Comandos y Slash Commands
 

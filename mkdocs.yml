@@ -103,6 +103,9 @@ nav:
           - build_docs_zip: api/build_docs_zip.md
           - convert_to_md: api/convert_to_md.md
 
+  # ── Audiencia: usuarios y operadores del tooling (Arquetipo 12) ───────────
+  - Referencia del Sistema: reference/index.md
+
   # ── Ejemplos de código ─────────────────────────────────────────────────────
   - Ejemplos:
       - Flujos IA:
@@ -132,6 +135,7 @@ nav:
   - Arquitectura:
       - Visión del Sistema: architecture.md
       - ADR-001 — MkDocs Material por defecto: adr/ADR-001-mkdocs-material-por-defecto.md
+      - ADR-002 — Arquetipos con evidencia verificable: adr/ADR-002-arquetipos-con-evidencia.md
 
   - Changelog: changelog.md
   - Contribuir: contributing.md

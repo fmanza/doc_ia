@@ -151,13 +151,13 @@ __pycache__/
 2. **CLASIFICACIÓN DE ORÍGENES** (solo con ≥2 orígenes, o si el único origen no es CÓDIGO)
    - Tabla: | Origen | Tipo detectado | Señales | Rol |
    - Tipos posibles:
-     - `CÓDIGO` — archivos fuente (`.py`, `.js`, `.ts`, `.cs`, `.java`, `.go`, `.rs`, …), `pyproject.toml`, `package.json`, `pom.xml`, `src/`, `tests/` presentes → documentar como proyecto (arquetipos 1–7)
+     - `CÓDIGO` — archivos fuente (`.py`, `.js`, `.ts`, `.cs`, `.java`, `.go`, `.rs`, …), `pyproject.toml`, `package.json`, `pom.xml`, `src/`, `tests/` presentes → documentar como proyecto (arquetipos 1–7, y 12 si hay señales de configuración/CLI/códigos de salida)
      - `NORMATIVA` — PDFs/docs con nombres que contienen `ley`, `decreto`, `directiva`, `rgpd`, `gdpr`, `une`, `iso`, `reglamento` → activar Arquetipo 8; enriquece §2 Arquetipo 1 del proyecto principal
      - `ESPECIFICACIÓN` — Word/PDF de requisitos, user stories, pliego, ficheros `.feature`; carpetas `specs/`, `requirements/`, `ux/` → enriquece Arquetipo 1 §2+§3+§4 del proyecto principal
      - `UI/PANTALLAS` — wireframes, mockups, capturas (`.png`, `.jpg`, `.pdf` de diseño); carpetas `mockups/`, `figma-exports/` → enriquece Arquetipo 1 §3 y Arquetipo 3
      - `REFERENCIA` — manuales de **terceros**, RFCs, especificaciones de protocolo **ajenas al proyecto** → enriquece Arquetipo 2 §4 o Arquetipo 5
-     - `CONTRATO` — especificaciones machine-readable del **propio proyecto**: `openapi:` / `asyncapi:` YAML, `.graphql`, `.proto`, `.sql` DDL, `.dbml`; carpetas `api/`, `schemas/`, `proto/` → enriquece Arquetipo 2 §1 (interfaces) y §2 (contratos/datos)
-     - `INFRAESTRUCTURA` — IaC y despliegue: `.tf`, `Dockerfile`, `docker-compose.yml`, K8s YAML en `k8s/`/`deploy/`/`helm/`, Ansible → enriquece Arquetipo 2 §4 y Arquetipo 6C (vista despliegue)
+     - `CONTRATO` — especificaciones machine-readable del **propio proyecto**: `openapi:` / `asyncapi:` YAML, `.graphql`, `.proto`, `.sql` DDL, `.dbml`; carpetas `api/`, `schemas/`, `proto/` → enriquece Arquetipo 2 §1 (interfaces) y §2 (contratos/datos) y Arquetipo 12 §5 (interfaces publicadas)
+     - `INFRAESTRUCTURA` — IaC y despliegue: `.tf`, `Dockerfile`, `docker-compose.yml`, K8s YAML en `k8s/`/`deploy/`/`helm/`, Ansible → enriquece Arquetipo 2 §4 y Arquetipo 6C §3 › Despliegue
      - `MANUAL` — documentación narrativa del **propio proyecto**: `.pdf`/`.docx`/`.md` con `manual`/`guide`/`runbook`/`ayuda`/`help` en nombre; carpetas `manuals/`, `help/`, `user-docs/` → enriquece Arquetipos 3a §3, 3b §3, 6A/B §1 y 7 §3+§5
    - Si hay ≥2 orígenes `CÓDIGO` → preguntar estrategia (nunca autodetectar):
      - `federado`: cada proyecto documenta de forma independiente (docs/ propio, mkdocs.yml propio)

@@ -31,6 +31,7 @@ Invocaciones directas de arquetipo (código inline — el flujo ocurre en el cha
 #  ¿Qué cambió en cada versión?              → Arq. 9: changelog.prompt.md
 #  ¿Cómo está configurado el agente IA?      → Arq. 10: ai_config_doc.prompt.md
 #  ¿Cómo contribuyo al proyecto?             → Arq. 11: contributing_doc.prompt.md
+#  ¿Qué opciones, comandos y códigos expone? → Arq. 12: reference_doc.prompt.md (condicional)
 ```
 
 **Paso 2 — Invocar el prompt elegido (Arquetipo 1 sobre un módulo Python)**
@@ -97,6 +98,19 @@ Convenciones: .github/SHARED_INSTRUCTIONS.md
 Destino: CONTRIBUTING.md
 Idioma: es
 ```
+
+**Arquetipo 12 — Referencia del Sistema** (una página para todo el sistema, no por módulo)
+
+```
+Lee y aplica .github/prompts/reference_doc.prompt.md
+
+Proyecto: doc_ia
+Puntos de entrada: scripts/*.py, hooks/sync_root_docs.py, mkdocs_hooks.py
+Destino: docs/reference/index.md
+Idioma: es
+```
+
+Resultado real en este sitio: [Referencia del Sistema](../reference/index.md).
 
 **Arquetipo 3b — Tutorial** (experiencia de aprendizaje progresiva sobre un flujo)
 

@@ -89,7 +89,7 @@ Once bloques en el chat, en este orden:
 
 | Dependencia | Propósito | Requerida | Comportamiento sin ella |
 |---|---|---|---|
-| `.github/DOCUMENTATION_STANDARD.md` | Define los 11 arquetipos formales y sus estructuras | Sí | Las fases de generación no tienen plantilla de referencia |
+| `.github/DOCUMENTATION_STANDARD.md` | Define los 12 arquetipos formales y sus estructuras | Sí | Las fases de generación no tienen plantilla de referencia |
 | `.github/instructions/docs.instructions.md` | Reglas operativas (Mermaid, snippets, MkDocs) | Sí | Riesgo de inconsistencias de estilo y formato |
 | `mkdocs.yml` (destino) | Navegación que se sincroniza en Fase 5 | Sí para generador mkdocs-material | Sin él, SYNC NAV no puede actualizar la navegación |
 | Prompts de arquetipo (`.github/prompts/`) | Plantillas de cada tipo de documento | Sí | Las fases 2-4 no tienen instrucciones para generar cada arquetipo |

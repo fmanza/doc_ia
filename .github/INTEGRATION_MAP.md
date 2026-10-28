@@ -43,7 +43,7 @@ flowchart TD
 | Grupo | Ficheros |
 |---|---|
 | Método (11) | `new_feature`, `hotfix`, `refactor`, `audit_code`, `security_review`, `tech_debt`, `maturity_assessment`, `version_closure`, `config_review`, `documentation_review`, `normative_traceability` |
-| Arquetipos (7) | `functional_doc`, `technical_doc`, `guide_doc`, `example_doc`, `architecture_doc`, `landing_doc`, `onboarding_dev` |
+| Arquetipos (12) | `functional_doc`, `technical_doc`, `howto_doc`, `tutorial_doc`, `example_doc`, `architecture_doc`, `landing_doc`, `onboarding_dev`, `changelog`, `ai_config_doc`, `contributing_doc`, `reference_doc` (+ `guide_doc` heredado) |
 | Producto (1) | `document_project` — punto de entrada único para documentar un proyecto (valida origen/destino/generador/idioma; orquesta Documentation Generator + arquetipos) |
 | Cross-project (1) | `bootstrap_ai_config` |
 

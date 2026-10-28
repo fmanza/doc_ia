@@ -5,6 +5,26 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+### Added
+
+- **Arquetipo 12 — Referencia del Sistema** (`docs/reference/`, condicional): configuración,
+  CLI, errores y códigos de salida, eventos e interfaces publicadas; prompt
+  `reference_doc.prompt.md`. Primera aplicación: `docs/reference/index.md` de doc_ia.
+- **Regla transversal de evidencia y confianza** (`DOCUMENTATION_STANDARD.md` §3.16): bloque
+  plegable "Evidencia" en los Arquetipos 1, 2 y 12, citas `ruta::símbolo` en código inline y
+  leyenda ✅ ⚠️ 🔍 ❌.
+- **Variante 6C**: subapartado §3 › Despliegue (arc42 §7, condicional) y escenarios de calidad
+  en §4 (arc42 §10). Aplicado en `docs/architecture.md`.
+- **ADR-002** — Use evidence-backed archetypes for repository documentation.
+
+### Changed
+
+- Norma del Arquetipo 1 alineada con su prompt (8 secciones); las páginas con la estructura v1
+  siguen siendo válidas en transición.
+- Prompt del Arquetipo 2 alineado con la norma (§2 "Modelo de Datos / Contratos"); la directiva
+  autodoc solo se usa si el generador tiene mkdocstrings.
+- Material `CONTRATO` alimenta también el Arquetipo 12 §5; `INFRAESTRUCTURA` va a 6C §3 › Despliegue.
+
 ## [0.1.0] — 2026-06-10
 
 ### Added

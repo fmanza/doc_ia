@@ -96,6 +96,13 @@ Si todos los criterios están cubiertos en la tabla: omitir esta subsección.
 Tabla: | Término | Definición |
 Solo términos de dominio específicos de este módulo (no términos Python genéricos).
 Si no hay términos específicos: "*No aplica para este módulo.*"
+
+??? note "Evidencia"
+    Bloque plegable final, sin número de sección (DOCUMENTATION_STANDARD.md §3.16).
+    Tabla: | Elemento | Fuente | Confianza |
+    Una fila por regla de §5 y por criterio de §7 (y por afirmación no trivial de §2/§4/§6).
+    Fuente como código inline `ruta::símbolo` (fallback `ruta:línea`), nunca como enlace.
+    Confianza: ✅ verificado · ⚠️ parcial · 🔍 inferido · ❌ gap.
 ```
 
 ---
@@ -103,7 +110,11 @@ Si no hay términos específicos: "*No aplica para este módulo.*"
 ## Restricciones
 
 - Si una sección queda vacía, escribe `*No aplica para este módulo.*` — nunca omitas la sección
-- NO expliques implementación, nombres de clases internas ni rutas de código fuente
+- NO expliques implementación, nombres de clases internas ni rutas de código fuente en §1–§8;
+  las rutas solo aparecen en el bloque plegable "Evidencia" final
+- Toda afirmación no verificada directamente en el código lleva su marca al final de la celda o
+  frase: ⚠️ parcial, 🔍 inferido, ❌ gap (✅ es implícito y no se escribe en §1–§8)
+- En las citas de "Evidencia" indica la ubicación, nunca el valor de secretos o URLs internas
 - USA terminología de negocio, no técnica
 - NO inventes capacidades, flujos, integraciones, salidas, reglas ni dependencias
 - En §5, usa exactamente 3 columnas (sin columna normativa en este proyecto)
@@ -176,3 +187,4 @@ Un fichero Markdown con:
 - Tabla en `## 5.` con 3 columnas
 - `## 7.` con tabla Given/When/Then (`| ID | Dado | Cuando | Entonces |`) y/o placeholder QA estructurado
 - `## 8.` con tabla de términos o `*No aplica para este módulo.*`
+- Bloque plegable `??? note "Evidencia"` final con `| Elemento | Fuente | Confianza |`

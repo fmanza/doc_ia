@@ -28,7 +28,7 @@ doc_ia/
     sync_root_docs.py     # Copia CHANGELOG.md y CONTRIBUTING.md a docs/ (hook MkDocs + PostToolUse)
   tests/
     test_check_env.py     # Tests unitarios del tooling
-  docs/                   # Sitio MkDocs Material (31 páginas, 11 arquetipos aplicados — dogfooding)
+  docs/                   # Sitio MkDocs Material (33 páginas, 12 arquetipos aplicados — dogfooding)
     functional/           # Arquetipos 1 — 7 páginas funcionales
     api/                  # Arquetipos 2 — 6 páginas técnicas
     examples/             # Arquetipos 4 — 6 páginas de ejemplos
@@ -41,7 +41,7 @@ doc_ia/
     SHARED_INSTRUCTIONS.md      # Canónico multiplataforma
     copilot-instructions.md     # Entry point Copilot Chat
     AGENTS.md                   # Registro de agentes
-    DOCUMENTATION_STANDARD.md   # Estándar de 11 arquetipos documentales
+    DOCUMENTATION_STANDARD.md   # Estándar de 12 arquetipos documentales + regla de evidencia (§3.16)
     INTEGRATION_MAP.md          # Mapa de gobernanza IA
     agents/*.agent.md           # 12 agentes
     prompts/*.prompt.md         # 25 prompts (12 de método + 13 de arquetipo)

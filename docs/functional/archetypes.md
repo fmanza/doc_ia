@@ -2,14 +2,16 @@
 
 ## 1. Descripción General
 
-doc_ia define once arquetipos formales de documentación (más la variante 3b): plantillas
+doc_ia define doce arquetipos formales de documentación (más la variante 3b): plantillas
 con estructura fija, audiencia definida y ubicación establecida. Cada arquetipo responde a
 una pregunta diferente sobre el proyecto (qué hace, cómo funciona, cómo se usa, cómo se
 implementa, por qué se decidió así, etc.) y garantiza que cualquier proyecto documentado
 con doc_ia produce un conjunto de páginas coherente y auditable.
 
 Los arquetipos 1–8 son la base; 3b y 9–11 son las adiciones de 2024-2025 (Diátaxis,
-Keep a Changelog, Config Agente IA, Guía de Contribución).
+Keep a Changelog, Config Agente IA, Guía de Contribución). El 12 (Referencia del Sistema) y la
+regla de evidencia verificable son las adiciones de 2026: cada afirmación importante indica de
+qué parte del código sale y con qué grado de confianza.
 
 Los arquetipos se aplican a través de prompts individuales en `.github/prompts/` y
 son orquestados por el flujo `/document-project`, que asigna automáticamente el
@@ -25,6 +27,8 @@ aplicar de forma individual a un único módulo o sección, sin invocar el flujo
 | Ubicación canónica | Cada arquetipo tiene una carpeta de destino fija en `docs/` | Navegación rota, entradas de `mkdocs.yml` inconsistentes |
 | Enlace bidireccional | El Arquetipo 2 (técnica, §5) debe enlazar al Arquetipo 4 (ejemplos, §5) y viceversa | Rompe la trazabilidad entre la referencia técnica y los ejemplos ejecutables |
 | Arquetipo 8 condicional | La trazabilidad normativa solo se genera si el proyecto origen referencia normativa de obligado cumplimiento; si no, se omite | Generación innecesaria de páginas vacías o sin valor en proyectos sin normativa |
+| Arquetipo 12 condicional | La Referencia del Sistema solo se genera si el proyecto expone configuración, comandos, códigos de salida, eventos o interfaces publicadas | Páginas de referencia vacías en librerías sin superficie de usuario |
+| Evidencia verificable | Las páginas funcionales, técnicas y de referencia terminan con un bloque plegable "Evidencia" que indica el origen de cada regla, contrato o criterio y su grado de confianza (✅ ⚠️ 🔍 ❌) | Afirmaciones imposibles de auditar; lo inferido se confunde con lo verificado |
 | Arquetipos 9 y 11 opt-in | Changelog (9) y Guía de Contribución (11) **no se generan por defecto** en `/document-project`; deben solicitarse explícitamente con el parámetro `Arquetipos: changelog` o `Arquetipos: contribución` | Generación de CHANGELOG.md y CONTRIBUTING.md sin que el usuario los haya pedido |
 
 ## 3. Casos de Uso
@@ -57,6 +61,10 @@ flowchart TD
     INV --> Q11{¿contribución en\nparam Arquetipos?}
     Q11 -- Sí --> A11[Arquetipo 11: contributing_doc\nopt-in explícito]
     Q11 -- No --> skip11[Omitir Arquetipo 11]
+
+    INV --> Q12{¿Expone config, CLI,\ncódigos o interfaces?}
+    Q12 -- Sí --> A12[Arquetipo 12: reference_doc\nuna página por sistema]
+    Q12 -- No --> skip12[Omitir Arquetipo 12]
 ```
 
 ### Arquetipos disponibles
@@ -75,6 +83,7 @@ flowchart TD
 | **9 — Changelog** *(opt-in)* | ¿Qué cambió en cada versión? | Usuarios, QA, ops | `CHANGELOG.md` (raíz) | `changelog.prompt.md` |
 | **10 — Config Agente IA** | ¿Cómo está configurado el agente IA? | Desarrolladores, auditores IA | `docs/ai-config/` | `ai_config_doc.prompt.md` |
 | **11 — Guía de Contribución** *(opt-in)* | ¿Cómo contribuyo al proyecto? | Contribuidores externos | `CONTRIBUTING.md` (raíz) | `contributing_doc.prompt.md` |
+| **12 — Referencia del Sistema** *(condicional)* | ¿Qué configuración, comandos y códigos expone? | Usuarios, operadores, integradores | `docs/reference/` | `reference_doc.prompt.md` |
 
 ### Flujos alternativos
 
@@ -95,6 +104,8 @@ flowchart TD
 | AC-05 | Arquetipo 9 solicitado explícitamente (`Arquetipos: ..., changelog`) | Se ejecuta `/document-project` | `CHANGELOG.md` existe en raíz con Keep a Changelog v1.1.0 y sección `[Unreleased]`; si **no** se solicita, no se genera aunque el proyecto tenga releases |
 | AC-06 | Proyecto con ≥1 plataforma IA configurada | Se ejecuta el inventario | Existe al menos un fichero en `docs/ai-config/` con las 7 secciones obligatorias del Arquetipo 10 |
 | AC-07 | Arquetipo 11 solicitado explícitamente (`Arquetipos: ..., contribución`) | Se ejecuta `/document-project` | `CONTRIBUTING.md` existe en raíz con las 6 secciones obligatorias del Arquetipo 11; si **no** se solicita, no se genera aunque el proyecto acepte contribuciones |
+| AC-09 | Proyecto con CLI o variables de entorno | Se ejecuta `/document-project` | Existe `docs/reference/index.md` con las 5 secciones del Arquetipo 12 y la entrada "Referencia del Sistema" en `mkdocs.yml`; en una librería sin superficie de usuario no se genera |
+| AC-10 | Página de Arquetipo 1, 2 o 12 generada | Se revisa el documento | Termina con el bloque plegable "Evidencia"; cada regla, contrato y criterio tiene fila con su fuente y su confianza |
 | AC-08 | Arquetipo 3a (how-to) vs. 3b (tutorial) | Se selecciona el arquetipo | El fichero de destino usa `_howto.md` o `_tutorial.md` según corresponda; nunca los dos tipos mezclados en el mismo fichero |
 
 Verificación: `python -m mkdocs build --strict` sin warnings tras generar cualquier arquetipo.

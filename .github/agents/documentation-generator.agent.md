@@ -20,6 +20,7 @@ Lee antes de generar:
 - `.ai/standards.md` — estándares de calidad y estilo
 - `.github/prompts/functional_doc.prompt.md` — prompt para documentación funcional
 - `.github/prompts/technical_doc.prompt.md` — prompt para documentación técnica
+- `.github/prompts/reference_doc.prompt.md` — prompt para la referencia del sistema (Arquetipo 12)
 - `mkdocs.yml` — navegación, tema, extensiones y páginas publicadas
 - `README.md` y `docs/` — documentación existente que puede requerir actualización
 
@@ -95,8 +96,8 @@ Ejecutar siempre antes de cualquier otra fase cuando se reciben múltiples oríg
 | `ESPECIFICACIÓN` | Arquetipo 1 del proyecto principal | §2 Reglas de Negocio, §3 Casos de Uso, §4 Criterios de Aceptación |
 | `UI/PANTALLAS` | Arquetipo 1 + Arquetipo 3 | §3 Casos de Uso (Arq. 1); §3 Pasos (Arq. 3) |
 | `REFERENCIA` | Arquetipo 2 o Arquetipo 5 | §4 Dependencias (Arq. 2); Decisión (Arq. 5) |
-| `CONTRATO` | Arquetipo 2 del proyecto principal | §1 Arquitectura (interfaces publicadas); §2 Modelo de Datos / Contratos |
-| `INFRAESTRUCTURA` | Arquetipos 2 + 6 del proyecto principal | Arq. 2 §4 Dependencias y Requisitos; Arq. 6C §3 (vista de despliegue) |
+| `CONTRATO` | Arquetipos 2 + 12 del proyecto principal | Arq. 2 §1 Arquitectura y §2 Modelo de Datos / Contratos; Arq. 12 §5 Interfaces Publicadas |
+| `INFRAESTRUCTURA` | Arquetipos 2 + 6 del proyecto principal | Arq. 2 §4 Dependencias y Requisitos; Arq. 6C §3 › Despliegue |
 | `MANUAL` | Arquetipos 3a · 3b · 6 · 7 | Arq. 3a §3 Pasos; Arq. 3b §3 Contenido de aprendizaje; Arq. 6A/B §1 Descripción; Arq. 7 §3 y §5 |
 
 #### Estrategia para múltiples orígenes CÓDIGO
@@ -254,6 +255,11 @@ Cuando el usuario pida documentar o actualizar todo el proyecto, usa este flujo 
 - Genera o actualiza `docs/api/[nombre].md` con: responsabilidad, diagrama Mermaid apropiado,
   API pública, contratos entrada/salida, errores y ejemplo técnico mínimo.
 - Elige tipo de diagrama según patrón del módulo (ver `technical_doc.prompt.md`).
+- Si el INVENTARIO detecta configuración, CLI, códigos de salida, eventos o material `CONTRATO`,
+  aplica `reference_doc.prompt.md` (Arquetipo 12) → `docs/reference/index.md`, una sola vez
+  para todo el sistema (no por módulo).
+- Cierra cada página de Arq. 1, 2 y 12 con el bloque plegable "Evidencia"
+  (DOCUMENTATION_STANDARD.md §3.16): `ruta::símbolo` en código inline, leyenda ✅ ⚠️ 🔍 ❌.
 
 ### Fase 4 — Ejemplos verificables y páginas estándar obligatorias
 - Para cada módulo sin ejemplo en `docs/examples/`, genera un ejemplo de uso real.

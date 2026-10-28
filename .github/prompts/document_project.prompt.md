@@ -88,8 +88,8 @@ Fase 0a — Clasificación de orígenes (solo con ≥2 orígenes, o si el único
             ESPECIFICACIÓN   → enriquece Arquetipo 1 §2+§3+§4 del proyecto principal
             UI/PANTALLAS     → enriquece Arquetipo 1 §3 (Casos de Uso) y Arquetipo 3
             REFERENCIA       → enriquece Arquetipo 2 §4 (Dependencias) o Arquetipo 5 (ADR)
-            CONTRATO         → enriquece Arquetipo 2 §1 (Arquitectura/interfaces) y §2 (Modelo de Datos/Contratos)
-            INFRAESTRUCTURA  → enriquece Arquetipo 2 §4 (Dependencias) y Arquetipo 6C §3 (vista despliegue)
+            CONTRATO         → enriquece Arquetipo 2 §1 (Arquitectura/interfaces) y §2 (Modelo de Datos/Contratos) y Arquetipo 12 §5 (Interfaces Publicadas)
+            INFRAESTRUCTURA  → enriquece Arquetipo 2 §4 (Dependencias) y Arquetipo 6C §3 › Despliegue
             MANUAL           → enriquece Arq. 3a §3, Arq. 3b §3, Arq. 6A/B §1 (Descripción), Arq. 7 §3 y §5
 
 Fase 0 — Detección de normativa: si el origen referencia normativa de obligado cumplimiento,
@@ -211,6 +211,10 @@ Fase 1 — Inventariar y clasificar:
              correcta o si la tabla tiene valores desactualizados (versión, tamaño, sha256, fecha)
 Fase 2 — Mapeo funcional (functional_doc.prompt.md) → [destino]/functional/
 Fase 3 — Documentación técnica con Mermaid (technical_doc.prompt.md) → [destino]/api/
+         Referencia del sistema (reference_doc.prompt.md, Arquetipo 12) → [destino]/reference/
+         SOLO si el INVENTARIO detecta señales (configuración, CLI, códigos de salida, eventos, CONTRATO).
+         Evidencia (DOCUMENTATION_STANDARD.md §3.16): las páginas de Arq. 1, 2 y 12 terminan con el
+         bloque plegable "Evidencia" (`ruta::símbolo` en código inline + leyenda ✅ ⚠️ 🔍 ❌).
 Fase 4 — Ejemplos verificables (example_doc.prompt.md) → [destino]/examples/
          Guías y landing según inventario: howto_doc, tutorial_doc, landing_doc, onboarding_dev, architecture_doc.
 Fase 5 — Sincronizar navegación y verificar configuración estándar del generador (mkdocs.yml del destino):

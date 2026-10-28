@@ -17,9 +17,10 @@ código Python es tooling determinista) y **ejecución siempre en el chat** de l
 
 - ✅ **Punto de entrada único para documentar**: `document_project.prompt.md`
   (`/document-project` en Claude Code) — valida origen(es), destino, generador e idioma.
-- ✅ **11 arquetipos documentales formales** (funcional, técnica, how-to, tutorial, ejemplos,
+- ✅ **12 arquetipos documentales formales** (funcional, técnica, how-to, tutorial, ejemplos,
   ADR/MADR 4.0, navegación, onboarding, normativa condicional, changelog, config IA,
-  contribución) en `.github/prompts/`.
+  contribución, referencia del sistema) en `.github/prompts/`, con evidencia verificable
+  de cada afirmación.
 - ✅ **Flujo de método** `PLAN → AUDIT_PLAN → IMPLEMENT → AUDIT_CODE → VERSION` con
   12 agentes y 9 slash commands.
 - ✅ **Bootstrap multiplataforma**: replica este sistema de instrucciones en otro
@@ -64,10 +65,11 @@ Idioma: es
 | [Instalación](installation.md) | Entorno de tooling y configuración por plataforma IA |
 | Documentación Funcional | Qué hace cada módulo y por qué ([entorno](functional/check_env.md), [ZIP offline](functional/build_docs_zip.md)) |
 | Referencia Técnica | Contratos y diagramas ([check_env](api/check_env.md), [build_docs_zip](api/build_docs_zip.md)) |
+| [Referencia del Sistema](reference/index.md) | Configuración, comandos, códigos de salida y eventos de todo el tooling |
 | Ejemplos | Casos ejecutables verificables ([verificar entorno](examples/check_env_usage.md), [ZIP offline](examples/build_docs_zip_offline.md)) |
 | Guías | [Onboarding](guides/onboarding_dev.md), [troubleshooting](guides/troubleshooting.md), [Codex](guides/codex_guide.md) |
 | Configuración IA | Configuración de agentes por plataforma ([Claude Code](ai-config/claude.md)) |
-| [Arquitectura](architecture.md) | Vista panorámica del sistema + [ADR](adr/ADR-001-mkdocs-material-por-defecto.md) |
+| [Arquitectura](architecture.md) | Vista panorámica y de despliegue + ADR ([001](adr/ADR-001-mkdocs-material-por-defecto.md), [002](adr/ADR-002-arquetipos-con-evidencia.md)) |
 | [Descargas](downloads.md) | Documentación offline (ZIP + SHA256) |
 | [Changelog](changelog.md) | Historial de cambios por versión |
 

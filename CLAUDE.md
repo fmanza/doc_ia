@@ -99,7 +99,8 @@ al sync, añadir su tupla a `PAIRS` en `hooks/sync_root_docs.py` y su entrada en
 
 Toda documentación sigue los **arquetipos formales** definidos en
 [`.github/DOCUMENTATION_STANDARD.md`](./.github/DOCUMENTATION_STANDARD.md).
-Los arquetipos 1–8 son la base; 3b y 9–11 son las adiciones 2024-2025.
+Los arquetipos 1–8 son la base; 3b y 9–11 son las adiciones 2024-2025; 12 y la regla transversal
+de evidencia (§3.16) son las adiciones 2026.
 
 | Arquetipo | Propósito | Ubicación | Prompt |
 |---|---|---|---|
@@ -115,10 +116,13 @@ Los arquetipos 1–8 son la base; 3b y 9–11 son las adiciones 2024-2025.
 | **9. Changelog** *(opt-in)* | ¿Qué cambió en cada versión? | `CHANGELOG.md` | `changelog.prompt.md` |
 | **10. Config Agente IA** | ¿Cómo está configurado el agente IA? | `docs/ai-config/` | `ai_config_doc.prompt.md` |
 | **11. Guía de Contribución** *(opt-in)* | ¿Cómo contribuyo al proyecto? | `CONTRIBUTING.md` | `contributing_doc.prompt.md` |
+| **12. Referencia del Sistema** *(condicional)* | ¿Qué configuración, comandos y códigos expone? | `docs/reference/` | `reference_doc.prompt.md` |
 
 **Características clave**:
 - ✅ Secciones fijas: estructura inmutable (nunca omitir; escribir "No aplica" si vacío)
 - ✅ Enlaces bidireccionales: Arquetipo 2 (§5) ↔ Arquetipo 4 (§5) obligatorios
+- ✅ Evidencia verificable: Arq. 1, 2 y 12 cierran con bloque plegable "Evidencia" (`ruta::símbolo`
+  en código inline + leyenda ✅ ⚠️ 🔍 ❌) — ver `DOCUMENTATION_STANDARD.md` §3.16
 - ✅ Parametrizables: en doc_ia los arquetipos son además **producto** — se aplican a proyectos
   origen externos pasando origen y destino como parámetros
 - ✅ Arquetipo 5 sigue MADR 4.0 (frontmatter YAML + título "Use X for Y")

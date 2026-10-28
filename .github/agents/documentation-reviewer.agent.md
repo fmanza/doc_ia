@@ -21,7 +21,8 @@ Lee antes de revisar:
 - `docs/examples/` — ejemplos existentes
 - `mkdocs.yml` — navegación, tema Material, Mermaid y páginas publicadas
 - `.github/instructions/` — guías de desarrollo y patrones
-- `.github/prompts/functional_doc.prompt.md` y `.github/prompts/technical_doc.prompt.md` — prompts base de documentación
+- `.github/prompts/functional_doc.prompt.md`, `.github/prompts/technical_doc.prompt.md` y `.github/prompts/reference_doc.prompt.md` — prompts base de documentación
+- `.github/DOCUMENTATION_STANDARD.md` §3.16 — regla transversal de evidencia y confianza
 
 ## Alcance de la revisión
 
@@ -40,6 +41,13 @@ Lee antes de revisar:
       (Arquetipo 8), que sigue la estructura artículo → módulo → cobertura, y que la sección
       `Normativa` está en `mkdocs.yml` entre Funcional y Arquitectura.
     - Si **no hay normativa de referencia** en el proyecto → omitir este punto completamente.
+11. **Evidencia y confianza** (`DOCUMENTATION_STANDARD.md` §3.16): las páginas de los
+    Arquetipos 1, 2 y 12 terminan con el bloque plegable "Evidencia"; cada regla, contrato,
+    error y criterio de aceptación tiene fila; las citas usan `ruta::símbolo` en código inline
+    (nunca enlaces) y el símbolo existe; ninguna fila ✅ carece de respaldo real.
+12. **Referencia del sistema (condicional)**: si el código expone configuración, CLI, códigos
+    de salida, eventos o interfaces publicadas, existe `docs/reference/` (Arquetipo 12) y el
+    Arquetipo 2 la enlaza en lugar de duplicarla.
 
 ## Restricciones
 

@@ -4,10 +4,12 @@
 
 | Término | Definición |
 |---|---|
-| **Arquetipo documental** | Plantilla formal de documentación con secciones fijas numeradas. doc_ia define 11: Funcional (1), Técnica/API (2), How-to (3a), Tutorial (3b), Ejemplos (4), ADR/MADR 4.0 (5), Navegación Principal (6, 4 variantes), Onboarding (7), Trazabilidad Normativa (8, condicional), Changelog (9, opt-in), Config IA (10), Contribución (11, opt-in). Ver `.github/DOCUMENTATION_STANDARD.md`. |
+| **Arquetipo documental** | Plantilla formal de documentación con secciones fijas numeradas. doc_ia define 12: Funcional (1), Técnica/API (2), How-to (3a), Tutorial (3b), Ejemplos (4), ADR/MADR 4.0 (5), Navegación Principal (6, 4 variantes), Onboarding (7), Trazabilidad Normativa (8, condicional), Changelog (9, opt-in), Config IA (10), Contribución (11, opt-in), Referencia del Sistema (12, condicional). Ver `.github/DOCUMENTATION_STANDARD.md`. |
 | **Proyecto origen** | Proyecto de desarrollo externo que se quiere documentar. Parámetro obligatorio de cada ejecución documental. |
 | **Destino de la documentación** | Carpeta o repositorio donde se escribe la documentación generada. Parámetro obligatorio. |
 | **Tipo de origen** | Naturaleza del origen que determina su tratamiento documental. 8 tipos: `CÓDIGO`, `NORMATIVA`, `ESPECIFICACIÓN`, `UI/PANTALLAS`, `REFERENCIA`, `CONTRATO`, `INFRAESTRUCTURA`, `MANUAL`. Los tipos no-CÓDIGO se agrupan como MATERIAL. |
+| **Bloque Evidencia** | Bloque plegable `??? note "Evidencia"` sin número de sección que cierra las páginas de los Arquetipos 1, 2 y 12. Tabla `Elemento \| Fuente \| Confianza` con citas `ruta::símbolo` en código inline. Ver `DOCUMENTATION_STANDARD.md` §3.16. |
+| **Leyenda de confianza** | ✅ verificado · ⚠️ parcial · 🔍 inferido · ❌ gap. Nacida en el Arquetipo 8 y generalizada a todos los arquetipos en 2026-10-28. ✅ es implícito en el cuerpo de la página. |
 | **MATERIAL** | Término colectivo para orígenes no-CÓDIGO. Su contenido enriquece secciones de los arquetipos del proyecto CÓDIGO principal sin generar páginas propias. |
 | **CONTRATO** | Tipo de origen: especificaciones machine-readable del proyecto (OpenAPI, AsyncAPI, GraphQL, Protobuf, SQL DDL, DBML). Enriquece Arquetipo 2 §1 y §2. |
 | **INFRAESTRUCTURA** | Tipo de origen: artefactos IaC y de despliegue (Terraform, Kubernetes, Docker, Ansible). Enriquece Arquetipo 2 §4 y Arquetipo 6D. |
@@ -28,7 +30,7 @@
 | **Hook MkDocs** | `mkdocs_hooks.py` en la raíz del proyecto: genera `{nombre}-docs-latest.zip` en `site/` en cada build. Sin instalación (no requiere pip install). |
 | **sync_root_docs** | `hooks/sync_root_docs.py`: copia CHANGELOG.md y CONTRIBUTING.md de la raíz a `docs/`. Funciona como hook MkDocs y PostToolUse. |
 | **Enlace bidireccional** | Obligación de los arquetipos 2 (Técnica §5) y 4 (Ejemplos §5) de enlazarse mutuamente. |
-| **Dogfooding** | El sitio `docs/` de doc_ia se genera aplicando sus propios 11 arquetipos (31 páginas). |
+| **Dogfooding** | El sitio `docs/` de doc_ia se genera aplicando sus propios 12 arquetipos (33 páginas). |
 | **Sesión** | Unidad de trabajo registrada en `.ai/sessions/<fecha>/` con REQUEST, CONTEXT_SNAPSHOT y TRACEABILITY (plantilla en `.ai/sessions/TEMPLATE/`). |
 | **Cierre de sesión** | Paso final obligatorio de `/document-project`: crea artefactos `.ai/sessions/YYYY-MM-DD/` en el destino y propone commit Conventional Commits `docs(<scope>):`. |
 | **Directrices para Futuras IAs** | Sección obligatoria del TRACEABILITY.md al cerrar sesión: hechos verificables que evitan repetir análisis. |

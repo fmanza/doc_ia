@@ -133,14 +133,17 @@ scripts de `scripts/` documentados.
 
 ## 📐 Arquetipos Formales de Documentación
 
-Toda documentación sigue los **7 arquetipos formales** de
+Toda documentación sigue los **arquetipos formales** (1–12) de
 [`.github/DOCUMENTATION_STANDARD.md`](DOCUMENTATION_STANDARD.md):
-Funcional (`docs/functional/`), Técnica (`docs/api/`), Guía (`docs/guides/`),
+Funcional (`docs/functional/`), Técnica (`docs/api/`), How-to y Tutorial (`docs/guides/`),
 Ejemplos (`docs/examples/`), ADR (`docs/adr/`), Navegación Principal (`docs/index.md`,
-`installation.md`, `architecture.md`) y Onboarding (`docs/guides/onboarding_dev.md`).
+`installation.md`, `architecture.md`, `quickstart.md`), Onboarding (`docs/guides/onboarding_dev.md`),
+Trazabilidad Normativa (condicional), Changelog, Config IA, Contribución y Referencia del
+Sistema (`docs/reference/`, condicional).
 
 - ✅ Secciones fijas: estructura inmutable (nunca omitir; "No aplica" si vacío)
 - ✅ Enlaces bidireccionales: Arquetipo 2 (§5) ↔ Arquetipo 4 (§5) obligatorios
+- ✅ Evidencia verificable: Arq. 1, 2 y 12 cierran con bloque plegable "Evidencia" (§3.16)
 - ✅ En doc_ia los arquetipos son además **producto**: se aplican a proyectos origen externos
   pasando origen y destino como parámetros
 

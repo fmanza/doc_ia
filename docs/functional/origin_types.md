@@ -48,8 +48,8 @@ secciones concretas de los arquetipos del proyecto `CÓDIGO` principal.
 | `ESPECIFICACIÓN` | Arquetipo 1 (proyecto principal) | §2 Reglas de Negocio, §3 Casos de Uso, §4 Criterios de Aceptación |
 | `UI/PANTALLAS` | Arquetipos 1 + 3 | Arq. 1 §3 Casos de Uso; Arq. 3 (How-to/Tutorial) §3 Pasos |
 | `REFERENCIA` | Arquetipo 2 o Arquetipo 5 | Arq. 2 §4 Dependencias y Requisitos; o Arq. 5 decisión (ADR) |
-| `CONTRATO` | Arquetipo 2 (proyecto principal) | §1 Arquitectura (interfaces publicadas); §2 Modelo de Datos / Contratos |
-| `INFRAESTRUCTURA` | Arquetipos 2 + 6 | Arq. 2 §4 Dependencias y Requisitos; Arq. 6C Arquitectura (vista despliegue) |
+| `CONTRATO` | Arquetipos 2 + 12 (proyecto principal) | Arq. 2 §1 Arquitectura y §2 Modelo de Datos / Contratos; Arq. 12 §5 Interfaces Publicadas |
+| `INFRAESTRUCTURA` | Arquetipos 2 + 6 | Arq. 2 §4 Dependencias y Requisitos; Arq. 6C §3 › Despliegue |
 | `MANUAL` | Arquetipos 3a · 3b · 6 · 7 | Arq. 3a §3 Pasos (tareas ya descritas); Arq. 3b §3 (contenido de aprendizaje); Arq. 6A/B §1 Descripción; Arq. 7 §3 Configurar el Entorno y §5 Primer Resultado |
 
 ### Flujo de clasificación

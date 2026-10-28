@@ -17,7 +17,9 @@
 - Consistencia de lenguaje y tone
 - `mkdocs.yml`: navegación, páginas inexistentes, páginas huérfanas, tema Material, Mermaid
 - Prompts e instrucciones IA de documentación en `.github/prompts/`, `.github/agents/` y `.github/instructions/`
-- Separación clara entre documentación funcional, técnica y ejemplos
+- Separación clara entre documentación funcional, técnica, referencia del sistema y ejemplos
+- Evidencia (DOCUMENTATION_STANDARD.md §3.16): bloque "Evidencia" en Arq. 1, 2 y 12, citas `ruta::símbolo`
+  en código inline y leyenda ✅ ⚠️ 🔍 ❌ coherente con el código
 
 ## Criterios por severidad
 
@@ -35,6 +37,8 @@
 - Guías de troubleshooting ausentes
 - Incompatibilidades entre generadores de documentación no aclaradas
 - Errores no documentados
+- Sistema con configuración, CLI o códigos de salida sin `docs/reference/` (Arquetipo 12)
+- Reglas, contratos o criterios de aceptación sin fila en el bloque "Evidencia", o citas a símbolos inexistentes
 - Prompts de documentación que inducen a inventar capacidades o mezclan funcional y técnico sin secciones claras
 
 ### Nivel 3: Recomendado

@@ -37,23 +37,25 @@ Si el módulo contiene Web API, servidor web, base de datos o contenedores, aña
 después del diagrama principal un párrafo de infraestructura y un diagrama `architecture-beta`.
 Ver restricciones de sintaxis en docs.instructions.md.
 
-## 2. API Reference
-
-### Autodoc
-Incluir la directiva de generación automática según el lenguaje del proyecto:
-  Python:     ::: doc_ia.[modulo].[Clase]
-  Java:       ::: com.ejemplo.[paquete].[Clase]
-  TypeScript: ::: [Modulo].[Clase]
-Solo exportados en __all__, public o export. No implementación interna.
+## 2. Modelo de Datos / Contratos
 
 ### API pública
 Tabla con columnas: | Función/Clase | Firma simplificada | Descripción | Retorna |
 Solo las funciones/clases exportadas en __all__ o __init__.py.
+Directiva autodoc SOLO si el generador del destino tiene mkdocstrings (o equivalente) en
+`plugins:`; si no, omitirla (se renderizaría como texto literal):
+  Python:     ::: paquete.[modulo].[Clase]
+  Java:       ::: com.ejemplo.[paquete].[Clase]
+  TypeScript: ::: [Modulo].[Clase]
 
-### Contratos
-Tabla entrada: | Parámetro | Tipo | Descripción | Restricciones |
-Contrato de salida: tipos, estructura y casos especiales de cada función principal.
-Errores y casos especiales: qué ocurre con entradas inválidas o conexión fallida.
+### Contrato de entrada
+Tabla: | Parámetro | Tipo | Descripción | Restricciones |
+
+### Contrato de salida
+Tipos, estructura y casos especiales de cada función principal.
+
+### Errores y casos especiales
+Qué ocurre con entradas inválidas o conexión fallida.
 
 ## 3. Componentes y Clases
 Responsabilidad de cada clase o función principal exportada (una línea por componente).
@@ -72,6 +74,13 @@ Si no existe ninguno:
 Formato:
 - [Ejemplo: Nombre del patrón](../examples/[nombre].md) — descripción de 1 línea
 
+??? note "Evidencia"
+    Bloque plegable final, sin número de sección (DOCUMENTATION_STANDARD.md §3.16).
+    Tabla: | Elemento | Fuente | Confianza |
+    Una fila por contrato, error y dependencia de §2–§4.
+    Fuente como código inline `ruta::símbolo` (fallback `ruta:línea`), nunca como enlace.
+    Confianza: ✅ verificado · ⚠️ parcial · 🔍 inferido · ❌ gap.
+
 ---
 
 Restricciones:
@@ -81,6 +90,13 @@ Restricciones:
 - No inventes firmas, excepciones, tipos, dependencias ni efectos secundarios
 - Si falta información, añade subsección "### Pendiente de verificación" con puntos concretos
 - NO uses la directiva --8<-- para incluir código; embebe el código directamente en los bloques fenced
+- Documenta la API INTERNA del módulo (consumida por otros módulos o integradores de código).
+  La superficie que ve el usuario u operador (CLI, variables de entorno, ficheros de
+  configuración, códigos de salida) pertenece al Arquetipo 12 (reference_doc.prompt.md):
+  enlázala desde §2 en lugar de duplicarla
+- Toda afirmación no verificada directamente en el código lleva su marca: ⚠️ parcial,
+  🔍 inferido, ❌ gap (✅ es implícito)
+- Cita ubicaciones, nunca valores de secretos ni URLs internas
 - Responde SOLO con el Markdown
 ```
 ## Criterios de selección de diagrama por tipo de módulo
@@ -178,6 +194,7 @@ Si el flujo no puede inferirse con seguridad, declara qué información falta en
 
 Markdown con título H1, párrafo introductorio de una frase y las 5 secciones del Arquetipo 2
 numeradas (`## 1.`–`## 5.`), incluyendo un bloque `mermaid` válido en `## 1.`, directiva
-autodoc y tablas de contratos en `## 2.`, y al menos un enlace a ejemplo en `## 5.` o el
-placeholder de "Pendiente". Secciones vacías con `*No aplica para este módulo.*`.
+tablas de API pública y contratos en `## 2.` (autodoc solo si hay mkdocstrings), y al menos un enlace a ejemplo en `## 5.` o el
+placeholder de "Pendiente", más el bloque plegable `??? note "Evidencia"` final.
+Secciones vacías con `*No aplica para este módulo.*`.
 Todo el contenido derivado del código real: sin inventar parámetros, retornos ni comportamientos.

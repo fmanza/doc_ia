@@ -131,11 +131,12 @@ arquitectura) usa el prompt `bootstrap_ai_config` y, como auditor del resultado,
 
 ## Configuración
 
-- **Prompts**: `.github/prompts/*.prompt.md` — 20 prompts: 11 de método (`new_feature`, `hotfix`,
+- **Prompts**: `.github/prompts/*.prompt.md` — 26 prompts: 11 de método (`new_feature`, `hotfix`,
   `refactor`, `audit_code`, `security_review`, `tech_debt`, `maturity_assessment`, `version_closure`,
-  `config_review`, `documentation_review`, `normative_traceability`) + 7 arquetipos documentales
-  (`functional_doc`, `technical_doc`, `guide_doc`, `example_doc`, `architecture_doc`, `landing_doc`,
-  `onboarding_dev`) + 1 de producto (`document_project` — punto de entrada único para documentar
+  `config_review`, `documentation_review`, `normative_traceability`) + 12 arquetipos documentales
+  (`functional_doc`, `technical_doc`, `howto_doc`, `tutorial_doc`, `example_doc`, `architecture_doc`,
+  `landing_doc`, `onboarding_dev`, `changelog`, `ai_config_doc`, `contributing_doc`, `reference_doc`)
+  + 1 heredado (`guide_doc`, redirige a 3a/3b) + 1 de producto (`document_project` — punto de entrada único para documentar
   un proyecto) + `bootstrap_ai_config`
 - **Instrucciones**: `.github/instructions/*.instructions.md` — reglas por tipo de archivo
 - **Hooks**: `.claude/settings.json` — comandos PostToolUse (lint, type-check, test collection)

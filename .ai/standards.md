@@ -21,7 +21,7 @@
 
 ## Documentación
 
-- 11 arquetipos formales de `.github/DOCUMENTATION_STANDARD.md`; secciones fijas, nunca omitidas.
+- 12 arquetipos formales de `.github/DOCUMENTATION_STANDARD.md`; secciones fijas, nunca omitidas; evidencia `ruta::símbolo` + leyenda ✅ ⚠️ 🔍 ❌ (§3.16).
 - Nombres en `docs/`: minúsculas con guiones bajos; guías siempre en `docs/guides/`.
 - `mkdocs.yml` es la fuente única de navegación; actualizar al crear/mover/borrar páginas.
 - Validación: `python -m mkdocs build --strict` sin errores ni warnings.
