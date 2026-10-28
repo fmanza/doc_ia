@@ -150,3 +150,19 @@
 - **Pendiente fuera de doc_ia**: los destinos que aplicaron la regla `&#64;` (socyalpro) muestran
   el `&`; corregir con un hotfix en cada repositorio.
 - **Sesión**: `.ai/sessions/2026-10-28e_mermaid_diagrams/` (M0)
+
+## [Mermaid] — Material y Zensical cargan versiones mayores distintas
+
+- **Síntoma**: el mismo diagrama se ve distinto según el generador; en Zensical los flowchart usan
+  otro layout.
+- **Causa** (verificada en los bundles instalados): MkDocs Material 9.8.0 carga
+  `unpkg.com/mermaid@11/dist/mermaid.min.js` y Zensical 0.0.73 `unpkg.com/mermaid@12/...`. En v12
+  el flowchart usa por defecto el layout ELK y el look `neo`. Las dos son versiones mayores
+  flotantes y necesitan red, también en el ZIP offline.
+- **Tratamiento**: las reglas de `DOCUMENTATION_STANDARD.md` §3.17 valen para ambas; el job
+  `mermaid` de `ci.yml` valida con las dos versiones. Fijar y servir Mermaid en local queda como
+  requisito de F10 (`.ai/sessions/2026-10-28d_zensical_migration/02_PLAN_FASES.md`, condición C9).
+- **Ojo al verificar**: renderizar varios diagramas a la vez con `startOnLoad` en una página de
+  prueba con mermaid@12 los superpone; no es un fallo de la documentación. Verificar en el sitio
+  construido o diagrama a diagrama con `mermaid.render()`.
+- **Sesión**: `.ai/sessions/2026-10-28e_mermaid_diagrams/` (M5)
