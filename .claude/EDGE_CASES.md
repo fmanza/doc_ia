@@ -91,4 +91,19 @@
 - **Causa**: MkDocs 1.6 ejecuta `on_post_build` antes de comprobar los avisos del modo estricto.
 - **Decisión (2026-10-28)**: aceptado. El ZIP local de un build fallido no se distribuye: los
   workflows solo publican si el build termina con 0. No usar `site/` tras un build fallido.
+  Con `build_docs_zip.py --builder zensical` no ocurre: el ZIP se genera solo tras un build OK.
 - **Sesión**: `.ai/sessions/2026-10-28c_quality_pending/`
+
+## [Zensical] — `hooks:` de `mkdocs.yml` se ignora en silencio
+
+- **Síntoma**: `zensical build --strict` falla con `changelog.md: page does not exist` en un
+  checkout limpio, o termina bien pero `site/` no contiene `doc_ia-docs-latest.zip` y los enlaces
+  de `docs/downloads.md` al ZIP quedan rotos (ningún `--strict` valida `<a href>` en HTML crudo).
+- **Causa**: Zensical (0.0.73) no soporta la clave `hooks:` ni la API de plugins de MkDocs y no
+  emite ningún aviso (zensical.org/compatibility/configuration). Los plugins no soportados
+  también se ignoran en silencio.
+- **Tratamiento**: construir siempre con `python scripts/build_docs_zip.py --builder zensical`,
+  que ejecuta `hooks/sync_root_docs.py` antes y `mkdocs_hooks.py` después de un build OK.
+  `python -m zensical serve` no sincroniza: tras editar `CHANGELOG.md`/`CONTRIBUTING.md`, ejecutar
+  `python hooks/sync_root_docs.py` (en Claude Code lo hace el PostToolUse).
+- **Sesión**: `.ai/sessions/2026-10-28d_zensical_migration/` (F1)

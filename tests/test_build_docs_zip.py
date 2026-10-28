@@ -3,15 +3,19 @@
 from __future__ import annotations
 
 import hashlib
+import shutil
 import subprocess
 import sys
 import zipfile
 from pathlib import Path
+from typing import Any
 from unittest.mock import patch
 
 import mkdocs_hooks
 import pytest
 from scripts import build_docs_zip
+
+REPO = Path(__file__).resolve().parents[1]
 
 
 def _project(tmp_path: Path, version: str = "0.1.0") -> Path:
@@ -104,6 +108,78 @@ def test_checksums_txt_is_append_only(tmp_path: Path) -> None:
     lines = (root / "dist" / "CHECKSUMS.txt").read_text(encoding="utf-8").splitlines()
     assert len(lines) == 2
     assert all(line.split("  ")[1] == "doc_ia-docs-0.1.0.zip" for line in lines)
+
+
+def _fake_hooks(root: Path) -> Path:
+    """Hooks de prueba que anotan su ejecución en un log, para verificar el orden."""
+    log = root / "events.log"
+    (root / "hooks").mkdir()
+    (root / "hooks" / "sync_root_docs.py").write_text(
+        f"def main():\n    open({str(log)!r}, 'a').write('pre\\n')\n    return 0\n",
+        encoding="utf-8",
+    )
+    (root / "mkdocs_hooks.py").write_text(
+        "def on_post_build(config, **kwargs):\n"
+        f"    open({str(log)!r}, 'a').write('post ' + config['site_dir'] + '\\n')\n",
+        encoding="utf-8",
+    )
+    return log
+
+
+def _logging_run(log: Path, returncode: int = 0) -> Any:
+    def run(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess[bytes]:
+        with log.open("a") as fh:
+            fh.write("build\n")
+        return subprocess.CompletedProcess(args=cmd, returncode=returncode)
+
+    return run
+
+
+def test_zensical_runs_hooks_around_build(tmp_path: Path) -> None:
+    root = _project(tmp_path)
+    log = _fake_hooks(root)
+    with patch.object(build_docs_zip.subprocess, "run", side_effect=_logging_run(log)) as run:
+        _run_main(root, "--builder", "zensical")
+    assert run.call_args.args[0] == [sys.executable, "-m", "zensical", "build", "--strict"]
+    assert log.read_text().splitlines() == ["pre", "build", f"post {root / 'site'}"]
+    assert (root / "dist" / "doc_ia-docs-0.1.0.zip").is_file()
+
+
+def test_zensical_build_failure_skips_post_build(tmp_path: Path) -> None:
+    root = _project(tmp_path)
+    log = _fake_hooks(root)
+    with (
+        patch.object(build_docs_zip.subprocess, "run", side_effect=_logging_run(log, 2)),
+        pytest.raises(SystemExit) as exc,
+    ):
+        _run_main(root, "--builder", "zensical")
+    assert exc.value.code == 2
+    assert log.read_text().splitlines() == ["pre", "build"]
+    assert not (root / "dist").exists()
+
+
+def test_mkdocs_builder_leaves_hooks_to_mkdocs(tmp_path: Path) -> None:
+    root = _project(tmp_path)
+    log = _fake_hooks(root)
+    with patch.object(build_docs_zip.subprocess, "run", side_effect=_logging_run(log)) as run:
+        _run_main(root)
+    assert run.call_args.args[0][:3] == [sys.executable, "-m", "mkdocs"]
+    assert log.read_text().splitlines() == ["build"]
+
+
+def test_zensical_with_real_hooks_syncs_and_creates_latest_zip(tmp_path: Path) -> None:
+    root = _project(tmp_path)
+    (root / "hooks").mkdir()
+    shutil.copy2(REPO / "hooks" / "sync_root_docs.py", root / "hooks" / "sync_root_docs.py")
+    shutil.copy2(REPO / "mkdocs_hooks.py", root / "mkdocs_hooks.py")
+    (root / "docs").mkdir()
+    (root / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
+    ok = subprocess.CompletedProcess(args=[], returncode=0)
+    with patch.object(build_docs_zip.subprocess, "run", return_value=ok):
+        _run_main(root, "--builder", "zensical")
+    assert (root / "docs" / "changelog.md").read_text(encoding="utf-8") == "# Changelog\n"
+    assert (root / "site" / "doc_ia-docs-latest.zip").is_file()
+    assert (root / "site" / "doc_ia-docs-latest.zip.sha256").is_file()
 
 
 def test_post_build_hook_creates_latest_zip(tmp_path: Path) -> None:

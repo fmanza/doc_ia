@@ -35,8 +35,13 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
   los workflows de documentación ya no instalan docling ni torch.
 - `tests/test_build_docs_zip.py` (8 tests: script y hook del ZIP) y `tests/test_docs_conformance.py`
   (conformidad de `docs/` con los arquetipos). Cobertura de criterios: 45/67.
+- `build_docs_zip.py --builder zensical` ejecuta él mismo los hooks que Zensical ignora:
+  `hooks/sync_root_docs.py` antes del build y `mkdocs_hooks.py` (ZIP `latest`) solo si el build
+  termina con 0. 4 tests nuevos; criterios AC-07 y AC-08 en `functional/build_docs_zip.md`.
 
 ### Changed
+
+- `build_docs_zip.py` invoca Zensical como `python -m zensical` (antes `zensical` desde el PATH).
 
 - Norma del Arquetipo 1 alineada con su prompt (8 secciones); las páginas con la estructura v1
   siguen siendo válidas en transición.

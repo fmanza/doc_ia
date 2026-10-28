@@ -38,8 +38,19 @@ recomendable la migración. Puede consultarse información en internet. PLAN y A
 ## Fases y commits
 | Fase | Commit | SHA | Estado |
 |---|---|---|---|
-| F0 | `docs(session): plan por fases de la migración a Zensical` | (este commit) | HECHO |
-| F1-F12 | ver `02_PLAN_FASES.md` | — | PENDIENTE |
+| F0 | `docs(session): plan por fases de la migración a Zensical` | `64ab29e` | HECHO |
+| F1 | `feat(build): pipeline sin hooks para construir con Zensical` | (este commit) | HECHO |
+| F2-F12 | ver `02_PLAN_FASES.md` | — | PENDIENTE |
+
+### F1 — verificación
+- DoD local (`.venv`, Python 3.14): ruff, format, mypy, pytest **177**, drift 0, matrix
+  **48/70**, `llms --check`, `mkdocs build --strict` → OK.
+- Build real con Zensical 0.0.73 (venv del scratchpad):
+  `build_docs_zip.py --builder zensical` → sync, "No issues found", `site/doc_ia-docs-latest.zip`
+  + `.sha256` y ZIP versionado.
+- Observación (sin cambio, comportamiento previo también con MkDocs): el ZIP versionado incluye el
+  ZIP `latest` porque empaqueta `site/` entero (≈1,25 MB frente a ≈0,63 MB). Candidato a mejora
+  menor fuera de este plan.
 
 ## Veredicto final
 Veredicto: F0-F5, F11 GO · F6 GO_CONDICIONAL (C6, C7) · F7 gate 0.1 · F8 gate C2-C5 ·

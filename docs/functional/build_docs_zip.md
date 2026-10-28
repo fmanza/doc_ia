@@ -3,8 +3,8 @@ arquetipo: "1"
 fuentes:
   mkdocs.yml: 417c1a6602da
   mkdocs_hooks.py: 2f510611cb6f
-  scripts/build_docs_zip.py: 0b48091d8aa9
-  tests/test_build_docs_zip.py: a643fd260da2
+  scripts/build_docs_zip.py: b9a2694d122f
+  tests/test_build_docs_zip.py: 0dad72a78801
 revisado: 2026-10-28
 ---
 # ZIP de Documentación Offline
@@ -39,7 +39,8 @@ corruptas o manipuladas).
 - La versión del proyecto declarada en el manifiesto del proyecto (empaquetado versionado).
 - Para empaquetar sin reconstruir: un sitio generado previamente.
 - Para el empaquetado automático: el hook de empaquetado declarado en la configuración del
-  sitio. No requiere instalar el proyecto como paquete.
+  sitio. No requiere instalar el proyecto como paquete. Con Zensical, que no ejecuta hooks,
+  el empaquetado automático solo ocurre si se construye mediante el empaquetado versionado.
 
 ## 3. Flujo Principal
 
@@ -122,8 +123,11 @@ proyecto en el nombre, su huella y una nueva línea en el registro histórico de
 - **Build no estricto**: puede reconstruirse sin modo estricto, aceptando avisos.
 - **Carpeta de salida alternativa**: el destino del ZIP versionado puede cambiarse; la carpeta
   se crea si no existe.
-- **Generador alternativo**: puede construirse con Zensical si está instalado 🔍 (sin test de
-  integración).
+- **Generador alternativo**: puede construirse con Zensical si está instalado. Como Zensical
+  no ejecuta los hooks de la configuración del sitio, el empaquetado versionado los ejecuta
+  él mismo: copia los ficheros raíz a la documentación antes del build y, solo si el build
+  termina sin errores, genera el ZIP "latest". Construir con Zensical directamente, fuera del
+  empaquetado, no produce el ZIP "latest" ni actualiza las copias, y Zensical no avisa.
 
 ### Casos especiales
 
@@ -143,11 +147,15 @@ proyecto en el nombre, su huella y una nueva línea en el registro histórico de
 | AC-04 | Un ZIP ya generado con su huella `.sha256` | Se valida la integridad de la descarga | La huella calculada coincide con la registrada (`sha256sum -c` → OK) | `tests/test_build_docs_zip.py::test_sha256_file_matches_archive` |
 | AC-05 | El empaquetado automático declarado en la configuración del sitio | Se construye el sitio | Se genera `site/doc_ia-docs-latest.zip` y su `.sha256` sin ningún comando adicional ni instalación de paquetes | `tests/test_build_docs_zip.py::test_post_build_hook_creates_latest_zip` |
 | AC-06 | Un Python con el generador instalado pero sin activar el entorno de doc_ia | Se construye el sitio desde la raíz del proyecto | El empaquetado automático funciona (no requiere instalar el proyecto como paquete) | Sin test |
+| AC-07 | Zensical como generador y un `CHANGELOG.md` en la raíz | Se solicita el empaquetado versionado con Zensical | La copia de `CHANGELOG.md` en la documentación se actualiza antes del build y, tras el build, existen `site/doc_ia-docs-latest.zip` y su `.sha256` | `tests/test_build_docs_zip.py::test_zensical_with_real_hooks_syncs_and_creates_latest_zip` |
+| AC-08 | Zensical como generador y documentación con un error que hace fallar el build estricto | Se solicita el empaquetado versionado con Zensical | El proceso termina con el código de error del generador y no se genera ni el ZIP "latest" ni el versionado | `tests/test_build_docs_zip.py::test_zensical_build_failure_skips_post_build` |
 
 Verificación manual: `python scripts/build_docs_zip.py` (AC-01/AC-03),
 `python scripts/build_docs_zip.py --no-build` sin `site/` previo (AC-02),
 `sha256sum -c dist/*.sha256` (AC-04), `python -m mkdocs build` → comprobar
-`site/doc_ia-docs-latest.zip` (AC-05/AC-06). El empaquetado no tiene tests automatizados.
+`site/doc_ia-docs-latest.zip` (AC-05/AC-06),
+`python scripts/build_docs_zip.py --builder zensical` con Zensical instalado (AC-07/AC-08).
+Los tests simulan el generador; el build real no está automatizado.
 
 ## 8. Glosario de Dominio
 
@@ -170,10 +178,13 @@ Verificación manual: `python scripts/build_docs_zip.py` (AC-01/AC-03),
     | Regla «Sin servicios IA» | `scripts/build_docs_zip.py`, `mkdocs_hooks.py` (solo `shutil`, `zipfile`, `hashlib`, `subprocess` del generador) | ✅ |
     | Regla «Sin instalación» | `mkdocs.yml::hooks` (`mkdocs_hooks.py` por ruta) | ✅ |
     | ZIP automático excluye `.zip`/`.sha256` e incluye el servidor local | `mkdocs_hooks.py::on_post_build` | ✅ |
-    | Generador alternativo Zensical | `scripts/build_docs_zip.py::main` (`--builder`) | 🔍 |
+    | Generador alternativo Zensical con hooks ejecutados por el script | `scripts/build_docs_zip.py::main` (`--builder`), `::_build`, `::HOOKLESS_BUILDERS` | ✅ |
+    | Zensical no ejecuta `hooks:` y no avisa | zensical.org/compatibility/configuration (Zensical 0.0.73) | ⚠️ |
     | AC-01 | `scripts/build_docs_zip.py::main`, `::_create_checksum_files` | ✅ |
     | AC-02 | `scripts/build_docs_zip.py::main` (`--no-build` + `SITE_DIR` inexistente → `sys.exit(1)`) | ✅ |
     | AC-03 | `scripts/build_docs_zip.py::_build` | ✅ |
     | AC-04 | `scripts/build_docs_zip.py::_create_checksum_files` (formato `<hash>  <fichero>`) | ✅ |
     | AC-05 | `mkdocs_hooks.py::on_post_build` | ✅ |
     | AC-06 | `mkdocs.yml::hooks` | ✅ |
+    | AC-07 | `scripts/build_docs_zip.py::_pre_build`, `::_post_build` | ✅ |
+    | AC-08 | `scripts/build_docs_zip.py::_build` (`sys.exit` antes de `_post_build`) | ✅ |
