@@ -1,8 +1,8 @@
 ---
 arquetipo: "2"
 fuentes:
-  scripts/check_env.py: 5a2a60e20da2
-  tests/test_check_env.py: 6fa39a48d70d
+  scripts/check_env.py: 474070bcf7f5
+  tests/test_check_env.py: 1d38d14c5c0b
 revisado: 2026-10-28
 ---
 # check_env
@@ -82,8 +82,9 @@ Script standalone sin dependencias entre módulos del proyecto: usa solo
 | `tests/test_check_env.py::test_missing_tools_detects_absent_tool` | Un módulo inexistente aparece en la lista de ausentes | unitario |
 | `tests/test_check_env.py::test_missing_system_tools_detects_absent_tool` | Un binario inexistente aparece como ausente del PATH | unitario |
 | `tests/test_check_env.py::test_missing_system_tools_empty_when_tool_exists` | Un binario presente (`python`, `python3` o `git`) no aparece como ausente | unitario |
+| `tests/test_check_env.py::test_main_script_survives_non_utf8_console` | El script con `PYTHONIOENCODING=cp1252` muestra los avisos sin `UnicodeEncodeError` y termina con 0 o 1 | integración (subproceso) |
 
-Sin cubrir: `check_markitdown_plugins` y `main` (códigos de salida y avisos).
+Sin cubrir: `check_markitdown_plugins` y el contenido exacto de los avisos de `main`.
 
 ```bash
 python -m pytest tests/test_check_env.py -q

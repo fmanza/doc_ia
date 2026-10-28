@@ -28,3 +28,17 @@ def test_missing_system_tools_empty_when_tool_exists() -> None:
         if shutil.which(candidate) is not None:
             assert missing_system_tools((candidate,)) == []
             return
+
+
+def test_main_script_survives_non_utf8_console() -> None:
+    """En una consola cp1252 (Windows) los avisos con «⚠» no deben romper el script."""
+    import os
+    import subprocess
+
+    script = Path(__file__).resolve().parents[1] / "scripts" / "check_env.py"
+    env = {**os.environ, "PYTHONIOENCODING": "cp1252"}
+    result = subprocess.run(
+        [sys.executable, str(script)], capture_output=True, env=env, timeout=60, check=False
+    )
+    assert b"UnicodeEncodeError" not in result.stderr
+    assert result.returncode in (0, 1)

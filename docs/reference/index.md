@@ -8,7 +8,7 @@ fuentes:
   mkdocs.yml: 417c1a6602da
   mkdocs_hooks.py: 2f510611cb6f
   scripts/build_docs_zip.py: 0b48091d8aa9
-  scripts/check_env.py: 5a2a60e20da2
+  scripts/check_env.py: 474070bcf7f5
   scripts/convert_to_md.py: 8f5b3676ae87
   scripts/doc_trace.py: a1824b159937
   scripts/start-server.py: ec67386821f7

@@ -60,6 +60,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
   fija al importarse ya no se confunde con una elección del usuario.
 - `convert_to_md.py` con docling ya no recoge los `.md` del origen: el Markdown ya es legible y
   se reconvertía a `md/` sin necesidad.
+- `check_env.py` ya no se interrumpe con `UnicodeEncodeError` al mostrar avisos en una consola
+  Windows (cp1252): la salida se reconfigura a UTF-8.
 
 ## [0.1.0] — 2026-06-10
 

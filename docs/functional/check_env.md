@@ -1,7 +1,7 @@
 ---
 arquetipo: "1"
 fuentes:
-  scripts/check_env.py: 5a2a60e20da2
+  scripts/check_env.py: 474070bcf7f5
 revisado: 2026-10-28
 ---
 # Verificación de Entorno
@@ -87,6 +87,9 @@ un aviso con la instrucción de instalación, pero el resultado sigue siendo éx
 
 ### Casos especiales
 
+- **Consola sin UTF-8** (Windows, página de códigos 1252): los avisos con símbolos se
+  muestran igualmente; la verificación no se interrumpe.
+
 - **Verificación de un conjunto distinto**: los flujos internos (pruebas) pueden verificar
   una lista alternativa de herramientas sin cambiar el comportamiento por defecto.
 - **docling presente**: el aviso indica además si se ha detectado soporte de GPU NVIDIA o si
@@ -100,6 +103,7 @@ un aviso con la instrucción de instalación, pero el resultado sigue siendo éx
 | AC-02 | Un entorno donde falta al menos una herramienta requerida | Se ejecuta la verificación de entorno | Se informa "Faltan herramientas: " con la lista exacta de ausentes y el proceso termina con fallo (código 1) | `tests/test_check_env.py::test_missing_tools_detects_absent_tool` |
 | AC-03 | Una lista alternativa de herramientas a comprobar | Se solicita la verificación de ese conjunto | El resultado incluye solo las ausentes, preservando el orden de la lista | `tests/test_check_env.py::test_missing_tools_detects_absent_tool` |
 | AC-04 | Requeridas completas pero sin pandoc en el sistema | Se ejecuta la verificación de entorno | Se informa el entorno como completo, con un aviso sobre pandoc, y el proceso termina con éxito (código 0) | `tests/test_check_env.py::test_missing_system_tools_detects_absent_tool`, `tests/test_check_env.py::test_missing_system_tools_empty_when_tool_exists` |
+| AC-05 | Una consola que no usa UTF-8 y avisos pendientes | Se ejecuta la verificación | Se muestran los avisos y el resultado es el habitual (código 0 o 1), sin error de codificación | `tests/test_check_env.py::test_main_script_survives_non_utf8_console` |
 
 Verificación: `python scripts/check_env.py` (AC-01/AC-02/AC-04) y
 `python -m pytest tests/test_check_env.py -q` (detección de ausentes). Los tests cubren la
@@ -127,3 +131,4 @@ detección de herramientas, no el mensaje ni el código de salida final ⚠️.
     | AC-02 | `scripts/check_env.py::main`, `::missing_tools` | ⚠️ (el test no comprueba el código 1) |
     | AC-03 | `scripts/check_env.py::missing_tools` | ⚠️ (el test usa una sola herramienta; el orden no se comprueba) |
     | AC-04 | `scripts/check_env.py::main`, `::missing_system_tools` | ⚠️ (el test cubre la detección, no el aviso) |
+    | AC-05 | `scripts/check_env.py` (bloque `__main__`: salida reconfigurada a UTF-8) | ✅ |
