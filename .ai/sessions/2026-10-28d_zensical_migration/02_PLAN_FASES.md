@@ -247,8 +247,8 @@ fases posteriores **salvo** las que dependen de él según el grafo.
   - `.github/workflows/docs-zip-release.yml`: el cuerpo de la release describe el offline real.
   - `extra.polyfills` con `iframe-worker` local solo si se quiere evitar la descarga en el build.
   - **Mermaid fijado y local** (anexo de la sesión `2026-10-28e_mermaid_diagrams`, M5): el tema
-    carga `unpkg.com/mermaid@11` (Material) o `@12` (Zensical) desde su bundle JS, una carga
-    dinámica que `privacy` no intercepta. Servir `docs/assets/js/mermaid/mermaid.esm.min.mjs` con
+    carga `unpkg.com/mermaid@11` (Material) o `@12` (Zensical) desde su bundle JS; es una carga
+    dinámica y está por verificar que `privacy` la intercepte. Si no lo hace, servir `docs/assets/js/mermaid/mermaid.esm.min.mjs` con
     la misma versión exacta que el job `mermaid` de `ci.yml` (hoy 12.2.0) y un
     `docs/assets/js/mermaid.mjs` que la importa, llama a `initialize({startOnLoad: false})` y la
     asigna a `window.mermaid`, el mecanismo documentado por Material en
