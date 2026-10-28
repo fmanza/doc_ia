@@ -149,9 +149,10 @@ Fase 7  — Verificación de build (opt-in --verify-build): python -m mkdocs bui
 ```
 
 > **Fase 0b — Requisito OBLIGATORIO** (creación y actualización):
-> Verificar que el destino tiene los 4 assets (`nav.css`, `mermaid.css`, `sidebar-toggle.js`,
-> `mermaid.js`) en `docs/assets/`, que `mkdocs.yml` los referencia en `extra_css` /
-> `extra_javascript`, y que **`navigation.sections` está ausente** de `theme.features`
+> Verificar que el destino tiene los 3 assets (`nav.css`, `mermaid.css`, `sidebar-toggle.js`)
+> en `docs/assets/`, que `mkdocs.yml` los referencia en `extra_css` / `extra_javascript`, que
+> `pymdownx.superfences` tiene `custom_fences` para `mermaid` y **no** hay CDN de Mermaid ni
+> `mermaid.js` propio (duplican el render), y que **`navigation.sections` está ausente** de `theme.features`
 > (su presencia desactiva el colapso del menú lateral e invalida `nav.css`).
 > Ver checklist completo en `.claude/commands/document-project.md § Sincronización de Configuración Visual`.
 > Ver caso real documentado en `.claude/EDGE_CASES.md § [mkdocs.yml] navigation.sections`.

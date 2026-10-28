@@ -69,14 +69,15 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 - [ ] `.gitignore` presente en la raíz del destino con los patrones estándar (primera sesión: crear si no existe; ver tabla abajo)
 - [ ] `theme.features` verificado — sin `navigation.sections` si `nav.css` presente
 - [ ] `extra_css` incluye `assets/css/nav.css` y `assets/css/mermaid.css`
-- [ ] `extra_javascript` incluye CDN Mermaid + `assets/js/mermaid.js` + `assets/js/sidebar-toggle.js`
-- [ ] Los archivos `docs/assets/css/nav.css`, `docs/assets/css/mermaid.css`, `docs/assets/js/sidebar-toggle.js`, `docs/assets/js/mermaid.js` existen en disco
+- [ ] `extra_javascript` incluye `assets/js/sidebar-toggle.js` y **no** incluye el CDN de Mermaid ni `assets/js/mermaid.js` (si están, retirarlos: duplican el render — ver `.claude/EDGE_CASES.md § Mermaid`)
+- [ ] Los archivos `docs/assets/css/nav.css`, `docs/assets/css/mermaid.css`, `docs/assets/js/sidebar-toggle.js` existen en disco
+- [ ] `pymdownx.superfences` con `custom_fences` para `mermaid` (`format: !!python/name:pymdownx.superfences.fence_code_format`): sin él los diagramas salen como código
 - [ ] `markdown_extensions` incluye los universales (ver tabla abajo)
 
 **Qué sincronizar** (universal, aplicable a todos los proyectos MkDocs):
 - `theme.features` — Ver tabla de compatibilidad más abajo; algunas requieren decisión
 - `markdown_extensions` críticas — `pymdownx.snippets` (para `--8<--`), `pymdownx.superfences` (Mermaid), `pymdownx.emoji`, `pymdownx.highlight`, `pymdownx.inlinehilite`, `attr_list`, `md_in_html`
-- `extra_javascript` y `extra_css` — Assets personalizados (`sidebar-toggle.js`, `nav.css`, `mermaid.js`, `mermaid.css`)
+- `extra_javascript` y `extra_css` — Assets personalizados (`sidebar-toggle.js`, `nav.css`, `mermaid.css`); Mermaid lo carga el tema
 - `extra.social` — Enlaces de redes sociales (si aplica)
 
 **Tabla de `theme.features` — copiables vs decisión**:

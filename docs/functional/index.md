@@ -7,7 +7,7 @@ fuentes:
   docs/functional/check_env.md: 50d36e2a0f15
   docs/functional/convert_to_md.md: ba27225210c2
   docs/functional/doc_trace.md: 5137aa9944f5
-  docs/functional/document_project.md: 974f94fdc514
+  docs/functional/document_project.md: 389c47c24ef5
   docs/functional/origin_types.md: da5ec981131e
 revisado: 2026-10-28
 ---

@@ -1,10 +1,10 @@
 ---
 arquetipo: "2"
 fuentes:
-  .claude/commands/document-project.md: 62121e4162c3
-  .github/agents/documentation-generator.agent.md: f8537cc1dd52
-  .github/prompts/document_project.prompt.md: 8622878f0f40
-  mkdocs.yml: 2a7d695ddd8d
+  .claude/commands/document-project.md: 0c40f2025589
+  .github/agents/documentation-generator.agent.md: d94647bfac37
+  .github/prompts/document_project.prompt.md: eb1288bb24e5
+  mkdocs.yml: 66d3b81c502c
 revisado: 2026-10-28
 ---
 # document_project

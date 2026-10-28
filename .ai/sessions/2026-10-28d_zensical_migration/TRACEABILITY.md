@@ -45,8 +45,9 @@ recomendable la migración. Puede consultarse información en internet. PLAN y A
 | F4 | `test(docs): guardas de compatibilidad con Zensical` | `d7b89f6` | HECHO |
 | F5 | `docs(adr): ADR-003 Zensical como generador por defecto (propuesto)` | `5cc8bfc` | HECHO |
 | F11 | `feat(prompts): soporte completo de Zensical en document_project` | `d059533` | HECHO |
-| F6a | `fix(docs): diagrama Runtime de architecture con nodo paralelogramo inválido` | (este commit) | HECHO |
-| F6-F10, F12 | ver `02_PLAN_FASES.md` | — | PENDIENTE |
+| F6a | `fix(docs): diagrama Runtime de architecture con nodo paralelogramo inválido` | `a96de4b` | HECHO |
+| F6 | `refactor(docs): Mermaid con la integración nativa del tema` | (este commit) | HECHO |
+| F7-F10, F12 | ver `02_PLAN_FASES.md` | — | PENDIENTE (gates) |
 
 ### F1 — verificación
 - DoD local (`.venv`, Python 3.14): ruff, format, mypy, pytest **177**, drift 0, matrix
@@ -117,6 +118,19 @@ recomendable la migración. Puede consultarse información en internet. PLAN y A
   Ocurría también en el render nativo: error real, independiente de F6.
 - Arreglo: `B[Comando document-project…]` → 23/23 y captura revisada.
 - Regresión: `test_mermaid_nodes_do_not_start_with_slash` (falla sin el arreglo, pasa con él).
+
+### F6 — verificación (C6 y C7 cumplidas)
+- **C6**: sin CDN ni `assets/js/mermaid.js`, 23 diagramas (flowchart, sequence, ER) × MkDocs y
+  Zensical × claro y oscuro = **92/92 visibles**, 0 errores y sin scripts de Mermaid en la página
+  (los carga el tema). Capturas revisadas: flowchart y sequence en oscuro, ER en claro, diagrama
+  de F1 y Runtime corregido en oscuro (Zensical). En oscuro, el tema aplica sus colores.
+- **C7**: la configuración de doc_ia tras F6 es la de socyalpro (sin CDN, con `custom_fences`):
+  renderiza. Contraprueba sin `custom_fences` → ningún `.mermaid`, el diagrama sale como código.
+  La causa real de 2026-06-12a era la ausencia de `custom_fences`, no la del CDN.
+- Producto: Fase 0b/5 de 4 → 3 assets y retirada activa del CDN/`mermaid.js` en destinos
+  (el plan decía "se tolera"; la evidencia de errores ocultos justifica retirarlos).
+- Limitación conocida (sin cambio): el tema carga Mermaid desde CDN → el ZIP offline necesita
+  red para los diagramas hasta F10 (`privacy`).
 
 ## Veredicto final
 Veredicto: F0-F5, F11 GO · F6 GO_CONDICIONAL (C6, C7) · F7 gate 0.1 · F8 gate C2-C5 ·

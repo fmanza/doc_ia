@@ -124,9 +124,8 @@ cp .github/templates/TEMPLATE_mkdocs.yml <destino>/mkdocs.yml
 Cuando documentes un nuevo proyecto con `/document-project`, verifica:
 
 - [ ] **mkdocs.yml existe**: Si no, copiar desde `.github/templates/TEMPLATE_mkdocs.yml`
-- [ ] **extra_javascript**: Incluye `https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js`
-- [ ] **extra_javascript**: Incluye `assets/js/mermaid.js`
-- [ ] **extra_javascript**: Incluye `assets/js/sidebar-toggle.js`
+- [ ] **extra_javascript**: Incluye `assets/js/sidebar-toggle.js` y **no** incluye el CDN de Mermaid ni `assets/js/mermaid.js` (duplican el render)
+- [ ] **markdown_extensions**: `pymdownx.superfences` con `custom_fences` para `mermaid` (imprescindible para los diagramas)
 - [ ] **extra_css**: Incluye `assets/css/mermaid.css`
 - [ ] **extra_css**: Incluye `assets/css/nav.css`
 - [ ] **Archivos existen**: Verificar que los 2 archivos personalizados existen en `docs/assets/`:

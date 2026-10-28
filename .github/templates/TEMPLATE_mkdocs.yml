@@ -163,9 +163,8 @@ extra:
 # JAVASCRIPT PERSONALIZADO: Mermaid, Sidebar Toggle, etc. [REUTILIZABLE]
 # ────────────────────────────────────────────────────────────────────────────
 
+# Mermaid lo carga el tema (pymdownx.superfences custom_fences): no añadir CDN ni mermaid.run() propio.
 extra_javascript:
-  - https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js
-  - assets/js/mermaid.js
   - assets/js/sidebar-toggle.js      # Botón para colapsar/expandir sidebar
 
 # ────────────────────────────────────────────────────────────────────────────

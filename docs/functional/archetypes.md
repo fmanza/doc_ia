@@ -1,8 +1,8 @@
 ---
 arquetipo: "1"
 fuentes:
-  .claude/commands/document-project.md: 62121e4162c3
-  .github/DOCUMENTATION_STANDARD.md: 9644319c8791
+  .claude/commands/document-project.md: 0c40f2025589
+  .github/DOCUMENTATION_STANDARD.md: 550ceb9e28bc
   hooks/sync_root_docs.py: ef5e576436c6
   tests/test_docs_conformance.py: 14ba445df5a0
 revisado: 2026-10-28

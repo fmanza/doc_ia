@@ -295,15 +295,16 @@ Cuando el usuario pida documentar o actualizar todo el proyecto, usa este flujo 
 
 **Configuración estándar (DOCUMENTATION_STANDARD.md §4.1) — verificar siempre, corregir si falta:**
 - `palette`: dos entradas con `media` + `toggle` (light: scheme `default`, dark: scheme `slate`).
-- `extra_javascript`: CDN `mermaid@11` + `assets/js/mermaid.js` + `assets/js/sidebar-toggle.js`.
+- `extra_javascript`: `assets/js/sidebar-toggle.js`. Sin CDN de Mermaid ni `assets/js/mermaid.js`
+  (si existen, retirarlos: duplican el render). Mermaid lo carga el tema gracias a
+  `pymdownx.superfences` con `custom_fences` para `mermaid`, que es imprescindible.
 - `extra_css`: `assets/css/mermaid.css` + `assets/css/nav.css`.
 - `markdown_extensions`: `attr_list`, `md_in_html`, `pymdownx.snippets` (con `base_path: [docs]`),
   `line_spans: __span` y `pygments_lang_class: true` en `pymdownx.highlight`.
 - `plugins`: `search` con `lang` del idioma del proyecto.
 
-**Assets** — si alguno de los cuatro ficheros no existe en `docs/assets/` del destino, indicarlo
+**Assets** — si alguno de los tres ficheros no existe en `docs/assets/` del destino, indicarlo
 explícitamente en el RESUMEN con la acción: "Copiar desde `doc_ia/docs/assets/`":
-- `docs/assets/js/mermaid.js`
 - `docs/assets/js/sidebar-toggle.js`
 - `docs/assets/css/mermaid.css`
 - `docs/assets/css/nav.css`

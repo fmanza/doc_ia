@@ -3,9 +3,9 @@ arquetipo: "12"
 fuentes:
   .claude/settings.json.example: e1c10842aa20
   .github/workflows/docs-zip-release.yml: 20d18f9f3c59
-  CLAUDE.md: a167ad648656
+  CLAUDE.md: b6c5605fe488
   hooks/sync_root_docs.py: ef5e576436c6
-  mkdocs.yml: 2a7d695ddd8d
+  mkdocs.yml: 66d3b81c502c
   mkdocs_hooks.py: 2f510611cb6f
   scripts/build_docs_zip.py: b9a2694d122f
   scripts/check_env.py: a30937ae040f

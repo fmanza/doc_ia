@@ -58,6 +58,14 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 ### Changed
 
 - `build_docs_zip.py` invoca Zensical como `python -m zensical` (antes `zensical` desde el PATH).
+- **Mermaid con la integración nativa del tema**: se retiran el CDN `mermaid@11` y
+  `docs/assets/js/mermaid.js` de `extra_javascript`. Duplicaban el render: el tema ya pinta cada
+  diagrama y el `mermaid.run()` propio dejaba un SVG de error oculto en cada bloque. La pieza
+  imprescindible es `custom_fences: mermaid`. Fase 0b y Fase 5 de `/document-project` pasan de 4 a
+  3 assets (si un destino tiene el CDN o `mermaid.js`, se retiran). Norma §4.1,
+  `docs.instructions.md`, plantilla `TEMPLATE_mkdocs.yml`, agentes, `CLAUDE.md`, `CONTRIBUTING.md`
+  y `EDGE_CASES` § Mermaid actualizados. Verificado en navegador (Edge headless + CDP): 23/23
+  diagramas visibles con MkDocs y con Zensical, en claro y en oscuro.
 - CI: build de paridad con Zensical (`build_docs_zip.py --builder zensical`, no bloqueante) que
   verifica además el ZIP `latest`. `zensical==0.0.73` fijado en `requirements-dev.txt` y
   `requirements.txt` (con `deepmerge` y `tomli`).
