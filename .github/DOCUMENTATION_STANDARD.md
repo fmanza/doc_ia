@@ -320,13 +320,13 @@ Estas páginas entran directamente en `nav:` (nivel raíz), no bajo `functional/
 
 **Distinción con otros arquetipos**:
 - El Arquetipo 5 (`architecture_doc`) documenta **un ADR concreto** (decisión con trade-offs, formato MADR-lite); la Variante C es la **vista panorámica del sistema** (arc42-lite + C4) y enlaza al log de ADR. Ambas conviven bajo la sección "Arquitectura" del nav y forman un modelo único: panorámica + decisiones.
-- El Arquetipo 3 (`guide_doc`) cubre guías genéricas (async, drivers, troubleshooting); la Variante B es específica de instalación del paquete y drivers.
+- Los Arquetipos 3a (`howto_doc`) y 3b (`tutorial_doc`) cubren guías genéricas (async, drivers, troubleshooting); la Variante B es específica de instalación del paquete y drivers.
 
 **Excepción**: `docs/index.md` y `docs/legacy-versions.md` seguían exentos en v1; con este arquetipo `index.md` pasa a regirse por la Variante A. `legacy-versions.md` permanece exento.
 
 ---
 
-### 3.7 Arquetipo 7 — Guía de Incorporación para Desarrolladores (`docs/ONBOARDING_DEV.md`)
+### 3.7 Arquetipo 7 — Guía de Incorporación para Desarrolladores (`docs/guides/onboarding_dev.md`)
 
 **Propósito**: Responder "¿Cómo me incorporo al proyecto y pongo en marcha mi entorno?"
 
@@ -508,7 +508,7 @@ Cuando `/document-project` recibe más de un `Origen`, o cuando el único origen
 | `UI/PANTALLAS` | Wireframes, mockups, capturas (`.png`, `.jpg`, `.pdf` de diseño); carpetas `mockups/`, `screens/`, `wireframes/`, `figma-exports/` | Enriquece Arquetipo 1 §3 (Casos de Uso) y Arquetipo 3 (Guías) |
 | `REFERENCIA` | Manuales de terceros, RFCs, especificaciones de protocolo **ajenas al proyecto** | Enriquece Arquetipo 2 §4 (Dependencias) o Arquetipo 5 (ADR) |
 | `CONTRATO` | Especificaciones machine-readable de las APIs/datos del **propio proyecto**: `.yaml`/`.json` con clave `openapi:` o `asyncapi:`; `.graphql`/`.gql`; `.proto`; `.avsc`; `.sql` DDL en `db/`/`migrations/`; `.dbml`; carpetas `api/`, `contracts/`, `schemas/`, `proto/` | Enriquece Arquetipo 2 §1 (Arquitectura) y §2 (Modelo de Datos / Contratos) |
-| `INFRAESTRUCTURA` | IaC y despliegue: `.tf`; `Dockerfile`, `docker-compose.yml`; YAML en `k8s/`, `deploy/`, `manifests/`, `helm/`; playbooks Ansible; CloudFormation en `cloudformation/` | Enriquece Arquetipo 2 §4 (Dependencias) y Arquetipo 6D (Arquitectura — vista despliegue) |
+| `INFRAESTRUCTURA` | IaC y despliegue: `.tf`; `Dockerfile`, `docker-compose.yml`; YAML en `k8s/`, `deploy/`, `manifests/`, `helm/`; playbooks Ansible; CloudFormation en `cloudformation/` | Enriquece Arquetipo 2 §4 (Dependencias) y Arquetipo 6C (Arquitectura — vista despliegue) |
 | `MANUAL` | Documentación narrativa del **propio proyecto**: `.pdf`, `.docx`, `.md` con `manual`/`guide`/`runbook`/`ayuda`/`help` en nombre; carpetas `manuals/`, `help/`, `user-docs/`; `.chm` | Enriquece Arquetipos 3a §3, 3b §3, 6A/B §1 (Descripción) y 7 §3+§5 |
 
 **Regla**: la autodetección propone el tipo; el usuario confirma antes de continuar al INVENTARIO. Nunca se asume el tipo sin confirmación.
@@ -524,7 +524,7 @@ Cuando `/document-project` recibe más de un `Origen`, o cuando el único origen
 | `UI/PANTALLAS` | 1 + 3 | Arq. 1 §3 Casos de Uso; Arq. 3 §3 Pasos |
 | `REFERENCIA` | 2 o 5 | Arq. 2 §4 Dependencias; o Arq. 5 (decisión ADR) |
 | `CONTRATO` | 2 (proyecto principal) | §1 Arquitectura (interfaces publicadas); §2 Modelo de Datos / Contratos |
-| `INFRAESTRUCTURA` | 2 + 6 | Arq. 2 §4 Dependencias y Requisitos; Arq. 6D §3 (vista despliegue) |
+| `INFRAESTRUCTURA` | 2 + 6 | Arq. 2 §4 Dependencias y Requisitos; Arq. 6C §3 (vista despliegue) |
 | `MANUAL` | 3a · 3b · 6 · 7 | Arq. 3a §3 Pasos; Arq. 3b §3; Arq. 6A/B §1; Arq. 7 §3 y §5 |
 
 Los orígenes MATERIAL **no generan páginas propias** en `docs/`; su contenido enriquece las secciones indicadas de los arquetipos del proyecto principal.

@@ -185,7 +185,7 @@ Genera la página [Inicio | Instalación | Arquitectura] aplicando la variante c
 arquitectónica concreta (ADR)**. Esta Variante C documenta la **visión global del sistema** (mapa de
 módulos, capas, flujo). Ambas conviven bajo la sección "Arquitectura" del nav.
 
-**Diferencia con el Arquetipo 3 (`guide_doc`)**: `guide_doc` cubre guías de configuración/uso genéricas
+**Diferencia con los Arquetipos 3a (`howto_doc`) y 3b (`tutorial_doc`)**: cubren guías de configuración/uso genéricas
 (plataformas IA, troubleshooting). La Variante B es específica de **instalación del entorno de tooling**.
 
 ## Output esperado

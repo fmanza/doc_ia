@@ -89,7 +89,7 @@ Fase 0a — Clasificación de orígenes (solo con ≥2 orígenes, o si el único
             UI/PANTALLAS     → enriquece Arquetipo 1 §3 (Casos de Uso) y Arquetipo 3
             REFERENCIA       → enriquece Arquetipo 2 §4 (Dependencias) o Arquetipo 5 (ADR)
             CONTRATO         → enriquece Arquetipo 2 §1 (Arquitectura/interfaces) y §2 (Modelo de Datos/Contratos)
-            INFRAESTRUCTURA  → enriquece Arquetipo 2 §4 (Dependencias) y Arquetipo 6D §3 (vista despliegue)
+            INFRAESTRUCTURA  → enriquece Arquetipo 2 §4 (Dependencias) y Arquetipo 6C §3 (vista despliegue)
             MANUAL           → enriquece Arq. 3a §3, Arq. 3b §3, Arq. 6A/B §1 (Descripción), Arq. 7 §3 y §5
 
 Fase 0 — Detección de normativa: si el origen referencia normativa de obligado cumplimiento,
@@ -181,7 +181,7 @@ Fase 1 — Inventariar y clasificar:
 Fase 2 — Mapeo funcional (functional_doc.prompt.md) → [destino]/functional/
 Fase 3 — Documentación técnica con Mermaid (technical_doc.prompt.md) → [destino]/api/
 Fase 4 — Ejemplos verificables (example_doc.prompt.md) → [destino]/examples/
-         Guías y landing según inventario: guide_doc, landing_doc, onboarding_dev, architecture_doc.
+         Guías y landing según inventario: howto_doc, tutorial_doc, landing_doc, onboarding_dev, architecture_doc.
 Fase 5 — Sincronizar navegación y verificar configuración estándar del generador (mkdocs.yml del destino):
          a. Navegación: añadir/mover/retirar entradas de nav; indentación de 4 espacios extra por nivel.
          b. Configuración estándar (DOCUMENTATION_STANDARD.md §4.1) — verificar y corregir si falta:
