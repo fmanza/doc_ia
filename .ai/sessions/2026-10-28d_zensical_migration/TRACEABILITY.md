@@ -178,9 +178,10 @@ recomendable la migración. Puede consultarse información en internet. PLAN y A
   release `v0.2.0` con `doc_ia-docs-0.1.0.zip`.
 - El borrado del tag remoto fue denegado por permisos (operación git destructiva): lo hizo el
   usuario (borrar release, borrar tag y recrearlo sobre `2e8da9d`). Release `v0.2.0` correcta.
-- Efecto colateral: la release `docs-v0.2.0` desapareció en la limpieza (el tag `docs-v0.2.0` sigue).
-  Recuperación: ejecutar a mano «📦 Build & Publish Docs ZIP» sobre `main` (`workflow_dispatch`;
-  `allowUpdates: true` recrea la release sobre el tag existente).
+- Tras la limpieza, la API pública no listaba la release `docs-v0.2.0` (el tag seguía). Se ejecutó
+  a mano «📦 Build & Publish Docs ZIP» sobre `main` (run 40762456792, `workflow_dispatch`): release
+  `docs-v0.2.0` con ZIP, `.sha256` y `CHECKSUMS.txt`. Conserva su `created_at` original (19:58),
+  así que probablemente no llegó a borrarse y la consulta anterior fue un dato desactualizado.
 - Lección: no encadenar merge, tag y push en un único comando; verificar el merge antes de etiquetar.
 
 ## Veredicto final
