@@ -41,8 +41,9 @@ recomendable la migración. Puede consultarse información en internet. PLAN y A
 | F0 | `docs(session): plan por fases de la migración a Zensical` | `64ab29e` | HECHO |
 | F1 | `feat(build): pipeline sin hooks para construir con Zensical` | `28fd055` | HECHO |
 | F2 | `ci(docs): build de paridad con Zensical (no bloqueante)` | `dd9266d` | HECHO |
-| F3 | `feat(env): check_env informa de Zensical como generador opcional` | (este commit) | HECHO |
-| F4-F12 | ver `02_PLAN_FASES.md` | — | PENDIENTE |
+| F3 | `feat(env): check_env informa de Zensical como generador opcional` | `767e97b` | HECHO |
+| F4 | `test(docs): guardas de compatibilidad con Zensical` | (este commit) | HECHO |
+| F5-F12 | ver `02_PLAN_FASES.md` | — | PENDIENTE |
 
 ### F1 — verificación
 - DoD local (`.venv`, Python 3.14): ruff, format, mypy, pytest **177**, drift 0, matrix
@@ -67,6 +68,14 @@ recomendable la migración. Puede consultarse información en internet. PLAN y A
 - venv sin Zensical y `PYTHONIOENCODING=cp1252`: aviso de Zensical como primer `⚠`, código 0.
 - Corrección arrastrada de F1: la fila de Evidencia «ZIP offline» del Mapa Funcional decía 5/6
   (la tabla ya decía 7/8); se corrige en este commit.
+
+### F4 — verificación
+- **Desviación del plan**: las guardas van en `tests/test_zensical_compat.py` (nuevo) y no en
+  `tests/test_docs_conformance.py`, que verifica arquetipos y es fuente sellada de
+  `api/archetypes.md` y `functional/archetypes.md`: evita re-sellar páginas no relacionadas.
+- Mutaciones (revertidas tras comprobarlas): plugin `git-revision-date` añadido →
+  falla la guarda de plugins; `use_directory_urls: false` → falla la de enlaces (`../` sale de
+  `site/`, el caso previsto para F10); nombre de ZIP cambiado en `downloads.md` → falla.
 
 ## Veredicto final
 Veredicto: F0-F5, F11 GO · F6 GO_CONDICIONAL (C6, C7) · F7 gate 0.1 · F8 gate C2-C5 ·

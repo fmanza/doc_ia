@@ -41,6 +41,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - `check_env.py` avisa si falta `zensical` (generador opcional, `OPTIONAL_DOC_BUILDERS`) y remite a
   `requirements-dev.txt`; no cambia el código de salida. 2 tests nuevos; AC-06 en
   `functional/check_env.md`.
+- `tests/test_zensical_compat.py`: guardas para lo que ningún `--strict` detecta. Falla si
+  `mkdocs.yml` declara un plugin que Zensical ignoraría en silencio o si los enlaces al ZIP de
+  `docs/downloads.md` no resuelven al ZIP `latest`. AC-09 en `functional/build_docs_zip.md`.
 
 ### Changed
 

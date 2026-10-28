@@ -106,4 +106,8 @@
   que ejecuta `hooks/sync_root_docs.py` antes y `mkdocs_hooks.py` después de un build OK.
   `python -m zensical serve` no sincroniza: tras editar `CHANGELOG.md`/`CONTRIBUTING.md`, ejecutar
   `python hooks/sync_root_docs.py` (en Claude Code lo hace el PostToolUse).
-- **Sesión**: `.ai/sessions/2026-10-28d_zensical_migration/` (F1)
+- **Guardas**: `tests/test_zensical_compat.py` falla si `mkdocs.yml` declara un plugin fuera de
+  `ZENSICAL_SUPPORTED_PLUGINS` o si los enlaces al ZIP de `docs/downloads.md` no resuelven al
+  ZIP `latest` (p. ej. al cambiar `use_directory_urls`). Al actualizar Zensical, revisar la lista
+  contra zensical.org/compatibility/plugins.
+- **Sesión**: `.ai/sessions/2026-10-28d_zensical_migration/` (F1, F4)
