@@ -1,0 +1,3 @@
+# Ficheros de terceros copiados tal cual: sin conversión de fin de línea, para que su huella
+# SHA256 sea la misma en Windows y en Linux (tests/test_mermaid_assets.py).
+docs/assets/vendor/** -text

@@ -12,7 +12,7 @@ La documentación completa está disponible como un archivo ZIP comprimido que p
 
 - ✅ **Búsqueda offline** — Índice de búsqueda completo en local
 - ✅ **Navegación interactiva** — Menú, referencias cruzadas, breadcrumbs
-- ✅ **Diagramas Mermaid** — Flujos y arquitectura
+- ✅ **Diagramas Mermaid** — Flujos y arquitectura, dibujados sin conexión (Mermaid va incluido en el ZIP)
 - ✅ **Responsive** — Compatible con móvil, tablet y desktop
 
 ---
@@ -130,5 +130,5 @@ Releases publicadas: [github.com/fmanza/doc_ia/releases](https://github.com/fman
 ## 📝 Información de versión
 
 - **Versión de doc_ia**: 0.2.0
-- **Generador**: MkDocs + Material for MkDocs (Mermaid con la integración nativa del tema)
+- **Generador**: MkDocs + Material for MkDocs (Mermaid 12.2.0 incluido en el sitio, con la integración nativa del tema)
 - **Actualización**: 2026-10-28

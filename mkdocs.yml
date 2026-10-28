@@ -150,10 +150,14 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/fmanza/doc_ia
 
-# Mermaid lo carga la integración nativa del tema (pymdownx.superfences custom_fences);
-# no añadir el CDN ni un mermaid.run() propio: duplica el render (ver EDGE_CASES § Mermaid).
+# Mermaid lo renderiza la integración nativa del tema (pymdownx.superfences custom_fences) con la
+# versión servida en local: el tema usa window.mermaid si existe y no descarga nada de unpkg.
+# Orden obligatorio: la librería y después mermaid-theme.js. No añadir el CDN ni un
+# mermaid.run() propio: duplica el render (ver EDGE_CASES § Mermaid).
 extra_javascript:
   - assets/js/sidebar-toggle.js
+  - assets/vendor/mermaid/mermaid-12.2.0.min.js
+  - assets/js/mermaid-theme.js
 
 extra_css:
   - assets/css/mermaid.css

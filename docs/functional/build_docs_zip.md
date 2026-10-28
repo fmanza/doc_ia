@@ -1,10 +1,11 @@
 ---
 arquetipo: "1"
 fuentes:
-  mkdocs.yml: 66d3b81c502c
+  mkdocs.yml: 2179f8729495
   mkdocs_hooks.py: 2f510611cb6f
   scripts/build_docs_zip.py: b9a2694d122f
   tests/test_build_docs_zip.py: 0dad72a78801
+  tests/test_mermaid_assets.py: 925ed879e901
   tests/test_zensical_compat.py: d62c11ebe8cd
 revisado: 2026-10-28
 ---
@@ -99,6 +100,9 @@ proyecto en el nombre, su huella y una nueva línea en el registro histórico de
   `CHECKSUMS.txt` (acumulativo; nunca se borra).
 - El sitio generado se sobrescribe cuando el empaquetado versionado reconstruye.
 - El ZIP automático incluye el servidor local para navegar la documentación sin conexión.
+- Los diagramas se dibujan sin conexión: el sitio lleva su propia copia de Mermaid con versión
+  fija, la misma con los dos generadores. Las fuentes tipográficas siguen descargándose de
+  internet; sin conexión se usan las del sistema.
 
 ## 5. Reglas de Negocio
 
@@ -110,6 +114,7 @@ proyecto en el nombre, su huella y una nueva línea en el registro histórico de
 | Build exitoso antes del ZIP | El ZIP se genera solo tras un build sin errores; nunca a partir de un sitio corrupto | Se distribuiría documentación con enlaces rotos o páginas huérfanas |
 | Sin servicios IA | El empaquetado es tooling determinista local; nunca invoca servicios IA | Violaría el principio innegociable del proyecto |
 | Sin instalación | El empaquetado automático funciona con cualquier Python que tenga el generador; no requiere instalar el proyecto como paquete | Dependencia frágil del entorno; falla si no está activo el entorno correcto |
+| Diagramas sin conexión | El sitio sirve su propia copia de Mermaid, con versión exacta y huella fija, coherente con la configuración y con la validación de CI | Sin conexión, los diagramas aparecerían como bloques de código |
 | Enlaces de descarga coherentes | Los enlaces de la página de descargas resuelven, desde la URL publicada de esa página, al ZIP "latest" y a su huella tal como los genera el empaquetado automático | El modo estricto no revisa enlaces en HTML: la descarga quedaría rota sin aviso |
 
 ## 6. Límites, Flujos Alternativos y Casos Especiales
@@ -156,6 +161,7 @@ proyecto en el nombre, su huella y una nueva línea en el registro histórico de
 | AC-07 | Zensical como generador y un `CHANGELOG.md` en la raíz | Se solicita el empaquetado versionado con Zensical | La copia de `CHANGELOG.md` en la documentación se actualiza antes del build y, tras el build, existen `site/doc_ia-docs-latest.zip` y su `.sha256` | `tests/test_build_docs_zip.py::test_zensical_with_real_hooks_syncs_and_creates_latest_zip` |
 | AC-08 | Zensical como generador y documentación con un error que hace fallar el build estricto | Se solicita el empaquetado versionado con Zensical | El proceso termina con el código de error del generador y no se genera ni el ZIP "latest" ni el versionado | `tests/test_build_docs_zip.py::test_zensical_build_failure_skips_post_build` |
 | AC-09 | La página de descargas y la configuración del sitio (estilo de URL) | Se comprueba la conformidad del repositorio | Cada enlace al ZIP "latest" o a su huella resuelve, desde la URL de la página de descargas, a un fichero que genera el empaquetado automático en la raíz del sitio | `tests/test_zensical_compat.py::test_downloads_links_point_to_latest_zip` |
+| AC-10 | El sitio construido con cualquiera de los dos generadores | Se abre una página con diagramas sin conexión a internet | Los diagramas se dibujan con la copia local de Mermaid, cuya versión coincide con la configuración del sitio y con la validación de CI | `tests/test_mermaid_assets.py::test_vendored_mermaid_is_pinned`, `tests/test_mermaid_assets.py::test_extra_javascript_loads_local_mermaid_then_theme`, `tests/test_mermaid_assets.py::test_ci_validates_the_vendored_version` |
 
 Verificación manual: `python scripts/build_docs_zip.py` (AC-01/AC-03),
 `python scripts/build_docs_zip.py --no-build` sin `site/` previo (AC-02),
@@ -197,3 +203,4 @@ Los tests simulan el generador; el build real no está automatizado.
     | AC-07 | `scripts/build_docs_zip.py::_pre_build`, `::_post_build` | ✅ |
     | AC-08 | `scripts/build_docs_zip.py::_build` (`sys.exit` antes de `_post_build`) | ✅ |
     | AC-09 | `tests/test_zensical_compat.py::test_downloads_links_point_to_latest_zip` | ✅ |
+    | Regla «Diagramas sin conexión» y AC-10 | `mkdocs.yml::extra_javascript`, `tests/test_mermaid_assets.py` | ✅ |

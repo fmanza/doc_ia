@@ -985,10 +985,12 @@ se revisa la página contra el cambio de la fuente. Falso positivo conocido: cam
 **Propósito**: fuente única de las reglas de diagramas. `docs.instructions.md`, los prompts de
 arquetipo y los agentes remiten a esta sección en lugar de repetirla.
 
-**Versión de Mermaid**: la carga el tema desde CDN con la versión mayor flotante — MkDocs Material
-usa `mermaid@11` y Zensical `mermaid@12` (en v12 el flowchart usa por defecto el layout ELK y el
-look `neo`). Las reglas de esta sección valen para las dos. No se añade CDN propio ni
-`mermaid.run()` (§4).
+**Versión de Mermaid**: el sitio sirve su propia copia, con versión exacta
+(`docs/assets/vendor/mermaid/mermaid-<versión>.min.js`, hoy 12.2.0), seguida de
+`assets/js/mermaid-theme.js`. Material y Zensical solo descargan Mermaid de unpkg si no existe
+`window.mermaid`, así que con la copia local los dos generadores dibujan con la misma versión y
+el ZIP offline muestra los diagramas sin conexión. En v12 el flowchart usa por defecto el layout
+ELK. No se añade CDN propio ni `mermaid.run()` (§4).
 
 #### Selección de tipo
 

@@ -151,7 +151,7 @@
   el `&`; corregir con un hotfix en cada repositorio.
 - **Sesión**: `.ai/sessions/2026-10-28e_mermaid_diagrams/` (M0)
 
-## [Mermaid] — Material y Zensical cargan versiones mayores distintas
+## [Mermaid] — Material y Zensical cargan versiones mayores distintas (RESUELTO: Mermaid local)
 
 - **Síntoma**: el mismo diagrama se ve distinto según el generador; en Zensical los flowchart usan
   otro layout.
@@ -159,10 +159,27 @@
   `unpkg.com/mermaid@11/dist/mermaid.min.js` y Zensical 0.0.73 `unpkg.com/mermaid@12/...`. En v12
   el flowchart usa por defecto el layout ELK y el look `neo`. Las dos son versiones mayores
   flotantes y necesitan red, también en el ZIP offline.
-- **Tratamiento**: las reglas de `DOCUMENTATION_STANDARD.md` §3.17 valen para ambas; el job
-  `mermaid` de `ci.yml` valida con las dos versiones. Fijar y servir Mermaid en local queda como
-  requisito de F10 (`.ai/sessions/2026-10-28d_zensical_migration/02_PLAN_FASES.md`, condición C9).
+- **Tratamiento** (sesión 2026-10-28f): el sitio sirve su propia copia,
+  `docs/assets/vendor/mermaid/mermaid-12.2.0.min.js`. Los bundles de los dos temas solo descargan
+  de unpkg si `typeof mermaid=="undefined"`, así que ambos dibujan con esa versión y sin red.
+  `tests/test_mermaid_assets.py` vigila la coherencia y que el bundle instalado conserve esa
+  condición (si una actualización del tema la cambia, el fichero local dejaría de usarse).
 - **Ojo al verificar**: renderizar varios diagramas a la vez con `startOnLoad` en una página de
   prueba con mermaid@12 los superpone; no es un fallo de la documentación. Verificar en el sitio
   construido o diagrama a diagrama con `mermaid.render()`.
 - **Sesión**: `.ai/sessions/2026-10-28e_mermaid_diagrams/` (M5)
+
+## [Mermaid] — Material + Mermaid 12: subgrafos ilegibles en modo oscuro
+
+- **Síntoma**: con Mermaid 12 cargado por Material, los `subgraph` de los flowchart salen con
+  fondos pastel claros y el texto de sus nodos casi no se lee en el esquema `slate`.
+- **Causa** (verificada con capturas en Edge headless): Mermaid 12 cambió el tema por defecto del
+  flowchart. Zensical inicializa Mermaid con `theme: "default"` y no lo sufre; Material no pasa
+  `theme` (su integración se diseñó para v11).
+- **Tratamiento**: `docs/assets/js/mermaid-theme.js`, cargado justo después de la librería, envuelve
+  `mermaid.initialize` y añade `theme: "default"` y `themeVariables.dropShadow: "none"` (lo mismo
+  que Zensical; la configuración del tema prevalece). También fija `startOnLoad: false` en cuanto
+  carga, para que la librería no procese los bloques por su cuenta en el evento `load` y duplique
+  el render (§ CDN propio + `mermaid.run()`).
+- **Verificado**: 24/24 diagramas sin conexión, 0 SVG de error, MkDocs y Zensical, claro y oscuro.
+- **Sesión**: `.ai/sessions/2026-10-28f_mermaid_local/` (L1)

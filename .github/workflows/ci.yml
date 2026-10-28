@@ -87,9 +87,10 @@ jobs:
           fi
 
   # `mkdocs build --strict` no valida Mermaid: el tema renderiza en el navegador. Este job pasa
-  # cada página con diagramas por el parser real, con la versión mayor que carga cada tema
-  # (Material → mermaid@11, Zensical → mermaid@12). Versiones exactas y con al menos dos semanas
-  # de antigüedad; se usa el Node y el Chrome del runner (sin descarga de puppeteer).
+  # cada página con diagramas por el parser real, con la misma versión exacta que sirve el sitio
+  # (docs/assets/vendor/mermaid/; tests/test_mermaid_assets.py exige que coincidan). Versiones
+  # con al menos dos semanas de antigüedad; se usa el Node y el Chrome del runner (sin descarga
+  # de puppeteer).
   mermaid:
     name: Mermaid (parser real, mermaid ${{ matrix.mermaid }})
     runs-on: ubuntu-latest
@@ -97,8 +98,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - cli: "11.17.0"
-            mermaid: "11.17.2"
           - cli: "12.0.0"
             mermaid: "12.2.0"
 

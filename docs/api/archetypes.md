@@ -1,10 +1,10 @@
 ---
 arquetipo: "2"
 fuentes:
-  .github/DOCUMENTATION_STANDARD.md: aab10203cb20
+  .github/DOCUMENTATION_STANDARD.md: aa88a84cf813
   .github/agents/documentation-generator.agent.md: b7f50b94ebc1
   .github/prompts/example_doc.prompt.md: 6041f616e0c3
-  mkdocs.yml: 66d3b81c502c
+  mkdocs.yml: 2179f8729495
   tests/test_docs_conformance.py: 7aff93832e8c
 revisado: 2026-10-28
 ---

@@ -92,10 +92,25 @@ el build de paridad con Zensical, que es informativo mientras Zensical esté en 
 `python scripts/doc_trace.py stamp <página>`.
 
 El job `mermaid` del mismo workflow pasa cada página de `docs/` con diagramas por el parser real
-de Mermaid (`@mermaid-js/mermaid-cli`, con mermaid 11 y 12, las versiones que cargan Material y
-Zensical); `mkdocs build --strict` no detecta esos errores. Las reglas deterministas de los
-diagramas (accesibilidad, ≤12 nodos, comillas, sin entidades HTML) las comprueba
+de Mermaid (`@mermaid-js/mermaid-cli`) con la misma versión que sirve el sitio;
+`mkdocs build --strict` no detecta esos errores. Las reglas deterministas de los diagramas
+(accesibilidad, ≤12 nodos, comillas, sin entidades HTML) las comprueba
 `tests/test_docs_conformance.py`.
+
+#### Actualizar Mermaid
+
+El sitio sirve su propia copia de Mermaid (`docs/assets/vendor/mermaid/`) para que los diagramas
+se vean sin conexión. Para cambiar de versión, elige una publicada hace al menos dos semanas y:
+
+1. Descarga el paquete y copia el fichero tal cual:
+   `npm pack mermaid@X.Y.Z` → del tarball, `package/dist/mermaid.min.js` a
+   `docs/assets/vendor/mermaid/mermaid-X.Y.Z.min.js`; borra la versión anterior y actualiza
+   `LICENSE` y `SOURCE.txt` (origen, integridad del tarball y SHA256 del fichero).
+2. Cambia la versión en `mkdocs.yml` y `.github/templates/TEMPLATE_mkdocs.yml`
+   (`extra_javascript`), en la matriz del job `mermaid` de `ci.yml` (con una versión de
+   `@mermaid-js/mermaid-cli` compatible) y la huella en `tests/test_mermaid_assets.py`.
+3. Ejecuta `python -m pytest tests/test_mermaid_assets.py` (falla si algo no coincide) y revisa
+   los diagramas en claro y oscuro con los dos generadores.
 
 ### 5.1 Sincronización Visual de mkdocs.yml (para Nuevos Proyectos)
 
