@@ -53,7 +53,11 @@ def test_vendored_mermaid_is_pinned() -> None:
     assert _version() in source and VENDORED_SHA256 in source
 
 
-@pytest.mark.parametrize("config", [ROOT / "mkdocs.yml"], ids=lambda p: p.name)
+@pytest.mark.parametrize(
+    "config",
+    [ROOT / "mkdocs.yml", ROOT / ".github" / "templates" / "TEMPLATE_mkdocs.yml"],
+    ids=lambda p: p.name,
+)
 def test_extra_javascript_loads_local_mermaid_then_theme(config: Path) -> None:
     """Librería local antes de `mermaid-theme.js`; sin CDN ni `mermaid.run()` propio (AC-10)."""
     scripts = _extra_javascript(config)

@@ -294,19 +294,25 @@ Cuando el usuario pida documentar o actualizar todo el proyecto, usa este flujo 
 
 **Configuración estándar (DOCUMENTATION_STANDARD.md §4.1) — verificar siempre, corregir si falta:**
 - `palette`: dos entradas con `media` + `toggle` (light: scheme `default`, dark: scheme `slate`).
-- `extra_javascript`: `assets/js/sidebar-toggle.js`. Sin CDN de Mermaid ni `assets/js/mermaid.js`
-  (si existen, retirarlos: duplican el render). Mermaid lo carga el tema gracias a
-  `pymdownx.superfences` con `custom_fences` para `mermaid`, que es imprescindible.
+- `extra_javascript`, en este orden: `assets/js/sidebar-toggle.js`,
+  `assets/vendor/mermaid/mermaid-12.2.0.min.js` y `assets/js/mermaid-theme.js`. Sin CDN de Mermaid ni
+  `assets/js/mermaid.js` (si existen, retirarlos: duplican el render). El tema renderiza con
+  la copia local de Mermaid gracias a `pymdownx.superfences` con `custom_fences` para
+  `mermaid`, que es imprescindible; así los diagramas se ven sin conexión.
 - `extra_css`: `assets/css/mermaid.css` + `assets/css/nav.css`.
 - `markdown_extensions`: `attr_list`, `md_in_html`, `pymdownx.snippets` (con `base_path: [docs]`),
   `line_spans: __span` y `pygments_lang_class: true` en `pymdownx.highlight`.
 - `plugins`: `search` con `lang` del idioma del proyecto.
 
-**Assets** — si alguno de los tres ficheros no existe en `docs/assets/` del destino, indicarlo
-explícitamente en el RESUMEN con la acción: "Copiar desde `doc_ia/docs/assets/`":
+**Assets** — si alguno de los cinco recursos no existe en `docs/assets/` del destino, o su
+librería Mermaid es de otra versión, indicarlo explícitamente en el RESUMEN con la acción:
+"Copiar desde `doc_ia/docs/assets/`" (una versión distinta se sustituye y se actualiza
+`extra_javascript`):
 - `docs/assets/js/sidebar-toggle.js`
 - `docs/assets/css/mermaid.css`
 - `docs/assets/css/nav.css`
+- `docs/assets/vendor/mermaid/` (`mermaid-<versión>.min.js`, `LICENSE`, `SOURCE.txt`)
+- `docs/assets/js/mermaid-theme.js`
 
 ### Fase 6 — Revisión y entrega
 - Valida Markdown, enlaces relativos y sintaxis y conformidad Mermaid (`DOCUMENTATION_STANDARD.md` §3.17).

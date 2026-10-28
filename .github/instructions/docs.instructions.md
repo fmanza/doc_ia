@@ -159,9 +159,11 @@ extra:
     # - icon: fontawesome/brands/python
     #   link: https://pypi.org/project/<nombre>/
 
-# Mermaid: integración nativa del tema vía pymdownx.superfences custom_fences (sin CDN propio)
+# Mermaid: integración nativa del tema vía pymdownx.superfences custom_fences, con copia local
 extra_javascript:
   - assets/js/sidebar-toggle.js  # botón ◀/▶ para ocultar/mostrar sidebar
+  - assets/vendor/mermaid/mermaid-12.2.0.min.js  # librería, siempre antes de
+  - assets/js/mermaid-theme.js  # startOnLoad:false + theme default
 
 extra_css:
   - assets/css/mermaid.css
@@ -170,12 +172,16 @@ extra_css:
 
 **Notas críticas:**
 - `!!python/name:` genera advertencias en linters YAML estándar; es válido para MkDocs (falso positivo).
-- Sin `custom_fences` de `mermaid` en `pymdownx.superfences`, los bloques mermaid salen como código resaltado y **no se renderizan**. Con él, el tema carga Mermaid por sí mismo. **No** añadir el CDN de Mermaid ni un `mermaid.run()` propio: duplican el render (`.claude/EDGE_CASES.md § Mermaid`).
+- Sin `custom_fences` de `mermaid` en `pymdownx.superfences`, los bloques mermaid salen como código resaltado y **no se renderizan**. Con él, el tema renderiza con la copia local de Mermaid (usa `window.mermaid` si existe y no descarga nada, así que los diagramas se ven sin conexión). **No** añadir el CDN de Mermaid ni un `mermaid.run()` propio: duplican el render (`.claude/EDGE_CASES.md § Mermaid`).
 - `pymdownx.snippets.base_path: [docs]` → las rutas en `--8<--` son **relativas a `docs/`** (no a la raíz del repo). Ejemplo: `--8<-- "examples/mi_snippet.py"`, no `--8<-- "docs/examples/mi_snippet.py"`.
-- Los tres assets se copian íntegros desde `doc_ia/docs/assets/` sin modificación:
+- Los cinco recursos se copian íntegros desde `doc_ia/docs/assets/` sin modificación:
   - `sidebar-toggle.js` — botón ◀/▶ fijo en desktop para ocultar/mostrar la sidebar; persiste en `localStorage`; desactivado automáticamente en móvil (viewport < 76.1875em)
   - `mermaid.css` — centrado y responsive de SVGs Mermaid
   - `nav.css` — grupos colapsables + `.md-grid { max-width: min(90vw, 1600px) }` + CSS del toggle
+  - `vendor/mermaid/` — librería Mermaid con versión exacta (`mermaid-<versión>.min.js`), `LICENSE` y
+    `SOURCE.txt`; una versión distinta en el destino se sustituye
+  - `mermaid-theme.js` — `startOnLoad: false` (evita el render propio de la librería) y
+    `theme: "default"` (con Mermaid 12, Material dejaba los subgrafos ilegibles en modo oscuro)
 - `mkdocstrings` solo si el proyecto tiene código Python con docstrings; comentado por defecto.
 
 ### Agrupación en subsecciones por área

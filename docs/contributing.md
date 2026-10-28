@@ -145,14 +145,15 @@ cp .github/templates/TEMPLATE_mkdocs.yml <destino>/mkdocs.yml
 Cuando documentes un nuevo proyecto con `/document-project`, verifica:
 
 - [ ] **mkdocs.yml existe**: Si no, copiar desde `.github/templates/TEMPLATE_mkdocs.yml`
-- [ ] **extra_javascript**: Incluye `assets/js/sidebar-toggle.js` y **no** incluye el CDN de Mermaid ni `assets/js/mermaid.js` (duplican el render)
+- [ ] **extra_javascript**: Incluye, en este orden, `assets/js/sidebar-toggle.js`, `assets/vendor/mermaid/mermaid-12.2.0.min.js` y `assets/js/mermaid-theme.js`, y **no** incluye el CDN de Mermaid ni `assets/js/mermaid.js` (duplican el render)
 - [ ] **markdown_extensions**: `pymdownx.superfences` con `custom_fences` para `mermaid` (imprescindible para los diagramas)
 - [ ] **extra_css**: Incluye `assets/css/mermaid.css`
 - [ ] **extra_css**: Incluye `assets/css/nav.css`
-- [ ] **Archivos existen**: Verificar que los 2 archivos personalizados existen en `docs/assets/`:
+- [ ] **Archivos existen**: Verificar que los recursos existen en `docs/assets/`:
   ```bash
-  ls docs/assets/js/sidebar-toggle.js
-  ls docs/assets/css/nav.css
+  ls docs/assets/js/sidebar-toggle.js docs/assets/js/mermaid-theme.js
+  ls docs/assets/css/nav.css docs/assets/css/mermaid.css
+  ls docs/assets/vendor/mermaid/   # mermaid-<versión>.min.js, LICENSE, SOURCE.txt
   ```
 - [ ] **Build válido**: `python -m mkdocs build --strict` sin warnings
 - [ ] **Navegación funcional**: Verificar que sidebar toggle y estilos de nav funcionan
@@ -165,7 +166,7 @@ Si los archivos `sidebar-toggle.js` y `nav.css` no existen:
 # Opción 1: Copiar desde proyecto hermano (si aplica)
 cp -r <origen>/docs/assets/* <destino>/docs/assets/
 
-# Opción 2: Crear vacíos (fallback)
+# Opción 2: Crear vacíos (fallback; nunca para Mermaid: sin la librería no hay diagramas)
 mkdir -p docs/assets/{js,css}
 touch docs/assets/js/sidebar-toggle.js
 touch docs/assets/css/nav.css

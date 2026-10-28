@@ -69,15 +69,15 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 - [ ] `.gitignore` presente en la raíz del destino con los patrones estándar (primera sesión: crear si no existe; ver tabla abajo)
 - [ ] `theme.features` verificado — sin `navigation.sections` si `nav.css` presente
 - [ ] `extra_css` incluye `assets/css/nav.css` y `assets/css/mermaid.css`
-- [ ] `extra_javascript` incluye `assets/js/sidebar-toggle.js` y **no** incluye el CDN de Mermaid ni `assets/js/mermaid.js` (si están, retirarlos: duplican el render — ver `.claude/EDGE_CASES.md § Mermaid`)
-- [ ] Los archivos `docs/assets/css/nav.css`, `docs/assets/css/mermaid.css`, `docs/assets/js/sidebar-toggle.js` existen en disco
+- [ ] `extra_javascript` incluye, en este orden, `assets/js/sidebar-toggle.js`, `assets/vendor/mermaid/mermaid-12.2.0.min.js` y `assets/js/mermaid-theme.js`, y **no** incluye el CDN de Mermaid ni `assets/js/mermaid.js` (si están, retirarlos: duplican el render — ver `.claude/EDGE_CASES.md § Mermaid`)
+- [ ] Los archivos `docs/assets/css/nav.css`, `docs/assets/css/mermaid.css`, `docs/assets/js/sidebar-toggle.js`, `docs/assets/js/mermaid-theme.js` y `docs/assets/vendor/mermaid/` (librería de la misma versión que doc_ia, `LICENSE`, `SOURCE.txt`) existen en disco; una librería de otra versión se sustituye
 - [ ] `pymdownx.superfences` con `custom_fences` para `mermaid` (`format: !!python/name:pymdownx.superfences.fence_code_format`): sin él los diagramas salen como código
 - [ ] `markdown_extensions` incluye los universales (ver tabla abajo)
 
 **Qué sincronizar** (universal, aplicable a todos los proyectos MkDocs):
 - `theme.features` — Ver tabla de compatibilidad más abajo; algunas requieren decisión
 - `markdown_extensions` críticas — `pymdownx.snippets` (para `--8<--`), `pymdownx.superfences` (Mermaid), `pymdownx.emoji`, `pymdownx.highlight`, `pymdownx.inlinehilite`, `attr_list`, `md_in_html`
-- `extra_javascript` y `extra_css` — Assets personalizados (`sidebar-toggle.js`, `nav.css`, `mermaid.css`); Mermaid lo carga el tema
+- `extra_javascript` y `extra_css` — Assets personalizados (`sidebar-toggle.js`, `nav.css`, `mermaid.css`, Mermaid local y `mermaid-theme.js`); el tema renderiza con la copia local de Mermaid
 - `extra.social` — Enlaces de redes sociales (si aplica)
 
 **Tabla de `theme.features` — copiables vs decisión**:

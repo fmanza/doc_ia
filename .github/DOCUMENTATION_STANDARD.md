@@ -1220,9 +1220,11 @@ extra:
     # - icon: fontawesome/brands/python
     #   link: https://pypi.org/project/[nombre]/
 
-# Mermaid: integración nativa del tema vía pymdownx.superfences custom_fences (sin CDN propio)
+# Mermaid: integración nativa del tema vía pymdownx.superfences custom_fences, con copia local
 extra_javascript:
   - assets/js/sidebar-toggle.js # ← copia desde doc_ia/docs/assets/
+  - assets/vendor/mermaid/mermaid-12.2.0.min.js  # ← ídem; antes de mermaid-theme.js
+  - assets/js/mermaid-theme.js  # ← ídem
 
 extra_css:
   - assets/css/mermaid.css  # ← copia desde doc_ia/docs/assets/
@@ -1231,9 +1233,9 @@ extra_css:
 
 **Notas críticas:**
 - `!!python/name:` genera advertencias en linters YAML estándar — falso positivo; válido para MkDocs.
-- Sin `custom_fences` de `mermaid` en `pymdownx.superfences`, los diagramas salen como bloque de código aunque el build pase. Con él, el tema (Material o Zensical) carga Mermaid y lo renderiza con los colores del esquema claro/oscuro. **No** añadir el CDN de Mermaid ni un `mermaid.run()` propio: el render se duplica y deja SVG de error ocultos (`.claude/EDGE_CASES.md § Mermaid`).
+- Sin `custom_fences` de `mermaid` en `pymdownx.superfences`, los diagramas salen como bloque de código aunque el build pase. Con él, el tema (Material o Zensical) renderiza con la copia local de Mermaid (§3.17) y los colores del esquema claro/oscuro, también sin conexión. **No** añadir el CDN de Mermaid ni un `mermaid.run()` propio: el render se duplica y deja SVG de error ocultos (`.claude/EDGE_CASES.md § Mermaid`).
 - `navigation.sections` y `navigation.tabs` son compatibles técnicamente, pero con tabs activados los grupos de área se muestran en la sidebar del tab activo; `navigation.sections` no aporta valor adicional. No incluir ambos.
-- Los tres assets (`assets/js/sidebar-toggle.js`, `assets/css/mermaid.css`, `assets/css/nav.css`) deben copiarse desde `doc_ia/docs/assets/` sin modificación.
+- Los cinco recursos (`assets/js/sidebar-toggle.js`, `assets/css/mermaid.css`, `assets/css/nav.css`, `assets/vendor/mermaid/` y `assets/js/mermaid-theme.js`) deben copiarse desde `doc_ia/docs/assets/` sin modificación; una librería Mermaid de otra versión se sustituye.
 - La indentación de `nav:` usa **4 espacios extra por nivel**: secciones a 2 espacios, ítems de primer nivel a 6, segundo nivel a 10.
 
 ---

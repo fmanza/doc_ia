@@ -101,7 +101,8 @@ Fase 0b — Sincronización visual del destino (OBLIGATORIO en toda sesión, cre
            · .gitignore en la raíz del destino con site/, __pycache__/, *.pyc, *.egg-info/,
              .venv/, *.pdf, *.doc, *.docx (crear si no existe; añadir los que falten)
            · theme.features SIN navigation.sections si nav.css está en extra_css
-           · los 3 assets de docs/assets/ existen y están en extra_css / extra_javascript
+           · los 5 recursos de docs/assets/ existen y están en extra_css / extra_javascript
+             (Mermaid local: vendor/mermaid/mermaid-<versión>.min.js y después js/mermaid-theme.js)
            · custom_fences mermaid presente; sin CDN de Mermaid ni assets/js/mermaid.js
          (La Fase 5 vuelve a verificar la configuración estándar al final.)
 Fase 0c — Conversión de documentos no legibles y uso de documentos pre-convertidos:
@@ -232,17 +233,21 @@ Fase 5 — Sincronizar navegación y verificar configuración estándar del gene
          a. Navegación: añadir/mover/retirar entradas de nav; indentación de 4 espacios extra por nivel.
          b. Configuración estándar (DOCUMENTATION_STANDARD.md §4.1) — verificar y corregir si falta:
             · palette: dos entradas (light con media+toggle, dark con scheme:slate+media+toggle)
-            · extra_javascript: assets/js/sidebar-toggle.js — sin CDN de Mermaid ni assets/js/mermaid.js
-              (si existen, retirarlos: duplican el render; Mermaid lo carga el tema)
+            · extra_javascript, en este orden: assets/js/sidebar-toggle.js,
+              assets/vendor/mermaid/mermaid-12.2.0.min.js, assets/js/mermaid-theme.js — sin CDN de Mermaid ni
+              assets/js/mermaid.js (si existen, retirarlos: duplican el render). El tema usa la
+              copia local de Mermaid (window.mermaid) y no descarga nada: diagramas sin conexión
             · pymdownx.superfences con custom_fences mermaid (imprescindible para los diagramas)
             · extra_css: assets/css/mermaid.css + assets/css/nav.css
             · markdown_extensions: attr_list, md_in_html, pymdownx.snippets (base_path:[docs]),
               line_spans:__span y pygments_lang_class:true en pymdownx.highlight
             · plugins: search con lang del idioma del proyecto
             · Generador = zensical: plugins soportados y `hooks:` (ver § Reglas por generador: Zensical)
-         c. Assets: si alguno de los tres ficheros de docs/assets/ (js/sidebar-toggle.js,
-            css/mermaid.css, css/nav.css) no existe en el destino,
-            indicarlo explícitamente en RESUMEN con la acción: "Copiar desde doc_ia/docs/assets/".
+         c. Assets: si alguno de los cinco recursos de docs/assets/ (js/sidebar-toggle.js,
+            css/mermaid.css, css/nav.css, vendor/mermaid/ con la librería, LICENSE y SOURCE.txt,
+            js/mermaid-theme.js) no existe en el destino, o su librería Mermaid es de otra versión,
+            indicarlo explícitamente en RESUMEN con la acción: "Copiar desde doc_ia/docs/assets/"
+            (una versión distinta se sustituye: borrar la antigua y actualizar extra_javascript).
 Fase 6 — Revisión final: Markdown, enlaces relativos, sintaxis y conformidad Mermaid (§3.17 del
           estándar), secciones de arquetipo completas.
          Trazabilidad (§3.16): frontmatter `fuentes` en páginas con Evidencia; si existe

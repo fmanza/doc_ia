@@ -1,8 +1,8 @@
 ---
 arquetipo: "2"
 fuentes:
-  .github/DOCUMENTATION_STANDARD.md: aa88a84cf813
-  .github/agents/documentation-generator.agent.md: b7f50b94ebc1
+  .github/DOCUMENTATION_STANDARD.md: 240fbe12bb5d
+  .github/agents/documentation-generator.agent.md: af3b88966806
   .github/prompts/example_doc.prompt.md: 6041f616e0c3
   mkdocs.yml: 2179f8729495
   tests/test_docs_conformance.py: 7aff93832e8c

@@ -5,7 +5,7 @@ fuentes:
   mkdocs_hooks.py: 2f510611cb6f
   scripts/build_docs_zip.py: b9a2694d122f
   tests/test_build_docs_zip.py: 0dad72a78801
-  tests/test_mermaid_assets.py: 925ed879e901
+  tests/test_mermaid_assets.py: e49f4b5a3361
   tests/test_zensical_compat.py: d62c11ebe8cd
 revisado: 2026-10-28
 ---

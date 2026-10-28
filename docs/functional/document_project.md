@@ -1,10 +1,10 @@
 ---
 arquetipo: "1"
 fuentes:
-  .claude/commands/document-project.md: 0c40f2025589
-  .github/DOCUMENTATION_STANDARD.md: aa88a84cf813
-  .github/prompts/document_project.prompt.md: a508e0ad23c8
-  CLAUDE.md: 34d2f3403b61
+  .claude/commands/document-project.md: 9df2db0bb68d
+  .github/DOCUMENTATION_STANDARD.md: 240fbe12bb5d
+  .github/prompts/document_project.prompt.md: 1a4749c3685d
+  CLAUDE.md: 1be4ae56b47a
 revisado: 2026-10-28
 ---
 # Documentar un Proyecto
@@ -86,7 +86,7 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
   y la configuración estándar verificada (tema, assets, Mermaid).
 - `docs/downloads.md` existe en el destino (variante A o B) y los huecos de distribución
   offline quedan reportados en el resumen.
-- El destino tiene los tres assets visuales en `docs/assets/`, Mermaid con la integración nativa del tema y un `.gitignore` con los
+- El destino tiene los cinco recursos visuales en `docs/assets/`, entre ellos su propia copia de Mermaid, de modo que los diagramas se ven también sin conexión, y un `.gitignore` con los
   patrones estándar.
 - Existe `.ai/sessions/YYYY-MM-DD/` en el destino con `00_REQUEST.md`,
   `00_CONTEXT_SNAPSHOT.md` y `TRACEABILITY.md`; en la primera sesión se crean además los
