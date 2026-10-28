@@ -41,6 +41,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 - `convert_to_md.py --device auto` detecta la GPU: el `CUDA_VISIBLE_DEVICES=""` que el módulo
   fija al importarse ya no se confunde con una elección del usuario.
+- `convert_to_md.py` con docling ya no recoge los `.md` del origen: el Markdown ya es legible y
+  se reconvertía a `md/` sin necesidad.
 
 ## [0.1.0] — 2026-06-10
 
