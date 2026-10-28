@@ -38,6 +38,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - `build_docs_zip.py --builder zensical` ejecuta él mismo los hooks que Zensical ignora:
   `hooks/sync_root_docs.py` antes del build y `mkdocs_hooks.py` (ZIP `latest`) solo si el build
   termina con 0. 4 tests nuevos; criterios AC-07 y AC-08 en `functional/build_docs_zip.md`.
+- `check_env.py` avisa si falta `zensical` (generador opcional, `OPTIONAL_DOC_BUILDERS`) y remite a
+  `requirements-dev.txt`; no cambia el código de salida. 2 tests nuevos; AC-06 en
+  `functional/check_env.md`.
 
 ### Changed
 

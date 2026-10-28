@@ -40,8 +40,9 @@ recomendable la migración. Puede consultarse información en internet. PLAN y A
 |---|---|---|---|
 | F0 | `docs(session): plan por fases de la migración a Zensical` | `64ab29e` | HECHO |
 | F1 | `feat(build): pipeline sin hooks para construir con Zensical` | `28fd055` | HECHO |
-| F2 | `ci(docs): build de paridad con Zensical (no bloqueante)` | (este commit) | HECHO |
-| F3-F12 | ver `02_PLAN_FASES.md` | — | PENDIENTE |
+| F2 | `ci(docs): build de paridad con Zensical (no bloqueante)` | `dd9266d` | HECHO |
+| F3 | `feat(env): check_env informa de Zensical como generador opcional` | (este commit) | HECHO |
+| F4-F12 | ver `02_PLAN_FASES.md` | — | PENDIENTE |
 
 ### F1 — verificación
 - DoD local (`.venv`, Python 3.14): ruff, format, mypy, pytest **177**, drift 0, matrix
@@ -60,6 +61,12 @@ recomendable la migración. Puede consultarse información en internet. PLAN y A
   `ci.yml` en verde, incluido el paso nuevo (Zensical "No issues found" + ZIP `latest` presente).
 - **Preparación de F7**: el salto a 0.1 = cambiar `zensical==0.0.73` en `requirements-dev.txt` y
   `requirements.txt` (+ dependencias nuevas que traiga) y seguir el runbook de `02_PLAN_FASES.md`.
+
+### F3 — verificación
+- `check_env.py` con `.venv` (Zensical instalado): sin aviso de Zensical, código 0.
+- venv sin Zensical y `PYTHONIOENCODING=cp1252`: aviso de Zensical como primer `⚠`, código 0.
+- Corrección arrastrada de F1: la fila de Evidencia «ZIP offline» del Mapa Funcional decía 5/6
+  (la tabla ya decía 7/8); se corrige en este commit.
 
 ## Veredicto final
 Veredicto: F0-F5, F11 GO · F6 GO_CONDICIONAL (C6, C7) · F7 gate 0.1 · F8 gate C2-C5 ·

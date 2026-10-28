@@ -1,7 +1,7 @@
 ---
 arquetipo: "1"
 fuentes:
-  scripts/check_env.py: 1e80cb6d812b
+  scripts/check_env.py: a30937ae040f
 revisado: 2026-10-28
 ---
 # Verificación de Entorno
@@ -17,7 +17,8 @@ La usan los desarrolladores que mantienen el proyecto y los flujos automatizados
 del editor y comprobaciones previas) como primer paso de cualquier sesión de trabajo. Su
 valor es dar una respuesta inmediata e inequívoca: el entorno está completo o falta algo
 concreto, sin pasos manuales de inspección. Además, informa de las herramientas opcionales
-de conversión de documentos que faltan y de cómo instalarlas.
+que faltan (el generador Zensical y los motores de conversión de documentos) y de cómo
+instalarlas.
 
 ## 2. Precondiciones
 
@@ -39,7 +40,7 @@ sequenceDiagram
     alt Falta alguna requerida
         Ver-->>Dev: "Faltan herramientas: …" (fallo)
     else Requeridas completas
-        Ver->>Ent: Comprueba motores de conversión opcionales
+        Ver->>Ent: Comprueba el generador Zensical y los motores de conversión opcionales
         alt Falta algún opcional
             Ver-->>Dev: "Entorno … completo (Python)." + avisos con instrucciones (éxito)
         else Todo presente
@@ -50,9 +51,10 @@ sequenceDiagram
 
 El desarrollador solicita la verificación. Primero se comprueban las cuatro herramientas
 requeridas; si falta alguna, se informa de la lista exacta y se termina con fallo, sin
-revisar las opcionales. Si las requeridas están completas, se revisan los motores de
-conversión opcionales (docling, markitdown y sus complementos, pandoc): cada ausencia genera
-un aviso con la instrucción de instalación, pero el resultado sigue siendo éxito.
+revisar las opcionales. Si las requeridas están completas, se revisan el generador Zensical
+y los motores de conversión opcionales (docling, markitdown y sus complementos, pandoc): cada
+ausencia genera un aviso con la instrucción de instalación, pero el resultado sigue siendo
+éxito.
 
 ## 4. Postcondiciones y Efectos
 
@@ -64,9 +66,10 @@ un aviso con la instrucción de instalación, pero el resultado sigue siendo éx
 
 | Regla | Descripción | Impacto si se viola |
 |---|---|---|
-| Conjunto fijo de herramientas | Se verifican exactamente cuatro herramientas requeridas (mkdocs, ruff, mypy, pytest) y herramientas opcionales de conversión (docling, markitdown, pandoc) | Una herramienta ausente no detectada provoca fallos posteriores en build o validación |
+| Conjunto fijo de herramientas | Se verifican exactamente cuatro herramientas requeridas (mkdocs, ruff, mypy, pytest), el generador opcional Zensical y herramientas opcionales de conversión (docling, markitdown, pandoc) | Una herramienta ausente no detectada provoca fallos posteriores en build o validación |
 | Resultado binario para requeridas | El resultado es "completo" o "faltan herramientas" con su lista; no hay estados intermedios | Ambigüedad sobre si se puede trabajar o no |
-| Avisos informativos para opcionales | Las herramientas de conversión (docling, markitdown, pandoc) se reportan como avisos, no como errores | El script fallaría por un motor de conversión que solo se necesita al convertir documentos |
+| Avisos informativos para opcionales | Zensical y las herramientas de conversión (docling, markitdown, pandoc) se reportan como avisos, no como errores | El script fallaría por una herramienta que solo se necesita al convertir documentos o en el build de paridad |
+| Versión en un solo sitio | El aviso de Zensical remite a los ficheros de requisitos, donde está la versión fijada, en lugar de repetirla | Instrucciones que instalan una versión distinta de la que usa la CI |
 | Sin servicios externos | La comprobación es local y no contacta con ningún servicio IA ni de red | Violaría el principio del proyecto de ejecución determinista sin APIs |
 
 ## 6. Límites, Flujos Alternativos y Casos Especiales
@@ -83,7 +86,7 @@ un aviso con la instrucción de instalación, pero el resultado sigue siendo éx
 - **Faltan una o varias herramientas requeridas**: se informa de la lista exacta de ausentes
   y se termina con fallo, para que la instalación pueda corregirse antes de continuar.
 - **Faltan herramientas opcionales**: se informa del entorno como completo e incluye un aviso
-  por cada motor o complemento ausente con su instrucción de instalación.
+  por cada generador, motor o complemento ausente con su instrucción de instalación.
 
 ### Casos especiales
 
@@ -104,6 +107,7 @@ un aviso con la instrucción de instalación, pero el resultado sigue siendo éx
 | AC-03 | Una lista alternativa de herramientas a comprobar | Se solicita la verificación de ese conjunto | El resultado incluye solo las ausentes, preservando el orden de la lista | `tests/test_check_env.py::test_missing_tools_detects_absent_tool` |
 | AC-04 | Requeridas completas pero sin pandoc en el sistema | Se ejecuta la verificación de entorno | Se informa el entorno como completo, con un aviso sobre pandoc, y el proceso termina con éxito (código 0) | `tests/test_check_env.py::test_missing_system_tools_detects_absent_tool`, `tests/test_check_env.py::test_missing_system_tools_empty_when_tool_exists` |
 | AC-05 | Una consola que no usa UTF-8 y avisos pendientes | Se ejecuta la verificación | Se muestran los avisos y el resultado es el habitual (código 0 o 1), sin error de codificación | `tests/test_check_env.py::test_main_script_survives_non_utf8_console` |
+| AC-06 | Requeridas completas y Zensical no instalado | Se ejecuta la verificación | Se informa el entorno como completo, con un aviso sobre Zensical que remite a los ficheros de requisitos, y el proceso termina con éxito (código 0); con Zensical instalado no hay aviso | `tests/test_check_env.py::test_main_warns_when_zensical_missing`, `tests/test_check_env.py::test_main_no_zensical_warning_when_installed` |
 
 Verificación: `python scripts/check_env.py` (AC-01/AC-02/AC-04) y
 `python -m pytest tests/test_check_env.py -q` (detección de ausentes). Los tests cubren la
@@ -121,7 +125,8 @@ detección de herramientas, no el mensaje ni el código de salida final ⚠️.
 
     | Elemento | Fuente | Confianza |
     |---|---|---|
-    | Regla «Conjunto fijo de herramientas» | `scripts/check_env.py::REQUIRED_TOOLS`, `::OPTIONAL_PYTHON_TOOLS`, `::SYSTEM_TOOLS` | ✅ |
+    | Regla «Conjunto fijo de herramientas» | `scripts/check_env.py::REQUIRED_TOOLS`, `::OPTIONAL_DOC_BUILDERS`, `::OPTIONAL_PYTHON_TOOLS`, `::SYSTEM_TOOLS` | ✅ |
+    | Regla «Versión en un solo sitio» | `scripts/check_env.py::_ZENSICAL_INSTALL` | ✅ |
     | Regla «Resultado binario para requeridas» | `scripts/check_env.py::main` | ✅ |
     | Regla «Avisos informativos para opcionales» | `scripts/check_env.py::main` (lista `warnings`, retorno 0) | ✅ |
     | Regla «Sin servicios externos» | `scripts/check_env.py` (solo `importlib.util.find_spec` y `shutil.which`) | ✅ |
@@ -132,3 +137,4 @@ detección de herramientas, no el mensaje ni el código de salida final ⚠️.
     | AC-03 | `scripts/check_env.py::missing_tools` | ⚠️ (el test usa una sola herramienta; el orden no se comprueba) |
     | AC-04 | `scripts/check_env.py::main`, `::missing_system_tools` | ⚠️ (el test cubre la detección, no el aviso) |
     | AC-05 | `scripts/check_env.py` (bloque `__main__`: salida reconfigurada a UTF-8) | ✅ |
+    | AC-06 | `scripts/check_env.py::main` (aviso de `OPTIONAL_DOC_BUILDERS`, retorno 0) | ✅ |

@@ -8,7 +8,7 @@ fuentes:
   mkdocs.yml: 417c1a6602da
   mkdocs_hooks.py: 2f510611cb6f
   scripts/build_docs_zip.py: b9a2694d122f
-  scripts/check_env.py: 1e80cb6d812b
+  scripts/check_env.py: a30937ae040f
   scripts/convert_to_md.py: e7e60518d96f
   scripts/doc_trace.py: a1824b159937
   scripts/start-server.py: ec67386821f7
@@ -57,7 +57,7 @@ python scripts/check_env.py
 ```
 
 Sin opciones. Comprueba las herramientas obligatorias (`mkdocs`, `ruff`, `mypy`, `pytest`) y
-avisa de las opcionales (`docling`, `markitdown` y sus plugins, `pandoc`).
+avisa de las opcionales (`zensical`, `docling`, `markitdown` y sus plugins, `pandoc`).
 
 ### convert_to_md.py
 

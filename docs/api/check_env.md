@@ -1,13 +1,13 @@
 ---
 arquetipo: "2"
 fuentes:
-  scripts/check_env.py: 1e80cb6d812b
-  tests/test_check_env.py: 1d38d14c5c0b
+  scripts/check_env.py: a30937ae040f
+  tests/test_check_env.py: a9692d0a6061
 revisado: 2026-10-28
 ---
 # check_env
 
-Verifica de forma determinista que las herramientas del tooling documental (`mkdocs`, `ruff`, `mypy`, `pytest`) son importables en el entorno Python activo. Además reporta la disponibilidad de herramientas opcionales de conversión: `docling`, `markitdown` (con plugins), `pandoc` y `nvidia-smi`.
+Verifica de forma determinista que las herramientas del tooling documental (`mkdocs`, `ruff`, `mypy`, `pytest`) son importables en el entorno Python activo. Además reporta la disponibilidad del generador opcional `zensical` y de las herramientas opcionales de conversión: `docling`, `markitdown` (con plugins), `pandoc` y `nvidia-smi`.
 
 ## 1. Arquitectura y Diseño
 
@@ -31,6 +31,7 @@ Script standalone sin dependencias entre módulos del proyecto: usa solo
 | Función/Clase | Firma simplificada | Descripción | Retorna |
 |---|---|---|---|
 | `REQUIRED_TOOLS` | `tuple[str, ...]` | Constante con las herramientas requeridas: `("mkdocs", "ruff", "mypy", "pytest")` | — |
+| `OPTIONAL_DOC_BUILDERS` | `tuple[str, ...]` | Generadores de documentación opcionales: `("zensical",)` | — |
 | `OPTIONAL_PYTHON_TOOLS` | `tuple[str, ...]` | Herramientas opcionales de conversión: `("markitdown", "docling")` | — |
 | `SYSTEM_TOOLS` | `tuple[str, ...]` | Herramientas de sistema opcionales: `("pandoc",)` | — |
 | `missing_tools` | `missing_tools(tools=REQUIRED_TOOLS) -> list[str]` | Filtra las herramientas Python no importables en el entorno actual | Lista de nombres ausentes (vacía si completo) |
@@ -50,6 +51,9 @@ Script standalone sin dependencias entre módulos del proyecto: usa solo
 - `main` escribe en stdout una línea de estado seguida, si procede, de avisos `⚠` sobre
   herramientas opcionales, y devuelve el código de salida (`0`/`1`), apto para CI y hooks
   (`sys.exit(main())`). Los avisos de opcionales no cambian el código (`0`).
+- El primer aviso posible es el de `zensical` ausente, que remite a
+  `pip install -r requirements-dev.txt` (la versión fijada vive solo en los ficheros de
+  requisitos). Con `zensical` instalado no se imprime nada sobre él.
 
 ### Errores y casos especiales
 
@@ -82,6 +86,8 @@ Script standalone sin dependencias entre módulos del proyecto: usa solo
 | `tests/test_check_env.py::test_missing_tools_detects_absent_tool` | Un módulo inexistente aparece en la lista de ausentes | unitario |
 | `tests/test_check_env.py::test_missing_system_tools_detects_absent_tool` | Un binario inexistente aparece como ausente del PATH | unitario |
 | `tests/test_check_env.py::test_missing_system_tools_empty_when_tool_exists` | Un binario presente (`python`, `python3` o `git`) no aparece como ausente | unitario |
+| `tests/test_check_env.py::test_main_warns_when_zensical_missing` | Sin `zensical`: aviso opcional y código 0 | unitario (`missing_tools` sustituido) |
+| `tests/test_check_env.py::test_main_no_zensical_warning_when_installed` | Con `zensical`: ningún mensaje sobre él | unitario (`missing_tools` sustituido) |
 | `tests/test_check_env.py::test_main_script_survives_non_utf8_console` | El script con `PYTHONIOENCODING=cp1252` muestra los avisos sin `UnicodeEncodeError` y termina con 0 o 1 | integración (subproceso) |
 
 Sin cubrir: `check_markitdown_plugins` y el contenido exacto de los avisos de `main`.
@@ -95,6 +101,7 @@ python -m pytest tests/test_check_env.py -q
     | Elemento | Fuente | Confianza |
     |---|---|---|
     | `REQUIRED_TOOLS` | `scripts/check_env.py::REQUIRED_TOOLS` | ✅ |
+    | `OPTIONAL_DOC_BUILDERS` y su aviso en `main` | `scripts/check_env.py::OPTIONAL_DOC_BUILDERS`, `::main`, `::_ZENSICAL_INSTALL` | ✅ |
     | `OPTIONAL_PYTHON_TOOLS` | `scripts/check_env.py::OPTIONAL_PYTHON_TOOLS` | ✅ |
     | `SYSTEM_TOOLS` | `scripts/check_env.py::SYSTEM_TOOLS` | ✅ |
     | `missing_tools` | `scripts/check_env.py::missing_tools` | ✅ |

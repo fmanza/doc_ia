@@ -4,7 +4,7 @@ fuentes:
   docs/functional/archetypes.md: a716fe5d2d7b
   docs/functional/bootstrap.md: c3f3aa31f605
   docs/functional/build_docs_zip.md: 12db392e8768
-  docs/functional/check_env.md: dbf4eea311a6
+  docs/functional/check_env.md: 50d36e2a0f15
   docs/functional/convert_to_md.md: ba27225210c2
   docs/functional/doc_trace.md: 5137aa9944f5
   docs/functional/document_project.md: 53dd471b88d5
@@ -20,7 +20,7 @@ y qué términos comparten. Cada capacidad enlaza a su página funcional detalla
 
 | Capacidad | Módulo(s) | Página funcional | Criterios | Tests |
 |---|---|---|---|---|
-| Comprobar que el entorno tiene las herramientas necesarias | Tooling determinista | [Verificación de Entorno](check_env.md) | AC-01 – AC-05 | 5/5 |
+| Comprobar que el entorno tiene las herramientas necesarias | Tooling determinista | [Verificación de Entorno](check_env.md) | AC-01 – AC-06 | 6/6 |
 | Convertir documentos previos a Markdown para usarlos como contexto | Tooling determinista | [Conversión de Documentos a Markdown](convert_to_md.md) | AC-01 – AC-13 | 12/13 |
 | Empaquetar la documentación para consulta offline con verificación de integridad | Tooling determinista | [ZIP de Documentación Offline](build_docs_zip.md) | AC-01 – AC-08 | 7/8 |
 | Detectar documentación desactualizada respecto al código y cruzar criterios con tests | Tooling determinista | [Trazabilidad Docs ↔ Código](doc_trace.md) | AC-01 – AC-14 | 14/14 |
@@ -29,7 +29,7 @@ y qué términos comparten. Cada capacidad enlaza a su página funcional detalla
 | Producir documentación con estructura fija y evidencia verificable | Flujos IA | [Arquetipos Formales](archetypes.md) | AC-01 – AC-10 | 10/10 |
 | Trasladar el sistema de instrucciones IA a otro proyecto | Flujos IA | [Bootstrap de Configuración IA](bootstrap.md) | AC-01 – AC-04 | 0/4 |
 
-**Cobertura de pruebas**: 48 de 70 criterios tienen un test automatizado. Los flujos IA se
+**Cobertura de pruebas**: 49 de 71 criterios tienen un test automatizado. Los flujos IA se
 ejecutan en el chat de la plataforma IA: de ellos solo se comprueba la estructura de la
 documentación resultante (Arquetipos) ⚠️.
 
@@ -87,9 +87,9 @@ acceso al repositorio y a una plataforma IA puede usar todas las capacidades.
 
     | Elemento | Fuente | Confianza |
     |---|---|---|
-    | Capacidad «Verificación de Entorno» y 5/5 tests | `docs/functional/check_env.md::§7` | ✅ |
+    | Capacidad «Verificación de Entorno» y 6/6 tests | `docs/functional/check_env.md::§7` | ✅ |
     | Capacidad «Conversión a Markdown» y 12/13 tests | `docs/functional/convert_to_md.md::§7` | ✅ |
-    | Capacidad «ZIP offline» y 5/6 tests | `docs/functional/build_docs_zip.md::§7` | ✅ |
+    | Capacidad «ZIP offline» y 7/8 tests | `docs/functional/build_docs_zip.md::§7` | ✅ |
     | Capacidad «Trazabilidad» y 14/14 tests | `docs/functional/doc_trace.md::§7` | ✅ |
     | Capacidad «Documentar un Proyecto» y 0/7 tests | `docs/functional/document_project.md::§7` | ✅ |
     | Capacidad «Tipos de Origen» y 0/9 tests | `docs/functional/origin_types.md::§7` | ✅ |
