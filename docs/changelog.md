@@ -24,6 +24,11 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - **Arquetipo 12 §6 "Datos"** (condicional): `erDiagram` global y diccionario con sensibilidad
   por campo; aplicado a los ficheros con formato propio de doc_ia.
 
+### Fixed
+
+- `convert_to_md.py --device auto` detecta la GPU: el `CUDA_VISIBLE_DEVICES=""` que el módulo
+  fija al importarse ya no se confunde con una elección del usuario.
+
 ### Changed
 
 - Norma del Arquetipo 1 alineada con su prompt (8 secciones); las páginas con la estructura v1

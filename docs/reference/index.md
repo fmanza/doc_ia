@@ -8,7 +8,7 @@ línea de comandos, códigos de salida y eventos de build. La API interna de cad
 
 | Clave | Origen | Tipo | Por defecto | Descripción |
 |---|---|---|---|---|
-| `CUDA_VISIBLE_DEVICES` | `env` | cadena | `""` (lo fija `convert_to_md.py` al importarse si no existe) | Visibilidad de GPU para docling. `--device cpu` la fija a `""`; `--device cuda` la elimina; `--device auto` respeta un valor previo |
+| `CUDA_VISIBLE_DEVICES` | `env` | cadena | `""` (lo fija `convert_to_md.py` al importarse si no existe) | Visibilidad de GPU para docling. `--device cpu` la fija a `""`; `--device cuda` la elimina; `--device auto` respeta un valor exportado por el usuario e ignora el que fija el propio módulo |
 | `project.version` | fichero `pyproject.toml` | cadena SemVer | `0.1.0` (valor actual) | Versión usada en el nombre del ZIP (`doc_ia-docs-{versión}.zip`) y en la release `docs-v{versión}` |
 | `site_dir` | fichero `mkdocs.yml` | ruta | `site` | Directorio de salida del build; `mkdocs_hooks.py` lo lee de la configuración. `build_docs_zip.py` usa `site/` fijo |
 | `hooks` | fichero `mkdocs.yml` | lista de rutas | `hooks/sync_root_docs.py`, `mkdocs_hooks.py` | Hooks MkDocs cargados en cada build (ver §4) |
@@ -66,7 +66,7 @@ python scripts/convert_to_md.py <source> [opciones]
 | `--image-export` | `placeholder` \| `embedded` \| `referenced` | `placeholder` | Exportación de imágenes |
 | `--pdf-backend` | `docling-parse` \| `pypdfium2` | `docling-parse` | Backend PDF de docling |
 | `--timeout` | entero (segundos) | `300` | Timeout por documento |
-| `--device` | `cpu` \| `cuda` \| `auto` | `cpu` | Dispositivo de cómputo; `auto` solo elige GPU si `CUDA_VISIBLE_DEVICES` ya tenía un valor no vacío ⚠️ |
+| `--device` | `cpu` \| `cuda` \| `auto` | `cpu` | Dispositivo de cómputo; `auto` usa GPU si `nvidia-smi` la detecta, salvo que el usuario haya exportado `CUDA_VISIBLE_DEVICES=""` |
 | `--num-threads` | entero | `4` | Hilos CPU de docling |
 | `--flash-attention` | flag | desactivado | Flash Attention 2; requiere `--device cuda` o `auto` |
 | `--batch-size` | entero | `1` | Documentos por lote; `>1` solo con `docling` |
@@ -165,8 +165,8 @@ convertido: hereda la sensibilidad del origen.
 
     | Elemento | Fuente | Confianza |
     |---|---|---|
-    | `CUDA_VISIBLE_DEVICES` por defecto `""` | `scripts/convert_to_md.py:30` (nivel de módulo) | ✅ |
-    | `--device auto` no detecta GPU si la variable quedó en `""` | `scripts/convert_to_md.py::_detect_device` | ⚠️ |
+    | `CUDA_VISIBLE_DEVICES` por defecto `""` | `scripts/convert_to_md.py::_CUDA_ENV_INJECTED` | ✅ |
+    | `--device auto` distingue el valor por defecto del valor del usuario | `scripts/convert_to_md.py::_detect_device` | ✅ |
     | `project.version` | `scripts/build_docs_zip.py::_version` | ✅ |
     | `site_dir` fijo en `build_docs_zip.py` | `scripts/build_docs_zip.py::SITE_DIR` | ✅ |
     | `hooks` de MkDocs | `mkdocs.yml::hooks` | ✅ |

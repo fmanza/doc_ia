@@ -437,9 +437,23 @@ def test_detect_device_cuda_not_available() -> None:
 
 
 def test_detect_device_respects_existing_env_empty() -> None:
-    with patch.dict("os.environ", {"CUDA_VISIBLE_DEVICES": ""}, clear=False):
+    with (
+        patch.dict("os.environ", {"CUDA_VISIBLE_DEVICES": ""}, clear=False),
+        patch("scripts.convert_to_md._CUDA_ENV_INJECTED", False),
+    ):
         result = _detect_device("auto")
     assert result == "cpu"
+
+
+def test_detect_device_auto_ignores_import_default() -> None:
+    """El "" que inyecta el módulo al importarse no debe impedir detectar la GPU."""
+    with (
+        patch.dict("os.environ", {"CUDA_VISIBLE_DEVICES": ""}, clear=False),
+        patch("scripts.convert_to_md._CUDA_ENV_INJECTED", True),
+        patch("scripts.convert_to_md._cuda_available", return_value=True),
+    ):
+        result = _detect_device("auto")
+    assert result == "cuda"
 
 
 def test_detect_device_respects_existing_env_set() -> None:

@@ -32,6 +32,11 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
   autodoc solo se usa si el generador tiene mkdocstrings.
 - Material `CONTRATO` alimenta también el Arquetipo 12 §5; `INFRAESTRUCTURA` va a 6C §3 › Despliegue.
 
+### Fixed
+
+- `convert_to_md.py --device auto` detecta la GPU: el `CUDA_VISIBLE_DEVICES=""` que el módulo
+  fija al importarse ya no se confunde con una elección del usuario.
+
 ## [0.1.0] — 2026-06-10
 
 ### Added

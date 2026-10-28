@@ -135,7 +135,7 @@ python scripts/convert_to_md.py <source> [--engine {docling,markitdown,pandoc}]
 | Imagen con magic bytes incorrectos | `INVÁLID` — fichero corrupto |
 | Audio < 1KB | `INVÁLID` — demasiado pequeño |
 | `--device cuda` sin nvidia-smi | `exit 1` |
-| `--device auto` sin `CUDA_VISIBLE_DEVICES` exportado previamente | Resuelve a CPU: el módulo fija la variable a `""` al importarse y `auto` respeta ese valor ⚠️ |
+| `--device auto` sin `CUDA_VISIBLE_DEVICES` exportado previamente | Detecta CUDA con `nvidia-smi`: el `""` que fija el módulo al importarse (`_CUDA_ENV_INJECTED`) no cuenta como elección del usuario |
 | `--chunk` con motor no docling | Error de argparse |
 
 ## 3. Componentes y Clases
@@ -185,13 +185,12 @@ Verificar entorno: `python scripts/check_env.py` (reporta disponibilidad de docl
 | `test_prefilter_*` (3) | Pre-filtro del batch docling: omite existentes, rechaza inválidos, `--dry-run` | unitario |
 | `test_parse_args_*` (19) | `_parse_args`: valores por defecto, flags y restricciones entre opciones (`--chunk`, `--batch-size`, `--workers`, `--flash-attention`) | unitario |
 | `test_engine_extensions_keys`, `test_docling_covers_markitdown_formats`, `test_pandoc_has_unique_formats` (3) | Coherencia de los conjuntos de extensiones por motor | unitario |
-| `test_detect_device_*` (6) | `_detect_device`: `cpu`, `auto` con y sin CUDA, `cuda` sin GPU, respeto de `CUDA_VISIBLE_DEVICES` | unitario |
+| `test_detect_device_*` (7) | `_detect_device`: `cpu`, `auto` con y sin CUDA, `cuda` sin GPU, respeto de `CUDA_VISIBLE_DEVICES` del usuario, `auto` ignora el valor por defecto del import | unitario |
 | `test_cuda_available_*` (3) | `_cuda_available`: sin `nvidia-smi`, respuesta correcta, timeout | unitario |
 | `test_convert_options_new_fields_defaults` (1) | Valores por defecto de `ConvertOptions` | unitario |
 
 Sin cubrir: conversiones reales con los motores instalados (los tests simulan su ausencia o usan
-`--dry-run`) y el valor por defecto que fija el módulo al importarse:
-`test_detect_device_auto_with_cuda` limpia el entorno (`clear=True`) y no reproduce el caso ⚠️.
+`--dry-run`).
 
 ```bash
 python -m pytest tests/test_convert_to_md.py -q
@@ -215,7 +214,7 @@ python -m pytest tests/test_convert_to_md.py -q
     | `--validate-only` con motor `NO INSTALADO` | `scripts/convert_to_md.py::_validate_only_report` | ✅ |
     | Validaciones de cabecera, ZIP y audio | `scripts/convert_to_md.py::validate_file`, `::_validate_header`, `::_IMAGE_HEADERS` | ✅ |
     | `--device cuda` sin `nvidia-smi` → `exit 1` | `scripts/convert_to_md.py::_detect_device` | ✅ |
-    | `--device auto` resuelve a CPU por el valor fijado al importar | `scripts/convert_to_md.py` (nivel de módulo, líneas 30–31), `::_detect_device` | ⚠️ |
+    | `--device auto` ignora el valor fijado al importar | `scripts/convert_to_md.py::_CUDA_ENV_INJECTED`, `::_detect_device` | ✅ |
     | `_detect_device` solo se llama con docling y sin `--dry-run` | `scripts/convert_to_md.py::main` | ✅ |
     | Componentes de motor, validación, CUDA, chunking y metadata | `scripts/convert_to_md.py::_convert_with_docling`, `::_convert_batch_docling`, `::_convert_with_markitdown`, `::_convert_with_pandoc`, `::_validate_only_report`, `::_cuda_available`, `::_run_chunking`, `::_build_metadata_basic`, `::_format_frontmatter` | ✅ |
     | Dependencias docling, markitdown, pandoc, `nvidia-smi` | `scripts/convert_to_md.py::engine_available`, `::_cuda_available` | ✅ |

@@ -24,15 +24,17 @@ import shutil
 import subprocess
 import sys
 import zipfile
-
-# Por defecto, deshabilitar CUDA para evitar bloqueos en import torch.
-# _detect_device() sobreescribe esto si el usuario pide --device cuda|auto.
-if "CUDA_VISIBLE_DEVICES" not in os.environ:
-    os.environ["CUDA_VISIBLE_DEVICES"] = ""
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+
+# Por defecto, deshabilitar CUDA para evitar bloqueos en import torch.
+# _detect_device() sobreescribe esto si el usuario pide --device cuda|auto.
+# _CUDA_ENV_INJECTED distingue este valor por defecto de un "" exportado por el usuario.
+_CUDA_ENV_INJECTED = "CUDA_VISIBLE_DEVICES" not in os.environ
+if _CUDA_ENV_INJECTED:
+    os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[union-attr]
@@ -206,7 +208,7 @@ def _detect_device(requested: str) -> str:
 
     if requested == "auto":
         existing = os.environ.get("CUDA_VISIBLE_DEVICES")
-        if existing is not None:
+        if existing is not None and not (_CUDA_ENV_INJECTED and existing == ""):
             if existing == "":
                 return "cpu"
             return "cuda"

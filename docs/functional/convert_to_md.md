@@ -120,9 +120,8 @@ resultado global sea fallo; el resto de ficheros se convierte igualmente.
 
 ### Casos especiales
 
-- **GPU en modo automático** (`--device auto`): solo usa GPU si la variable de visibilidad
-  de GPU ya tenía un valor no vacío antes de ejecutar; en la práctica la detección
-  automática resuelve a CPU ⚠️.
+- **GPU en modo automático** (`--device auto`): detecta la GPU NVIDIA si está disponible.
+  Si el usuario ha ocultado la GPU de forma explícita antes de ejecutar, se respeta y se usa CPU.
 - **`--device cuda` sin GPU disponible**: error inmediato.
 - **Fragmentación sin soporte**: si docling no ofrece el fragmentador, se avisa y el `.md`
   principal se conserva.
@@ -172,7 +171,7 @@ Verificación: `python -m pytest tests/test_convert_to_md.py -q`.
     | Salida de fragmentos | `scripts/convert_to_md.py::_run_chunking` | ✅ |
     | Simulación sin motor instalado | `scripts/convert_to_md.py::main` | ✅ |
     | Solo validar con motor ausente = aviso | `scripts/convert_to_md.py::_validate_only_report` | ✅ |
-    | GPU en modo automático resuelve a CPU | `scripts/convert_to_md.py` (nivel de módulo, línea 30) + `::_detect_device` | ⚠️ (los tests limpian la variable y no reproducen el arranque real) |
+    | GPU en modo automático: detecta GPU y respeta una ocultación explícita del usuario | `scripts/convert_to_md.py::_CUDA_ENV_INJECTED`, `::_detect_device`; `tests/test_convert_to_md.py::test_detect_device_auto_ignores_import_default` | ✅ |
     | AC-01 | `scripts/convert_to_md.py::convert_file` | ✅ |
     | AC-02 | `scripts/convert_to_md.py::convert_file` | ⚠️ (el test combina `--force` con simulación) |
     | AC-03 | `scripts/convert_to_md.py::validate_file` | ✅ |
