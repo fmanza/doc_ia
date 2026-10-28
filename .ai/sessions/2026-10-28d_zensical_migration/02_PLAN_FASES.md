@@ -246,14 +246,9 @@ fases posteriores **salvo** las que dependen de él según el grafo.
   - `.gitignore`: `.cache/`.
   - `.github/workflows/docs-zip-release.yml`: el cuerpo de la release describe el offline real.
   - `extra.polyfills` con `iframe-worker` local solo si se quiere evitar la descarga en el build.
-  - **Mermaid fijado y local** (anexo de la sesión `2026-10-28e_mermaid_diagrams`, M5): el tema
-    carga `unpkg.com/mermaid@11` (Material) o `@12` (Zensical) desde su bundle JS; es una carga
-    dinámica y está por verificar que `privacy` la intercepte. Si no lo hace, servir `docs/assets/js/mermaid/mermaid.esm.min.mjs` con
-    la misma versión exacta que el job `mermaid` de `ci.yml` (hoy 12.2.0) y un
-    `docs/assets/js/mermaid.mjs` que la importa, llama a `initialize({startOnLoad: false})` y la
-    asigna a `window.mermaid`, el mecanismo documentado por Material en
-    `reference/diagrams/#customization`. No es el `mermaid.run()` que duplicaba el render
-    (`EDGE_CASES § Mermaid`): aquí el tema sigue siendo quien renderiza.
+  - **Mermaid ya no forma parte de F10**: lo resolvió la sesión `2026-10-28f_mermaid_local`
+    (copia local 12.2.0 en `docs/assets/vendor/mermaid/` + `mermaid-theme.js`, sin depender de
+    `privacy`). F10 solo debe comprobar que `offline`/`privacy` no alteran esa configuración.
   - Re-sellados por `mkdocs.yml`.
 - **Commit**: `feat(docs): ZIP de documentación navegable sin conexión`
 - **AUDIT**:
@@ -265,8 +260,8 @@ fases posteriores **salvo** las que dependen de él según el grafo.
   - **GO_CONDICIONAL**:
     - **C8**: abrir el ZIP extraído con `file://` y verificar búsqueda, Mermaid y navegación sin
       red.
-    - **C9**: con Mermaid local, verificación con CDP en MkDocs y en Zensical, claro y oscuro:
-      todos los diagramas visibles, 0 SVG de error ocultos y ninguna petición a `unpkg.com`.
+    - **C9**: CUMPLIDA en la sesión `2026-10-28f_mermaid_local` (24/24 diagramas sin conexión,
+      0 SVG de error, MkDocs y Zensical, claro y oscuro). Repetir solo si F10 toca `extra_javascript`.
 
 ---
 
@@ -339,6 +334,6 @@ fases posteriores **salvo** las que dependen de él según el grafo.
 | F6 | **GO_CONDICIONAL** (C6, C7) | Ahora, con verificación en navegador |
 | F7 | **GO_CONDICIONAL** (0.1 en PyPI) | Desde el 2026-11-05 |
 | F8 | **GO_CONDICIONAL** (C2-C5) | ≥ 2 semanas de paridad tras F7 |
-| F9, F10, F12 | **GO_CONDICIONAL** (F8; F10 además C8 y C9) | Tras F8 |
+| F9, F10, F12 | **GO_CONDICIONAL** (F8; F10 además C8) | Tras F8 |
 
 Orden de ejecución propuesto ahora: **F0 → F1 → F2 → F3 → F4 → F5 → F11 → F6**.

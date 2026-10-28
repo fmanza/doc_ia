@@ -13,7 +13,13 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - **Tests de conformidad de diagramas**: sin entidades HTML, labels especiales entre comillas,
   `accTitle`/`accDescr` obligatorios y tamaño máximo (criterios AC-11 a AC-13).
 - **Job `mermaid` en CI**: valida cada página de `docs/` con el parser real
-  (`@mermaid-js/mermaid-cli`, mermaid 11 y 12).
+  (`@mermaid-js/mermaid-cli`) y la misma versión que sirve el sitio.
+- **Mermaid servido en local** (`docs/assets/vendor/mermaid/mermaid-12.2.0.min.js` +
+  `assets/js/mermaid-theme.js`): los diagramas del sitio y del ZIP offline se dibujan sin conexión,
+  con la misma versión en MkDocs Material y Zensical. `tests/test_mermaid_assets.py` vigila versión,
+  huella, orden de carga, coherencia con CI y el cargador del tema (AC-10 del ZIP offline).
+- **Producto**: la Fase 0b de `/document-project` sincroniza cinco recursos en vez de tres y lleva
+  Mermaid local a los proyectos documentados.
 
 ### Changed
 
