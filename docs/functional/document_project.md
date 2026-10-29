@@ -1,9 +1,9 @@
 ---
 arquetipo: "1"
 fuentes:
-  .claude/commands/document-project.md: 35e79c2b4ff7
+  .claude/commands/document-project.md: b897d08ce532
   .github/DOCUMENTATION_STANDARD.md: 03090ee7a89d
-  .github/prompts/document_project.prompt.md: 0cbd4f9be2be
+  .github/prompts/document_project.prompt.md: 7ccd7c33e6af
   CLAUDE.md: 1be4ae56b47a
 revisado: 2026-10-29
 ---
@@ -37,7 +37,8 @@ decidir manualmente qué arquetipo aplicar a cada módulo.
 - Cada origen indicado existe y es legible.
 - Al menos uno de los orígenes es de tipo CÓDIGO.
 - Opcionales: tipo de cada origen, estrategia (solo con ≥2 orígenes CÓDIGO), alcance,
-  subconjunto de arquetipos y verificación (`--verify-tools`, `--verify-build`).
+  subconjunto de arquetipos, verificación (`--verify-tools`, `--verify-build`) y modo
+  (`incremental` por defecto si el destino ya se documentó con baseline; `completo`).
 - Para la verificación de build: el generador elegido instalado en el entorno.
 
 ## 3. Flujo Principal
@@ -112,6 +113,7 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
 | Preservación de lo vigente | Las páginas clasificadas como vigentes (estado C) no se modifican; las desactualizadas (B) se actualizan conservando las secciones aún correctas | Se perdería documentación válida o se introduciría regresión de contenido |
 | `downloads.md` siempre obligatorio | Cada sesión genera o actualiza `docs/downloads.md` en el destino (Fase 7b); el flujo detecta tres señales de distribución offline (`TIENE_ZIP_SCRIPT`, `TIENE_MKDOCS_PLUGIN`, `TIENE_WORKFLOW_GITHUB`) y reporta los huecos | El destino quedaría sin una página de descarga offline o con datos desactualizados |
 | Instrucciones de visualización siempre | Cada sesión genera o actualiza `VER_DOCUMENTACION.md` en la raíz del destino (Fase 7c) desde una plantilla con secciones fijas: qué ruta seguir (web, ZIP, código fuente), cómo instalar Python en cada sistema, cómo arrancar el servidor local y problemas frecuentes; los valores (versión de Python, dependencias, nombre del ZIP, publicación) salen del destino | Quien recibe la documentación sin conocimientos técnicos ni Python no sabría verla: abrir `index.html` con doble clic no navega |
+| Relanzar solo sobre lo cambiado | Al cerrar cada sesión se guarda el punto del historial de cada proyecto documentado; al relanzar, el inventario parte de los ficheros cambiados desde ese punto y de las páginas que los citan, y el resto se da por vigente sin releerlo. Si no hay punto guardado, el proyecto no usa Git, el punto ya no existe o cambió la versión de doc_ia, la sesión es completa | Releer todo el proyecto en cada actualización, o dar por vigente una página cuyo código cambió |
 | Sincronización visual obligatoria (Fase 0b) | Al inicio de toda sesión se verifican: assets CSS/JS en `docs/assets/`, configuración de `mkdocs.yml` (sin `navigation.sections` si `nav.css` presente), `.gitignore` con patrones estándar (`site/`, `*.pdf`, `*.doc`, `*.docx`). Aplica tanto en creación como en actualización ⚠️ | El destino tendría assets desincronizados, menú lateral sin colapso o binarios versionados por error |
 | Zensical sin pérdidas silenciosas | Con generador Zensical, que no ejecuta `hooks:` ni los plugins que no soporta, el flujo detecta si el script de build del destino ejecuta él mismo esos pasos (`TIENE_PIPELINE_SIN_HOOKS`), reporta el Gap A4 si no lo hace y señala los plugins no soportados; nunca crea `zensical.toml` | El destino perdería sin aviso la sincronización de ficheros raíz, el ZIP "latest" o la función de un plugin |
 | Documentos pre-convertidos (`md/`) | Si el origen contiene carpetas `md/` (generadas por `convert_to_md.py`), se usan como contexto de primera clase en Fases 2-4 sin re-conversión; no generan páginas propias ni reciben estado A/B/C | Se perdería contexto valioso de documentos binarios o se intentaría re-convertir innecesariamente |
@@ -135,6 +137,10 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
 
 - **Parámetro faltante o ambiguo**: el flujo se detiene y pregunta al usuario antes de
   inventariar. No se asume destino ni idioma por defecto.
+- **Relanzamiento sobre un destino ya documentado**: si el destino guarda el punto del historial
+  de cada proyecto, el inventario solo revisa lo cambiado desde ese punto; con `Modo: completo`,
+  o si ese punto no sirve (proyecto sin Git, punto inexistente, otra versión de doc_ia), se
+  revisa todo y el motivo aparece en el inventario.
 - **Origen no legible**: si la ruta indicada no existe o no es accesible, se pide
   confirmación antes de continuar.
 - **Orígenes heterogéneos**: con ≥2 orígenes o cuando el único origen no es CÓDIGO, la
@@ -182,6 +188,7 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
 | AC-09 | Un origen con PDFs convertidos en `md/`, documentado en su propio repositorio o en uno aparte | Se ejecuta el flujo | Los `.md` convertidos quedan copiados en `_fuentes/<origen>/…` de la raíz del destino, fuera de `docs/`; el inventario los lista y el commit propuesto los incluye | Sin test |
 | AC-10 | Un destino que ya guarda fuentes convertidas en `.fuentes/` | Se ejecuta el flujo y el usuario confirma la migración | Las fuentes pasan a `_fuentes/`, las páginas que las citaban apuntan a la nueva ruta y no queda ninguna carpeta `.fuentes/` | Sin test |
 | AC-11 | Un destino documentado con el generador por defecto, sin publicación web | Se completa el flujo | Existe `VER_DOCUMENTACION.md` en la raíz del destino con las secciones fijas 0-7, sin marcadores por rellenar, con la ruta web marcada "No aplica" y los comandos para Windows, macOS y Linux | `tests/test_docs_conformance.py::test_view_instructions_filled_for_doc_ia` |
+| AC-12 | Un destino ya documentado, con su punto de historial guardado, cuyo proyecto cambia en un solo módulo | Se relanza el flujo sin indicar modo | El inventario se limita a los ficheros cambiados y a las páginas que los citan (más sus ejemplos), el resto queda vigente sin leerse, y el cierre guarda el nuevo punto en `.ai/doc_state.json` | Sin test |
 
 Verificación: ejecutar `/document-project` (Claude Code) o
 `Lee y aplica .github/prompts/document_project.prompt.md` con los cuatro parámetros en
@@ -224,6 +231,7 @@ automatizados.
     | Regla «Preservación de lo vigente» | `.github/prompts/document_project.prompt.md::Protocolo ACTUALIZAR (estado B)` | ✅ |
     | Regla «`downloads.md` siempre obligatorio» | `.github/prompts/document_project.prompt.md::Fase 7b` | ✅ |
     | Regla «Instrucciones de visualización siempre» y AC-11 | `.github/prompts/document_project.prompt.md::Fase 7c`, `.github/templates/VER_DOCUMENTACION.template.md`, `tests/test_docs_conformance.py::test_view_instructions_rule_everywhere` (coherencia de las instrucciones; el resultado solo se comprueba sobre doc_ia) | ⚠️ |
+    | Regla «Relanzar solo sobre lo cambiado» y AC-12 | `.github/prompts/document_project.prompt.md::Fase 1` (modo incremental), `::Devuelve en este orden` (punto 10, Baseline), `scripts/doc_trace.py::check_changes`, `tests/test_docs_conformance.py::test_incremental_mode_rule_everywhere` (coherencia de las instrucciones; el flujo completo no tiene test) | ⚠️ |
     | Regla «Sincronización visual (Fase 0b)» | `.claude/commands/document-project.md::Sincronización de Configuración Visual (Fase 0b)`, `.github/prompts/document_project.prompt.md::Fase 0b` | ✅ |
     | Regla «Documentos pre-convertidos (`md/`)» | `.github/prompts/document_project.prompt.md::Fase 0c — Paso 0` | ✅ |
     | Regla «Fuentes convertidas en `_fuentes/`», AC-09 y AC-10 | `.github/prompts/document_project.prompt.md::Fase 0c — Paso 5`, `tests/test_docs_conformance.py::test_sources_folder_is_canonical` (coherencia de las instrucciones, no del resultado) | ⚠️ |

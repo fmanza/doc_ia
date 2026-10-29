@@ -23,6 +23,11 @@ Documentar un proyecto (origen → destino) orquestando los arquetipos formales.
 - [ ] **Alcance** (opcional): módulos o subconjunto; por defecto proyecto completo
 - [ ] **Arquetipos** (opcional): subconjunto; por defecto todos los aplicables **excepto 9 (Changelog) y 11 (Contribución)**, que son opt-in explícito
 - [ ] **Verificación** (opcional): `--verify-tools` y/o `--verify-build [--serve]`
+- [ ] **Modo** (opcional): `incremental` | `completo` — por defecto `incremental` si el destino
+  tiene `.ai/doc_state.json` con baseline del origen. En incremental, la Fase 1 parte de
+  `doc_trace.py changes` (cambios del origen desde el último CIERRE y páginas que los citan) y
+  solo lee esos ficheros y páginas; el CIERRE siempre ejecuta `doc_trace.py baseline`
+  (ver `document_project.prompt.md` § Fase 1 y § CIERRE)
 
 ### ⚠️ VALIDACIÓN
 
@@ -277,6 +282,8 @@ __pycache__/
     ```
 
     - `git add` incluye `_fuentes/` cuando la Fase 0c la creó o cambió
+    - Antes del commit, `doc_trace.py --root <raíz destino> baseline --origin <origen>` por cada
+      origen CÓDIGO; `git add` incluye `.ai/doc_state.json` (base del próximo modo incremental)
 
     - `<scope>` = nombre corto del origen (ej. `util_bbdd`, `mi_api`)
     - Conventional Commits: usar `docs:` para sesiones de documentación pura

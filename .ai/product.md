@@ -38,6 +38,7 @@ Code Assist, GitHub Copilot Chat, Cursor, Codex). Los **orígenes a documentar**
 | Sincronización raíz→docs/ | ✅ | `hooks/sync_root_docs.py` — copia CHANGELOG.md y CONTRIBUTING.md a docs/ automáticamente |
 | Servidor offline para ZIP | ✅ | `scripts/start-server.py` — servidor HTTP local (solo `127.0.0.1`) incluido en los dos ZIP offline |
 | Instrucciones de visualización | ✅ | `VER_DOCUMENTACION.md` en la raíz del destino (Fase 7c, siempre) desde `.github/templates/VER_DOCUMENTACION.template.md`; viaja en el ZIP |
+| Modo incremental de `/document-project` | ✅ | `doc_trace.py baseline` (CIERRE → `<destino>/.ai/doc_state.json`) + `doc_trace.py changes` (Fase 1: cambios del origen desde el baseline y páginas que los citan); código 3 → modo completo |
 | Sitio de documentación propio (dogfooding) | ✅ | `mkdocs.yml` + `docs/` (33 páginas, 12 arquetipos aplicados al propio proyecto) |
 | Orígenes heterogéneos | ✅ | 8 tipos: CÓDIGO, NORMATIVA, ESPECIFICACIÓN, UI/PANTALLAS, REFERENCIA, CONTRATO, INFRAESTRUCTURA, MANUAL |
 

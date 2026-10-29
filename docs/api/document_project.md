@@ -1,9 +1,9 @@
 ---
 arquetipo: "2"
 fuentes:
-  .claude/commands/document-project.md: 35e79c2b4ff7
-  .github/agents/documentation-generator.agent.md: 8edb65562d52
-  .github/prompts/document_project.prompt.md: 0cbd4f9be2be
+  .claude/commands/document-project.md: b897d08ce532
+  .github/agents/documentation-generator.agent.md: 7217dfcad18f
+  .github/prompts/document_project.prompt.md: 7ccd7c33e6af
   mkdocs.yml: 2179f8729495
 revisado: 2026-10-29
 ---
@@ -74,6 +74,7 @@ La vista del mismo flujo desde el usuario (qué pide, qué confirma y qué recib
 | `Alcance` | string | Módulos o subconjunto | Opcional; por defecto proyecto completo |
 | `Arquetipos` | string | Subconjunto de arquetipos a aplicar | Opcional; por defecto todos los aplicables |
 | `Verificación` | flags | `--verify-tools` y/o `--verify-build [--serve]` | Opcional; nunca automático |
+| `Modo` | string | `incremental` · `completo` | Opcional; por defecto `incremental` si `<raíz destino>/.ai/doc_state.json` tiene baseline del origen. La Fase 1 parte de `doc_trace.py changes`; su código `3` (sin baseline, sin git, commit fuera del historial u otra versión menor de doc_ia) fuerza `completo`. El CIERRE siempre ejecuta `doc_trace.py baseline` |
 
 ### Contrato de salida
 

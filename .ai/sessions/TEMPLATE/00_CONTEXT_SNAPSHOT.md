@@ -35,6 +35,11 @@
 - Rama activa:
 - Cambios locales pre-existentes: <!-- ninguno | lista si los hay -->
 - Último tag / versión publicada:
+<!-- Solo /document-project: modo (incremental desde <base> | completo + motivo) y commit de
+     cada origen CÓDIGO registrado por `doc_trace.py baseline` en .ai/doc_state.json:
+- Modo: incremental desde a1b2c3d4e5f6
+- Origen `mi_api`: commit 0f9e8d7c6b5a (main, sin cambios pendientes)
+-->
 
 ## Clasificación metodológica
 - Tipo principal: <!-- new_feature | hotfix | refactor | security_review | tech_debt | maturity_assessment -->

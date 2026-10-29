@@ -360,3 +360,11 @@ def test_downloads_never_offers_opening_index_html() -> None:
     for match in re.finditer(r"index\.html", text):
         window = text[max(0, match.start() - 200) : match.end() + 200]
         assert re.search(r"no funciona|[Nn]unca|Prohibido", window), window
+
+
+@pytest.mark.parametrize("path", SOURCES_RULE_FILES)
+def test_incremental_mode_rule_everywhere(path: str) -> None:
+    """Modo incremental: `changes` en la Fase 1 y `baseline` en el CIERRE, con el mismo estado."""
+    text = (ROOT / path).read_text(encoding="utf-8")
+    assert ".ai/doc_state.json" in text
+    assert "baseline" in text

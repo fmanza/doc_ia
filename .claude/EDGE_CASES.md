@@ -237,3 +237,28 @@
   `test_second_server_on_same_port_fails`. La primera carga lenta está en «Problemas frecuentes»
   de `VER_DOCUMENTACION.md`.
 - **Sesión**: .ai/sessions/2026-10-29b_ver_documentacion/
+
+## [doc_trace changes] — Las menciones en prosa inflan el inventario incremental
+
+- **Síntoma**: probado sobre el historial real de doc_ia (baseline `d25c29a`), la primera versión
+  de `changes` marcó 27 páginas a revisar: ADR, changelog, guías y ejemplos que solo **nombran**
+  `scripts/build_docs_zip.py` o `CHANGELOG.md`.
+- **Causa**: buscaba la ruta en todo el texto de la página. Un ADR que menciona un script no
+  queda obsoleto porque el script cambie.
+- **Tratamiento**: `pages_citing` separa **citas** (frontmatter `fuentes:` + bloque
+  «Evidencia») de **menciones** (resto del cuerpo). Solo las citas van a «Páginas a revisar» (10
+  en el mismo caso: justo las revisadas y selladas en la feature anterior); las menciones se
+  listan aparte y la Fase 1 las marca B solo si el diff cambia lo descrito.
+- **Sesión**: .ai/sessions/2026-10-29c_modo_incremental/
+
+## [doc_trace changes] — Con el destino dentro del origen, cada cierre parece un cambio
+
+- **Síntoma**: si origen y destino son el mismo repositorio (doc_ia), el commit del CIERRE
+  (páginas, `.ai/`, `_fuentes/`, `mkdocs.yml`, `VER_DOCUMENTACION.md`) aparece como cambio del
+  origen en la sesión siguiente, y `baseline` marcaría siempre `sucio: true`.
+- **Causa**: `baseline` se toma antes del commit de documentación y el diff abarca todo el
+  repositorio.
+- **Tratamiento**: `documentation_paths` excluye `docs_dir` y `DOC_ARTIFACTS` cuando están dentro
+  del origen, tanto en `changes` como en el cálculo de `sucio`. Test
+  `test_destination_inside_origin_ignores_its_own_artifacts`.
+- **Sesión**: .ai/sessions/2026-10-29c_modo_incremental/

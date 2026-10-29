@@ -7,6 +7,15 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ### Added
 
+- **Producto — modo incremental de `/document-project`** (parámetro `Modo`, por defecto
+  `incremental` si hay baseline): el CIERRE guarda el commit de cada origen en
+  `<destino>/.ai/doc_state.json` (`doc_trace.py baseline`) y la Fase 1 siguiente parte de
+  `doc_trace.py changes`: ficheros cambiados desde ese commit (git local, también pendientes y
+  sin seguimiento), páginas que los citan como evidencia, páginas que solo los mencionan,
+  ejemplos enlazados y ficheros sin página. El resto de páginas queda vigente sin releerlas.
+  Código 3 → modo completo (sin baseline, sin git, commit fuera del historial o versión menor de
+  doc_ia distinta). Si el destino está dentro del origen, sus artefactos no cuentan como cambios.
+  Criterios AC-15 a AC-21 de la trazabilidad y AC-12 de Documentar un Proyecto.
 - **Producto — instrucciones de visualización** (Fase 7c de `/document-project`, siempre): el
   destino recibe `VER_DOCUMENTACION.md` (`VIEW_DOCS.md` en inglés) en su raíz, generado desde
   `.github/templates/VER_DOCUMENTACION.template.md`: qué ruta seguir (web, ZIP, código fuente),
@@ -27,6 +36,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ### Fixed
 
+- Mapa funcional: totales y evidencia desfasados (decía 52 de 75 criterios; son 63 de 89) y
+  referencia de `start-server.py` que aún describía el puerto ocupado como excepción no capturada.
 - El ZIP versionado (`dist/`, el que publican las Releases) no incluía `start-server.py` y
   contenía anidado `doc_ia-docs-latest.zip` con su `.sha256`: ahora tiene el mismo contenido
   que el ZIP "latest".

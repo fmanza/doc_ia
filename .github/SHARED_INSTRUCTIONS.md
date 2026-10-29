@@ -86,6 +86,7 @@ doc_ia/
 | Módulo | Responsabilidad |
 |---|---|
 | `scripts/` | Tooling determinista sin dependencias IA: validación de entorno, build + ZIP de docs, conversión de documentos binarios a Markdown con validación previa y motor elegido con `--engine` (`docling` por defecto: PDF/DOCX/PPTX/XLSX/CSV/HTML/EPUB, imágenes, email, LaTeX, audio, con OCR; `markitdown` alternativa ligera, necesaria solo para XLS; `pandoc` complemento: DOC/ODT/RST) |
+| `.ai/doc_state.json` (destino) | Baseline del modo incremental de `/document-project`: commit de cada origen CÓDIGO al cerrar la sesión y versión de doc_ia. Lo escribe `doc_trace.py baseline` en el CIERRE (nunca a mano) y lo lee `doc_trace.py changes` en la Fase 1 para limitar el inventario a lo cambiado. Se versiona con el destino. |
 | Patrón `<origen>/md/` → `_fuentes/` | Artefactos generados por `scripts/convert_to_md.py`: versiones `.md` de documentos binarios del origen (PDF, DOCX, PPTX, …). El destino recibe **siempre** una copia en `<raíz del destino>/_fuentes/<nombre_origen>/<ruta relativa al origen>` (nombre único, fuera de `docs/`, versionada); el agente la usa como contexto de primera clase en Fases 2-4 sin re-conversión. Nunca editarlos directamente. Ver Fase 0c de `document_project.prompt.md`. |
 | `hooks/` | `sync_root_docs.py`: copia `CHANGELOG.md`/`CONTRIBUTING.md` a `docs/` antes del build y tras cada Edit/Write |
 | `tests/` | Tests unitarios del tooling (sin red, sin servicios externos) |

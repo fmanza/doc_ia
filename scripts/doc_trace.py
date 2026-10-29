@@ -9,6 +9,10 @@ Subcomandos (no invoca ningún servicio IA ni accede a la red):
   matrix  Cruza los criterios de aceptación (AC-xx, columna Test) de docs/functional/ con
           los tests reales de tests/ y lista tests citados inexistentes y tests sin citar.
   llms    Genera docs/llms.txt (formato llmstxt.org) a partir del nav de mkdocs.yml.
+  baseline  Guarda en <destino>/.ai/doc_state.json el commit actual de un origen (CIERRE de
+          /document-project).
+  changes Lista los ficheros del origen cambiados desde su baseline (git local) y las páginas
+          del destino que los citan: el INVENTARIO del modo incremental.
 
 Frontmatter de trazabilidad (DOCUMENTATION_STANDARD.md §3.16):
 
@@ -24,6 +28,8 @@ Uso:
     python scripts/doc_trace.py stamp docs/api/check_env.md --source scripts/check_env.py
     python scripts/doc_trace.py matrix --output dist/traceability.md
     python scripts/doc_trace.py llms --check
+    python scripts/doc_trace.py --root <destino> baseline --origin <origen>
+    python scripts/doc_trace.py --root <destino> changes --origin <origen>
 """
 
 from __future__ import annotations
@@ -31,8 +37,11 @@ from __future__ import annotations
 import argparse
 import ast
 import hashlib
+import json
 import re
+import subprocess
 import sys
+import tomllib
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
@@ -331,6 +340,296 @@ def build_llms_txt(mkdocs_yml: Path, site_url: str | None = None) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Modo incremental: baseline del origen y cambios desde él (git local)
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class OriginChange:
+    """Fichero del origen cambiado desde el baseline (``R`` conserva la ruta anterior)."""
+
+    kind: str
+    path: str
+    old_path: str | None = None
+
+
+@dataclass(frozen=True)
+class OriginBaseline:
+    """Estado del origen al cerrar una sesión de documentación."""
+
+    commit: str | None
+    branch: str | None
+    dirty: bool
+    date: str
+
+
+@dataclass(frozen=True)
+class ChangeReport:
+    """Resultado de ``changes``: cambios y páginas que citan cada fichero cambiado.
+
+    ``status`` distinto de ``ok`` indica que no hay baseline utilizable y el flujo debe
+    ejecutarse en modo completo; ``reason`` lo explica.
+    """
+
+    status: Literal["ok", "fallback"]
+    reason: str
+    base: str | None
+    changes: tuple[OriginChange, ...] = ()
+    pages: dict[str, tuple[Path, ...]] | None = None
+    mentions: dict[str, tuple[Path, ...]] | None = None
+    examples: tuple[Path, ...] = ()
+
+
+# Artefactos que genera la propia documentación: si el destino está dentro del origen, sus
+# cambios no son cambios del código documentado.
+DOC_ARTIFACTS = (".ai", "_fuentes", "mkdocs.yml", "VER_DOCUMENTACION.md", "VIEW_DOCS.md")
+GIT_TIMEOUT = 60
+EXAMPLE_LINK_RE = re.compile(r"\]\(([^)#\s]*examples/[^)#\s]+\.md)")
+EVIDENCE_MARKER = '??? note "Evidencia"'
+
+
+def _git(origin: Path, *args: str) -> bytes | None:
+    """Salida de ``git -C origin …``; ``None`` si git no está o el comando falla."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(origin), *args],
+            capture_output=True,
+            timeout=GIT_TIMEOUT,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    return result.stdout if result.returncode == 0 else None
+
+
+def _doc_ia_version() -> str:
+    with (ROOT / "pyproject.toml").open("rb") as fh:
+        version: str = tomllib.load(fh)["project"]["version"]
+    return version
+
+
+def _minor(version: str) -> str:
+    return ".".join(version.split(".")[:2])
+
+
+def documentation_paths(origin: Path, docs_dir: Path) -> tuple[str, ...]:
+    """Rutas (POSIX, relativas al origen) de los artefactos de documentación dentro del origen."""
+    origin = origin.resolve()
+    dest_root = docs_dir.resolve().parent
+    candidates = [docs_dir.resolve(), *(dest_root / name for name in DOC_ARTIFACTS)]
+    excluded: list[str] = []
+    for path in candidates:
+        if path.is_relative_to(origin) and path != origin:
+            excluded.append(path.relative_to(origin).as_posix())
+    return tuple(sorted(excluded))
+
+
+def _is_excluded(path: str, excluded: tuple[str, ...]) -> bool:
+    return any(path == e or path.startswith(e + "/") for e in excluded)
+
+
+def changed_files(
+    origin: Path, base: str, excluded: tuple[str, ...] = ()
+) -> list[OriginChange] | None:
+    """Cambios del árbol de trabajo frente a ``base`` (confirmados, pendientes y sin seguimiento).
+
+    Rutas relativas al origen aunque sea una subcarpeta del repositorio. ``None`` si git falla.
+    """
+    diff = _git(origin, "diff", "--name-status", "-z", "-M", "--relative", base, "--", ".")
+    untracked = _git(origin, "ls-files", "--others", "--exclude-standard", "-z", "--", ".")
+    if diff is None or untracked is None:
+        return None
+    fields = diff.decode("utf-8").split("\0")
+    changes: list[OriginChange] = []
+    i = 0
+    while i < len(fields) - 1:
+        kind = fields[i][:1]
+        if kind == "R":
+            changes.append(OriginChange("R", fields[i + 2], fields[i + 1]))
+            i += 3
+        elif kind == "C":  # copia: el fichero nuevo es un alta
+            changes.append(OriginChange("A", fields[i + 2]))
+            i += 3
+        else:
+            changes.append(OriginChange(kind, fields[i + 1]))
+            i += 2
+    changes += [OriginChange("A", p) for p in untracked.decode("utf-8").split("\0") if p]
+    kept = [
+        c
+        for c in changes
+        if not _is_excluded(c.path, excluded)
+        or (c.old_path is not None and not _is_excluded(c.old_path, excluded))
+    ]
+    return sorted(kept, key=lambda c: (c.path, c.kind))
+
+
+def take_baseline(
+    origin: Path, excluded: tuple[str, ...] = (), today: str | None = None
+) -> OriginBaseline:
+    """Commit, rama y si hay cambios sin confirmar (fuera de ``excluded``) en el origen."""
+    day = today or date.today().isoformat()
+    head = _git(origin, "rev-parse", "HEAD")
+    if head is None:
+        return OriginBaseline(commit=None, branch=None, dirty=False, date=day)
+    commit = head.decode().strip()
+    branch_out = _git(origin, "rev-parse", "--abbrev-ref", "HEAD")
+    branch = branch_out.decode().strip() if branch_out else None
+    pending = changed_files(origin, "HEAD", excluded)
+    return OriginBaseline(commit=commit, branch=branch, dirty=bool(pending), date=day)
+
+
+def read_state(state_path: Path) -> dict[str, Any]:
+    """Estado del destino (``.ai/doc_state.json``); vacío si no existe."""
+    if not state_path.is_file():
+        return {}
+    data = json.loads(state_path.read_text(encoding="utf-8"))
+    return data if isinstance(data, dict) else {}
+
+
+def write_baseline(state_path: Path, name: str, baseline: OriginBaseline) -> None:
+    """Guarda el baseline de un origen conservando los de los demás orígenes."""
+    stored = read_state(state_path).get("origenes")
+    origins: dict[str, Any] = stored if isinstance(stored, dict) else {}
+    origins[name] = {
+        "commit": baseline.commit,
+        "rama": baseline.branch,
+        "sucio": baseline.dirty,
+        "fecha": baseline.date,
+    }
+    state = {"doc_ia": _doc_ia_version(), "origenes": dict(sorted(origins.items()))}
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    text = json.dumps(state, indent=2, ensure_ascii=False) + "\n"
+    state_path.write_text(text, encoding="utf-8", newline="\n")
+
+
+def _citation_re(path: str, name: str) -> re.Pattern[str]:
+    """Cita de ``path`` (o ``name/path``) como ruta completa, no como sufijo de otra ruta."""
+    options = "|".join(re.escape(p) for p in (f"{name}/{path}", path))
+    return re.compile(rf"(?<![\w./-])(?:{options})(?![\w.-])")
+
+
+def _split_citations(text: str) -> tuple[str, str]:
+    """(zona de citas, resto): frontmatter ``fuentes`` + bloque "Evidencia" frente al cuerpo."""
+    match = FRONTMATTER_RE.match(text)
+    frontmatter = match.group(0) if match else ""
+    body = text[len(frontmatter) :]
+    head, marker, evidence = body.partition(EVIDENCE_MARKER)
+    return frontmatter + marker + evidence, head
+
+
+def pages_citing(
+    docs_dir: Path, paths: list[str], name: str
+) -> tuple[dict[str, tuple[Path, ...]], dict[str, tuple[Path, ...]]]:
+    """Para cada ruta: (páginas que la citan como evidencia, páginas que solo la mencionan).
+
+    Una cita (``fuentes:`` o bloque "Evidencia") obliga a revisar la página; una mención en el
+    cuerpo (ADR, changelog, guías) solo se avisa: el cambio de un fichero no la invalida.
+    """
+    zones = {
+        page: _split_citations(page.read_text(encoding="utf-8"))
+        for page in sorted(docs_dir.rglob("*.md"))
+    }
+    cited: dict[str, tuple[Path, ...]] = {}
+    mentioned: dict[str, tuple[Path, ...]] = {}
+    for path in paths:
+        pattern = _citation_re(path, name)
+        cited[path] = tuple(p for p, (cites, _) in zones.items() if pattern.search(cites))
+        mentioned[path] = tuple(
+            p
+            for p, (cites, rest) in zones.items()
+            if pattern.search(rest) and not pattern.search(cites)
+        )
+    return cited, mentioned
+
+
+def linked_examples(pages: list[Path], docs_dir: Path) -> tuple[Path, ...]:
+    """Ejemplos enlazados desde páginas técnicas (§5, enlace bidireccional Arquetipo 2 ↔ 4)."""
+    api_dir = (docs_dir / "api").resolve()
+    found: set[Path] = set()
+    for page in pages:
+        if not page.resolve().is_relative_to(api_dir):
+            continue
+        for link in EXAMPLE_LINK_RE.findall(page.read_text(encoding="utf-8")):
+            target = (page.parent / link).resolve()
+            if target.is_file():
+                found.add(target)
+    return tuple(sorted(found - {p.resolve() for p in pages}))
+
+
+def check_changes(origin: Path, docs_dir: Path, state_path: Path, name: str) -> ChangeReport:
+    """Cambios del origen desde su baseline y páginas del destino afectadas."""
+    state = read_state(state_path)
+    origins = state.get("origenes")
+    entry = origins.get(name) if isinstance(origins, dict) else None
+    if not isinstance(entry, dict):
+        return ChangeReport("fallback", f"sin baseline para «{name}» en {state_path}", None)
+    base = entry.get("commit")
+    if not base:
+        return ChangeReport("fallback", "el origen no estaba bajo git al tomar el baseline", None)
+    stored_version = str(state.get("doc_ia", ""))
+    if _minor(stored_version) != _minor(_doc_ia_version()):
+        reason = f"doc_ia {stored_version} → {_doc_ia_version()}: reglas de arquetipos cambiadas"
+        return ChangeReport("fallback", reason, base)
+    if _git(origin, "cat-file", "-e", f"{base}^{{commit}}") is None:
+        return ChangeReport("fallback", f"el commit {base[:12]} no está en el historial", base)
+    changes = changed_files(origin, base, documentation_paths(origin, docs_dir))
+    if changes is None:
+        return ChangeReport("fallback", "git no pudo calcular el diff del origen", base)
+    paths = sorted({p for c in changes for p in (c.path, c.old_path) if p})
+    pages, mentions = pages_citing(docs_dir, paths, name)
+    affected = sorted({p for found in pages.values() for p in found})
+    examples = linked_examples(affected, docs_dir)
+    return ChangeReport("ok", "", base, tuple(changes), pages, mentions, examples)
+
+
+def format_changes(report: ChangeReport, name: str, root: Path) -> str:
+    """Informe Markdown de ``changes`` para el INVENTARIO."""
+    base = (report.base or "—")[:12]
+    lines = [f"# Cambios en el origen «{name}» desde {base}", ""]
+    if report.status != "ok":
+        return "\n".join(lines + [f"Modo completo: {report.reason}.", ""])
+    if not report.changes:
+        lines += ["*Sin cambios: todas las páginas siguen vigentes (estado C).*", ""]
+        return "\n".join(lines)
+    pages, mentions = report.pages or {}, report.mentions or {}
+
+    def _for(found: dict[str, tuple[Path, ...]], change: OriginChange) -> list[Path]:
+        return sorted({*found.get(change.path, ()), *found.get(change.old_path or "", ())})
+
+    def _cell(found: list[Path]) -> str:
+        return ", ".join(f"`{_rel(p, root)}`" for p in found)
+
+    lines += ["| Cambio | Fichero | Lo citan (Evidencia) | Lo mencionan |", "|---|---|---|---|"]
+    orphans: list[str] = []
+    for change in report.changes:
+        cited, mentioned = _for(pages, change), _for(mentions, change)
+        shown = f"{change.old_path} → {change.path}" if change.old_path else change.path
+        if not cited and not mentioned:
+            orphans.append(shown)
+        lines.append(
+            f"| {change.kind} | `{shown}` | {_cell(cited) or '*Sin página*'} "
+            f"| {_cell(mentioned) or '—'} |"
+        )
+    affected = sorted({p for found in pages.values() for p in found})
+    mentioned_only = sorted(
+        {p for found in mentions.values() for p in found} - set(affected) - set(report.examples)
+    )
+    lines += ["", f"## Páginas a revisar ({len(affected)})", ""]
+    lines += [f"- `{_rel(p, root)}`" for p in affected] or ["*Ninguna.*"]
+    lines += [
+        "",
+        f"## Páginas que solo lo mencionan ({len(mentioned_only)}) — revisar si cambia lo descrito",
+        "",
+    ]
+    lines += [f"- `{_rel(p, root)}`" for p in mentioned_only] or ["*Ninguna.*"]
+    lines += ["", f"## Ejemplos enlazados desde páginas técnicas ({len(report.examples)})", ""]
+    lines += [f"- `{_rel(p, root)}`" for p in report.examples] or ["*Ninguno.*"]
+    lines += ["", f"## Ficheros sin página ({len(orphans)}) — clasificar en el INVENTARIO", ""]
+    lines += [f"- `{p}`" for p in orphans] or ["*Ninguno.*"]
+    return "\n".join(lines) + "\n"
+
+
+# ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
 
@@ -408,6 +707,56 @@ def _cmd_llms(args: argparse.Namespace) -> int:
     return 0
 
 
+def _origin_args(args: argparse.Namespace) -> tuple[Path, Path, Path, str]:
+    """(origen, docs, fichero de estado, nombre) con los valores por defecto relativos a --root."""
+    root: Path = args.root.resolve()
+    origin: Path = args.origin.resolve()
+    docs: Path = (args.docs or root / "docs").resolve()
+    state: Path = (args.state or root / ".ai" / "doc_state.json").resolve()
+    return origin, docs, state, args.name or origin.name
+
+
+def _cmd_baseline(args: argparse.Namespace) -> int:
+    origin, docs, state, name = _origin_args(args)
+    baseline = take_baseline(origin, documentation_paths(origin, docs))
+    write_baseline(state, name, baseline)
+    if baseline.commit is None:
+        print(f"[doc_trace] {name}: el origen no está bajo git; la próxima sesión será completa.")
+        return 0
+    print(f"[doc_trace] {name}: baseline {baseline.commit[:12]} ({baseline.branch}) → {state}")
+    if baseline.dirty:
+        print(
+            f"[doc_trace] AVISO: {name} tiene cambios sin confirmar; se volverán a revisar "
+            "en la próxima sesión incremental."
+        )
+    return 0
+
+
+def _cmd_changes(args: argparse.Namespace) -> int:
+    origin, docs, state, name = _origin_args(args)
+    report = check_changes(origin, docs, state, name)
+    text = format_changes(report, name, args.root.resolve())
+    if args.output:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(text, encoding="utf-8", newline="\n")
+        print(f"[doc_trace] Informe escrito en {args.output}")
+    else:
+        print(text, end="")
+    if report.status != "ok":
+        print(f"[doc_trace] Modo completo: {report.reason}.", file=sys.stderr)
+        return 3
+    return 1 if report.changes else 0
+
+
+def _add_origin_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--origin", type=Path, required=True, help="Raíz del origen (git).")
+    parser.add_argument("--name", help="Nombre del origen (por defecto, su carpeta).")
+    parser.add_argument("--docs", type=Path, help="Carpeta de docs del destino (<root>/docs).")
+    parser.add_argument(
+        "--state", type=Path, help="Estado del destino (<root>/.ai/doc_state.json)."
+    )
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Trazabilidad determinista docs ↔ código.")
     parser.add_argument("--root", type=Path, default=ROOT, help="Raíz del repositorio.")
@@ -440,11 +789,21 @@ def _parser() -> argparse.ArgumentParser:
     llms.add_argument("--site-url", help="URL base (por defecto, site_url de mkdocs.yml).")
     llms.add_argument("--check", action="store_true", help="Solo comprueba que está al día.")
     llms.set_defaults(func=_cmd_llms)
+
+    baseline = sub.add_parser("baseline", help="Guarda el commit actual del origen (CIERRE).")
+    _add_origin_args(baseline)
+    baseline.set_defaults(func=_cmd_baseline)
+
+    changes = sub.add_parser("changes", help="Cambios del origen desde su baseline (Fase 1).")
+    _add_origin_args(changes)
+    changes.add_argument("--output", type=Path, help="Fichero Markdown (por defecto, stdout).")
+    changes.set_defaults(func=_cmd_changes)
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Punto de entrada: 0 sin problemas · 1 drift / tests inexistentes / error · 2 uso."""
+    """Punto de entrada: 0 sin problemas · 1 drift / cambios / tests inexistentes / error ·
+    2 uso · 3 ``changes`` sin baseline utilizable (modo completo)."""
     args = _parser().parse_args(argv)
     result: int = args.func(args)
     return result

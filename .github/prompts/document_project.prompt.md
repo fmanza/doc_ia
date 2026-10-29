@@ -24,6 +24,10 @@ Opcionales:
 - **Alcance**: módulos o subconjunto a documentar (por defecto: proyecto completo)
 - **Arquetipos**: subconjunto a aplicar (por defecto: todos los aplicables según inventario)
 - **Verificación**: `--verify-tools` y/o `--verify-build [--serve]` (opt-in, nunca automáticos)
+- **Modo**: `incremental` | `completo` — por defecto `incremental` si el destino tiene
+  `.ai/doc_state.json` con baseline del origen; si no, `completo` (ver Fase 1 y CIERRE). Pasa a
+  `completo` sola si el commit ya no existe, el origen no usa git o cambia la versión
+  mayor/menor de doc_ia (las reglas de los arquetipos pueden haber cambiado)
 
 ## ⚠️ VALIDACIÓN (bloqueante)
 
@@ -212,8 +216,26 @@ Fase 0c — Conversión de documentos no legibles y uso de documentos pre-conver
          Nota: omitir esta fase solo si no existen ficheros binarios NI carpeta `md/` con
          contenido válido en el origen NI `_fuentes/` (o nombre no canónico) en el destino.
 Fase 1 — Inventariar y clasificar:
-         Leer árbol real del origen (README, código, docs/, mkdocs.yml del destino,
-         y `_fuentes/` del destino con los documentos convertidos si existe).
+         Modo incremental (por defecto si hay baseline) — antes de leer el origen, por cada
+         origen CÓDIGO, desde la raíz del destino (carpeta con mkdocs.yml):
+           python <doc_ia>/scripts/doc_trace.py --root <raíz destino> changes --origin <origen> [--name <nombre_origen>]
+           · exit 0 → sin cambios: todas sus páginas quedan en ESTADO C sin leerlas.
+           · exit 1 → leer SOLO el informe: por cada fichero cambiado,
+             `git -C <origen> diff <base> -- <fichero>` (o el fichero entero si es alta A).
+               - "Lo citan (Evidencia)" → ESTADO B candidato; confirmar comparando el diff
+                 con la página (si el cambio no afecta a lo documentado → C).
+               - "Ejemplos enlazados" → revisar junto a su página técnica.
+               - "Lo mencionan" → B solo si el diff cambia lo que la página describe.
+               - "Ficheros sin página" → clasificar: módulo nuevo (A) o parte de un
+                 módulo con página (B de esa página). Pueden ser tests, config o README:
+                 revisar Arquetipos 3, 6 y 7 si cambia un punto de entrada o dependencias.
+             El resto de páginas → ESTADO C ("sin cambios desde <base>") sin leerlas.
+           · exit 3 → modo completo para ese origen; anotar el motivo en INVENTARIO.
+           Con `Alcance`, aplicar ambos filtros (intersección). Orígenes MATERIAL: su
+           incremental es la Fase 0c (copia por hash a `_fuentes/`) + `doc_trace drift`.
+           Las fases 0b, 0c, 5, 6, 7b, 7c y el CIERRE se ejecutan igual en ambos modos.
+         Modo completo (o fallback): leer árbol real del origen (README, código, docs/,
+         mkdocs.yml del destino, y `_fuentes/` del destino con los documentos convertidos si existe).
          Para cada módulo del origen y cada página existente en el destino, asignar estado:
            ESTADO A — sin doc: no existe página en docs/ para este módulo.
            ESTADO B — desactualizado: página existe pero al menos uno de los siguientes:
@@ -494,7 +516,7 @@ APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reg
    - Tabla: | Origen | Tipo detectado | Señales | Rol |
    - Si hay ≥2 orígenes CÓDIGO: indicar estrategia elegida por el usuario.
    - ⚠️ Confirmar con el usuario antes de continuar.
-3. **INVENTARIO** (Fase 0+0b+0c+1) — tabla: | Módulo / Página | Estado (A/B/C) | Acción (CREAR/ACTUALIZAR/OMITIR) | Arquetipos / Secciones afectadas |
+3. **INVENTARIO** (Fase 0+0b+0c+1) — indicar el modo (`incremental` desde `<base>` o `completo` + motivo); en incremental, incluir el informe de `doc_trace changes` por origen; tabla: | Módulo / Página | Estado (A/B/C) | Acción (CREAR/ACTUALIZAR/OMITIR) | Arquetipos / Secciones afectadas |
    - Con múltiples orígenes CÓDIGO: un sub-inventario por proyecto.
    - Si Fase 0c activa: incluir resultado de la validación previa (motor instalado, integridad) e indicar qué ficheros se convirtieron (motor usado: docling, markitdown o pandoc), cuáles quedan pendientes y motivo (motor no instalado, fichero inválido, etc.).
    - Si hay documentos convertidos: añadir sub-sección "Fuentes convertidas (`_fuentes/`)" con tabla | Origen | Carpeta `md/` | Copiados / Sin cambios / Huérfanos | Fases donde aplica |, la migración desde un nombre no canónico si la hay, y el aviso de que su texto se versiona en el destino. Sin estado A/B/C — son fuentes de contexto, no destinos de documentación.
@@ -511,6 +533,11 @@ APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reg
     destino (`00_REQUEST.md`, `00_CONTEXT_SNAPSHOT.md`, `TRACEABILITY.md`) y proponer commit
     `docs(<scope>): <resumen>` con recuento de páginas creadas/actualizadas/omitidas; el commit
     incluye `_fuentes/` si la Fase 0c la creó o cambió.
+    **Baseline** (siempre, en ambos modos, antes del commit): por cada origen CÓDIGO,
+    `python <doc_ia>/scripts/doc_trace.py --root <raíz destino> baseline --origin <origen> [--name <nombre_origen>]`
+    → `<raíz destino>/.ai/doc_state.json` (lo escribe la herramienta; nunca a mano) entra en el
+    commit. Si avisa de cambios sin confirmar en el origen, indicarlo en RESUMEN: se volverán a
+    revisar en la próxima sesión. Registrar el commit de cada origen en `00_CONTEXT_SNAPSHOT.md`.
 
 ## Ejemplo de entrada
 

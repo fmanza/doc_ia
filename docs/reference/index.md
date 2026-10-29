@@ -10,7 +10,7 @@ fuentes:
   scripts/build_docs_zip.py: 7cecc3d4e93e
   scripts/check_env.py: 6202875214f7
   scripts/convert_to_md.py: e7e60518d96f
-  scripts/doc_trace.py: a1824b159937
+  scripts/doc_trace.py: 9b1c4d981f6a
   scripts/start-server.py: a12209ac8507
 revisado: 2026-10-29
 ---
@@ -91,7 +91,7 @@ python scripts/convert_to_md.py <source> [opciones]
 ### doc_trace.py
 
 ```bash
-python scripts/doc_trace.py [--root DIR] {drift,stamp,matrix,llms} [opciones]
+python scripts/doc_trace.py [--root DIR] {drift,stamp,matrix,llms,baseline,changes} [opciones]
 ```
 
 | Opción / Argumento | Tipo | Por defecto | Descripción |
@@ -109,6 +109,11 @@ python scripts/doc_trace.py [--root DIR] {drift,stamp,matrix,llms} [opciones]
 | `llms --output` | ruta | `docs/llms.txt` | Fichero generado |
 | `llms --site-url` | URL | `site_url` de `mkdocs.yml` | Base de los enlaces |
 | `llms --check` | flag | desactivado | Solo comprueba que el fichero está al día |
+| `baseline` / `changes --origin` | ruta (obligatorio) | — | Raíz del origen documentado (git); puede ser una subcarpeta de un repositorio |
+| `baseline` / `changes --name` | cadena | carpeta del origen | Clave del origen en el estado; con varios orígenes, la de `_fuentes/` |
+| `baseline` / `changes --docs` | ruta | `<--root>/docs` | Docs del destino (citas y artefactos a excluir) |
+| `baseline` / `changes --state` | ruta | `<--root>/.ai/doc_state.json` | Estado del modo incremental |
+| `changes --output` | ruta | stdout | Fichero Markdown del informe |
 
 ### start-server.py
 
@@ -149,13 +154,17 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 | `1` | `convert_to_md.py` | Origen inexistente, motor no instalado, errores de validación o de conversión, `--device cuda` sin `nvidia-smi` | Ver el mensaje `ERROR:`; instalar el motor o cambiar `--engine` |
 | `2` | `convert_to_md.py` | Combinación inválida: `--chunk`, `--batch-size >1` o `--workers >1` sin `docling`; `--flash-attention` con `--device cpu` | Ajustar las opciones |
 | `0` | `start-server.py` | Servidor detenido con Ctrl+C | — |
-| `1` | `start-server.py` | Puerto ocupado (excepción no capturada) 🔍 | Usar otro `--port` |
+| `1` | `start-server.py` | Puerto ocupado: mensaje por stderr con la sugerencia `--port <puerto+1>` | Usar otro `--port` |
 | `0` | `doc_trace.py` | Sin drift, sin tests citados inexistentes, `llms.txt` al día o sellado correcto | — |
 | `1` | `doc_trace.py drift` | Alguna fuente `stale`, `missing` u `outside_repo` | Revisar la página contra el cambio y re-sellar con `stamp` |
 | `1` | `doc_trace.py stamp` | Página o fuente inexistente, fuente fuera del repositorio o página sin fuentes | Corregir la ruta o `--source` |
 | `1` | `doc_trace.py matrix` | La columna `Test` cita un test que no existe | Corregir el criterio o crear el test |
 | `1` | `doc_trace.py llms` | `mkdocs.yml` sin `nav` o ilegible; con `--check`, `llms.txt` no coincide con el `nav` actual | Revisar `--config`; ejecutar `llms` sin `--check` |
 | `2` | `doc_trace.py` | Sin subcomando u opción desconocida (argparse) | Revisar la sinopsis del §2 |
+| `0` | `doc_trace.py baseline` | Baseline guardado (también si el origen no usa git: `commit: null`) | — |
+| `0` | `doc_trace.py changes` | Sin cambios en el origen desde el baseline | Todas las páginas siguen vigentes (estado C) |
+| `1` | `doc_trace.py changes` | Hay ficheros cambiados | Inventariar solo el informe (modo incremental) |
+| `3` | `doc_trace.py changes` | Sin baseline para el origen, origen sin git, commit fuera del historial o versión menor de doc_ia distinta | Documentar en modo completo; el CIERRE guardará un baseline nuevo |
 | `0` | `sync_root_docs.py` | Siempre; un fichero raíz ausente solo genera un aviso | — |
 
 ## 4. Eventos y Mensajes
@@ -179,6 +188,7 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 | Ficheros `<origen>/md/**/*.md` | Fichero de salida | `scripts/convert_to_md.py::output_path` | Estructura reflejada del origen; frontmatter opcional con `--metadata` |
 | `llms.txt` | Fichero de salida publicado en la raíz del sitio | `scripts/doc_trace.py::build_llms_txt` | Índice para agentes IA ([llmstxt.org](https://llmstxt.org/)): un `##` por sección del `nav` y un enlace por página |
 | Matriz de trazabilidad | Fichero de salida (Markdown) | `scripts/doc_trace.py::build_matrix` | Criterios y tests por página, tests citados inexistentes y tests sin criterio |
+| `.ai/doc_state.json` | Fichero de estado del destino (JSON, versionado) | `scripts/doc_trace.py::write_baseline` | `doc_ia` (versión) y `origenes.<nombre>`: `commit`, `rama`, `sucio`, `fecha` |
 
 ## 6. Datos
 
@@ -233,7 +243,7 @@ convertido: hereda la sensibilidad del origen.
     | Herramientas de `check_env.py` | `scripts/check_env.py::REQUIRED_TOOLS` | ✅ |
     | Opciones y restricciones de `convert_to_md.py` | `scripts/convert_to_md.py::_parse_args` | ✅ |
     | Opciones de `start-server.py` | `scripts/start-server.py::main` | ✅ |
-    | Código `1` por puerto ocupado | `scripts/start-server.py::main` (sin manejo de `OSError`) | 🔍 |
+    | Código `1` por puerto ocupado | `scripts/start-server.py::main` (`except OSError` → `sys.exit(1)`), `::DocsServer` (sin `SO_REUSEADDR` en Windows); `tests/test_start_server.py::test_busy_port_exits_1_with_hint` | ✅ |
     | Códigos de `check_env.py` | `scripts/check_env.py::main` | ✅ |
     | Códigos de `convert_to_md.py` | `scripts/convert_to_md.py::main`, `::_detect_device`, `::_parse_args` | ✅ |
     | Código `0` de `sync_root_docs.py` | `hooks/sync_root_docs.py::main` | ✅ |
@@ -247,7 +257,8 @@ convertido: hereda la sensibilidad del origen.
     | Manifiesto y chunks | `scripts/convert_to_md.py::_run_chunking` | ✅ |
     | Formato `.sha256` y `CHECKSUMS.txt` | `scripts/build_docs_zip.py::_create_checksum_files` | ✅ |
     | Opciones de `doc_trace.py` | `scripts/doc_trace.py::_parser` | ✅ |
-    | Códigos de `doc_trace.py` | `scripts/doc_trace.py::_cmd_drift`, `::_cmd_stamp`, `::_cmd_matrix`, `::_cmd_llms` | ✅ |
+    | Códigos de `doc_trace.py` | `scripts/doc_trace.py::_cmd_drift`, `::_cmd_stamp`, `::_cmd_matrix`, `::_cmd_llms`, `::_cmd_baseline`, `::_cmd_changes` | ✅ |
+    | `.ai/doc_state.json` | `scripts/doc_trace.py::write_baseline`, `::read_state` | ✅ |
     | `llms.txt` | `scripts/doc_trace.py::build_llms_txt` | ✅ |
     | Matriz de trazabilidad | `scripts/doc_trace.py::build_matrix` | ✅ |
     | Frontmatter de trazabilidad y huella | `scripts/doc_trace.py::format_frontmatter`, `::fingerprint` | ✅ |

@@ -243,6 +243,12 @@ Cuando el usuario pida documentar o actualizar todo el proyecto, usa este flujo 
 **No generes todo en un único paso**: itera módulo a módulo dentro de cada fase.
 
 ### Fase 1 — Inventario real
+- **Modo incremental** (por defecto si el destino tiene `.ai/doc_state.json`): ejecuta antes
+  `doc_trace.py --root <raíz destino> changes --origin <origen>` y lee solo el diff de los
+  ficheros cambiados y las páginas que los citan; el resto queda en estado C sin leerlo. Exit 3
+  (sin baseline, commit perdido, sin git o doc_ia de otra versión menor) → modo completo. El
+  CIERRE siempre ejecuta `doc_trace.py baseline`. Regla completa: `document_project.prompt.md`
+  § Fase 1.
 - Lee el árbol de cada origen de tipo `CÓDIGO` (aplicar Paso 0a si hay múltiples orígenes).
 - Lista todos los módulos públicos (exportados en `__init__.py` o `__all__`).
 - Contrasta cada módulo con `README.md`, `docs/`, `docs/examples/` y `mkdocs.yml`.
