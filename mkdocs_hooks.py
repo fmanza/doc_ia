@@ -4,13 +4,17 @@ Cargado directamente por MkDocs mediante la clave `hooks:` de mkdocs.yml.
 No requiere instalación ni registro de paquete.
 
 Patrón de referencia para otros proyectos:
-  Copiar este fichero y cambiar únicamente la línea zip_path.
+  Copiar este fichero y cambiar únicamente la línea zip_path (y VER_DOCUMENTACION.md por
+  VIEW_DOCS.md en EXTRA_FILES si la documentación está en inglés).
 """
 
 import hashlib
 import os
 import zipfile
 from pathlib import Path
+
+# Ficheros fuera de site/ que viajan en la raíz del ZIP: servidor local e instrucciones.
+EXTRA_FILES = ("scripts/start-server.py", "VER_DOCUMENTACION.md")
 
 
 def on_post_build(config, **kwargs):
@@ -32,10 +36,11 @@ def on_post_build(config, **kwargs):
                 arcname = file_path.relative_to(site_dir)
                 zipf.write(file_path, arcname=arcname)
 
-        server_script = Path(__file__).parent / "scripts" / "start-server.py"
-        if server_script.exists():
-            print(f"[ZIP] Incluyendo servidor local: {server_script.name}")
-            zipf.write(server_script, arcname="start-server.py")
+        for extra in EXTRA_FILES:
+            extra_path = Path(__file__).parent / extra
+            if extra_path.exists():
+                print(f"[ZIP] Incluyendo: {extra_path.name}")
+                zipf.write(extra_path, arcname=extra_path.name)
 
     sha256_hash = _sha256(zip_path)
     sha256_file = zip_path.with_suffix(".zip.sha256")

@@ -30,6 +30,10 @@ SOURCES_RULE_FILES = [
 ]
 NON_CANONICAL_SOURCES_RE = re.compile(r"(?<!\w)\.?fuentes/")
 FORBIDDING_RE = re.compile(r"Prohibido|Ningún otro nombre|[Mm]igra|no canónico")
+# Instrucciones de visualización en la raíz del destino (Fase 7c del producto).
+VIEW_TEMPLATE = ".github/templates/VER_DOCUMENTACION.template.md"
+VIEW_SECTIONS = list(range(8))
+PLACEHOLDER_RE = re.compile(r"\{[a-z_]+\}")
 
 
 def _sections(page: Path) -> list[int]:
@@ -328,3 +332,31 @@ def test_sources_folder_is_canonical(path: str) -> None:
     for match in NON_CANONICAL_SOURCES_RE.finditer(text):
         window = text[max(0, match.start() - 200) : match.end() + 200]
         assert FORBIDDING_RE.search(window), f"{path}: {match.group()} sin prohibición ni migración"
+
+
+@pytest.mark.parametrize("path", SOURCES_RULE_FILES)
+def test_view_instructions_rule_everywhere(path: str) -> None:
+    """La Fase 7c (instrucciones de visualización) está en las cuatro fuentes de instrucciones."""
+    text = (ROOT / path).read_text(encoding="utf-8")
+    assert "VER_DOCUMENTACION.md" in text
+    assert "VER_DOCUMENTACION.template.md" in text
+
+
+def test_view_template_has_fixed_sections() -> None:
+    assert _sections(ROOT / VIEW_TEMPLATE) == VIEW_SECTIONS
+
+
+def test_view_instructions_filled_for_doc_ia() -> None:
+    """Dogfooding: la instancia de doc_ia tiene las secciones fijas y ningún marcador pendiente."""
+    text = (ROOT / "VER_DOCUMENTACION.md").read_text(encoding="utf-8")
+    assert _sections(ROOT / "VER_DOCUMENTACION.md") == VIEW_SECTIONS
+    assert not PLACEHOLDER_RE.findall(text)
+    assert "PLANTILLA" not in text
+
+
+def test_downloads_never_offers_opening_index_html() -> None:
+    """Con `use_directory_urls: true`, abrir `index.html` sin servidor no navega."""
+    text = (DOCS / "downloads.md").read_text(encoding="utf-8")
+    for match in re.finditer(r"index\.html", text):
+        window = text[max(0, match.start() - 200) : match.end() + 200]
+        assert re.search(r"no funciona|[Nn]unca|Prohibido", window), window

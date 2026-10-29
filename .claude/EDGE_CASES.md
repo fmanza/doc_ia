@@ -198,3 +198,42 @@
   `tests/test_docs_conformance.py::test_sources_folder_is_canonical` comprueba las cuatro
   instrucciones.
 - **Sesión**: `.ai/sessions/2026-10-29_fuentes_destino/`
+
+## [ZIP offline] — Abrir `index.html` sin servidor muestra listados de carpetas
+
+- **Síntoma**: tras extraer el ZIP, abrir `index.html` con doble clic carga la portada, pero el
+  menú lleva a listados de carpetas (o a nada) y la búsqueda no responde. `downloads.md` y el
+  Paso B3 del producto lo ofrecían como «Opción B: todos los menús funcionan».
+- **Causa**: `use_directory_urls: true` genera enlaces a carpetas (`api/archetypes/`); con
+  `file://` el navegador no resuelve `index.html` dentro de ellas. La búsqueda usa un Web Worker,
+  que los navegadores bloquean en `file://`.
+- **Tratamiento**: la única vía documentada es el servidor local (`start-server.py`, solo
+  `127.0.0.1`). `VER_DOCUMENTACION.md` (Fase 7c) explica cómo instalar Python desde cero.
+  `test_downloads_never_offers_opening_index_html` impide volver a ofrecerlo. Un ZIP navegable
+  sin servidor (plugin `offline` / `use_directory_urls: false`) queda como feature aparte.
+- **Sesión**: .ai/sessions/2026-10-29b_ver_documentacion/
+
+## [build_docs_zip.py] — El ZIP versionado anidaba el ZIP `latest` y no traía `start-server.py`
+
+- **Síntoma**: `dist/doc_ia-docs-0.3.0.zip` (el que suben las Releases) tenía 155 entradas, entre
+  ellas `doc_ia-docs-latest.zip` y su `.sha256`, y ningún `start-server.py`.
+- **Causa**: `_zip` usaba `shutil.make_archive` sobre `site/` entero, donde el hook ya había dejado
+  el ZIP `latest`; el servidor solo lo añadía el hook.
+- **Tratamiento**: `_zip` replica el contenido del hook: excluye `.zip`/`.sha256` y añade
+  `EXTRA_FILES`. Test `test_versioned_zip_matches_latest_layout`.
+- **Sesión**: .ai/sessions/2026-10-29b_ver_documentacion/
+
+## [start-server.py] — Una conexión ociosa bloquea el servidor; en Windows dos servidores comparten puerto
+
+- **Síntoma**: con `socketserver.TCPServer`, abrir una conexión sin enviar petición (como la
+  preconexión especulativa de Chrome) deja colgadas las demás peticiones. Con
+  `ThreadingHTTPServer` tal cual, en Windows un segundo servidor en el mismo puerto arranca sin
+  error. Aparte: tras extraer el ZIP en Windows, la primera lectura del Mermaid local (~5 MB) tardó
+  11 s incluso sin servidor (análisis del antivirus), y luego fue inmediata.
+- **Causa**: `TCPServer` atiende una conexión cada vez. `HTTPServer.allow_reuse_address = True`
+  activa `SO_REUSEADDR`, que en Windows permite enlazar un puerto en uso.
+- **Tratamiento**: `DocsServer(ThreadingHTTPServer)` con `allow_reuse_address = sys.platform !=
+  "win32"`. Tests con loopback real: `test_idle_connection_does_not_block_real_server`,
+  `test_second_server_on_same_port_fails`. La primera carga lenta está en «Problemas frecuentes»
+  de `VER_DOCUMENTACION.md`.
+- **Sesión**: .ai/sessions/2026-10-29b_ver_documentacion/

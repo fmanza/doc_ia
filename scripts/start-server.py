@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Servidor HTTP local para navegar la documentación doc_ia offline.
 
-Incluido dentro del ZIP de documentación generado por mkdocs build.
+Incluido dentro del ZIP de documentación generado por mkdocs build. Solo usa la biblioteca
+estándar: basta Python 3.7 o superior, sin instalar paquetes. Escucha únicamente en 127.0.0.1,
+así que la documentación no queda expuesta a la red local.
 
 Uso:
     python start-server.py
@@ -9,11 +11,23 @@ Uso:
 """
 
 import argparse
+import functools
 import http.server
-import os
-import socketserver
+import sys
 import webbrowser
 from pathlib import Path
+
+HOST = "127.0.0.1"
+
+
+class DocsServer(http.server.ThreadingHTTPServer):
+    """Un hilo por conexión: una conexión ociosa del navegador no bloquea las demás.
+
+    En Windows, SO_REUSEADDR deja que dos servidores compartan puerto: se desactiva para que un
+    puerto ocupado falle al arrancar en lugar de servir páginas de otro proceso.
+    """
+
+    allow_reuse_address = sys.platform != "win32"
 
 
 def main() -> None:
@@ -25,13 +39,21 @@ def main() -> None:
     args = parser.parse_args()
 
     # Servir desde el directorio donde está este script
-    serve_dir = Path(__file__).parent
-    os.chdir(serve_dir)
+    serve_dir = Path(__file__).resolve().parent
+    handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory=str(serve_dir))
 
-    handler = http.server.SimpleHTTPRequestHandler
+    try:
+        httpd = DocsServer((HOST, args.port), handler)
+    except OSError as exc:
+        print(f"[doc_ia-docs] No se puede usar el puerto {args.port}: {exc}", file=sys.stderr)
+        print(
+            f"[doc_ia-docs] Prueba otro puerto: python start-server.py --port {args.port + 1}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
-    with socketserver.TCPServer(("", args.port), handler) as httpd:
-        url = f"http://localhost:{args.port}"
+    with httpd:
+        url = f"http://{HOST}:{args.port}"
         print(f"[doc_ia-docs] Sirviendo documentación en {url}")
         print("[doc_ia-docs] Pulsa Ctrl+C para detener el servidor.")
         if not args.no_browser:

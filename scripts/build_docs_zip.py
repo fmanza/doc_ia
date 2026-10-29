@@ -17,10 +17,10 @@ from __future__ import annotations
 import argparse
 import hashlib
 import importlib.util
-import shutil
 import subprocess
 import sys
 import tomllib
+import zipfile
 from datetime import datetime
 from pathlib import Path
 from types import ModuleType
@@ -29,6 +29,8 @@ ROOT = Path(__file__).resolve().parent.parent
 SITE_DIR = ROOT / "site"
 PYPROJECT = ROOT / "pyproject.toml"
 ZIP_PREFIX = "doc_ia-docs"
+# Files outside site/ shipped at the ZIP root: local server and viewing instructions.
+EXTRA_FILES = ("scripts/start-server.py", "VER_DOCUMENTACION.md")
 
 # Builders that do not execute the `hooks:` declared in mkdocs.yml.
 HOOKLESS_BUILDERS: frozenset[str] = frozenset({"zensical"})
@@ -77,9 +79,18 @@ def _build(builder: str, strict: bool) -> None:
 
 
 def _zip(output_dir: Path, version: str) -> Path:
+    """Same layout as the latest ZIP of mkdocs_hooks.py: site/ without nested archives + extras."""
     output_dir.mkdir(parents=True, exist_ok=True)
-    zip_stem = output_dir / f"{ZIP_PREFIX}-{version}"
-    archive = Path(shutil.make_archive(str(zip_stem), "zip", SITE_DIR))
+    archive = output_dir / f"{ZIP_PREFIX}-{version}.zip"
+    with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as zf:
+        for file_path in sorted(p for p in SITE_DIR.rglob("*") if p.is_file()):
+            if file_path.suffix in (".zip", ".sha256"):
+                continue
+            zf.write(file_path, arcname=file_path.relative_to(SITE_DIR).as_posix())
+        for extra in EXTRA_FILES:
+            extra_path = ROOT / extra
+            if extra_path.is_file():
+                zf.write(extra_path, arcname=extra_path.name)
     print(f"[build_docs_zip] Created: {archive}")
     return archive
 

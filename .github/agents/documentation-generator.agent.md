@@ -285,7 +285,17 @@ Cuando el usuario pida documentar o actualizar todo el proyecto, usa este flujo 
 - **Variante B** (`TIENE_ZIP_SCRIPT = false`): instrucciones de build local con MkDocs (requisitos,
   comandos, cómo comprimir site/), tabla placeholder con fila `| — | — | — | — |`,
   nota sobre búsqueda offline y enlaces relacionados.
+- Visualizar el ZIP: solo `python start-server.py` (servidor local). Nunca «abrir `index.html`»:
+  con `use_directory_urls: true` los enlaces apuntan a carpetas y la búsqueda no funciona.
 - Añadir `- Descargas: downloads.md` al nav tras "Inicio rápido" (o tras "Instalación" si no existe quickstart).
+
+**`VER_DOCUMENTACION.md` — SIEMPRE obligatorio** (Fase 7c; idioma `en`: `VIEW_DOCS.md`):
+- En la raíz del destino (fuera de `docs/`), desde `.github/templates/VER_DOCUMENTACION.template.md`:
+  requisitos y pasos para ver la documentación desde cero en Windows, macOS y Linux (Python incluido).
+- Marcadores con valores verificados en el destino (`requires-python`, fichero de dependencias,
+  generador, nombre y publicación del ZIP, remoto git); Ruta A solo con publicación verificada.
+- Sin `requirements-docs.txt` en el destino (Gap V1) → crearlo; nunca un `pip install` inventado.
+- Se distribuye en el ZIP (`EXTRA_FILES`); en `docs/` se cita como `código inline`, sin enlace.
 
 ### Fase 5 — Sincronización y verificación estándar de mkdocs.yml
 

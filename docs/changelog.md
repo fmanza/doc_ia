@@ -5,6 +5,34 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+### Added
+
+- **Producto — instrucciones de visualización** (Fase 7c de `/document-project`, siempre): el
+  destino recibe `VER_DOCUMENTACION.md` (`VIEW_DOCS.md` en inglés) en su raíz, generado desde
+  `.github/templates/VER_DOCUMENTACION.template.md`: qué ruta seguir (web, ZIP, código fuente),
+  instalación de Python desde cero en Windows, macOS y Linux, servidor local y problemas
+  frecuentes, con valores verificados en el destino. Gap V1 (sin `requirements-docs.txt` → se
+  crea) y Gap V2 (`EXTRA_FILES` en hook/script). Instancia propia de doc_ia en la raíz.
+- Tests: `test_start_server.py`, `test_versioned_zip_matches_latest_layout` (AC-11 del ZIP
+  offline) y guardas de coherencia de la Fase 7c (AC-11 de Documentar un Proyecto).
+
+### Changed
+
+- `start-server.py` escucha solo en `127.0.0.1` (antes, todas las interfaces), atiende cada
+  conexión en su hilo (antes, una conexión ociosa del navegador bloqueaba el servidor), sirve su
+  carpeta sin cambiar el directorio de trabajo y, con el puerto ocupado, termina con código 1 y
+  sugiere `--port` (en Windows, sin `SO_REUSEADDR`, que permitía compartir el puerto en silencio).
+- Los dos ZIP llevan `start-server.py` y `VER_DOCUMENTACION.md` en su raíz (`EXTRA_FILES` en
+  `mkdocs_hooks.py` y `build_docs_zip.py`).
+
+### Fixed
+
+- El ZIP versionado (`dist/`, el que publican las Releases) no incluía `start-server.py` y
+  contenía anidado `doc_ia-docs-latest.zip` con su `.sha256`: ahora tiene el mismo contenido
+  que el ZIP "latest".
+- `docs/downloads.md`, el Paso B3 del producto y las notas de release ofrecían abrir `index.html`
+  directamente: con `use_directory_urls: true` los enlaces apuntan a carpetas y no navega.
+
 ## [0.3.0] — 2026-10-29
 
 ### Added

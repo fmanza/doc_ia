@@ -180,6 +180,13 @@ El patrón completo consta de **tres señales independientes**; el flujo de
 3. `.github/workflows/docs-zip-release.yml` — auto-publicación en GitHub Releases en cada push
    a `main` con cambios en `docs/`.
 
+Los dos ZIP (latest y versionado) llevan en su raíz `start-server.py` (servidor local, solo
+`127.0.0.1`) y `VER_DOCUMENTACION.md` (`EXTRA_FILES`). `VER_DOCUMENTACION.md` vive en la raíz del
+destino, fuera de `docs/`, y se genera **siempre** en la Fase 7c desde
+`.github/templates/VER_DOCUMENTACION.template.md`: requisitos y pasos para ver la documentación
+desde cero (Windows, macOS, Linux; Python incluido). Abrir `index.html` con doble clic **no** es
+una opción válida: con `use_directory_urls: true` los enlaces apuntan a carpetas.
+
 #### Configuración de documentación
 
 > **Fuente única**: `mkdocs.yml`. Lo consume MkDocs Material (por defecto) y, recíprocamente,

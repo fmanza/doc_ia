@@ -2,16 +2,16 @@
 arquetipo: "12"
 fuentes:
   .claude/settings.json.example: e1c10842aa20
-  .github/workflows/docs-zip-release.yml: 09d54c255eb8
+  .github/workflows/docs-zip-release.yml: 024d0cf6aeb6
   CLAUDE.md: 1be4ae56b47a
   hooks/sync_root_docs.py: ef5e576436c6
   mkdocs.yml: 2179f8729495
-  mkdocs_hooks.py: 2f510611cb6f
-  scripts/build_docs_zip.py: b9a2694d122f
+  mkdocs_hooks.py: 433551c5505f
+  scripts/build_docs_zip.py: 7cecc3d4e93e
   scripts/check_env.py: 6202875214f7
   scripts/convert_to_md.py: e7e60518d96f
   scripts/doc_trace.py: a1824b159937
-  scripts/start-server.py: ec67386821f7
+  scripts/start-server.py: a12209ac8507
 revisado: 2026-10-29
 ---
 # Referencia — doc_ia
@@ -116,7 +116,11 @@ python scripts/doc_trace.py [--root DIR] {drift,stamp,matrix,llms} [opciones]
 python start-server.py [--port PORT] [--no-browser]
 ```
 
-Se distribuye dentro del ZIP offline (lo añade `mkdocs_hooks.py`) y sirve el directorio donde está.
+Se distribuye en la raíz de los dos ZIP offline (`EXTRA_FILES` de `mkdocs_hooks.py` y de
+`build_docs_zip.py`, junto a `VER_DOCUMENTACION.md`) y sirve el directorio donde está, solo en
+`127.0.0.1`, con un hilo por conexión (una conexión ociosa del navegador no bloquea las
+demás). Basta Python 3.7 o superior, sin paquetes. Si el puerto está ocupado, termina con
+código 1 y sugiere `--port <puerto+1>`.
 
 | Opción / Argumento | Tipo | Por defecto | Descripción |
 |---|---|---|---|

@@ -57,6 +57,27 @@ def test_main_builds_strict_and_packages_versioned_zip(tmp_path: Path) -> None:
         assert "index.html" in zf.namelist()
 
 
+def test_versioned_zip_matches_latest_layout(tmp_path: Path) -> None:
+    """Release ZIP: sin ZIP anidado y con servidor + instrucciones en la raíz (como el latest)."""
+    root = _project(tmp_path)
+    (root / "site" / "doc_ia-docs-latest.zip").write_bytes(b"nested")
+    (root / "site" / "doc_ia-docs-latest.zip.sha256").write_text("x", encoding="utf-8")
+    (root / "site" / "api").mkdir()
+    (root / "site" / "api" / "index.html").write_text("<h1>API</h1>", encoding="utf-8")
+    (root / "scripts").mkdir()
+    (root / "scripts" / "start-server.py").write_text("print('ok')\n", encoding="utf-8")
+    (root / "VER_DOCUMENTACION.md").write_text("# Ver\n", encoding="utf-8")
+    _run_main(root, "--no-build")
+    with zipfile.ZipFile(root / "dist" / "doc_ia-docs-0.1.0.zip") as zf:
+        names = zf.namelist()
+    assert sorted(names) == [
+        "VER_DOCUMENTACION.md",
+        "api/index.html",
+        "index.html",
+        "start-server.py",
+    ]
+
+
 def test_main_no_strict_omits_flag(tmp_path: Path) -> None:
     root = _project(tmp_path)
     ok = subprocess.CompletedProcess(args=[], returncode=0)
@@ -195,4 +216,5 @@ def test_post_build_hook_creates_latest_zip(tmp_path: Path) -> None:
         names = zf.namelist()
     assert "index.html" in names
     assert "start-server.py" in names
+    assert "VER_DOCUMENTACION.md" in names
     assert not any(n.endswith((".zip", ".sha256")) for n in names)

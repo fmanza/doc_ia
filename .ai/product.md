@@ -36,7 +36,8 @@ Code Assist, GitHub Copilot Chat, Cursor, Codex). Los **orígenes a documentar**
 | ZIP offline de docs con SHA256 | ✅ | Mecanismo dual: `scripts/build_docs_zip.py` (script) + `mkdocs_hooks.py` (hook nativo MkDocs); `.github/workflows/docs-zip-release.yml` (CI) |
 | Conversión de documentos a Markdown | ✅ | `scripts/convert_to_md.py` — docling por defecto (con OCR); markitdown para XLS y pandoc para DOC/ODT/RST con `--engine`; genera carpeta `md/` como contexto IA |
 | Sincronización raíz→docs/ | ✅ | `hooks/sync_root_docs.py` — copia CHANGELOG.md y CONTRIBUTING.md a docs/ automáticamente |
-| Servidor offline para ZIP | ✅ | `scripts/start-server.py` — servidor HTTP local incluido en el ZIP offline |
+| Servidor offline para ZIP | ✅ | `scripts/start-server.py` — servidor HTTP local (solo `127.0.0.1`) incluido en los dos ZIP offline |
+| Instrucciones de visualización | ✅ | `VER_DOCUMENTACION.md` en la raíz del destino (Fase 7c, siempre) desde `.github/templates/VER_DOCUMENTACION.template.md`; viaja en el ZIP |
 | Sitio de documentación propio (dogfooding) | ✅ | `mkdocs.yml` + `docs/` (33 páginas, 12 arquetipos aplicados al propio proyecto) |
 | Orígenes heterogéneos | ✅ | 8 tipos: CÓDIGO, NORMATIVA, ESPECIFICACIÓN, UI/PANTALLAS, REFERENCIA, CONTRATO, INFRAESTRUCTURA, MANUAL |
 

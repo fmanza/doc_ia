@@ -38,6 +38,9 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 **Obligatorio**:
 - Ejecutar el flujo por fases del Documentation Generator (Fases 0-6; Fase 7 solo opt-in)
 - Actualizar la navegación del generador (`mkdocs.yml`) por cada página creada, movida o retirada
+- Fase 7c: crear o actualizar `VER_DOCUMENTACION.md` (idioma `en`: `VIEW_DOCS.md`) en la raíz
+  del destino desde `.github/templates/VER_DOCUMENTACION.template.md`, con valores verificados
+  en el destino (ver `document_project.prompt.md` § Fase 7c)
 - Secciones de arquetipo completas; vacías → `*No aplica para este módulo.*`
 - **Al actualizar (estado B)**: leer el documento existente antes de escribir; conservar verbatim
   las secciones que siguen vigentes; actualizar solo las afectadas por cambios en el código
@@ -213,6 +216,13 @@ __pycache__/
    - Markdown, enlaces, Mermaid, secciones de arquetipo
 
 8. **BUILD** (Fase 7, solo con `--verify-build`)
+
+8c. **VISUALIZACIÓN** (Fase 7c, siempre)
+   - `VER_DOCUMENTACION.md` creado / actualizado / vigente, en la raíz del destino (fuera de `docs/`)
+   - Tabla: | Marcador | Valor | Fuente verificada | — sin valores inventados
+   - Ruta A (web publicada) solo si hay `site_url` y publicación verificada; si no, "No aplica"
+   - Gap V1 (falta `requirements-docs.txt` → crearlo) y Gap V2 (`EXTRA_FILES` en hook/script)
+   - Prohibido indicar «abrir `index.html` con doble clic»: los enlaces apuntan a carpetas
 
 9. **RESUMEN**
    - Archivos generados/actualizados, entradas de nav, pendientes de verificación humana

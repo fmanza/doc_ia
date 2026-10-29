@@ -2,12 +2,12 @@
 arquetipo: "1"
 fuentes:
   mkdocs.yml: 2179f8729495
-  mkdocs_hooks.py: 2f510611cb6f
-  scripts/build_docs_zip.py: b9a2694d122f
-  tests/test_build_docs_zip.py: 0dad72a78801
+  mkdocs_hooks.py: 433551c5505f
+  scripts/build_docs_zip.py: 7cecc3d4e93e
+  tests/test_build_docs_zip.py: 154cc021ca24
   tests/test_mermaid_assets.py: e49f4b5a3361
   tests/test_zensical_compat.py: d62c11ebe8cd
-revisado: 2026-10-28
+revisado: 2026-10-29
 ---
 # ZIP de Documentación Offline
 
@@ -162,6 +162,7 @@ proyecto en el nombre, su huella y una nueva línea en el registro histórico de
 | AC-08 | Zensical como generador y documentación con un error que hace fallar el build estricto | Se solicita el empaquetado versionado con Zensical | El proceso termina con el código de error del generador y no se genera ni el ZIP "latest" ni el versionado | `tests/test_build_docs_zip.py::test_zensical_build_failure_skips_post_build` |
 | AC-09 | La página de descargas y la configuración del sitio (estilo de URL) | Se comprueba la conformidad del repositorio | Cada enlace al ZIP "latest" o a su huella resuelve, desde la URL de la página de descargas, a un fichero que genera el empaquetado automático en la raíz del sitio | `tests/test_zensical_compat.py::test_downloads_links_point_to_latest_zip` |
 | AC-10 | El sitio construido con cualquiera de los dos generadores | Se abre una página con diagramas sin conexión a internet | Los diagramas se dibujan con la copia local de Mermaid, cuya versión coincide con la configuración del sitio y con la validación de CI | `tests/test_mermaid_assets.py::test_vendored_mermaid_is_pinned`, `tests/test_mermaid_assets.py::test_extra_javascript_loads_local_mermaid_then_theme`, `tests/test_mermaid_assets.py::test_ci_validates_the_vendored_version` |
+| AC-11 | Un sitio generado que ya contiene el ZIP "latest" y su huella, y las instrucciones de visualización en la raíz del proyecto | Se solicita el empaquetado versionado | El ZIP versionado no contiene ningún ZIP ni huella anidados e incluye en su raíz el servidor local y `VER_DOCUMENTACION.md`, igual que el ZIP "latest" | `tests/test_build_docs_zip.py::test_versioned_zip_matches_latest_layout` |
 
 Verificación manual: `python scripts/build_docs_zip.py` (AC-01/AC-03),
 `python scripts/build_docs_zip.py --no-build` sin `site/` previo (AC-02),
@@ -204,3 +205,4 @@ Los tests simulan el generador; el build real no está automatizado.
     | AC-08 | `scripts/build_docs_zip.py::_build` (`sys.exit` antes de `_post_build`) | ✅ |
     | AC-09 | `tests/test_zensical_compat.py::test_downloads_links_point_to_latest_zip` | ✅ |
     | Regla «Diagramas sin conexión» y AC-10 | `mkdocs.yml::extra_javascript`, `tests/test_mermaid_assets.py` | ✅ |
+    | AC-11 | `scripts/build_docs_zip.py::_zip`, `::EXTRA_FILES` | ✅ |

@@ -1,10 +1,10 @@
 ---
 arquetipo: "2"
 fuentes:
-  mkdocs_hooks.py: 2f510611cb6f
+  mkdocs_hooks.py: 433551c5505f
   pyproject.toml: 30d10ea138cb
-  scripts/build_docs_zip.py: b9a2694d122f
-  tests/test_build_docs_zip.py: 0dad72a78801
+  scripts/build_docs_zip.py: 7cecc3d4e93e
+  tests/test_build_docs_zip.py: 154cc021ca24
 revisado: 2026-10-29
 ---
 # build_docs_zip
@@ -30,7 +30,7 @@ flowchart TD
     B -- "Sí, sin site/" --> Y[ERROR a stderr + exit 1]
     C -- "OK, mkdocs" --> D[_version: lee pyproject.toml]
     B -- "Sí, con site/" --> D
-    D --> E[_zip: shutil.make_archive sobre site/]
+    D --> E["_zip: zipfile sobre site/<br/>excluye .zip y .sha256 + EXTRA_FILES"]
     E --> F[_create_checksum_files:<br/>.sha256 + CHECKSUMS.txt]
 ```
 
@@ -47,10 +47,10 @@ termina con `0`**. Ambos módulos se cargan por ruta desde la raíz del reposito
 ```mermaid
 flowchart TD
     accTitle: Hook on_post_build de MkDocs
-    accDescr: Tras mkdocs build, el hook empaqueta site/ con start-server.py, sin ZIP ni checksums previos, y escribe la huella SHA256 de doc_ia-docs-latest.zip.
+    accDescr: Tras mkdocs build, el hook empaqueta site/ con start-server.py y VER_DOCUMENTACION.md, sin ZIP ni checksums previos, y escribe la huella SHA256 de doc_ia-docs-latest.zip.
     MK[mkdocs build] --> H["on_post_build(config)"]
     H --> Z[zipfile.ZipFile sobre site/<br/>excluye .zip y .sha256]
-    Z --> S[start-server.py incluido en ZIP]
+    Z --> S["EXTRA_FILES: start-server.py<br/>y VER_DOCUMENTACION.md"]
     S --> C2[hashlib.sha256 → .zip.sha256]
     C2 --> OUT[site/doc_ia-docs-latest.zip]
 ```
@@ -90,13 +90,15 @@ del hook también es privada.
 ### Contrato de salida
 
 **Script**:
-- `dist/doc_ia-docs-<versión>.zip` — sitio completo; versión leída de `pyproject.toml`.
+- `dist/doc_ia-docs-<versión>.zip` — sitio completo (sin `.zip`/`.sha256` anidados) más
+  `EXTRA_FILES` en la raíz, igual que el ZIP "latest"; versión leída de `pyproject.toml`.
 - `dist/doc_ia-docs-<versión>.zip.sha256` — línea `<hash>  <nombre_zip>`.
 - `dist/CHECKSUMS.txt` — registro acumulativo `<hash>  <nombre>  (<timestamp ISO>)`.
 - stdout: progreso con prefijo `[build_docs_zip]` (comando de build, ruta del ZIP, tamaño en MB, hash).
 
 **Hook**:
-- `site/doc_ia-docs-latest.zip` — sitio completo; incluye `start-server.py` en la raíz del ZIP.
+- `site/doc_ia-docs-latest.zip` — sitio completo; incluye `EXTRA_FILES` (`start-server.py`,
+  `VER_DOCUMENTACION.md`) en la raíz del ZIP.
 - `site/doc_ia-docs-latest.zip.sha256` — línea `<hash>  <nombre_zip>`.
 - stdout: progreso con prefijo `[ZIP]` / `[OK]`.
 
@@ -121,20 +123,20 @@ del hook también es privada.
 | `_sha256` | `mkdocs_hooks.py` | Calcula la huella SHA256 del ZIP (el `.sha256` lo escribe `on_post_build`) |
 
 El script (`build_docs_zip.py`) contiene solo funciones privadas (`_version`, `_load_hook`,
-`_pre_build`, `_build`, `_post_build`, `_zip`, `_sha256_file`, `_create_checksum_files`) y la
-constante `HOOKLESS_BUILDERS`, sin clases. El hook (`mkdocs_hooks.py`) es el patrón
+`_pre_build`, `_build`, `_post_build`, `_zip`, `_sha256_file`, `_create_checksum_files`) y las
+constantes `HOOKLESS_BUILDERS` y `EXTRA_FILES` (esta, también en el hook), sin clases. El hook (`mkdocs_hooks.py`) es el patrón
 canónico de referencia para otros proyectos: copiar y cambiar únicamente `zip_path`.
 
 ## 4. Dependencias y Requisitos
 
 | Dependencia | Propósito | Componente | Comportamiento sin ella |
 |---|---|---|---|
-| `argparse`, `hashlib`, `importlib`, `shutil`, `subprocess`, `tomllib`, `pathlib`, `datetime` (stdlib) | CLI, SHA256, ZIP, builder, carga de hooks, versión | script | — (stdlib Python ≥ 3.11) |
+| `argparse`, `hashlib`, `importlib`, `zipfile`, `subprocess`, `tomllib`, `pathlib`, `datetime` (stdlib) | CLI, SHA256, ZIP, builder, carga de hooks, versión | script | — (stdlib Python ≥ 3.11) |
 | `hashlib`, `os`, `zipfile`, `pathlib` (stdlib) | ZIP + SHA256 | hook | — (stdlib Python ≥ 3.11) |
 | `mkdocs` + `mkdocs-material` | Builder por defecto; invocador del hook | ambos | Script: falla con su código de error. Hook: sin mkdocs no hay `on_post_build` |
 | `zensical` | Builder alternativo | script | Solo con `--builder zensical`; falla si no está instalado en el intérprete que ejecuta el script |
 | `hooks/sync_root_docs.py`, `mkdocs_hooks.py` | Pre/post-build para generadores sin hooks | script | Con `zensical`: error al cargarlos si faltan |
-| `scripts/start-server.py` | Servidor HTTP local incluido en el ZIP | hook | ZIP válido, sin el servidor de conveniencia |
+| `scripts/start-server.py`, `VER_DOCUMENTACION.md` | Servidor HTTP local e instrucciones de visualización incluidos en el ZIP (`EXTRA_FILES`) | ambos | ZIP válido, sin el fichero que falte |
 
 ## 5. Ejemplos Relacionados
 
@@ -146,6 +148,7 @@ canónico de referencia para otros proyectos: copiar y cambiar únicamente `zip_
 | Test | Qué verifica | Tipo |
 |---|---|---|
 | `test_main_builds_strict_and_packages_versioned_zip` | Build con `--strict`, ZIP versionado, `.sha256` y `CHECKSUMS.txt` | integración (CLI, build simulado) |
+| `test_versioned_zip_matches_latest_layout` | ZIP versionado sin `.zip`/`.sha256` anidados y con `start-server.py` + `VER_DOCUMENTACION.md` en la raíz | integración (CLI) |
 | `test_main_no_strict_omits_flag` | `--no-strict` no pasa `--strict` al generador | unitario |
 | `test_main_no_build_without_site_exits_1` | `--no-build` sin `site/` termina con `1` sin crear `dist/` | integración (CLI) |
 | `test_main_build_failure_propagates_exit_code` | El código de error del generador se propaga y no se crea ZIP | integración (CLI) |
@@ -156,7 +159,7 @@ canónico de referencia para otros proyectos: copiar y cambiar únicamente `zip_
 | `test_zensical_build_failure_skips_post_build` | Con `zensical` y build fallido: sin post-build ni ZIP | integración (CLI) |
 | `test_mkdocs_builder_leaves_hooks_to_mkdocs` | Con `mkdocs`: el script no ejecuta los hooks (lo hace MkDocs) | integración (CLI) |
 | `test_zensical_with_real_hooks_syncs_and_creates_latest_zip` | Con los hooks reales: copia `CHANGELOG.md` a `docs/` y genera el ZIP `latest` + `.sha256` | integración (CLI, build simulado) |
-| `test_post_build_hook_creates_latest_zip` | `mkdocs_hooks.on_post_build`: ZIP `latest` + `.sha256`, incluye `start-server.py`, excluye `.zip`/`.sha256` | unitario |
+| `test_post_build_hook_creates_latest_zip` | `mkdocs_hooks.on_post_build`: ZIP `latest` + `.sha256`, incluye `start-server.py` y `VER_DOCUMENTACION.md`, excluye `.zip`/`.sha256` | unitario |
 
 ```bash
 python -m pytest tests/test_build_docs_zip.py -q
@@ -176,7 +179,8 @@ Sin cubrir: el build real con MkDocs o Zensical (se simula `subprocess.run`).
     | `.sha256` y `CHECKSUMS.txt` acumulativo | `scripts/build_docs_zip.py::_create_checksum_files` | ✅ |
     | `--no-build` sin `site/` → stderr + código `1` | `scripts/build_docs_zip.py::main` | ✅ |
     | Hook: `site_dir` desde la configuración, WARN si no existe | `mkdocs_hooks.py::on_post_build` | ✅ |
-    | Hook: excluye `.zip`/`.sha256` e incluye `start-server.py` | `mkdocs_hooks.py::on_post_build` | ✅ |
+    | Hook: excluye `.zip`/`.sha256` e incluye `EXTRA_FILES` | `mkdocs_hooks.py::on_post_build`, `::EXTRA_FILES` | ✅ |
+    | Script: mismo contenido que el ZIP "latest" (sin anidados + `EXTRA_FILES`) | `scripts/build_docs_zip.py::_zip`, `::EXTRA_FILES` | ✅ |
     | Hook ejecutado antes del aborto por `--strict` | `mkdocs.commands.build::build` (MkDocs 1.6.1) | ⚠️ |
     | `_sha256` | `mkdocs_hooks.py::_sha256` | ✅ |
     | Dependencias stdlib del script y del hook | `scripts/build_docs_zip.py`, `mkdocs_hooks.py` (imports) | ✅ |
@@ -184,4 +188,4 @@ Sin cubrir: el build real con MkDocs o Zensical (se simula `subprocess.run`).
     | Pre/post-build para generadores sin hooks; post solo con build OK | `scripts/build_docs_zip.py::HOOKLESS_BUILDERS`, `::_build`, `::_pre_build`, `::_post_build` | ✅ |
     | Carga de hooks por ruta desde la raíz | `scripts/build_docs_zip.py::_load_hook` | ✅ |
     | Zensical ignora `hooks:` de `mkdocs.yml` | zensical.org/compatibility/configuration (Zensical 0.0.73) | ⚠️ |
-    | `start-server.py` opcional en el ZIP | `mkdocs_hooks.py::on_post_build` (`if server_script.exists()`) | ✅ |
+    | `EXTRA_FILES` opcionales en el ZIP | `mkdocs_hooks.py::on_post_build` (`if extra_path.exists()`), `scripts/build_docs_zip.py::_zip` (`if extra_path.is_file()`) | ✅ |

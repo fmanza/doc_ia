@@ -45,22 +45,22 @@ unzip doc_ia-docs-latest.zip -d ./doc_ia-docs
 
 ### Paso 3: Visualizar
 
-#### **Opción A (Recomendada — Búsqueda completa) ⭐**
-
 ```bash
 cd doc_ia-docs
-python start-server.py
+python start-server.py      # Windows: py start-server.py
 ```
 
-El ZIP incluye `start-server.py`. Al ejecutarlo, abre el navegador automáticamente en `http://localhost:8000`. Los navegadores no permiten Web Workers desde `file:///` por seguridad; el servidor HTTP local lo resuelve automáticamente.
+El ZIP incluye `start-server.py` (Python 3.7 o superior, sin instalar paquetes). Al ejecutarlo,
+abre el navegador en `http://127.0.0.1:8000`, accesible solo desde tu equipo. Para terminar,
+`Ctrl + C`.
 
-#### **Opción B (Navegación sin búsqueda)**
+!!! warning "Abrir `index.html` con doble clic no funciona"
+    Los enlaces del sitio apuntan a carpetas (`api/archetypes/`): sin servidor, el navegador
+    muestra listados de carpetas en lugar de páginas y la búsqueda no carga.
 
-Abre directamente `index.html` en tu navegador.
-
-- ✅ Todos los menús y referencias funcionan
-- ✅ Diagramas Mermaid visibles
-- ❌ Búsqueda deshabilitada (limitación de seguridad del navegador)
+!!! tip "¿Sin Python o empezando desde cero?"
+    El ZIP incluye `VER_DOCUMENTACION.md` (también en la raíz del repositorio): requisitos y pasos
+    para Windows, macOS y Linux, instalación de Python incluida, y problemas frecuentes.
 
 ---
 

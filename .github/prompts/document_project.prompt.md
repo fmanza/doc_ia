@@ -312,12 +312,13 @@ Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
                   **Paso A2-1 — Crear `mkdocs_hooks.py`** en la raíz del destino:
                     Adaptar `doc_ia/mkdocs_hooks.py` cambiando solo:
                       `zip_path = site_dir / "{nombre}-docs-latest.zip"`
-                    El hook ya incluye el bloque que añade `start-server.py` al ZIP:
+                    El hook ya añade a la raíz del ZIP `start-server.py` y las instrucciones de
+                    la Fase 7c (con idioma `en`, cambiar `VER_DOCUMENTACION.md` por `VIEW_DOCS.md`):
                       ```python
-                      server_script = Path(__file__).parent / "scripts" / "start-server.py"
-                      if server_script.exists():
-                          zipf.write(server_script, arcname="start-server.py")
+                      EXTRA_FILES = ("scripts/start-server.py", "VER_DOCUMENTACION.md")
                       ```
+                    Hook existente sin `EXTRA_FILES` (Gap V2) → actualizarlo siguiendo
+                    `doc_ia/mkdocs_hooks.py`; igual con `EXTRA_FILES` en `build_docs_zip.py`.
                     No crear `{nombre}_docs/` ni `pyproject.toml` — el hook no requiere instalación.
 
                   **Paso A2-2 — Registrar en `mkdocs.yml`**:
@@ -371,9 +372,11 @@ Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
                 `downloads.md` → `site/downloads/index.html` y el ZIP está en `site/`.
                 Línea de versión bajo la tabla: `**{Proyecto} {versión}** — descripción breve`.
              2. **"Cómo usar el ZIP"** — extraer (Windows + Linux/macOS) + visualizar:
-                Opción A ⭐ (recomendada): `python start-server.py` — el script está incluido
-                en el ZIP y abre el navegador automáticamente en `http://localhost:8000`.
-                Opción B: abrir `index.html` directamente (sin búsqueda).
+                `python start-server.py` — el script está incluido en el ZIP y abre el
+                navegador en `http://127.0.0.1:8000`. **Prohibido** ofrecer «abrir `index.html`
+                directamente» como opción: con `use_directory_urls: true` los enlaces apuntan a
+                carpetas (el navegador muestra listados) y la búsqueda no funciona sin servidor.
+                Remitir a `VER_DOCUMENTACION.md` (incluido en el ZIP) para empezar desde cero.
              3. **"Validar Integridad (SHA256)"** — comandos Windows (PowerShell) + Linux/macOS.
              4. **"Para Desarrolladores"** — `python scripts/build_docs_zip.py` + info CI.
              5. **"Información de versión"** — generador, fecha.
@@ -397,6 +400,29 @@ Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
                 `python scripts/build_docs_zip.py` en cada push a la rama principal
                 y adjunte `dist/*.zip` como artefacto."
              Añadir pendiente: "[ ] Publicación automática de ZIP en CI no implementada."
+Fase 7c — Instrucciones de visualización (SIEMPRE obligatorio — no condicional)
+         Crear o actualizar `VER_DOCUMENTACION.md` (idioma `en`: `VIEW_DOCS.md`) en la RAÍZ del
+         destino (carpeta con mkdocs.yml/zensical.toml; fuera de `docs/`), a partir de
+         `doc_ia/.github/templates/VER_DOCUMENTACION.template.md`: requisitos y pasos para ver
+         la documentación desde cero en Windows, macOS y Linux, aunque no haya Python instalado.
+         1. Extraer del destino los valores de los marcadores (nunca inventarlos):
+              · generador → `{generador}` (mkdocs | zensical)
+              · `requires-python` (pyproject.toml) → `{python_min}`; si no hay, el mínimo del generador
+              · fichero de dependencias de docs → `{deps_file}`
+                Falta (Gap V1) → CREAR `requirements-docs.txt` con versiones fijadas siguiendo
+                `doc_ia/requirements-docs.txt` y los plugins/extensiones reales del mkdocs.yml
+                del destino. Prohibido escribir un `pip install` sin fichero que lo respalde.
+              · nombre del ZIP (Fase 7b) → `{zip_nombre}`; dónde se publica → `{zip_origen}`
+              · `git remote get-url origin` → `{repo_url}`
+              · Ruta A: solo si existen `site_url` Y un workflow/servicio que lo publique
+                (Pages, gh-deploy, servidor interno documentado); si no → "No aplica" + motivo.
+         2. Secciones fijas 0-7 de la plantilla: no omitir ni renumerar; vacías → "No aplica".
+         3. Incluirlo en el ZIP: `EXTRA_FILES` de `mkdocs_hooks.py` y de `build_docs_zip.py`
+            (Gap V2 si el hook/script del destino no lo incluye → actualizarlo).
+         4. No enlazarlo desde `docs/` (está fuera de `docs_dir`: rompe `--strict`): en
+            `docs/downloads.md` citarlo como `código inline`.
+         5. Estado: A si no existe; B si algún valor (versión de Python, dependencias, nombre
+            del ZIP, generador, URL) no coincide con el destino; C si coincide.
 ```
 
 ### Reglas por generador: Zensical
@@ -479,6 +505,7 @@ APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reg
 7. **REVISIÓN** (Fase 6) — checklist de validación + hallazgos.
 8. **BUILD** (Fase 7, solo opt-in) — resultado de `--verify-build`.
 8b. **DOWNLOADS** (Fase 7b, siempre) — `downloads.md` creado/actualizado; indicar variante A o B; estado de las tres señales (TIENE_ZIP_SCRIPT, TIENE_MKDOCS_PLUGIN, TIENE_WORKFLOW_GITHUB) y, con Zensical, TIENE_PIPELINE_SIN_HOOKS; huecos (Gaps A1/A2/A3 y, con Zensical, A4) reportados si alguna falta; entrada añadida al nav.
+8c. **VISUALIZACIÓN** (Fase 7c, siempre) — `VER_DOCUMENTACION.md` (o `VIEW_DOCS.md`) creado/actualizado/vigente; tabla | Marcador | Valor | Fuente verificada |; Ruta A aplicada o "No aplica" con motivo; Gaps V1/V2 resueltos o pendientes.
 9. **RESUMEN** — archivos generados/actualizados, entradas de nav, pendientes de verificación humana.
 10. **CIERRE DE SESIÓN** (siempre obligatorio) — crear artefacto `.ai/sessions/YYYY-MM-DD/` en el
     destino (`00_REQUEST.md`, `00_CONTEXT_SNAPSHOT.md`, `TRACEABILITY.md`) y proponer commit
