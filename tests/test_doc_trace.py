@@ -2,12 +2,18 @@
 
 from __future__ import annotations
 
+import json
+import subprocess
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
+from scripts import doc_trace
 from scripts.doc_trace import (
+    OriginBaseline,
     build_llms_txt,
     build_matrix,
+    changed_files,
     check_drift,
     collect_criteria,
     collect_test_ids,
@@ -15,6 +21,7 @@ from scripts.doc_trace import (
     main,
     read_page_meta,
     stamp_page,
+    write_baseline,
 )
 
 
@@ -257,3 +264,194 @@ def test_main_requires_subcommand() -> None:
     with pytest.raises(SystemExit) as exc:
         main([])
     assert exc.value.code == 2
+
+
+# --- modo incremental: baseline + changes (repositorios git reales en tmp_path, sin red) ---
+
+
+def _git(repo: Path, *args: str) -> str:
+    cmd = ["git", "-C", str(repo), "-c", "user.name=t", "-c", "user.email=t@t", *args]
+    return subprocess.run(cmd, check=True, capture_output=True, text=True).stdout.strip()
+
+
+def _origin(tmp_path: Path, name: str = "mi_api") -> Path:
+    origin = tmp_path / name
+    (origin / "src").mkdir(parents=True)
+    (origin / "src" / "mod.py").write_text("def f():\n    return 1\n", encoding="utf-8")
+    (origin / "src" / "old.py").write_text("x = 1\n", encoding="utf-8")
+    _git(origin, "init", "-q", "-b", "main")
+    _git(origin, "config", "core.autocrlf", "false")
+    _git(origin, "add", "-A")
+    _git(origin, "commit", "-q", "-m", "init")
+    return origin
+
+
+def _evidence(*cites: str) -> str:
+    rows = "".join(f"    | `{c}` | ✅ |\n" for c in cites)
+    return f'\n??? note "Evidencia"\n\n    | Elemento | Confianza |\n    |---|---|\n{rows}'
+
+
+def _dest(tmp_path: Path) -> Path:
+    dest = tmp_path / "dest"
+    for folder in ("api", "examples", "functional", "guides"):
+        (dest / "docs" / folder).mkdir(parents=True)
+    docs = dest / "docs"
+    (docs / "api" / "mod.md").write_text(
+        "# mod\n\nVer [ejemplo](../examples/mod.md).\n" + _evidence("src/mod.py::f"),
+        encoding="utf-8",
+    )
+    (docs / "examples" / "mod.md").write_text("# Ejemplo\n", encoding="utf-8")
+    (docs / "functional" / "old.md").write_text(_evidence("src/old.py::x"), encoding="utf-8")
+    (docs / "functional" / "otro.md").write_text(_evidence("lib/src/mod.py"), encoding="utf-8")
+    (docs / "guides" / "nota.md").write_text("Se apoya en `src/mod.py`.\n", encoding="utf-8")
+    return dest
+
+
+def _origins_state(dest: Path) -> dict[str, dict[str, object]]:
+    data = json.loads((dest / ".ai" / "doc_state.json").read_text(encoding="utf-8"))
+    origins: dict[str, dict[str, object]] = data["origenes"]
+    return origins
+
+
+def _baseline(dest: Path, origin: Path, *extra: str) -> int:
+    return main(["--root", str(dest), "baseline", "--origin", str(origin), *extra])
+
+
+def _changes(dest: Path, origin: Path, *extra: str) -> int:
+    return main(["--root", str(dest), "changes", "--origin", str(origin), *extra])
+
+
+def test_baseline_records_clean_head(tmp_path: Path) -> None:
+    origin, dest = _origin(tmp_path), _dest(tmp_path)
+    assert _baseline(dest, origin) == 0
+    data = json.loads((dest / ".ai" / "doc_state.json").read_text(encoding="utf-8"))
+    assert data["doc_ia"] == doc_trace._doc_ia_version()
+    entry = _origins_state(dest)["mi_api"]
+    assert entry["commit"] == _git(origin, "rev-parse", "HEAD")
+    assert (entry["rama"], entry["sucio"]) == ("main", False)
+
+
+def test_changes_without_changes_exit_0(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    origin, dest = _origin(tmp_path), _dest(tmp_path)
+    _baseline(dest, origin)
+    assert _changes(dest, origin) == 0
+    assert "Sin cambios" in capsys.readouterr().out
+
+
+def test_changes_maps_files_to_citing_pages_and_examples(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Modificado (pendiente), alta sin seguimiento con ñ y renombrado confirmado."""
+    origin, dest = _origin(tmp_path), _dest(tmp_path)
+    _baseline(dest, origin)
+    _git(origin, "mv", "src/old.py", "src/renamed.py")
+    _git(origin, "commit", "-q", "-m", "rename")
+    (origin / "src" / "mod.py").write_text("def f():\n    return 2\n", encoding="utf-8")
+    (origin / "src" / "año.py").write_text("y = 1\n", encoding="utf-8")
+    capsys.readouterr()
+    assert _changes(dest, origin) == 1
+    out = capsys.readouterr().out
+    assert "| M | `src/mod.py` | `docs/api/mod.md` | `docs/guides/nota.md` |" in out
+    assert "| R | `src/old.py → src/renamed.py` | `docs/functional/old.md` | — |" in out
+    assert "| A | `src/año.py` | *Sin página* | — |" in out
+    assert "## Páginas a revisar (2)" in out  # la mención en una guía no obliga a revisarla
+    assert "- `docs/examples/mod.md`" in out
+    assert "otro.md" not in out  # `lib/src/mod.py` no es una cita de `src/mod.py`
+
+
+def test_changes_matches_prefixed_citations_of_multi_origin(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    origin, dest = _origin(tmp_path), _dest(tmp_path)
+    (dest / "docs" / "api" / "mod.md").write_text(
+        _evidence("api_core/src/mod.py::f"), encoding="utf-8"
+    )
+    _baseline(dest, origin, "--name", "api_core")
+    (origin / "src" / "mod.py").write_text("changed\n", encoding="utf-8")
+    capsys.readouterr()
+    assert _changes(dest, origin, "--name", "api_core") == 1
+    assert "| M | `src/mod.py` | `docs/api/mod.md` |" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize(
+    ("entry", "version", "reason"),
+    [
+        (None, None, "sin baseline"),
+        ({"commit": None}, None, "no estaba bajo git"),
+        ({"commit": "f" * 40}, None, "no está en el historial"),
+        ({"commit": "HEAD"}, "0.0.1", "doc_ia 0.0.1"),
+    ],
+)
+def test_changes_falls_back_to_full_mode_exit_3(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    entry: dict[str, object] | None,
+    version: str | None,
+    reason: str,
+) -> None:
+    origin, dest = _origin(tmp_path), _dest(tmp_path)
+    if entry is not None:
+        state = {"doc_ia": version or doc_trace._doc_ia_version(), "origenes": {"mi_api": entry}}
+        (dest / ".ai").mkdir()
+        (dest / ".ai" / "doc_state.json").write_text(json.dumps(state), encoding="utf-8")
+    assert _changes(dest, origin) == 3
+    captured = capsys.readouterr()
+    assert "Modo completo" in captured.out
+    assert reason in captured.err
+
+
+def test_baseline_without_git_then_changes_is_full_mode(tmp_path: Path) -> None:
+    origin, dest = tmp_path / "sin_git", _dest(tmp_path)
+    origin.mkdir()
+    with patch.object(doc_trace, "_git", return_value=None):
+        assert _baseline(dest, origin) == 0
+    assert _origins_state(dest)["sin_git"]["commit"] is None
+    assert _changes(dest, origin) == 3
+
+
+def test_destination_inside_origin_ignores_its_own_artifacts(tmp_path: Path) -> None:
+    """Origen = destino: docs/, .ai/, mkdocs.yml y VER_DOCUMENTACION.md no son cambios."""
+    origin = _origin(tmp_path)
+    (origin / "docs").mkdir()
+    (origin / "docs" / "mod.md").write_text("`src/mod.py::f`\n", encoding="utf-8")
+    (origin / "mkdocs.yml").write_text("site_name: x\n", encoding="utf-8")
+    _git(origin, "add", "-A")
+    _git(origin, "commit", "-q", "-m", "docs")
+    (origin / "docs" / "mod.md").write_text("`src/mod.py::f` editado\n", encoding="utf-8")
+    (origin / "VER_DOCUMENTACION.md").write_text("# Ver\n", encoding="utf-8")
+    assert _baseline(origin, origin) == 0
+    assert _origins_state(origin)["mi_api"]["sucio"] is False
+    _git(origin, "add", "-A")
+    _git(origin, "commit", "-q", "-m", "cierre de documentación")
+    assert _changes(origin, origin) == 0
+    (origin / "src" / "mod.py").write_text("changed\n", encoding="utf-8")
+    assert _changes(origin, origin) == 1
+
+
+def test_origin_in_subfolder_of_repository_uses_origin_relative_paths(tmp_path: Path) -> None:
+    repo = tmp_path / "mono"
+    origin = repo / "backend"
+    (origin / "src").mkdir(parents=True)
+    (origin / "src" / "mod.py").write_text("a\n", encoding="utf-8")
+    (repo / "frontend.js").write_text("b\n", encoding="utf-8")
+    _git(repo, "init", "-q", "-b", "main")
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-q", "-m", "init")
+    (origin / "src" / "mod.py").write_text("changed\n", encoding="utf-8")
+    (repo / "frontend.js").write_text("changed\n", encoding="utf-8")
+    changes = changed_files(origin, "HEAD")
+    assert [(c.kind, c.path) for c in changes or []] == [("M", "src/mod.py")]
+
+
+def test_write_baseline_keeps_other_origins(tmp_path: Path) -> None:
+    state = tmp_path / ".ai" / "doc_state.json"
+    write_baseline(state, "a", OriginBaseline("1" * 40, "main", False, "2026-10-29"))
+    write_baseline(state, "b", OriginBaseline("2" * 40, "dev", True, "2026-10-30"))
+    data = json.loads(state.read_text(encoding="utf-8"))
+    assert list(data["origenes"]) == ["a", "b"]
+    assert data["origenes"]["b"] == {
+        "commit": "2" * 40,
+        "rama": "dev",
+        "sucio": True,
+        "fecha": "2026-10-30",
+    }

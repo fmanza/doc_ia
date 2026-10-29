@@ -2,16 +2,16 @@
 arquetipo: "12"
 fuentes:
   .claude/settings.json.example: e1c10842aa20
-  .github/workflows/docs-zip-release.yml: 09d54c255eb8
-  CLAUDE.md: 1be4ae56b47a
+  .github/workflows/docs-zip-release.yml: bd807d444ea2
+  CLAUDE.md: 4e93b57b44ea
   hooks/sync_root_docs.py: ef5e576436c6
-  mkdocs.yml: 2179f8729495
-  mkdocs_hooks.py: 2f510611cb6f
-  scripts/build_docs_zip.py: b9a2694d122f
+  mkdocs.yml: 5dd76a635c78
+  mkdocs_hooks.py: 31259b7911a3
+  scripts/build_docs_zip.py: 5f972ee674c8
   scripts/check_env.py: 6202875214f7
   scripts/convert_to_md.py: e7e60518d96f
-  scripts/doc_trace.py: a1824b159937
-  scripts/start-server.py: ec67386821f7
+  scripts/doc_trace.py: 9b1c4d981f6a
+  scripts/start-server.py: a12209ac8507
 revisado: 2026-10-29
 ---
 # Referencia — doc_ia
@@ -25,8 +25,11 @@ línea de comandos, códigos de salida y eventos de build. La API interna de cad
 | Clave | Origen | Tipo | Por defecto | Descripción |
 |---|---|---|---|---|
 | `CUDA_VISIBLE_DEVICES` | `env` | cadena | `""` (lo fija `convert_to_md.py` al importarse si no existe) | Visibilidad de GPU para docling. `--device cpu` la fija a `""`; `--device cuda` la elimina; `--device auto` respeta un valor exportado por el usuario e ignora el que fija el propio módulo |
-| `project.version` | fichero `pyproject.toml` | cadena SemVer | `0.3.0` (valor actual) | Versión usada en el nombre del ZIP (`doc_ia-docs-{versión}.zip`) y en la release `docs-v{versión}` |
+| `project.version` | fichero `pyproject.toml` | cadena SemVer | `0.4.0` (valor actual) | Versión usada en el nombre del ZIP (`doc_ia-docs-{versión}.zip`) y en la release `docs-v{versión}` |
 | `site_dir` | fichero `mkdocs.yml` | ruta | `site` | Directorio de salida del build; `mkdocs_hooks.py` lo lee de la configuración. `build_docs_zip.py` usa `site/` fijo |
+| `use_directory_urls` | fichero `mkdocs.yml` | booleano | `false` | URLs `*.html`: el sitio y el ZIP se abren con doble clic en `index.html` (el plugin `offline` lo fuerza igualmente) |
+| `plugins: offline` | fichero `mkdocs.yml` | plugin | activo | Escribe el índice de búsqueda como JS (`search/search_index.js`; Zensical: `search.js`) para buscar desde `file://` |
+| `extra.polyfills` | fichero `mkdocs.yml` | lista de rutas | `assets/vendor/iframe-worker/iframe-worker-shim-1.0.4.min.js` | Shim local para la búsqueda desde `file://`; sin una ruta con `iframe-worker`, el tema añade la de unpkg y `build_docs_zip.py` termina con `1` |
 | `hooks` | fichero `mkdocs.yml` | lista de rutas | `hooks/sync_root_docs.py`, `mkdocs_hooks.py` | Hooks MkDocs cargados en cada build (ver §4). Zensical los ignora: con `--builder zensical`, `build_docs_zip.py` los ejecuta él mismo |
 | `hooks.PostToolUse` | fichero `.claude/settings.json` (no versionado; plantilla en `.claude/settings.json.example`) | objeto JSON | `sync_root_docs.py` + ruff + mypy + pytest `--collect-only` sobre `Edit\|Write` | Sincronización y validaciones automáticas tras cada edición en Claude Code |
 
@@ -91,7 +94,7 @@ python scripts/convert_to_md.py <source> [opciones]
 ### doc_trace.py
 
 ```bash
-python scripts/doc_trace.py [--root DIR] {drift,stamp,matrix,llms} [opciones]
+python scripts/doc_trace.py [--root DIR] {drift,stamp,matrix,llms,baseline,changes} [opciones]
 ```
 
 | Opción / Argumento | Tipo | Por defecto | Descripción |
@@ -109,6 +112,11 @@ python scripts/doc_trace.py [--root DIR] {drift,stamp,matrix,llms} [opciones]
 | `llms --output` | ruta | `docs/llms.txt` | Fichero generado |
 | `llms --site-url` | URL | `site_url` de `mkdocs.yml` | Base de los enlaces |
 | `llms --check` | flag | desactivado | Solo comprueba que el fichero está al día |
+| `baseline` / `changes --origin` | ruta (obligatorio) | — | Raíz del origen documentado (git); puede ser una subcarpeta de un repositorio |
+| `baseline` / `changes --name` | cadena | carpeta del origen | Clave del origen en el estado; con varios orígenes, la de `_fuentes/` |
+| `baseline` / `changes --docs` | ruta | `<--root>/docs` | Docs del destino (citas y artefactos a excluir) |
+| `baseline` / `changes --state` | ruta | `<--root>/.ai/doc_state.json` | Estado del modo incremental |
+| `changes --output` | ruta | stdout | Fichero Markdown del informe |
 
 ### start-server.py
 
@@ -116,7 +124,12 @@ python scripts/doc_trace.py [--root DIR] {drift,stamp,matrix,llms} [opciones]
 python start-server.py [--port PORT] [--no-browser]
 ```
 
-Se distribuye dentro del ZIP offline (lo añade `mkdocs_hooks.py`) y sirve el directorio donde está.
+Se distribuye en la raíz de los dos ZIP offline (`EXTRA_FILES` de `mkdocs_hooks.py` y de
+`build_docs_zip.py`, junto a `VER_DOCUMENTACION.md`) y sirve el directorio donde está, solo en
+`127.0.0.1`, con un hilo por conexión (una conexión ociosa del navegador no bloquea las
+demás). Basta Python 3.7 o superior, sin paquetes. Si el puerto está ocupado, termina con
+código 1 y sugiere `--port <puerto+1>`. Es la alternativa al doble clic en `index.html` (por
+ejemplo, si una política de empresa bloquea los scripts de ficheros locales).
 
 | Opción / Argumento | Tipo | Por defecto | Descripción |
 |---|---|---|---|
@@ -137,6 +150,7 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 |---|---|---|---|
 | `0` | `build_docs_zip.py` | ZIP y checksums generados | — |
 | `1` | `build_docs_zip.py` | `--no-build` sin `site/` existente | Ejecutar sin `--no-build` |
+| `1` | `build_docs_zip.py` | `site/` no se abre sin servidor: falta `index.html` o el índice de búsqueda en JS, script remoto o enlace a carpeta (hasta 20 líneas `- <página>: <problema>` por stderr) | Revisar `use_directory_urls: false`, el plugin `offline` y el shim local en `extra.polyfills` |
 | `≠ 0` (propagado) | `build_docs_zip.py` | El build del generador falla (p. ej. enlace roto con `--strict`) | Corregir los avisos del build |
 | `2` | `build_docs_zip.py`, `convert_to_md.py`, `start-server.py` | Opción desconocida o valor fuera de `choices` (argparse) | Revisar la sinopsis del §2 |
 | `0` | `check_env.py` | Herramientas obligatorias presentes (con o sin avisos de opcionales) | — |
@@ -145,13 +159,17 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 | `1` | `convert_to_md.py` | Origen inexistente, motor no instalado, errores de validación o de conversión, `--device cuda` sin `nvidia-smi` | Ver el mensaje `ERROR:`; instalar el motor o cambiar `--engine` |
 | `2` | `convert_to_md.py` | Combinación inválida: `--chunk`, `--batch-size >1` o `--workers >1` sin `docling`; `--flash-attention` con `--device cpu` | Ajustar las opciones |
 | `0` | `start-server.py` | Servidor detenido con Ctrl+C | — |
-| `1` | `start-server.py` | Puerto ocupado (excepción no capturada) 🔍 | Usar otro `--port` |
+| `1` | `start-server.py` | Puerto ocupado: mensaje por stderr con la sugerencia `--port <puerto+1>` | Usar otro `--port` |
 | `0` | `doc_trace.py` | Sin drift, sin tests citados inexistentes, `llms.txt` al día o sellado correcto | — |
 | `1` | `doc_trace.py drift` | Alguna fuente `stale`, `missing` u `outside_repo` | Revisar la página contra el cambio y re-sellar con `stamp` |
 | `1` | `doc_trace.py stamp` | Página o fuente inexistente, fuente fuera del repositorio o página sin fuentes | Corregir la ruta o `--source` |
 | `1` | `doc_trace.py matrix` | La columna `Test` cita un test que no existe | Corregir el criterio o crear el test |
 | `1` | `doc_trace.py llms` | `mkdocs.yml` sin `nav` o ilegible; con `--check`, `llms.txt` no coincide con el `nav` actual | Revisar `--config`; ejecutar `llms` sin `--check` |
 | `2` | `doc_trace.py` | Sin subcomando u opción desconocida (argparse) | Revisar la sinopsis del §2 |
+| `0` | `doc_trace.py baseline` | Baseline guardado (también si el origen no usa git: `commit: null`) | — |
+| `0` | `doc_trace.py changes` | Sin cambios en el origen desde el baseline | Todas las páginas siguen vigentes (estado C) |
+| `1` | `doc_trace.py changes` | Hay ficheros cambiados | Inventariar solo el informe (modo incremental) |
+| `3` | `doc_trace.py changes` | Sin baseline para el origen, origen sin git, commit fuera del historial o versión menor de doc_ia distinta | Documentar en modo completo; el CIERRE guardará un baseline nuevo |
 | `0` | `sync_root_docs.py` | Siempre; un fichero raíz ausente solo genera un aviso | — |
 
 ## 4. Eventos y Mensajes
@@ -159,7 +177,7 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 | Evento / Mensaje | Productor | Consumidor | Payload / formato |
 |---|---|---|---|
 | `on_pre_build` | MkDocs | `hooks/sync_root_docs.py` | Configuración MkDocs (`docs_dir`); copia los ficheros raíz a `docs/` |
-| `on_post_build` | MkDocs | `mkdocs_hooks.py` | Configuración MkDocs (`site_dir`); genera `site/doc_ia-docs-latest.zip` + `.sha256` |
+| `on_post_build` | MkDocs | `mkdocs_hooks.py` | Configuración MkDocs (`site_dir`); genera `site/doc_ia-docs-latest.zip` + `.sha256`, con prioridad -200: después del plugin `offline`, para incluir el índice de búsqueda en JS |
 | Pre/post-build sin hooks | `build_docs_zip.py --builder zensical` | `sync_root_docs.main()` / `mkdocs_hooks.on_post_build({"site_dir": ...})` | Mismo efecto que los dos eventos anteriores; el post-build solo si el build termina con `0` |
 | `PostToolUse` (`Edit\|Write`) | Claude Code | Comandos de `.claude/settings.json` | Ejecuta `sync_root_docs.py`, ruff, mypy y pytest `--collect-only`; salida truncada a 5–15 líneas |
 | Prefijos de log `[build_docs_zip]`, `[ZIP]`, `[OK]`, `[sync_root_docs]`, `[doc_ia-docs]` | Scripts y hooks | Usuario / CI | Texto libre por stdout; sin contrato estable más allá del prefijo |
@@ -175,6 +193,7 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 | Ficheros `<origen>/md/**/*.md` | Fichero de salida | `scripts/convert_to_md.py::output_path` | Estructura reflejada del origen; frontmatter opcional con `--metadata` |
 | `llms.txt` | Fichero de salida publicado en la raíz del sitio | `scripts/doc_trace.py::build_llms_txt` | Índice para agentes IA ([llmstxt.org](https://llmstxt.org/)): un `##` por sección del `nav` y un enlace por página |
 | Matriz de trazabilidad | Fichero de salida (Markdown) | `scripts/doc_trace.py::build_matrix` | Criterios y tests por página, tests citados inexistentes y tests sin criterio |
+| `.ai/doc_state.json` | Fichero de estado del destino (JSON, versionado) | `scripts/doc_trace.py::write_baseline` | `doc_ia` (versión) y `origenes.<nombre>`: `commit`, `rama`, `sucio`, `fecha` |
 
 ## 6. Datos
 
@@ -229,12 +248,15 @@ convertido: hereda la sensibilidad del origen.
     | Herramientas de `check_env.py` | `scripts/check_env.py::REQUIRED_TOOLS` | ✅ |
     | Opciones y restricciones de `convert_to_md.py` | `scripts/convert_to_md.py::_parse_args` | ✅ |
     | Opciones de `start-server.py` | `scripts/start-server.py::main` | ✅ |
-    | Código `1` por puerto ocupado | `scripts/start-server.py::main` (sin manejo de `OSError`) | 🔍 |
+    | Código `1` por puerto ocupado | `scripts/start-server.py::main` (`except OSError` → `sys.exit(1)`), `::DocsServer` (sin `SO_REUSEADDR` en Windows); `tests/test_start_server.py::test_busy_port_exits_1_with_hint` | ✅ |
     | Códigos de `check_env.py` | `scripts/check_env.py::main` | ✅ |
     | Códigos de `convert_to_md.py` | `scripts/convert_to_md.py::main`, `::_detect_device`, `::_parse_args` | ✅ |
     | Código `0` de `sync_root_docs.py` | `hooks/sync_root_docs.py::main` | ✅ |
     | `on_pre_build` | `hooks/sync_root_docs.py::on_pre_build` | ✅ |
     | `on_post_build` + `start-server.py` en el ZIP | `mkdocs_hooks.py::on_post_build` | ✅ |
+    | `on_post_build` con prioridad -200 | `mkdocs_hooks.py::on_post_build` (`mkdocs_priority`) | ✅ |
+    | `use_directory_urls`, plugin `offline`, `extra.polyfills` | `mkdocs.yml::use_directory_urls`, `::plugins`, `::extra` | ✅ |
+    | Código `1` de `build_docs_zip.py` por sitio que no se abre sin servidor | `scripts/build_docs_zip.py::_check_offline`, `::_offline_problems` | ✅ |
     | Pre/post-build ejecutados por el script con `zensical` | `scripts/build_docs_zip.py::HOOKLESS_BUILDERS`, `::_pre_build`, `::_post_build` | ✅ |
     | Release `docs-v{versión}` | `.github/workflows/docs-zip-release.yml::build-and-publish` | ✅ |
     | Salida `md/` de `convert_to_md.py` | `scripts/convert_to_md.py::output_path` | ✅ |
@@ -243,7 +265,8 @@ convertido: hereda la sensibilidad del origen.
     | Manifiesto y chunks | `scripts/convert_to_md.py::_run_chunking` | ✅ |
     | Formato `.sha256` y `CHECKSUMS.txt` | `scripts/build_docs_zip.py::_create_checksum_files` | ✅ |
     | Opciones de `doc_trace.py` | `scripts/doc_trace.py::_parser` | ✅ |
-    | Códigos de `doc_trace.py` | `scripts/doc_trace.py::_cmd_drift`, `::_cmd_stamp`, `::_cmd_matrix`, `::_cmd_llms` | ✅ |
+    | Códigos de `doc_trace.py` | `scripts/doc_trace.py::_cmd_drift`, `::_cmd_stamp`, `::_cmd_matrix`, `::_cmd_llms`, `::_cmd_baseline`, `::_cmd_changes` | ✅ |
+    | `.ai/doc_state.json` | `scripts/doc_trace.py::write_baseline`, `::read_state` | ✅ |
     | `llms.txt` | `scripts/doc_trace.py::build_llms_txt` | ✅ |
     | Matriz de trazabilidad | `scripts/doc_trace.py::build_matrix` | ✅ |
     | Frontmatter de trazabilidad y huella | `scripts/doc_trace.py::format_frontmatter`, `::fingerprint` | ✅ |

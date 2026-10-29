@@ -112,6 +112,20 @@ se vean sin conexión. Para cambiar de versión, elige una publicada hace al men
 3. Ejecuta `python -m pytest tests/test_mermaid_assets.py` (falla si algo no coincide) y revisa
    los diagramas en claro y oscuro con los dos generadores.
 
+#### Actualizar iframe-worker
+
+El ZIP se abre con doble clic en `index.html` gracias al plugin `offline`; su búsqueda necesita el
+shim `iframe-worker`, servido en local (`docs/assets/vendor/iframe-worker/`) para no descargarlo de
+unpkg. Para cambiar de versión, elige una publicada hace al menos dos semanas y:
+
+1. `npm pack iframe-worker@X.Y.Z` → del tarball, `package/shim/index.js` a
+   `docs/assets/vendor/iframe-worker/iframe-worker-shim-X.Y.Z.min.js`; borra la versión anterior,
+   revisa el contenido (no debe hacer peticiones de red) y actualiza `LICENSE` y `SOURCE.txt`.
+2. Cambia la ruta en `extra.polyfills` de `mkdocs.yml` y `.github/templates/TEMPLATE_mkdocs.yml`,
+   y la huella en `tests/test_offline_assets.py`.
+3. Ejecuta `python -m pytest tests/test_offline_assets.py` y `python scripts/build_docs_zip.py`
+   con los dos generadores, y prueba la búsqueda abriendo `index.html` del ZIP extraído sin red.
+
 ### 5.1 Sincronización Visual de mkdocs.yml (para Nuevos Proyectos)
 
 #### Contexto

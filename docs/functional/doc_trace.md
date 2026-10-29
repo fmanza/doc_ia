@@ -1,8 +1,8 @@
 ---
 arquetipo: "1"
 fuentes:
-  scripts/doc_trace.py: a1824b159937
-revisado: 2026-10-28
+  scripts/doc_trace.py: 9b1c4d981f6a
+revisado: 2026-10-29
 ---
 # Trazabilidad entre Documentación y Código
 
@@ -19,6 +19,11 @@ los tests que existen realmente: detecta criterios que citan un test inexistente
 que no respaldan ningún criterio. Por último, genera un índice de la documentación pensado
 para que los agentes IA encuentren las páginas publicadas (formato `llms.txt`).
 
+Para volver a documentar un proyecto sin releerlo entero, la trazabilidad guarda al cerrar
+cada sesión el punto exacto del historial del proyecto documentado (su *baseline*). En la
+sesión siguiente lista los ficheros cambiados desde ese punto y las páginas que los citan
+como evidencia, de modo que solo se revisa lo que ha cambiado.
+
 La usan los desarrolladores y revisores que mantienen la documentación, a mano o en
 integración continua. Todo el proceso es local y determinista: no consulta servicios IA ni
 la red, y el mismo repositorio produce siempre el mismo resultado.
@@ -29,6 +34,8 @@ la red, y el mismo repositorio produce siempre el mismo resultado.
 - Para detectar desactualizaciones: páginas con el bloque inicial de trazabilidad (arquetipo,
   fuentes con su huella y fecha de revisión); las páginas sin él se ignoran.
 - Para el índice para agentes IA: configuración del sitio con su navegación.
+- Para el modo incremental: el proyecto documentado bajo control de versiones con Git y Git
+  instalado; sin él, la sesión siguiente se hace completa.
 - Entorno con las herramientas del tooling documental (la lectura de la configuración usa la
   misma librería que el generador del sitio).
 
@@ -73,6 +80,12 @@ criterios y el índice para agentes IA se ejecutan como operaciones independient
 - **Matriz de criterios**: muestra la matriz por pantalla o la escribe en el fichero indicado.
 - **Índice para agentes IA**: escribe `llms.txt` en la carpeta de documentación (el sitio lo
   publica en su raíz); en modo comprobación no escribe nada.
+- **Baseline**: escribe o actualiza la entrada del proyecto en `.ai/doc_state.json` del
+  destino, conservando la de los demás proyectos.
+- **Cambios desde el baseline**: no modifica nada; informa de los ficheros cambiados, las
+  páginas que los citan, las que solo los mencionan, los ejemplos enlazados y los ficheros
+  sin página; termina con éxito si no hay cambios, con fallo si los hay y con código 3 si
+  no hay baseline utilizable.
 
 ## 5. Reglas de Negocio
 
@@ -84,6 +97,9 @@ criterios y el índice para agentes IA se ejecutan como operaciones independient
 | Sin test inventado | La matriz falla si un criterio cita un test que no existe | Criterios de aceptación con una cobertura aparente que no es real |
 | Índice solo de lo publicado | El índice para agentes IA incluye solo las páginas de la navegación; los enlaces externos se omiten | Páginas internas o enlaces ajenos expuestos como documentación del proyecto |
 | Determinismo | Sin servicios IA ni red; orden estable de páginas, fuentes y tests | Resultados distintos para el mismo repositorio; incompatible con CI |
+| Cita frente a mención | Una página que cita el fichero como evidencia (bloque «Evidencia» o fuentes declaradas) se revisa; una que solo lo nombra en el texto se avisa aparte | Revisar ADR, changelog y guías por cada cambio, o dejar de revisar las páginas que sí dependen del fichero |
+| Lo que genera la documentación no es un cambio | Si la documentación vive dentro del proyecto, su carpeta, el contexto de sesiones, las fuentes convertidas, la configuración del sitio y las instrucciones de visualización no cuentan como cambios | Cada cierre de sesión aparecería como cambio del proyecto en la siguiente |
+| Ante la duda, sesión completa | Sin baseline, sin Git, con el punto guardado fuera del historial o con otra versión menor de doc_ia, se pide la sesión completa (código 3) | Una sesión incremental que omite cambios reales o aplica reglas de arquetipos antiguas |
 
 ## 6. Límites, Flujos Alternativos y Casos Especiales
 
@@ -94,6 +110,8 @@ criterios y el índice para agentes IA se ejecutan como operaciones independient
 - No corrige la documentación desactualizada: solo la señala.
 - No ejecuta los tests: la matriz comprueba que los tests citados existen, no que pasen.
 - No detecta cambios en fuentes que una página no declara.
+- En modo incremental no interpreta los cambios: dice qué ficheros cambiaron y qué páginas
+  los citan; decidir si la página sigue vigente corresponde al flujo de documentación.
 
 ### Flujos alternativos
 
@@ -101,6 +119,9 @@ criterios y el índice para agentes IA se ejecutan como operaciones independient
 - **Fuente inexistente al sellar**: se rechaza con un error.
 - **Índice desactualizado en modo comprobación**: se informa y termina con fallo, sin escribir.
 - **Invocación sin operación**: error de uso.
+- **Cambios sin baseline utilizable** (no hay entrada para el proyecto, el proyecto no usaba
+  Git, el punto guardado ya no está en el historial o la versión menor de doc_ia cambió):
+  se indica el motivo y se termina con código 3 para que la sesión sea completa.
 
 ### Casos especiales
 
@@ -110,6 +131,12 @@ criterios y el índice para agentes IA se ejecutan como operaciones independient
 - **Tests agrupados en clases**: también cuentan como tests existentes en la matriz.
 - **Página o configuración inexistente**: sellar una página que no existe, o generar el índice
   sin navegación definida, termina con un mensaje de error claro (código 1), sin traza técnica.
+- **Proyecto en una subcarpeta de un repositorio**: los cambios se calculan solo dentro de
+  esa carpeta y con rutas relativas a ella, las mismas que usan las citas.
+- **Cambios sin confirmar al tomar el baseline**: se avisa; como los cambios se comparan con
+  el estado actual de los ficheros, en la sesión siguiente se vuelven a revisar.
+- **Ficheros renombrados**: se informan con la ruta anterior y la nueva, y cuentan las
+  páginas que citan cualquiera de las dos.
 
 ## 7. Criterios de Aceptación
 
@@ -129,6 +156,13 @@ criterios y el índice para agentes IA se ejecutan como operaciones independient
 | AC-12 | Un índice para agentes IA ausente o desactualizado | Se comprueba en modo comprobación | Termina con fallo; tras regenerarlo, la comprobación termina con éxito | `tests/test_doc_trace.py::test_main_llms_check_detects_outdated` |
 | AC-13 | Ninguna operación indicada | Se invoca la trazabilidad | Termina con error de uso (código 2) | `tests/test_doc_trace.py::test_main_requires_subcommand` |
 | AC-14 | Una página sin bloque de trazabilidad o sin fuentes declaradas | Se leen sus datos de trazabilidad | Se considera no sellada | `tests/test_doc_trace.py::test_read_page_meta_without_frontmatter`, `tests/test_doc_trace.py::test_read_page_meta_without_sources` |
+| AC-15 | Un proyecto documentado bajo Git sin cambios pendientes | Se guarda su baseline | El estado del destino registra el punto actual del historial, la rama, que no hay cambios pendientes y la versión de doc_ia | `tests/test_doc_trace.py::test_baseline_records_clean_head` |
+| AC-16 | Un baseline guardado y el proyecto sin cambios | Se piden los cambios | Se informa «sin cambios» y termina con éxito | `tests/test_doc_trace.py::test_changes_without_changes_exit_0` |
+| AC-17 | Un fichero modificado citado como evidencia y nombrado en una guía, uno renombrado y uno nuevo con «ñ» | Se piden los cambios | Cada fichero aparece con las páginas que lo citan; la guía, solo como mención; el renombrado con su ruta anterior; el nuevo, sin página; se añade el ejemplo enlazado y termina con fallo | `tests/test_doc_trace.py::test_changes_maps_files_to_citing_pages_and_examples` |
+| AC-18 | Varios proyectos documentados en el mismo destino | Se piden los cambios de uno | Se reconocen sus citas con el nombre del proyecto delante | `tests/test_doc_trace.py::test_changes_matches_prefixed_citations_of_multi_origin` |
+| AC-19 | Sin baseline, proyecto sin Git, punto guardado fuera del historial u otra versión menor de doc_ia | Se piden los cambios | Se indica el motivo y termina con código 3 (sesión completa) | `tests/test_doc_trace.py::test_changes_falls_back_to_full_mode_exit_3`, `tests/test_doc_trace.py::test_baseline_without_git_then_changes_is_full_mode` |
+| AC-20 | La documentación vive dentro del proyecto documentado | Se cierra una sesión y se piden los cambios | Los ficheros que genera la documentación no cuentan como cambios ni como cambios pendientes; un cambio en el código sí | `tests/test_doc_trace.py::test_destination_inside_origin_ignores_its_own_artifacts` |
+| AC-21 | Un proyecto en una subcarpeta de un repositorio más grande | Se piden los cambios | Solo cuentan los ficheros de esa carpeta, con rutas relativas a ella | `tests/test_doc_trace.py::test_origin_in_subfolder_of_repository_uses_origin_relative_paths` |
 
 Verificación: `python -m pytest tests/test_doc_trace.py -q`.
 
@@ -141,6 +175,8 @@ Verificación: `python -m pytest tests/test_doc_trace.py -q`.
 | Drift (desactualización) | Diferencia entre la huella guardada en una página y la huella actual de su fuente |
 | Matriz de trazabilidad | Cruce entre los criterios de aceptación y los tests que los verifican |
 | `llms.txt` | Índice de la documentación publicada en un formato pensado para agentes IA |
+| Baseline | Punto del historial del proyecto documentado que refleja la documentación al cerrar una sesión |
+| Cita / mención | Cita: el fichero aparece como evidencia de la página. Mención: solo se nombra en el texto |
 
 ??? note "Evidencia"
 
@@ -167,4 +203,9 @@ Verificación: `python -m pytest tests/test_doc_trace.py -q`.
     | AC-11 | `scripts/doc_trace.py::build_llms_txt`, `::_load_yaml`, `::_page_url` | ✅ |
     | AC-12 | `scripts/doc_trace.py::_cmd_llms` | ✅ |
     | AC-13 | `scripts/doc_trace.py::_parser` (`required=True`) | ✅ |
+    | Modo incremental: baseline y cambios | `scripts/doc_trace.py::take_baseline`, `::write_baseline`, `::check_changes`, `::changed_files` | ✅ |
+    | Regla «Cita frente a mención» | `scripts/doc_trace.py::pages_citing`, `::_split_citations` | ✅ |
+    | Regla «Lo que genera la documentación no es un cambio» | `scripts/doc_trace.py::documentation_paths`, `::DOC_ARTIFACTS` | ✅ |
+    | Regla «Ante la duda, sesión completa» | `scripts/doc_trace.py::check_changes`, `::_cmd_changes` (código 3) | ✅ |
+    | AC-15 – AC-21 | `scripts/doc_trace.py::_cmd_baseline`, `::_cmd_changes`, `::format_changes`, `::linked_examples` | ✅ |
     | AC-14 | `scripts/doc_trace.py::read_page_meta` | ⚠️ (los tests cubren la lectura; que la comprobación ignore la página se deduce de `check_drift`) |

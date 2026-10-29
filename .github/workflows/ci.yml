@@ -64,6 +64,11 @@ jobs:
       - name: Build estricto de la documentación
         run: python -m mkdocs build --strict
 
+      # El ZIP se abre con doble clic en index.html: build_docs_zip.py rechaza (exit 1) un site/ con
+      # enlaces a carpetas, scripts remotos o sin índice de búsqueda en JS (plugin `offline`).
+      - name: ZIP navegable sin servidor
+        run: python scripts/build_docs_zip.py --no-build --output-dir "$RUNNER_TEMP/dist"
+
       # Paridad con Zensical (sucesor de Material for MkDocs). No bloqueante mientras Zensical
       # esté en alfa: build_docs_zip.py ejecuta los hooks que Zensical ignora y el ZIP latest
       # debe existir al terminar.

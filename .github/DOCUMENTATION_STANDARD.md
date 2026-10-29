@@ -1101,6 +1101,7 @@ repo_url: https://github.com/[usuario]/[repo]
 repo_name: [usuario]/[repo]
 docs_dir: docs
 site_dir: site
+use_directory_urls: false  # ← URLs *.html: ZIP con doble clic en index.html
 
 theme:
   name: material
@@ -1137,6 +1138,7 @@ theme:
 plugins:
   - search:
       lang: es  # o en
+  - offline  # ← índice de búsqueda también como JS (file://)
   # Solo si el proyecto tiene código Python con docstrings a autodocumentar:
   # - mkdocstrings:
   #     handlers:
@@ -1217,6 +1219,8 @@ nav:
       - [ADR-NNN — Título]: adr/ADR-NNN-titulo.md
 
 extra:
+  polyfills:
+    - assets/vendor/iframe-worker/iframe-worker-shim-1.0.4.min.js  # ← copia desde doc_ia/docs/assets/; evita unpkg
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/[usuario]/[repo]
@@ -1239,7 +1243,8 @@ extra_css:
 - `!!python/name:` genera advertencias en linters YAML estándar — falso positivo; válido para MkDocs.
 - Sin `custom_fences` de `mermaid` en `pymdownx.superfences`, los diagramas salen como bloque de código aunque el build pase. Con él, el tema (Material o Zensical) renderiza con la copia local de Mermaid (§3.17) y los colores del esquema claro/oscuro, también sin conexión. **No** añadir el CDN de Mermaid ni un `mermaid.run()` propio: el render se duplica y deja SVG de error ocultos (`.claude/EDGE_CASES.md § Mermaid`).
 - `navigation.sections` y `navigation.tabs` son compatibles técnicamente, pero con tabs activados los grupos de área se muestran en la sidebar del tab activo; `navigation.sections` no aporta valor adicional. No incluir ambos.
-- Los cinco recursos (`assets/js/sidebar-toggle.js`, `assets/css/mermaid.css`, `assets/css/nav.css`, `assets/vendor/mermaid/` y `assets/js/mermaid-theme.js`) deben copiarse desde `doc_ia/docs/assets/` sin modificación; una librería Mermaid de otra versión se sustituye.
+- Los seis recursos (`assets/js/sidebar-toggle.js`, `assets/css/mermaid.css`, `assets/css/nav.css`, `assets/vendor/mermaid/`, `assets/js/mermaid-theme.js` y `assets/vendor/iframe-worker/`) deben copiarse desde `doc_ia/docs/assets/` sin modificación; una librería Mermaid o un shim de otra versión se sustituye.
+- `use_directory_urls: false` + plugin `offline` + shim iframe-worker en `extra.polyfills`: el ZIP se abre con doble clic en `index.html`, con búsqueda, sin servidor ni red. Sin el shim local, Material y Zensical lo descargan de unpkg (`.claude/EDGE_CASES.md § offline`).
 - La indentación de `nav:` usa **4 espacios extra por nivel**: secciones a 2 espacios, ítems de primer nivel a 6, segundo nivel a 10.
 
 ---

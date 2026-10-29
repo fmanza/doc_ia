@@ -1,9 +1,9 @@
 ---
 arquetipo: "2"
 fuentes:
-  scripts/doc_trace.py: a1824b159937
-  tests/test_doc_trace.py: e8fc3236ec1d
-revisado: 2026-10-28
+  scripts/doc_trace.py: 9b1c4d981f6a
+  tests/test_doc_trace.py: f8c5c5a612ab
+revisado: 2026-10-29
 ---
 # doc_trace
 
@@ -36,7 +36,30 @@ flowchart TD
 
 Script standalone sin dependencias de otros módulos del proyecto. Cada subcomando es una
 función `_cmd_*` que delega en funciones puras sobre `Path`, de modo que los tests las
-ejercitan con repositorios temporales sin red ni git.
+ejercitan con repositorios temporales sin red; `baseline` y `changes` usan además git local.
+
+### Modo incremental (`baseline` y `changes`)
+
+```mermaid
+flowchart TD
+    accTitle: Modo incremental de doc_trace
+    accDescr: baseline guarda el commit del origen en el estado del destino; changes lo lee, pide a git los ficheros cambiados desde ese commit, descarta los artefactos de la documentación y cruza cada ruta con las citas de las páginas; sin baseline utilizable termina con código 3.
+    B[_cmd_baseline] --> TB["take_baseline · git rev-parse"]
+    TB --> WB[write_baseline]
+    WB --> ST[(".ai/doc_state.json")]
+    C[_cmd_changes] --> CC[check_changes]
+    ST --> CC
+    CC -- "sin baseline utilizable" --> X[código 3 · modo completo]
+    CC --> CF["changed_files · git diff -z"]
+    CF --> DP[documentation_paths excluye artefactos]
+    DP --> PC["pages_citing · cita o mención"]
+    PC --> LE[linked_examples]
+    LE --> FC[format_changes · código 0 o 1]
+```
+
+`baseline` se ejecuta en el CIERRE de `/document-project` y `changes` al empezar la Fase 1.
+Las rutas de git y las citas se comparan en POSIX y relativas a la raíz del origen
+(`git diff --relative`), aunque el origen sea una subcarpeta de un repositorio.
 
 ## 2. Modelo de Datos / Contratos
 
@@ -56,7 +79,19 @@ ejercitan con repositorios temporales sin red ni git.
 | `collect_criteria` | `collect_criteria(functional_dir) -> list[CriterionRow]` | Filas `\| AC-xx \|` de `functional_dir/*.md`; tests de la última celda si la fila tiene ≥5 celdas | Filas |
 | `build_matrix` | `build_matrix(criteria, test_ids, repo_root) -> tuple[str, list[str]]` | Matriz Markdown por página, totales, tests inexistentes y tests sin criterio | `(markdown, inexistentes)` |
 | `build_llms_txt` | `build_llms_txt(mkdocs_yml, site_url=None) -> str` | `llms.txt` con `site_name`, `site_description` y una sección `##` por grupo del `nav` | Contenido |
-| `main` | `main(argv=None) -> int` | CLI con subcomandos `drift`, `stamp`, `matrix`, `llms` | Código de salida |
+| `OriginChange` | `dataclass(frozen)`: `kind`, `path`, `old_path` | Fichero cambiado; `kind` ∈ `A` \| `M` \| `D` \| `R` (`old_path` solo en `R`; las copias cuentan como `A`) | — |
+| `OriginBaseline` | `dataclass(frozen)`: `commit`, `branch`, `dirty`, `date` | Estado del origen al cerrar la sesión; `commit=None` si no hay git | — |
+| `ChangeReport` | `dataclass(frozen)`: `status`, `reason`, `base`, `changes`, `pages`, `mentions`, `examples` | Resultado de `changes`; `status` ∈ `ok` \| `fallback` | — |
+| `take_baseline` | `take_baseline(origin, excluded=(), today=None) -> OriginBaseline` | `HEAD`, rama y cambios pendientes fuera de `excluded` | `OriginBaseline` |
+| `write_baseline` | `write_baseline(state_path, name, baseline) -> None` | Escribe la entrada del origen y la versión de doc_ia; conserva los demás orígenes | — |
+| `read_state` | `read_state(state_path) -> dict[str, Any]` | Lee `.ai/doc_state.json` | `{}` si no existe |
+| `changed_files` | `changed_files(origin, base, excluded=()) -> list[OriginChange] \| None` | `git diff --name-status -z -M --relative <base>` + ficheros sin seguimiento | Cambios ordenados o `None` si git falla |
+| `documentation_paths` | `documentation_paths(origin, docs_dir) -> tuple[str, ...]` | Artefactos de la documentación dentro del origen (`docs/`, `DOC_ARTIFACTS`) | Rutas POSIX relativas al origen |
+| `pages_citing` | `pages_citing(docs_dir, paths, name) -> tuple[dict, dict]` | Por ruta: páginas que la citan (frontmatter o bloque «Evidencia») y páginas que solo la mencionan | `(citas, menciones)` |
+| `linked_examples` | `linked_examples(pages, docs_dir) -> tuple[Path, ...]` | Ejemplos enlazados desde las páginas de `api/` afectadas | Rutas de ejemplos |
+| `check_changes` | `check_changes(origin, docs_dir, state_path, name) -> ChangeReport` | Valida el baseline y compone el informe | `ChangeReport` |
+| `format_changes` | `format_changes(report, name, root) -> str` | Informe Markdown para el INVENTARIO | Markdown |
+| `main` | `main(argv=None) -> int` | CLI con subcomandos `drift`, `stamp`, `matrix`, `llms`, `baseline`, `changes` | Código de salida |
 
 ### Contrato de entrada
 
@@ -69,6 +104,10 @@ ejercitan con repositorios temporales sin red ni git.
 | `stamp --archetype` / `--date` | `str` | Arquetipo y fecha `YYYY-MM-DD` | Por defecto, el arquetipo actual y la fecha del día |
 | `matrix --docs` / `--tests` / `--output` | `Path` | Carpetas de docs y tests; fichero de salida opcional | Lee `--docs/functional/*.md` (no recursivo) |
 | `llms --config` / `--output` / `--site-url` / `--check` | `Path` / `str` / flag | Configuración MkDocs, destino, URL base, modo comprobación | Por defecto `mkdocs.yml`, `docs/llms.txt` y `site_url` del config |
+| `baseline` / `changes --origin` | `Path` | Raíz del origen documentado | Obligatorio; puede ser una subcarpeta de un repositorio |
+| `baseline` / `changes --name` | `str` | Clave del origen en el estado | Por defecto, el nombre de la carpeta del origen (regla de `_fuentes/`) |
+| `baseline` / `changes --docs` / `--state` | `Path` | Docs y estado del destino | Por defecto `<--root>/docs` y `<--root>/.ai/doc_state.json` |
+| `changes --output` | `Path` | Fichero Markdown del informe | Por defecto, stdout |
 
 ### Contrato de salida
 
@@ -76,6 +115,12 @@ ejercitan con repositorios temporales sin red ni git.
   alfabéticamente, `revisado`, saltos de línea LF.
 - `drift`: una línea `[doc_trace] <status> <página> ← <fuente>` por hallazgo.
 - `matrix`: Markdown a stdout o a `--output` (crea el directorio padre).
+- `baseline`: `.ai/doc_state.json` con `{"doc_ia": <versión>, "origenes": {<nombre>: {"commit",
+  "rama", "sucio", "fecha"}}}`, orígenes ordenados, UTF-8 y LF; código `0` (también sin git,
+  con `commit: null`).
+- `changes`: tabla `| Cambio | Fichero | Lo citan (Evidencia) | Lo mencionan |` y listas de
+  páginas a revisar, páginas que solo lo mencionan, ejemplos enlazados y ficheros sin página;
+  código `0` sin cambios, `1` con cambios, `3` sin baseline utilizable.
 - `llms`: URLs absolutas con `site_url`; con `use_directory_urls: true`, `x.md` → `x/` e
   `index.md` → raíz de su carpeta; sin `site_url`, rutas relativas. Las entradas del `nav`
   que no son `.md` se omiten y las páginas de primer nivel van a "Páginas principales".
@@ -91,6 +136,10 @@ ejercitan con repositorios temporales sin red ni git.
 | Etiquetas `!!python/name:` o `!ENV` en `mkdocs.yml` | Se ignoran (`_load_yaml` con `SafeLoader` derivado) |
 | `mkdocs.yml` sin `nav` | `ValueError` capturado en `_cmd_llms` → `[doc_trace] ERROR:` y código `1` |
 | Consola no UTF-8 (cp1252) | Solo al ejecutarse como script, stdout/stderr se reconfiguran a UTF-8 |
+| `changes`: sin entrada, `commit: null`, commit fuera del historial o versión menor de doc_ia distinta | `ChangeReport("fallback", motivo)` → motivo por stderr y código `3` |
+| Destino dentro del origen | `docs/`, `.ai/`, `_fuentes/`, `mkdocs.yml`, `VER_DOCUMENTACION.md` y `VIEW_DOCS.md` no cuentan como cambios ni como cambios pendientes |
+| Rutas con caracteres no ASCII | `git … -z` evita el entrecomillado de `core.quotepath` |
+| git ausente o con error | `_git` devuelve `None` (sin excepción); `baseline` guarda `commit: null` |
 
 ## 3. Componentes y Clases
 
@@ -100,14 +149,17 @@ ejercitan con repositorios temporales sin red ni git.
 | `_load_yaml` | Único punto de importación de PyYAML (import diferido, sin stubs) |
 | `_resolve_source` | Guarda de seguridad: resuelve la ruta y exige `is_relative_to(repo_root)` |
 | `_nav_entries`, `_page_url` | Aplanado del `nav` («Grupo › Página») y cálculo de URLs publicadas |
-| `_cmd_drift`, `_cmd_stamp`, `_cmd_matrix`, `_cmd_llms`, `_parser` | Capa CLI: argumentos, mensajes `[doc_trace]` y códigos de salida |
+| `_cmd_drift`, `_cmd_stamp`, `_cmd_matrix`, `_cmd_llms`, `_cmd_baseline`, `_cmd_changes`, `_parser` | Capa CLI: argumentos, mensajes `[doc_trace]` y códigos de salida |
+| `_git` | Único punto de llamada a git: lista de argumentos sin shell, `-C <origen>`, timeout `GIT_TIMEOUT` (60 s) |
+| `_split_citations`, `_citation_re` | Zona de citas (frontmatter + bloque «Evidencia») y regex de ruta completa (no sufijo), con o sin prefijo de origen |
 
 ## 4. Dependencias y Requisitos
 
 | Dependencia | Propósito | Requerida | Comportamiento sin ella |
 |---|---|---|---|
 | PyYAML (instalada con `mkdocs`) | Leer frontmatter y `mkdocs.yml` | Para `drift`, `stamp` y `llms` | `ImportError` al ejecutarlos; `matrix` funciona sin ella |
-| `ast`, `hashlib`, `re`, `argparse`, `pathlib`, `dataclasses`, `datetime` (stdlib) | Tests vía AST, huellas, regex, CLI | Sí | — (siempre disponibles) |
+| `ast`, `hashlib`, `re`, `argparse`, `pathlib`, `dataclasses`, `datetime`, `json`, `subprocess`, `tomllib` (stdlib) | Tests vía AST, huellas, regex, CLI, estado y git | Sí | — (siempre disponibles) |
+| git (binario) | Historial del origen para `baseline` y `changes` | Solo modo incremental | `baseline` guarda `commit: null`; `changes` → código `3` (modo completo) |
 
 ## 5. Ejemplos Relacionados
 
@@ -129,6 +181,10 @@ ejercitan con repositorios temporales sin red ni git.
 | `test_main_llms_check_detects_outdated` (1) | `llms --check` antes y después de generar | integración (CLI) |
 | `test_main_llms_without_nav_returns_error`, `test_main_stamp_missing_page_returns_error` (2) | Errores controlados de la CLI con código `1` | integración (CLI) |
 | `test_main_requires_subcommand` (1) | Sin subcomando → `SystemExit(2)` | integración (CLI) |
+| `test_baseline_records_clean_head`, `test_write_baseline_keeps_other_origins` (2) | Estado escrito: commit, rama, pendiente, versión; conserva otros orígenes | integración (git local) / unitario |
+| `test_changes_*` (4 funciones, 7 casos) | Sin cambios (0), citas/menciones/renombrados/ñ/ejemplos (1), prefijo multiorigen y los cuatro motivos de modo completo (3) | integración (git local) |
+| `test_baseline_without_git_then_changes_is_full_mode` (1) | Origen sin git → `commit: null` y `changes` con código 3 | integración (CLI) |
+| `test_destination_inside_origin_ignores_its_own_artifacts`, `test_origin_in_subfolder_of_repository_uses_origin_relative_paths` (2) | Artefactos propios excluidos; origen en subcarpeta | integración (git local) |
 
 Sin cubrir: los mensajes de `drift` y `stamp` por la CLI, `llms` sin `site_url` y la
 reconfiguración UTF-8 de la consola.
@@ -157,4 +213,8 @@ python -m pytest tests/test_doc_trace.py -q
     | Códigos de salida de la CLI | `scripts/doc_trace.py::main`, `::_cmd_drift`, `::_cmd_stamp`, `::_cmd_matrix`, `::_cmd_llms` | ✅ |
     | `matrix` sin PyYAML | `scripts/doc_trace.py::_cmd_matrix` (no llama a `_load_yaml`) | ✅ |
     | Reconfiguración UTF-8 solo en `__main__` | `scripts/doc_trace.py` (bloque `if __name__ == "__main__"`) | ✅ |
+    | Modo incremental: estado, diff y cruce con citas | `scripts/doc_trace.py::take_baseline`, `::write_baseline`, `::changed_files`, `::pages_citing`, `::check_changes`, `::format_changes` | ✅ |
+    | Exclusión de artefactos de la documentación | `scripts/doc_trace.py::documentation_paths`, `::DOC_ARTIFACTS` | ✅ |
+    | Llamada a git sin shell y con timeout | `scripts/doc_trace.py::_git`, `::GIT_TIMEOUT` | ✅ |
+    | Código 3 en `changes` | `scripts/doc_trace.py::_cmd_changes` | ✅ |
     | Tests del §6 | `tests/test_doc_trace.py` | ✅ |

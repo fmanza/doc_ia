@@ -24,6 +24,10 @@ Opcionales:
 - **Alcance**: módulos o subconjunto a documentar (por defecto: proyecto completo)
 - **Arquetipos**: subconjunto a aplicar (por defecto: todos los aplicables según inventario)
 - **Verificación**: `--verify-tools` y/o `--verify-build [--serve]` (opt-in, nunca automáticos)
+- **Modo**: `incremental` | `completo` — por defecto `incremental` si el destino tiene
+  `.ai/doc_state.json` con baseline del origen; si no, `completo` (ver Fase 1 y CIERRE). Pasa a
+  `completo` sola si el commit ya no existe, el origen no usa git o cambia la versión
+  mayor/menor de doc_ia (las reglas de los arquetipos pueden haber cambiado)
 
 ## ⚠️ VALIDACIÓN (bloqueante)
 
@@ -105,8 +109,13 @@ Fase 0b — Sincronización visual del destino (OBLIGATORIO en toda sesión, cre
              .venv/, *.pdf, *.doc, *.docx (crear si no existe; añadir los que falten).
              Nunca ignorar `_fuentes/`: el texto convertido se versiona (Fase 0c, Paso 5)
            · theme.features SIN navigation.sections si nav.css está en extra_css
-           · los 5 recursos de docs/assets/ existen y están en extra_css / extra_javascript
-             (Mermaid local: vendor/mermaid/mermaid-<versión>.min.js y después js/mermaid-theme.js)
+           · los 6 recursos de docs/assets/ existen y están en extra_css / extra_javascript /
+             extra.polyfills (Mermaid local: vendor/mermaid/mermaid-<versión>.min.js y después
+             js/mermaid-theme.js; shim local: vendor/iframe-worker/iframe-worker-shim-<versión>.min.js)
+           · ZIP sin servidor: use_directory_urls: false + plugin `offline` + el shim en
+             extra.polyfills (sin él, el tema lo descarga de unpkg y la búsqueda por file:// falla
+             sin red). Si el destino ya publica la web con URLs de carpeta, avisar en RESUMEN: los
+             enlaces profundos pasan a *.html
            · custom_fences mermaid presente; sin CDN de Mermaid ni assets/js/mermaid.js
          (La Fase 5 vuelve a verificar la configuración estándar al final.)
 Fase 0c — Conversión de documentos no legibles y uso de documentos pre-convertidos:
@@ -212,8 +221,26 @@ Fase 0c — Conversión de documentos no legibles y uso de documentos pre-conver
          Nota: omitir esta fase solo si no existen ficheros binarios NI carpeta `md/` con
          contenido válido en el origen NI `_fuentes/` (o nombre no canónico) en el destino.
 Fase 1 — Inventariar y clasificar:
-         Leer árbol real del origen (README, código, docs/, mkdocs.yml del destino,
-         y `_fuentes/` del destino con los documentos convertidos si existe).
+         Modo incremental (por defecto si hay baseline) — antes de leer el origen, por cada
+         origen CÓDIGO, desde la raíz del destino (carpeta con mkdocs.yml):
+           python <doc_ia>/scripts/doc_trace.py --root <raíz destino> changes --origin <origen> [--name <nombre_origen>]
+           · exit 0 → sin cambios: todas sus páginas quedan en ESTADO C sin leerlas.
+           · exit 1 → leer SOLO el informe: por cada fichero cambiado,
+             `git -C <origen> diff <base> -- <fichero>` (o el fichero entero si es alta A).
+               - "Lo citan (Evidencia)" → ESTADO B candidato; confirmar comparando el diff
+                 con la página (si el cambio no afecta a lo documentado → C).
+               - "Ejemplos enlazados" → revisar junto a su página técnica.
+               - "Lo mencionan" → B solo si el diff cambia lo que la página describe.
+               - "Ficheros sin página" → clasificar: módulo nuevo (A) o parte de un
+                 módulo con página (B de esa página). Pueden ser tests, config o README:
+                 revisar Arquetipos 3, 6 y 7 si cambia un punto de entrada o dependencias.
+             El resto de páginas → ESTADO C ("sin cambios desde <base>") sin leerlas.
+           · exit 3 → modo completo para ese origen; anotar el motivo en INVENTARIO.
+           Con `Alcance`, aplicar ambos filtros (intersección). Orígenes MATERIAL: su
+           incremental es la Fase 0c (copia por hash a `_fuentes/`) + `doc_trace drift`.
+           Las fases 0b, 0c, 5, 6, 7b, 7c y el CIERRE se ejecutan igual en ambos modos.
+         Modo completo (o fallback): leer árbol real del origen (README, código, docs/,
+         mkdocs.yml del destino, y `_fuentes/` del destino con los documentos convertidos si existe).
          Para cada módulo del origen y cada página existente en el destino, asignar estado:
            ESTADO A — sin doc: no existe página en docs/ para este módulo.
            ESTADO B — desactualizado: página existe pero al menos uno de los siguientes:
@@ -263,11 +290,15 @@ Fase 5 — Sincronizar navegación y verificar configuración estándar del gene
             · extra_css: assets/css/mermaid.css + assets/css/nav.css
             · markdown_extensions: attr_list, md_in_html, pymdownx.snippets (base_path:[docs]),
               line_spans:__span y pygments_lang_class:true en pymdownx.highlight
-            · plugins: search con lang del idioma del proyecto
+            · plugins: search con lang del idioma del proyecto + offline
+            · use_directory_urls: false y extra.polyfills:
+              [assets/vendor/iframe-worker/iframe-worker-shim-1.0.4.min.js] — sin unpkg: el ZIP se
+              abre con doble clic en index.html, con búsqueda, sin servidor ni red
             · Generador = zensical: plugins soportados y `hooks:` (ver § Reglas por generador: Zensical)
-         c. Assets: si alguno de los cinco recursos de docs/assets/ (js/sidebar-toggle.js,
+         c. Assets: si alguno de los seis recursos de docs/assets/ (js/sidebar-toggle.js,
             css/mermaid.css, css/nav.css, vendor/mermaid/ con la librería, LICENSE y SOURCE.txt,
-            js/mermaid-theme.js) no existe en el destino, o su librería Mermaid es de otra versión,
+            js/mermaid-theme.js, vendor/iframe-worker/ con el shim, LICENSE y SOURCE.txt) no existe
+            en el destino, o su librería Mermaid o su shim es de otra versión,
             indicarlo explícitamente en RESUMEN con la acción: "Copiar desde doc_ia/docs/assets/"
             (una versión distinta se sustituye: borrar la antigua y actualizar extra_javascript).
 Fase 6 — Revisión final: Markdown, enlaces relativos, sintaxis y conformidad Mermaid (§3.17 del
@@ -298,9 +329,12 @@ Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
            2. Verificar TIENE_MKDOCS_PLUGIN:
                 · true  → reportar en RESUMEN: "✅ Hook MkDocs presente — ZIP generado
                     automáticamente en site/ en cada `mkdocs build`. Sin instalación requerida."
+                  Verificar que el hook se ejecuta después del plugin `offline`
+                  (`on_post_build.mkdocs_priority = -200`, como `doc_ia/mkdocs_hooks.py`); si no
+                  (Gap V3), añadirlo: sin él, el ZIP latest sale sin índice de búsqueda en JS.
                   Verificar que `docs/downloads.md` usa la estructura normalizada con enlace HTML:
-                    `<a href="../{nombre}-docs-latest.zip">{nombre}-docs-latest.zip</a>`
-                    `<a href="../{nombre}-docs-latest.zip.sha256">.sha256</a>`
+                    `<a href="{nombre}-docs-latest.zip">{nombre}-docs-latest.zip</a>`
+                    `<a href="{nombre}-docs-latest.zip.sha256">.sha256</a>`
                   Si la tabla no tiene estos enlaces → actualizar siguiendo la estructura del Paso B3.
                 · false (Gap A2) → ⚠️ ACCIÓN OBLIGATORIA: CREAR el hook antes de cerrar sesión.
 
@@ -312,12 +346,15 @@ Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
                   **Paso A2-1 — Crear `mkdocs_hooks.py`** en la raíz del destino:
                     Adaptar `doc_ia/mkdocs_hooks.py` cambiando solo:
                       `zip_path = site_dir / "{nombre}-docs-latest.zip"`
-                    El hook ya incluye el bloque que añade `start-server.py` al ZIP:
+                    El hook ya añade a la raíz del ZIP `start-server.py` y las instrucciones de
+                    la Fase 7c (con idioma `en`, cambiar `VER_DOCUMENTACION.md` por `VIEW_DOCS.md`):
                       ```python
-                      server_script = Path(__file__).parent / "scripts" / "start-server.py"
-                      if server_script.exists():
-                          zipf.write(server_script, arcname="start-server.py")
+                      EXTRA_FILES = ("scripts/start-server.py", "VER_DOCUMENTACION.md")
                       ```
+                    Mantener `on_post_build.mkdocs_priority = -200`: el hook debe ir después del
+                    plugin `offline`, que escribe el índice de búsqueda en JS.
+                    Hook existente sin `EXTRA_FILES` (Gap V2) → actualizarlo siguiendo
+                    `doc_ia/mkdocs_hooks.py`; igual con `EXTRA_FILES` en `build_docs_zip.py`.
                     No crear `{nombre}_docs/` ni `pyproject.toml` — el hook no requiere instalación.
 
                   **Paso A2-2 — Registrar en `mkdocs.yml`**:
@@ -357,6 +394,8 @@ Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
              `python scripts/build_docs_zip.py`
              Leer `dist/{nombre}-docs-{version}.zip.sha256` → hash SHA256.
              Calcular tamaño del ZIP en MB.
+             Si termina con «cannot be opened without a server», falta la configuración de la
+             Fase 0b (offline, use_directory_urls: false, shim local): corregirla y repetir.
              Si el script falla (dependencias, build error) → indicarlo en RESUMEN y
              dejar la tabla con valores reales hasta donde sea posible, marcando el resto
              como "Pendiente de verificación manual".
@@ -365,15 +404,19 @@ Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
              Estructura canónica (idéntica en todos los proyectos):
              1. **"Descarga Actual"** — tabla con enlace HTML directo al ZIP del plugin:
                 ```
-                | <a href="../{nombre}-docs-latest.zip">{nombre}-docs-latest.zip</a> | ~X MB | <a href="../{nombre}-docs-latest.zip.sha256">.sha256</a> | YYYY-MM-DD |
+                | <a href="{nombre}-docs-latest.zip">{nombre}-docs-latest.zip</a> | ~X MB | <a href="{nombre}-docs-latest.zip.sha256">.sha256</a> | YYYY-MM-DD |
                 ```
-                El path `../` funciona porque con `use_directory_urls: true`,
-                `downloads.md` → `site/downloads/index.html` y el ZIP está en `site/`.
+                Sin `../`: con `use_directory_urls: false` (plugin `offline`), `downloads.md` →
+                `site/downloads.html`, junto al ZIP en `site/`.
                 Línea de versión bajo la tabla: `**{Proyecto} {versión}** — descripción breve`.
-             2. **"Cómo usar el ZIP"** — extraer (Windows + Linux/macOS) + visualizar:
-                Opción A ⭐ (recomendada): `python start-server.py` — el script está incluido
-                en el ZIP y abre el navegador automáticamente en `http://localhost:8000`.
-                Opción B: abrir `index.html` directamente (sin búsqueda).
+             2. **"Cómo usar el ZIP"** — extraer el ZIP **completo** (Windows: «Extraer todo…»;
+                Linux/macOS: `unzip`) + visualizar con **doble clic en `index.html`**: sin Python,
+                sin servidor y sin red (plugin `offline` + shim local, Fase 0b). Avisar de que el
+                doble clic dentro del ZIP sin extraer abre la página sin estilos. Alternativa:
+                `python start-server.py` (incluido en el ZIP; `http://127.0.0.1:8000`).
+                **Prohibido** indicar flags del navegador como `--allow-file-access-from-files`:
+                no hacen falta y desactivan protecciones.
+                Remitir a `VER_DOCUMENTACION.md` (incluido en el ZIP) para empezar desde cero.
              3. **"Validar Integridad (SHA256)"** — comandos Windows (PowerShell) + Linux/macOS.
              4. **"Para Desarrolladores"** — `python scripts/build_docs_zip.py` + info CI.
              5. **"Información de versión"** — generador, fecha.
@@ -397,6 +440,29 @@ Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
                 `python scripts/build_docs_zip.py` en cada push a la rama principal
                 y adjunte `dist/*.zip` como artefacto."
              Añadir pendiente: "[ ] Publicación automática de ZIP en CI no implementada."
+Fase 7c — Instrucciones de visualización (SIEMPRE obligatorio — no condicional)
+         Crear o actualizar `VER_DOCUMENTACION.md` (idioma `en`: `VIEW_DOCS.md`) en la RAÍZ del
+         destino (carpeta con mkdocs.yml/zensical.toml; fuera de `docs/`), a partir de
+         `doc_ia/.github/templates/VER_DOCUMENTACION.template.md`: requisitos y pasos para ver
+         la documentación desde cero en Windows, macOS y Linux, aunque no haya Python instalado.
+         1. Extraer del destino los valores de los marcadores (nunca inventarlos):
+              · generador → `{generador}` (mkdocs | zensical)
+              · `requires-python` (pyproject.toml) → `{python_min}`; si no hay, el mínimo del generador
+              · fichero de dependencias de docs → `{deps_file}`
+                Falta (Gap V1) → CREAR `requirements-docs.txt` con versiones fijadas siguiendo
+                `doc_ia/requirements-docs.txt` y los plugins/extensiones reales del mkdocs.yml
+                del destino. Prohibido escribir un `pip install` sin fichero que lo respalde.
+              · nombre del ZIP (Fase 7b) → `{zip_nombre}`; dónde se publica → `{zip_origen}`
+              · `git remote get-url origin` → `{repo_url}`
+              · Ruta A: solo si existen `site_url` Y un workflow/servicio que lo publique
+                (Pages, gh-deploy, servidor interno documentado); si no → "No aplica" + motivo.
+         2. Secciones fijas 0-7 de la plantilla: no omitir ni renumerar; vacías → "No aplica".
+         3. Incluirlo en el ZIP: `EXTRA_FILES` de `mkdocs_hooks.py` y de `build_docs_zip.py`
+            (Gap V2 si el hook/script del destino no lo incluye → actualizarlo).
+         4. No enlazarlo desde `docs/` (está fuera de `docs_dir`: rompe `--strict`): en
+            `docs/downloads.md` citarlo como `código inline`.
+         5. Estado: A si no existe; B si algún valor (versión de Python, dependencias, nombre
+            del ZIP, generador, URL) no coincide con el destino; C si coincide.
 ```
 
 ### Reglas por generador: Zensical
@@ -432,9 +498,10 @@ ADR-003).
   - Serve: `python -m zensical serve` (no ejecuta hooks: los ficheros sincronizados pueden estar
     desfasados).
 - **Fase 7b — `downloads.md`**: "Para Desarrolladores" usa `python scripts/build_docs_zip.py
-  --builder zensical`; "Información de versión" indica Zensical. Los enlaces `../{nombre}-docs-latest.zip`
-  solo valen con `use_directory_urls: true` (ver Paso B3); con el plugin `offline` las URLs pasan a
-  `*.html` y el enlace debe ser `{nombre}-docs-latest.zip`.
+  --builder zensical`; "Información de versión" indica Zensical. Los enlaces son
+  `{nombre}-docs-latest.zip`, sin `../` (Paso B3): Zensical también aplica `offline` y
+  `use_directory_urls: false`. Su índice JS es `search.js` en la raíz de `site/` (MkDocs:
+  `search/search_index.js`); `build_docs_zip.py` acepta los dos.
 - **Dependencias del destino**: `zensical` con **versión exacta** (está en alfa); en DOWNLOADS y
   RESUMEN, recordar que el workflow de release debe llamar a `build_docs_zip.py --builder zensical`.
 - **Salida 8b DOWNLOADS**: añadir el estado de `TIENE_PIPELINE_SIN_HOOKS` y, si aplica, el Gap A4.
@@ -468,7 +535,7 @@ APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reg
    - Tabla: | Origen | Tipo detectado | Señales | Rol |
    - Si hay ≥2 orígenes CÓDIGO: indicar estrategia elegida por el usuario.
    - ⚠️ Confirmar con el usuario antes de continuar.
-3. **INVENTARIO** (Fase 0+0b+0c+1) — tabla: | Módulo / Página | Estado (A/B/C) | Acción (CREAR/ACTUALIZAR/OMITIR) | Arquetipos / Secciones afectadas |
+3. **INVENTARIO** (Fase 0+0b+0c+1) — indicar el modo (`incremental` desde `<base>` o `completo` + motivo); en incremental, incluir el informe de `doc_trace changes` por origen; tabla: | Módulo / Página | Estado (A/B/C) | Acción (CREAR/ACTUALIZAR/OMITIR) | Arquetipos / Secciones afectadas |
    - Con múltiples orígenes CÓDIGO: un sub-inventario por proyecto.
    - Si Fase 0c activa: incluir resultado de la validación previa (motor instalado, integridad) e indicar qué ficheros se convirtieron (motor usado: docling, markitdown o pandoc), cuáles quedan pendientes y motivo (motor no instalado, fichero inválido, etc.).
    - Si hay documentos convertidos: añadir sub-sección "Fuentes convertidas (`_fuentes/`)" con tabla | Origen | Carpeta `md/` | Copiados / Sin cambios / Huérfanos | Fases donde aplica |, la migración desde un nombre no canónico si la hay, y el aviso de que su texto se versiona en el destino. Sin estado A/B/C — son fuentes de contexto, no destinos de documentación.
@@ -479,11 +546,17 @@ APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reg
 7. **REVISIÓN** (Fase 6) — checklist de validación + hallazgos.
 8. **BUILD** (Fase 7, solo opt-in) — resultado de `--verify-build`.
 8b. **DOWNLOADS** (Fase 7b, siempre) — `downloads.md` creado/actualizado; indicar variante A o B; estado de las tres señales (TIENE_ZIP_SCRIPT, TIENE_MKDOCS_PLUGIN, TIENE_WORKFLOW_GITHUB) y, con Zensical, TIENE_PIPELINE_SIN_HOOKS; huecos (Gaps A1/A2/A3 y, con Zensical, A4) reportados si alguna falta; entrada añadida al nav.
+8c. **VISUALIZACIÓN** (Fase 7c, siempre) — `VER_DOCUMENTACION.md` (o `VIEW_DOCS.md`) creado/actualizado/vigente; tabla | Marcador | Valor | Fuente verificada |; Ruta A aplicada o "No aplica" con motivo; Gaps V1/V2 resueltos o pendientes.
 9. **RESUMEN** — archivos generados/actualizados, entradas de nav, pendientes de verificación humana.
 10. **CIERRE DE SESIÓN** (siempre obligatorio) — crear artefacto `.ai/sessions/YYYY-MM-DD/` en el
     destino (`00_REQUEST.md`, `00_CONTEXT_SNAPSHOT.md`, `TRACEABILITY.md`) y proponer commit
     `docs(<scope>): <resumen>` con recuento de páginas creadas/actualizadas/omitidas; el commit
     incluye `_fuentes/` si la Fase 0c la creó o cambió.
+    **Baseline** (siempre, en ambos modos, antes del commit): por cada origen CÓDIGO,
+    `python <doc_ia>/scripts/doc_trace.py --root <raíz destino> baseline --origin <origen> [--name <nombre_origen>]`
+    → `<raíz destino>/.ai/doc_state.json` (lo escribe la herramienta; nunca a mano) entra en el
+    commit. Si avisa de cambios sin confirmar en el origen, indicarlo en RESUMEN: se volverán a
+    revisar en la próxima sesión. Registrar el commit de cada origen en `00_CONTEXT_SNAPSHOT.md`.
 
 ## Ejemplo de entrada
 

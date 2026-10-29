@@ -55,6 +55,9 @@ python -m mkdocs build --strict
 | `Faltan herramientas: …` (exit 1) | Dependencias no instaladas o venv sin activar | Activar venv + `pip install -r requirements.txt` |
 | Warning de MkDocs con `--strict` | Página en `nav:` inexistente, huérfana o enlace relativo roto | Corregir `mkdocs.yml` o el enlace; re-ejecutar el build |
 | `ERROR: …\site does not exist` (exit 1) | `--no-build` sin un `site/` generado previamente | Ejecutar sin `--no-build` al menos una vez |
+| `ERROR: …\site cannot be opened without a server` (exit 1) | `mkdocs.yml` sin `use_directory_urls: false`, sin el plugin `offline` o sin el shim local en `extra.polyfills` (el tema pide `https://unpkg.com/iframe-worker/shim`) | Restaurar las tres claves (ver [Referencia](../reference/index.md)); cada línea `- <página>: <problema>` dice qué falta |
+| `index.html` del ZIP abre la página sin estilos ni menú | Se abrió dentro del ZIP, sin extraerlo | Extraer el ZIP completo y abrir `index.html` de la carpeta extraída |
+| Con doble clic, la búsqueda no responde | El navegador o una política de empresa bloquea scripts de ficheros locales | Usar `python start-server.py` dentro de la carpeta extraída; no cambiar opciones de seguridad del navegador |
 | El build con `--builder zensical` falla al arrancar | Zensical no está instalado (no es dependencia del proyecto) | Instalarlo aparte o usar el builder por defecto (`mkdocs`) |
 | La cadena `--8<--` aparece literal en el sitio | Ruta del snippet incorrecta para `pymdownx.snippets` | Usar ruta relativa desde `docs/` (p. ej. `examples/foo.py`, NO `docs/examples/foo.py`) porque `base_path: [docs]` está activo en `mkdocs.yml` |
 | El hook PostToolUse falla tras editar un script | ruff/mypy/pytest detectan un problema real | Ejecutar el comando del hook manualmente y corregir el hallazgo |

@@ -86,6 +86,7 @@ doc_ia/
 | Módulo | Responsabilidad |
 |---|---|
 | `scripts/` | Tooling determinista sin dependencias IA: validación de entorno, build + ZIP de docs, conversión de documentos binarios a Markdown con validación previa y motor elegido con `--engine` (`docling` por defecto: PDF/DOCX/PPTX/XLSX/CSV/HTML/EPUB, imágenes, email, LaTeX, audio, con OCR; `markitdown` alternativa ligera, necesaria solo para XLS; `pandoc` complemento: DOC/ODT/RST) |
+| `.ai/doc_state.json` (destino) | Baseline del modo incremental de `/document-project`: commit de cada origen CÓDIGO al cerrar la sesión y versión de doc_ia. Lo escribe `doc_trace.py baseline` en el CIERRE (nunca a mano) y lo lee `doc_trace.py changes` en la Fase 1 para limitar el inventario a lo cambiado. Se versiona con el destino. |
 | Patrón `<origen>/md/` → `_fuentes/` | Artefactos generados por `scripts/convert_to_md.py`: versiones `.md` de documentos binarios del origen (PDF, DOCX, PPTX, …). El destino recibe **siempre** una copia en `<raíz del destino>/_fuentes/<nombre_origen>/<ruta relativa al origen>` (nombre único, fuera de `docs/`, versionada); el agente la usa como contexto de primera clase en Fases 2-4 sin re-conversión. Nunca editarlos directamente. Ver Fase 0c de `document_project.prompt.md`. |
 | `hooks/` | `sync_root_docs.py`: copia `CHANGELOG.md`/`CONTRIBUTING.md` a `docs/` antes del build y tras cada Edit/Write |
 | `tests/` | Tests unitarios del tooling (sin red, sin servicios externos) |
@@ -180,6 +181,16 @@ El patrón completo consta de **tres señales independientes**; el flujo de
 3. `.github/workflows/docs-zip-release.yml` — auto-publicación en GitHub Releases en cada push
    a `main` con cambios en `docs/`.
 
+Los dos ZIP (latest y versionado) llevan en su raíz `start-server.py` (servidor local, solo
+`127.0.0.1`) y `VER_DOCUMENTACION.md` (`EXTRA_FILES`). `VER_DOCUMENTACION.md` vive en la raíz del
+destino, fuera de `docs/`, y se genera **siempre** en la Fase 7c desde
+`.github/templates/VER_DOCUMENTACION.template.md`: requisitos y pasos para ver la documentación
+desde cero (Windows, macOS, Linux). El ZIP se abre **extrayéndolo y con doble clic en
+`index.html`**, sin Python, servidor ni red: `use_directory_urls: false`, plugin `offline` y el shim
+iframe-worker local en `extra.polyfills` (sin él, el tema lo descarga de unpkg).
+`build_docs_zip.py` se niega a empaquetar un `site/` que no se abra así; `start-server.py` queda
+como alternativa. Nunca se indican flags del navegador (`--allow-file-access-from-files`).
+
 #### Configuración de documentación
 
 > **Fuente única**: `mkdocs.yml`. Lo consume MkDocs Material (por defecto) y, recíprocamente,
@@ -215,6 +226,8 @@ son complementarias, no alternativas:
 3. **Hook MkDocs** (`mkdocs_hooks.py` en la raíz + `hooks: [mkdocs_hooks.py]` en `mkdocs.yml`) —
    genera `{nombre}-docs-latest.zip` en `site/` automáticamente en cada build.
    El ZIP incluye siempre `start-server.py` (desde `scripts/start-server.py` en la raíz del proyecto).
+   Se ejecuta después del plugin `offline` (`on_post_build.mkdocs_priority = -200`), para que el
+   ZIP lleve el índice de búsqueda en JS.
    **Sin instalación**: cargado directamente por MkDocs; funciona con cualquier Python que tenga mkdocs.
    No requiere `pyproject.toml`, `setup.py`, `pip install -e .` ni activar ningún venv.
    Patrón de referencia: `doc_ia/mkdocs_hooks.py` (solo cambiar la línea `zip_path`).

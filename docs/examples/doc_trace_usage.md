@@ -5,8 +5,9 @@
 Tras modificar código o instrucciones conviene saber qué páginas de documentación han
 quedado desactualizadas y si los criterios de aceptación citan tests reales. Este ejemplo
 muestra las dos formas de hacerlo con `doc_trace`: importar `check_drift` y `build_matrix`
-desde código propio (mismo patrón por ruta que `check_env_usage.py`), o usar los cuatro
-subcomandos de la CLI: `stamp`, `drift`, `matrix` y `llms`.
+desde código propio (mismo patrón por ruta que `check_env_usage.py`), o usar los subcomandos
+de la CLI: `stamp`, `drift`, `matrix` y `llms`, y para relanzar `/document-project` solo sobre lo
+cambiado, `baseline` y `changes`.
 
 ## 2. Implementación de Referencia
 
@@ -67,6 +68,52 @@ python scripts/doc_trace.py matrix
 python scripts/doc_trace.py llms --check
 # [doc_trace] C:\...\doc_ia\docs\llms.txt al día.
 ```
+
+Modo incremental sobre un destino aparte (`mi_api_docs`) que documenta `mi_api`. Al cerrar la
+sesión se guarda el baseline; en la siguiente, `changes` lista lo cambiado desde él (salida real
+tras añadir un parámetro a `pagar` y crear `src/facturas.py`):
+
+```bash
+cd mi_api_docs
+python <doc_ia>/scripts/doc_trace.py --root . baseline --origin ../mi_api
+# [doc_trace] mi_api: baseline 7e7518596fde (main) → …\mi_api_docs\.ai\doc_state.json
+
+python <doc_ia>/scripts/doc_trace.py --root . changes --origin ../mi_api   # código 1: hay cambios
+# # Cambios en el origen «mi_api» desde 7e7518596fde
+#
+# | Cambio | Fichero | Lo citan (Evidencia) | Lo mencionan |
+# |---|---|---|---|
+# | A | `src/facturas.py` | *Sin página* | — |
+# | M | `src/pagos.py` | `docs/api/pagos.md` | — |
+#
+# ## Páginas a revisar (1)
+# - `docs/api/pagos.md`
+# ...
+# ## Ejemplos enlazados desde páginas técnicas (1)
+# - `docs/examples/pagos.md`
+#
+# ## Ficheros sin página (1) — clasificar en el INVENTARIO
+# - `src/facturas.py`
+```
+
+`.ai/doc_state.json` escrito por `baseline`:
+
+```json
+{
+  "doc_ia": "0.3.0",
+  "origenes": {
+    "mi_api": {
+      "commit": "7e7518596fde23819458cc2426cf18f64aac6f89",
+      "rama": "main",
+      "sucio": false,
+      "fecha": "2026-10-29"
+    }
+  }
+}
+```
+
+Sin cambios, `changes` termina con código `0`; sin baseline utilizable, con código `3` y el
+motivo (la sesión de `/document-project` se hace entonces completa).
 
 Ejemplo desde código propio (los recuentos dependen del estado del repositorio):
 

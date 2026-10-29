@@ -3,11 +3,11 @@ arquetipo: "1-I"
 fuentes:
   docs/functional/archetypes.md: 6d433cc0bbd0
   docs/functional/bootstrap.md: d53936a473e4
-  docs/functional/build_docs_zip.md: dc22d821749a
+  docs/functional/build_docs_zip.md: 79aa5c840b2d
   docs/functional/check_env.md: f9e9d9c5e13d
   docs/functional/convert_to_md.md: 52a46b57a810
-  docs/functional/doc_trace.md: 699c6a22d9f3
-  docs/functional/document_project.md: b461fcaf822f
+  docs/functional/doc_trace.md: 04639ce0babf
+  docs/functional/document_project.md: b09dcaefe6ca
   docs/functional/origin_types.md: 8d51f61b1bac
 revisado: 2026-10-29
 ---
@@ -22,14 +22,14 @@ y qué términos comparten. Cada capacidad enlaza a su página funcional detalla
 |---|---|---|---|---|
 | Comprobar que el entorno tiene las herramientas necesarias | Tooling determinista | [Verificación de Entorno](check_env.md) | AC-01 – AC-06 | 6/6 |
 | Convertir documentos previos a Markdown para usarlos como contexto | Tooling determinista | [Conversión de Documentos a Markdown](convert_to_md.md) | AC-01 – AC-13 | 12/13 |
-| Empaquetar la documentación para consulta offline con verificación de integridad | Tooling determinista | [ZIP de Documentación Offline](build_docs_zip.md) | AC-01 – AC-10 | 9/10 |
-| Detectar documentación desactualizada respecto al código y cruzar criterios con tests | Tooling determinista | [Trazabilidad Docs ↔ Código](doc_trace.md) | AC-01 – AC-14 | 14/14 |
-| Documentar un proyecto completo desde una única operación de entrada | Flujos IA | [Documentar un Proyecto](document_project.md) | AC-01 – AC-10 | 0/10 |
+| Empaquetar la documentación para consulta offline con verificación de integridad | Tooling determinista | [ZIP de Documentación Offline](build_docs_zip.md) | AC-01 – AC-15 | 14/15 |
+| Detectar documentación desactualizada respecto al código y cruzar criterios con tests | Tooling determinista | [Trazabilidad Docs ↔ Código](doc_trace.md) | AC-01 – AC-21 | 21/21 |
+| Documentar un proyecto completo desde una única operación de entrada | Flujos IA | [Documentar un Proyecto](document_project.md) | AC-01 – AC-12 | 1/12 |
 | Clasificar cada origen (código, normativa, especificación, contrato…) y decidir su tratamiento | Flujos IA | [Catálogo de Tipos de Origen](origin_types.md) | AC-01 – AC-09 | 0/9 |
 | Producir documentación con estructura fija y evidencia verificable | Flujos IA | [Arquetipos Formales](archetypes.md) | AC-01 – AC-13 | 13/13 |
 | Trasladar el sistema de instrucciones IA a otro proyecto | Flujos IA | [Bootstrap de Configuración IA](bootstrap.md) | AC-01 – AC-04 | 0/4 |
 
-**Cobertura de pruebas**: 50 de 73 criterios tienen un test automatizado. Los flujos IA se
+**Cobertura de pruebas**: 63 de 89 criterios tienen un test automatizado. Los flujos IA se
 ejecutan en el chat de la plataforma IA: de ellos solo se comprueba la estructura de la
 documentación resultante (Arquetipos) ⚠️.
 
@@ -95,11 +95,11 @@ acceso al repositorio y a una plataforma IA puede usar todas las capacidades.
     |---|---|---|
     | Capacidad «Verificación de Entorno» y 6/6 tests | `docs/functional/check_env.md::§7` | ✅ |
     | Capacidad «Conversión a Markdown» y 12/13 tests | `docs/functional/convert_to_md.md::§7` | ✅ |
-    | Capacidad «ZIP offline» y 8/9 tests | `docs/functional/build_docs_zip.md::§7` | ✅ |
-    | Capacidad «Trazabilidad» y 14/14 tests | `docs/functional/doc_trace.md::§7` | ✅ |
-    | Capacidad «Documentar un Proyecto» y 0/10 tests | `docs/functional/document_project.md::§7` | ✅ |
+    | Capacidad «ZIP offline» y 14/15 tests | `docs/functional/build_docs_zip.md::§7` | ✅ |
+    | Capacidad «Trazabilidad» y 21/21 tests | `docs/functional/doc_trace.md::§7` | ✅ |
+    | Capacidad «Documentar un Proyecto» y 1/12 tests | `docs/functional/document_project.md::§7` | ✅ |
     | Capacidad «Tipos de Origen» y 0/9 tests | `docs/functional/origin_types.md::§7` | ✅ |
-    | Capacidad «Arquetipos» y 10/10 tests | `docs/functional/archetypes.md::§7` | ✅ |
+    | Capacidad «Arquetipos» y 13/13 tests | `docs/functional/archetypes.md::§7` | ✅ |
     | Capacidad «Bootstrap» y 0/4 tests | `docs/functional/bootstrap.md::§7` | ✅ |
     | Recorrido «documentos previos» | `docs/functional/convert_to_md.md::§1`, `docs/functional/document_project.md::§3` | ✅ |
     | Recorrido «bootstrap → documentar» | `docs/functional/bootstrap.md::§4`, `docs/functional/document_project.md::§2` | 🔍 |

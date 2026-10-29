@@ -34,7 +34,9 @@ ruff ✅ · mypy ✅ · pytest ✅ · `doc_trace drift` sin hallazgos · `doc_tr
 | Paso | Resultado | Commit | Estado |
 |---|---|---|---|
 | Commits de la sesión | `add850b` (`_fuentes/`), `3f1f024` (docling en Fase 0c) | — | HECHO |
-| VERSION | `release: v0.3.0 - …` (`02_VERSION_CLOSURE.md`) | — | EN CURSO |
+| VERSION | `release: v0.3.0 - …` (`02_VERSION_CLOSURE.md`); CI run 40861856978 verde | `d95fff3` | HECHO |
+| VERSION | merge `--no-ff` a `main`; CI run 40862075090 verde; release `docs-v0.3.0` (run 40862075101) | `6ceb437` | HECHO |
+| VERSION | tag `v0.3.0` sobre `6ceb437` → release `v0.3.0` con `doc_ia-docs-0.3.0.zip` (run 40862339206) | `6ceb437` | HECHO |
 
 ## Veredicto
-CLOSED tras la release v0.3.0.
+CLOSED — release v0.3.0 publicada y verificada.

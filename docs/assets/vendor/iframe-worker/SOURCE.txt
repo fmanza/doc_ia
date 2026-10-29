@@ -1,0 +1,12 @@
+iframe-worker 1.0.4 — shim/index.js, copiado sin modificar.
+
+Origen:     https://registry.npmjs.org/iframe-worker/-/iframe-worker-1.0.4.tgz
+Integridad: sha512-roeaaI+Lg1LJNfgpCjoRe/+WzEjy9+Z08LoEvu85MCPbBjwm+qXz8Ag5U05lHa6V1CysZyGzE0SOkAtSUA5q7Q== (tarball, verificada)
+SHA256:     e8e412dbcfea9b7e31b5ffa288d7b6035915e714c542f4176a0cdbe262fc9609 (iframe-worker-shim-1.0.4.min.js)
+Licencia:   MIT (LICENSE)
+
+Uso: el plugin `offline` lo exige para la búsqueda por file://. Material y Zensical añaden
+https://unpkg.com/iframe-worker/shim salvo que extra.polyfills ya contenga una ruta con
+«iframe-worker»; esta copia local evita la descarga.
+
+Actualizar: ver CONTRIBUTING.md § "Actualizar iframe-worker".

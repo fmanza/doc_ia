@@ -1,10 +1,10 @@
 ---
 arquetipo: "2"
 fuentes:
-  .claude/commands/document-project.md: f03102a6de92
-  .github/agents/documentation-generator.agent.md: 498ec810fe2a
-  .github/prompts/document_project.prompt.md: a2c439b61b93
-  mkdocs.yml: 2179f8729495
+  .claude/commands/document-project.md: 6972f09030fa
+  .github/agents/documentation-generator.agent.md: d321ae7f6268
+  .github/prompts/document_project.prompt.md: 85c36e26ec88
+  mkdocs.yml: 5dd76a635c78
 revisado: 2026-10-29
 ---
 # document_project
@@ -27,7 +27,7 @@ stateDiagram-v2
     state "Fase 5 · SYNC NAV" as SYNC_NAV
     state "Fase 6 · Revisión, stamp, drift, matrix, llms" as REVISION
     state "Fase 7 · Build estricto" as BUILD
-    state "Fase 7b · downloads.md" as DESCARGAS
+    state "Fases 7b-7c · downloads.md y VER_DOCUMENTACION.md" as DESCARGAS
     state "RESUMEN y cierre de sesión" as CIERRE
     [*] --> VALIDACION
     VALIDACION --> [*] : falta un parámetro
@@ -74,10 +74,11 @@ La vista del mismo flujo desde el usuario (qué pide, qué confirma y qué recib
 | `Alcance` | string | Módulos o subconjunto | Opcional; por defecto proyecto completo |
 | `Arquetipos` | string | Subconjunto de arquetipos a aplicar | Opcional; por defecto todos los aplicables |
 | `Verificación` | flags | `--verify-tools` y/o `--verify-build [--serve]` | Opcional; nunca automático |
+| `Modo` | string | `incremental` · `completo` | Opcional; por defecto `incremental` si `<raíz destino>/.ai/doc_state.json` tiene baseline del origen. La Fase 1 parte de `doc_trace.py changes`; su código `3` (sin baseline, sin git, commit fuera del historial u otra versión menor de doc_ia) fuerza `completo`. El CIERRE siempre ejecuta `doc_trace.py baseline` |
 
 ### Contrato de salida
 
-Once bloques en el chat, en este orden:
+Doce bloques en el chat, en este orden:
 1. `VALIDACIÓN DE INPUTS` — tabla de estado por parámetro; si hay ❌ el flujo se detiene.
 2. `CLASIFICACIÓN DE ORÍGENES` — solo con ≥2 orígenes o si el único no es CÓDIGO.
 3. `INVENTARIO` — tabla módulo × estado (A/B/C) × acción × arquetipos afectados; incluye estado de las tres señales ZIP offline (`TIENE_ZIP_SCRIPT`, `TIENE_MKDOCS_PLUGIN`, `TIENE_WORKFLOW_GITHUB`) y, con Zensical, `TIENE_PIPELINE_SIN_HOOKS`; con documentos convertidos, la sub-sección "Fuentes convertidas (`_fuentes/`)" (copiados, sin cambios, huérfanos y migración pendiente).
@@ -87,8 +88,9 @@ Once bloques en el chat, en este orden:
 7. `REVISIÓN` — checklist de validación.
 8. `BUILD` — resultado de `--verify-build` (solo opt-in).
 9. `DOWNLOADS` — `docs/downloads.md` creado/actualizado (siempre obligatorio); indica variante A o B; reporta huecos de las señales ZIP que falten (Gaps A1-A3 y, con Zensical, A4: script de build sin pasos pre/post).
-10. `RESUMEN` — contadores de archivos creados/actualizados/omitidos y entradas de nav.
-11. `CIERRE DE SESIÓN` — siempre obligatorio: artefactos `.ai/sessions/YYYY-MM-DD/` en el destino + propuesta de commit Conventional Commits.
+10. `VISUALIZACIÓN` — `VER_DOCUMENTACION.md` (idioma `en`: `VIEW_DOCS.md`) creado/actualizado en la raíz del destino desde `.github/templates/VER_DOCUMENTACION.template.md` (siempre obligatorio); tabla marcador → valor → fuente verificada; Ruta A solo con publicación verificada; Gaps V1 (sin `requirements-docs.txt`), V2 (`EXTRA_FILES` en hook/script) y V3 (hook sin `on_post_build.mkdocs_priority = -200`: el ZIP latest sale sin búsqueda). La Ruta B es el doble clic en `index.html` del ZIP extraído, que la Fase 0b hace posible (`use_directory_urls: false`, plugin `offline`, shim iframe-worker local en `extra.polyfills`); `start-server.py`, la alternativa.
+11. `RESUMEN` — contadores de archivos creados/actualizados/omitidos y entradas de nav.
+12. `CIERRE DE SESIÓN` — siempre obligatorio: artefactos `.ai/sessions/YYYY-MM-DD/` en el destino + propuesta de commit Conventional Commits.
 
 ### Errores y casos especiales
 

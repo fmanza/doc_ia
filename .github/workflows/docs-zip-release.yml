@@ -105,8 +105,10 @@ jobs:
 
             1. Download the ZIP file below
             2. Extract: `unzip doc_ia-docs-*.zip`
-            3. Open `index.html` in your browser
-            4. For offline search, serve the folder: `python -m http.server 8000`
+            3. Double-click `index.html` in the extracted folder: navigation, search and diagrams work without Python, a server or a network connection
+            4. Alternative (Python 3.7+): `python start-server.py` and open `http://127.0.0.1:8000`
+            5. Step-by-step from scratch (Windows, macOS, Linux): `VER_DOCUMENTACION.md` inside the ZIP
+            Extract the whole ZIP first: opening `index.html` from inside the archive shows the page without styles.
           artifacts: dist/doc_ia-docs-*.zip,dist/*.sha256,dist/CHECKSUMS.txt
           draft: false
           prerelease: false

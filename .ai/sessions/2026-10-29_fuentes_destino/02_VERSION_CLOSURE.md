@@ -64,7 +64,8 @@ Detalle completo: `CHANGELOG.md` § `[0.3.0] — 2026-10-29`.
 - [x] `CHANGELOG.md` → `[0.3.0] — 2026-10-29` con enlaces (+ `docs/changelog.md` sincronizado)
 - [x] `doc_trace drift` sin drift y `llms --check` al día
 - [x] `mkdocs build --strict` + ZIP `dist/doc_ia-docs-0.3.0.zip`; tabla de `docs/downloads.md`
-- [ ] CI de `develop` y de `main`, merge a `main` y tag `v0.3.0` → releases (ver TRACEABILITY)
+- [x] CI de `develop` y de `main`, merge a `main` (`6ceb437`) y tag `v0.3.0` → release `v0.3.0` correcta
+- [x] Release `docs-v0.3.0` con ZIP, `.sha256` y `CHECKSUMS.txt` (run 40862075101)
 
 ## Handoff
 

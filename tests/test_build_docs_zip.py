@@ -23,8 +23,9 @@ def _project(tmp_path: Path, version: str = "0.1.0") -> Path:
         f'[project]\nname = "demo"\nversion = "{version}"\n', encoding="utf-8"
     )
     site = tmp_path / "site"
-    site.mkdir()
+    (site / "search").mkdir(parents=True)
     (site / "index.html").write_text("<h1>Demo</h1>", encoding="utf-8")
+    (site / "search" / "search_index.js").write_text("var __index = {}", encoding="utf-8")
     return tmp_path
 
 
@@ -55,6 +56,29 @@ def test_main_builds_strict_and_packages_versioned_zip(tmp_path: Path) -> None:
     assert "doc_ia-docs-0.1.0.zip" in (root / "dist" / "CHECKSUMS.txt").read_text()
     with zipfile.ZipFile(archive) as zf:
         assert "index.html" in zf.namelist()
+        assert "search/search_index.js" in zf.namelist()
+
+
+def test_versioned_zip_matches_latest_layout(tmp_path: Path) -> None:
+    """Release ZIP: sin ZIP anidado y con servidor + instrucciones en la raíz (como el latest)."""
+    root = _project(tmp_path)
+    (root / "site" / "doc_ia-docs-latest.zip").write_bytes(b"nested")
+    (root / "site" / "doc_ia-docs-latest.zip.sha256").write_text("x", encoding="utf-8")
+    (root / "site" / "api").mkdir()
+    (root / "site" / "api" / "index.html").write_text("<h1>API</h1>", encoding="utf-8")
+    (root / "scripts").mkdir()
+    (root / "scripts" / "start-server.py").write_text("print('ok')\n", encoding="utf-8")
+    (root / "VER_DOCUMENTACION.md").write_text("# Ver\n", encoding="utf-8")
+    _run_main(root, "--no-build")
+    with zipfile.ZipFile(root / "dist" / "doc_ia-docs-0.1.0.zip") as zf:
+        names = zf.namelist()
+    assert sorted(names) == [
+        "VER_DOCUMENTACION.md",
+        "api/index.html",
+        "index.html",
+        "search/search_index.js",
+        "start-server.py",
+    ]
 
 
 def test_main_no_strict_omits_flag(tmp_path: Path) -> None:
@@ -67,8 +91,7 @@ def test_main_no_strict_omits_flag(tmp_path: Path) -> None:
 
 def test_main_no_build_without_site_exits_1(tmp_path: Path) -> None:
     root = _project(tmp_path)
-    (root / "site" / "index.html").unlink()
-    (root / "site").rmdir()
+    shutil.rmtree(root / "site")
     with pytest.raises(SystemExit) as exc:
         _run_main(root, "--no-build")
     assert exc.value.code == 1
@@ -195,4 +218,90 @@ def test_post_build_hook_creates_latest_zip(tmp_path: Path) -> None:
         names = zf.namelist()
     assert "index.html" in names
     assert "start-server.py" in names
+    assert "VER_DOCUMENTACION.md" in names
     assert not any(n.endswith((".zip", ".sha256")) for n in names)
+
+
+# --- Sitio navegable sin servidor (file://) --------------------------------------------------
+
+
+def test_zensical_search_index_layout_is_accepted(tmp_path: Path) -> None:
+    root = _project(tmp_path)
+    shutil.rmtree(root / "site" / "search")
+    (root / "site" / "search.js").write_text("var __index = {}", encoding="utf-8")
+    _run_main(root, "--no-build")
+    assert (root / "dist" / "doc_ia-docs-0.1.0.zip").is_file()
+
+
+def test_external_and_file_links_are_not_folder_links(tmp_path: Path) -> None:
+    root = _project(tmp_path)
+    (root / "site" / "index.html").write_text(
+        '<a href="https://github.com/fmanza/doc_ia/">repo</a> <a href="mailto:a@b.c/">m</a>'
+        '<a href="api/x.html#a/">x</a> <a href="#top">top</a>'
+        '<script src="assets/vendor/iframe-worker/shim.js"></script>',
+        encoding="utf-8",
+    )
+    _run_main(root, "--no-build")
+    assert (root / "dist" / "doc_ia-docs-0.1.0.zip").is_file()
+
+
+@pytest.mark.parametrize(
+    ("page", "problem"),
+    [
+        ('<a href="api/archetypes/">API</a>', "link to a folder api/archetypes/"),
+        ('<a href="../#intro">Inicio</a>', "link to a folder ../#intro"),
+        ('<img src="./">', "link to a folder ./"),
+        (
+            '<script src="https://unpkg.com/iframe-worker/shim"></script>',
+            "remote script https://unpkg.com/iframe-worker/shim",
+        ),
+        ('<script defer src="//cdn.example/x.js"></script>', "remote script //cdn.example/x.js"),
+    ],
+)
+def test_site_not_browsable_from_file_exits_1(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], page: str, problem: str
+) -> None:
+    root = _project(tmp_path)
+    (root / "site" / "guides").mkdir()
+    (root / "site" / "guides" / "a.html").write_text(page, encoding="utf-8")
+    with pytest.raises(SystemExit) as exc:
+        _run_main(root, "--no-build")
+    assert exc.value.code == 1
+    assert f"guides/a.html: {problem}" in capsys.readouterr().err
+    assert not (root / "dist").exists()
+
+
+def test_missing_search_index_js_exits_1(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = _project(tmp_path)
+    (root / "site" / "search" / "search_index.js").unlink()
+    with pytest.raises(SystemExit) as exc:
+        _run_main(root, "--no-build")
+    assert exc.value.code == 1
+    assert "enable the `offline` plugin" in capsys.readouterr().err
+
+
+def test_offline_check_runs_after_build(tmp_path: Path) -> None:
+    """El build (que crea el índice JS) va antes de la comprobación."""
+    root = _project(tmp_path)
+    shutil.rmtree(root / "site" / "search")
+
+    def build(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess[bytes]:
+        (root / "site" / "search.js").write_text("var __index = {}", encoding="utf-8")
+        return subprocess.CompletedProcess(args=cmd, returncode=0)
+
+    with patch.object(build_docs_zip.subprocess, "run", side_effect=build):
+        _run_main(root)
+    assert (root / "dist" / "doc_ia-docs-0.1.0.zip").is_file()
+
+
+def test_problem_report_is_truncated(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    root = _project(tmp_path)
+    links = "".join(f'<a href="p{i}/">p</a>' for i in range(25))
+    (root / "site" / "index.html").write_text(links, encoding="utf-8")
+    with pytest.raises(SystemExit):
+        _run_main(root, "--no-build")
+    err = capsys.readouterr().err
+    assert err.count("link to a folder") == build_docs_zip.MAX_REPORTED_PROBLEMS
+    assert "... and 5 more" in err

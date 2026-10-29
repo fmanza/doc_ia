@@ -5,6 +5,67 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-10-29
+
+### Added
+
+- **ZIP navegable sin servidor**: tras extraerlo, doble clic en `index.html` abre la
+  documentación con navegación, búsqueda y diagramas, sin Python, servidor ni red, con MkDocs
+  Material y con Zensical. `use_directory_urls: false`, plugin `offline` y shim
+  [iframe-worker](https://github.com/squidfunk/iframe-worker) 1.0.4 servido en local
+  (`docs/assets/vendor/iframe-worker/`, huella fijada) en `extra.polyfills`, porque los dos temas
+  lo descargaban de unpkg. `start-server.py` queda como alternativa. Producto: Fase 0b con seis
+  recursos, plantillas `TEMPLATE_mkdocs.yml` y `VER_DOCUMENTACION`, Paso B3 y Gap V3. Criterios
+  AC-12 a AC-15 del ZIP offline; `tests/test_offline_assets.py`.
+- **Producto — modo incremental de `/document-project`** (parámetro `Modo`, por defecto
+  `incremental` si hay baseline): el CIERRE guarda el commit de cada origen en
+  `<destino>/.ai/doc_state.json` (`doc_trace.py baseline`) y la Fase 1 siguiente parte de
+  `doc_trace.py changes`: ficheros cambiados desde ese commit (git local, también pendientes y
+  sin seguimiento), páginas que los citan como evidencia, páginas que solo los mencionan,
+  ejemplos enlazados y ficheros sin página. El resto de páginas queda vigente sin releerlas.
+  Código 3 → modo completo (sin baseline, sin git, commit fuera del historial o versión menor de
+  doc_ia distinta). Si el destino está dentro del origen, sus artefactos no cuentan como cambios.
+  Criterios AC-15 a AC-21 de la trazabilidad y AC-12 de Documentar un Proyecto.
+- **Producto — instrucciones de visualización** (Fase 7c de `/document-project`, siempre): el
+  destino recibe `VER_DOCUMENTACION.md` (`VIEW_DOCS.md` en inglés) en su raíz, generado desde
+  `.github/templates/VER_DOCUMENTACION.template.md`: qué ruta seguir (web, ZIP, código fuente),
+  instalación de Python desde cero en Windows, macOS y Linux, servidor local y problemas
+  frecuentes, con valores verificados en el destino. Gap V1 (sin `requirements-docs.txt` → se
+  crea) y Gap V2 (`EXTRA_FILES` en hook/script). Instancia propia de doc_ia en la raíz.
+- Tests: `test_start_server.py`, `test_versioned_zip_matches_latest_layout` (AC-11 del ZIP
+  offline) y guardas de coherencia de la Fase 7c (AC-11 de Documentar un Proyecto).
+
+### Changed
+
+- `build_docs_zip.py` comprueba antes de empaquetar que `site/` se abre sin servidor (índice de
+  búsqueda en JS, ningún script remoto, ningún enlace a carpeta) y, si no, termina con código 1
+  y lista los problemas. Un destino que copie el script sin el plugin `offline` falla a propósito.
+  La CI lo ejecuta también sobre el build de MkDocs.
+- URLs del sitio en `*.html` (`api/archetypes.html` en lugar de `api/archetypes/`); `llms.txt`
+  regenerado.
+- `downloads.md`, `VER_DOCUMENTACION.md` y las notas de release: la ruta principal del ZIP es el
+  doble clic tras extraerlo; Python solo hace falta para el servidor local y la ruta de código
+  fuente.
+- `start-server.py` escucha solo en `127.0.0.1` (antes, todas las interfaces), atiende cada
+  conexión en su hilo (antes, una conexión ociosa del navegador bloqueaba el servidor), sirve su
+  carpeta sin cambiar el directorio de trabajo y, con el puerto ocupado, termina con código 1 y
+  sugiere `--port` (en Windows, sin `SO_REUSEADDR`, que permitía compartir el puerto en silencio).
+- Los dos ZIP llevan `start-server.py` y `VER_DOCUMENTACION.md` en su raíz (`EXTRA_FILES` en
+  `mkdocs_hooks.py` y `build_docs_zip.py`).
+
+### Fixed
+
+- El ZIP `latest` del build con MkDocs no incluía `search/search_index.js`: el hook empaquetaba
+  antes de que el plugin `offline` lo escribiera. `mkdocs_hooks.py` corre ahora con prioridad -200.
+- Mapa funcional: totales y evidencia desfasados (decía 52 de 75 criterios; son 63 de 89) y
+  referencia de `start-server.py` que aún describía el puerto ocupado como excepción no capturada.
+- El ZIP versionado (`dist/`, el que publican las Releases) no incluía `start-server.py` y
+  contenía anidado `doc_ia-docs-latest.zip` con su `.sha256`: ahora tiene el mismo contenido
+  que el ZIP "latest".
+- `docs/downloads.md`, el Paso B3 del producto y las notas de release ofrecían abrir `index.html`
+  directamente cuando no navegaba (`use_directory_urls: true`, enlaces a carpetas); desde esta
+  versión el doble clic sí funciona (ver «ZIP navegable sin servidor»).
+
 ## [0.3.0] — 2026-10-29
 
 ### Added
@@ -187,7 +248,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - Restauración de `config-reviewer.agent.md` y creación de `docs.instructions.md`
   tras corrupción del bootstrap.
 
-[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/fmanza/doc_ia/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/fmanza/doc_ia/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/fmanza/doc_ia/compare/docs-v0.1.0...v0.2.0
 [0.1.0]: https://github.com/fmanza/doc_ia/releases/tag/docs-v0.1.0
