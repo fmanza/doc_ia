@@ -85,8 +85,8 @@ doc_ia/
 
 | Módulo | Responsabilidad |
 |---|---|
-| `scripts/` | Tooling determinista sin dependencias IA: validación de entorno, build + ZIP de docs, conversión de documentos binarios a Markdown con validación previa (`markitdown` principal: PDF/DOCX/PPTX/XLSX/HTML/CSV/EPUB/IPYNB; `pandoc` complemento: DOC/ODT/RST y fallback) |
-| Patrón `<origen>/md/` | Artefactos generados por `scripts/convert_to_md.py`: versiones `.md` de documentos binarios del origen (PDF, DOCX, PPTX, …). El agente los incluye como contexto de primera clase en Fases 2-4 sin re-conversión. Nunca editarlos directamente. Ver Fase 0c de `document_project.prompt.md`. |
+| `scripts/` | Tooling determinista sin dependencias IA: validación de entorno, build + ZIP de docs, conversión de documentos binarios a Markdown con validación previa y motor elegido con `--engine` (`docling` por defecto: PDF/DOCX/PPTX/XLSX/CSV/HTML/EPUB, imágenes, email, LaTeX, audio, con OCR; `markitdown` alternativa ligera, necesaria solo para XLS; `pandoc` complemento: DOC/ODT/RST) |
+| Patrón `<origen>/md/` → `_fuentes/` | Artefactos generados por `scripts/convert_to_md.py`: versiones `.md` de documentos binarios del origen (PDF, DOCX, PPTX, …). El destino recibe **siempre** una copia en `<raíz del destino>/_fuentes/<nombre_origen>/<ruta relativa al origen>` (nombre único, fuera de `docs/`, versionada); el agente la usa como contexto de primera clase en Fases 2-4 sin re-conversión. Nunca editarlos directamente. Ver Fase 0c de `document_project.prompt.md`. |
 | `hooks/` | `sync_root_docs.py`: copia `CHANGELOG.md`/`CONTRIBUTING.md` a `docs/` antes del build y tras cada Edit/Write |
 | `tests/` | Tests unitarios del tooling (sin red, sin servicios externos) |
 | `docs/` | Documentación pública del propio proyecto (dogfooding de los arquetipos); `docs/changelog.md` y `docs/contributing.md` son artefactos generados |
@@ -133,8 +133,8 @@ python -m mkdocs build --strict       # Build de documentación (por defecto)
 python -m mkdocs serve                # Documentación local
 python scripts/check_env.py           # Verificación del entorno de tooling
 python scripts/build_docs_zip.py      # Build + ZIP offline en dist/doc_ia-docs-{version}.zip
-python scripts/convert_to_md.py <ruta>                 # Valida + convierte a Markdown en <ruta>/md/ (markitdown principal; pandoc complemento)
-python scripts/convert_to_md.py <ruta> --validate-only # Solo validación previa (extensiones, plugins, integridad)
+python scripts/convert_to_md.py <ruta>                 # Valida + convierte a Markdown en <ruta>/md/ (docling por defecto; --engine markitdown | pandoc)
+python scripts/convert_to_md.py <ruta> --validate-only # Solo validación previa (motor instalado, integridad de ficheros)
 # Onboarding: aplicar .github/prompts/onboarding_dev.prompt.md → docs/guides/onboarding_dev.md
 ```
 

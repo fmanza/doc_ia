@@ -20,6 +20,9 @@
 - `C:\docs\legales\ES\` — normativa estatal (NORMATIVA)
 - `C:\docs\legales\CA\` — normativa autonómica, 17 PDFs (NORMATIVA)
 -->
+<!-- Fuentes convertidas copiadas al destino (Fase 0c, Paso 5):
+- `_fuentes/legales/CA/md/` — 17 ficheros copiados · 0 sin cambios · 0 huérfanos
+-->
 
 ## Estado actual observado
 <!-- Resumen del estado real del repositorio al inicio de la sesión:

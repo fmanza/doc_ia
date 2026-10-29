@@ -22,6 +22,7 @@
 | **Fase 0c** | Conversión de documentos no legibles (PDF, Word, Excel…) a Markdown con `scripts/convert_to_md.py` y uso de carpetas `md/` pre-convertidas como contexto. Hasta 2026-10-28 el prompt la llamaba "Fase 0b". |
 | **Fase 0b** | Sincronización visual obligatoria al inicio de toda sesión `/document-project`: verificar assets (nav.css, mermaid.css, sidebar-toggle.js), `mkdocs.yml` (sin `navigation.sections` si `nav.css` presente; `custom_fences` de Mermaid sin CDN propio), `.gitignore`. |
 | **Carpeta `md/`** | Artefactos generados por `scripts/convert_to_md.py`: versiones `.md` de documentos binarios del origen. El agente los usa como contexto de primera clase en Fases 2-4 sin re-conversión. |
+| **`_fuentes/`** | Copia de las carpetas `md/` que el destino recibe siempre (Fase 0c, Paso 5): `<raíz del destino>/_fuentes/<nombre_origen>/<ruta relativa al origen>`, versionada y fuera de `docs/`. Único nombre válido; `.fuentes/` o `fuentes/` en el destino se migran. |
 | **Estado A/B/C** | Clasificación del inventario: A = sin documentación (CREAR), B = desactualizado (ACTUALIZAR), C = vigente (OMITIR). |
 | **Bootstrap (modelo PULL)** | Traslado del sistema de instrucciones IA a otro proyecto, invocado **desde el destino** con el origen como plantilla de solo lectura. Ver `bootstrap_ai_config.prompt.md`. |
 | **Capas A/B/C/D** | Clasificación de activos en el bootstrap: A metodología (verbatim), B especialización (reescribir dominio), C contexto (regenerar), D excluir. |

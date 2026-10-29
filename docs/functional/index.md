@@ -5,10 +5,10 @@ fuentes:
   docs/functional/bootstrap.md: d53936a473e4
   docs/functional/build_docs_zip.md: dc22d821749a
   docs/functional/check_env.md: f9e9d9c5e13d
-  docs/functional/convert_to_md.md: f96accb1837d
+  docs/functional/convert_to_md.md: 52a46b57a810
   docs/functional/doc_trace.md: 699c6a22d9f3
-  docs/functional/document_project.md: b1c9cf70251a
-  docs/functional/origin_types.md: 3c8682b5f5e3
+  docs/functional/document_project.md: b461fcaf822f
+  docs/functional/origin_types.md: 8d51f61b1bac
 revisado: 2026-10-29
 ---
 # Mapa Funcional — doc_ia
@@ -24,7 +24,7 @@ y qué términos comparten. Cada capacidad enlaza a su página funcional detalla
 | Convertir documentos previos a Markdown para usarlos como contexto | Tooling determinista | [Conversión de Documentos a Markdown](convert_to_md.md) | AC-01 – AC-13 | 12/13 |
 | Empaquetar la documentación para consulta offline con verificación de integridad | Tooling determinista | [ZIP de Documentación Offline](build_docs_zip.md) | AC-01 – AC-10 | 9/10 |
 | Detectar documentación desactualizada respecto al código y cruzar criterios con tests | Tooling determinista | [Trazabilidad Docs ↔ Código](doc_trace.md) | AC-01 – AC-14 | 14/14 |
-| Documentar un proyecto completo desde una única operación de entrada | Flujos IA | [Documentar un Proyecto](document_project.md) | AC-01 – AC-08 | 0/8 |
+| Documentar un proyecto completo desde una única operación de entrada | Flujos IA | [Documentar un Proyecto](document_project.md) | AC-01 – AC-10 | 0/10 |
 | Clasificar cada origen (código, normativa, especificación, contrato…) y decidir su tratamiento | Flujos IA | [Catálogo de Tipos de Origen](origin_types.md) | AC-01 – AC-09 | 0/9 |
 | Producir documentación con estructura fija y evidencia verificable | Flujos IA | [Arquetipos Formales](archetypes.md) | AC-01 – AC-13 | 13/13 |
 | Trasladar el sistema de instrucciones IA a otro proyecto | Flujos IA | [Bootstrap de Configuración IA](bootstrap.md) | AC-01 – AC-04 | 0/4 |
@@ -50,7 +50,8 @@ flowchart LR
 ```
 
 Los documentos que el agente IA no puede leer se convierten primero a Markdown. Después,
-la documentación del proyecto clasifica cada origen y usa la carpeta `md/` como contexto.
+la documentación del proyecto copia la carpeta `md/` a `_fuentes/` del destino, clasifica cada
+origen y usa esa copia como contexto.
 Los arquetipos generan las páginas y la build produce el sitio, que se empaqueta en el ZIP offline.
 
 ### Llevar doc_ia a otro proyecto y documentarlo
@@ -85,7 +86,8 @@ acceso al repositorio y a una plataforma IA puede usar todas las capacidades.
 | Tipo de origen | Naturaleza de un origen (`CÓDIGO`, `NORMATIVA`, `ESPECIFICACIÓN`, `UI/PANTALLAS`, `REFERENCIA`, `CONTRATO`, `INFRAESTRUCTURA`, `MANUAL`) que decide su tratamiento |
 | MATERIAL | Cualquier origen que no es código; enriquece las páginas del proyecto principal sin generar páginas propias |
 | Contrato propio | Especificación de las APIs o datos del propio proyecto (`CONTRATO`); los contratos de terceros son `REFERENCIA` |
-| Carpeta `md/` | Resultado de la conversión a Markdown; sirve como contexto al documentar un proyecto |
+| Carpeta `md/` | Resultado de la conversión a Markdown, junto a los documentos originales |
+| `_fuentes/` | Copia de las carpetas `md/` en el proyecto documentado; sirve como contexto al documentarlo y queda versionada con él |
 
 ??? note "Evidencia"
 
@@ -95,7 +97,7 @@ acceso al repositorio y a una plataforma IA puede usar todas las capacidades.
     | Capacidad «Conversión a Markdown» y 12/13 tests | `docs/functional/convert_to_md.md::§7` | ✅ |
     | Capacidad «ZIP offline» y 8/9 tests | `docs/functional/build_docs_zip.md::§7` | ✅ |
     | Capacidad «Trazabilidad» y 14/14 tests | `docs/functional/doc_trace.md::§7` | ✅ |
-    | Capacidad «Documentar un Proyecto» y 0/8 tests | `docs/functional/document_project.md::§7` | ✅ |
+    | Capacidad «Documentar un Proyecto» y 0/10 tests | `docs/functional/document_project.md::§7` | ✅ |
     | Capacidad «Tipos de Origen» y 0/9 tests | `docs/functional/origin_types.md::§7` | ✅ |
     | Capacidad «Arquetipos» y 10/10 tests | `docs/functional/archetypes.md::§7` | ✅ |
     | Capacidad «Bootstrap» y 0/4 tests | `docs/functional/bootstrap.md::§7` | ✅ |

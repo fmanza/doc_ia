@@ -8,11 +8,11 @@ fuentes:
   mkdocs.yml: 2179f8729495
   mkdocs_hooks.py: 2f510611cb6f
   scripts/build_docs_zip.py: b9a2694d122f
-  scripts/check_env.py: a30937ae040f
+  scripts/check_env.py: 6202875214f7
   scripts/convert_to_md.py: e7e60518d96f
   scripts/doc_trace.py: a1824b159937
   scripts/start-server.py: ec67386821f7
-revisado: 2026-10-28
+revisado: 2026-10-29
 ---
 # Referencia — doc_ia
 
@@ -25,7 +25,7 @@ línea de comandos, códigos de salida y eventos de build. La API interna de cad
 | Clave | Origen | Tipo | Por defecto | Descripción |
 |---|---|---|---|---|
 | `CUDA_VISIBLE_DEVICES` | `env` | cadena | `""` (lo fija `convert_to_md.py` al importarse si no existe) | Visibilidad de GPU para docling. `--device cpu` la fija a `""`; `--device cuda` la elimina; `--device auto` respeta un valor exportado por el usuario e ignora el que fija el propio módulo |
-| `project.version` | fichero `pyproject.toml` | cadena SemVer | `0.2.0` (valor actual) | Versión usada en el nombre del ZIP (`doc_ia-docs-{versión}.zip`) y en la release `docs-v{versión}` |
+| `project.version` | fichero `pyproject.toml` | cadena SemVer | `0.3.0` (valor actual) | Versión usada en el nombre del ZIP (`doc_ia-docs-{versión}.zip`) y en la release `docs-v{versión}` |
 | `site_dir` | fichero `mkdocs.yml` | ruta | `site` | Directorio de salida del build; `mkdocs_hooks.py` lo lee de la configuración. `build_docs_zip.py` usa `site/` fijo |
 | `hooks` | fichero `mkdocs.yml` | lista de rutas | `hooks/sync_root_docs.py`, `mkdocs_hooks.py` | Hooks MkDocs cargados en cada build (ver §4). Zensical los ignora: con `--builder zensical`, `build_docs_zip.py` los ejecuta él mismo |
 | `hooks.PostToolUse` | fichero `.claude/settings.json` (no versionado; plantilla en `.claude/settings.json.example`) | objeto JSON | `sync_root_docs.py` + ruff + mypy + pytest `--collect-only` sobre `Edit\|Write` | Sincronización y validaciones automáticas tras cada edición en Claude Code |

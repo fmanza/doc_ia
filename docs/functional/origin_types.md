@@ -1,8 +1,8 @@
 ---
 arquetipo: "1"
 fuentes:
-  .github/DOCUMENTATION_STANDARD.md: 10dd01cc5e3b
-  .github/prompts/document_project.prompt.md: f626f8518ed1
+  .github/DOCUMENTATION_STANDARD.md: 03090ee7a89d
+  .github/prompts/document_project.prompt.md: a2c439b61b93
 revisado: 2026-10-29
 ---
 # Catálogo de Tipos de Origen
@@ -124,7 +124,7 @@ secciones concretas de los arquetipos del proyecto `CÓDIGO` principal.
 - No aplica ningún tipo sin confirmación del usuario.
 - No genera páginas para los orígenes MATERIAL.
 - No convierte documentos binarios a Markdown (eso lo cubre la conversión previa con
-  carpetas `md/`).
+  carpetas `md/`, que el destino recibe copiadas en `_fuentes/`).
 - No decide la estrategia entre varios proyectos de código.
 
 ### Flujos alternativos

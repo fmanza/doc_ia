@@ -102,7 +102,8 @@ Fase 0b — Sincronización visual del destino (OBLIGATORIO en toda sesión, cre
          Checklist completo y tabla de theme.features: .claude/commands/document-project.md
          § Sincronización de Configuración Visual. Como mínimo:
            · .gitignore en la raíz del destino con site/, __pycache__/, *.pyc, *.egg-info/,
-             .venv/, *.pdf, *.doc, *.docx (crear si no existe; añadir los que falten)
+             .venv/, *.pdf, *.doc, *.docx (crear si no existe; añadir los que falten).
+             Nunca ignorar `_fuentes/`: el texto convertido se versiona (Fase 0c, Paso 5)
            · theme.features SIN navigation.sections si nav.css está en extra_css
            · los 5 recursos de docs/assets/ existen y están en extra_css / extra_javascript
              (Mermaid local: vendor/mermaid/mermaid-<versión>.min.js y después js/mermaid-theme.js)
@@ -115,6 +116,8 @@ Fase 0c — Conversión de documentos no legibles y uso de documentos pre-conver
              existe junto a ficheros binarios en el directorio padre, O sus ficheros `.md`
              tienen nombres que corresponden a binarios del directorio padre (sin extensión).
              Si no se cumplen estos criterios, descartar esa carpeta `md/` para este paso.
+           · Buscar también en la raíz del destino `_fuentes/` (copia de una sesión anterior)
+             y carpetas con nombre no canónico (`.fuentes/`, `fuentes/`) → Paso 5.
            · Para orígenes clasificados como REFERENCIA o NORMATIVA en Fase 0a, ejecutar
              este paso con prioridad aunque no haya ficheros binarios visibles.
            · Para cada fichero binario encontrado, comprobar si ya tiene equivalente en `md/`
@@ -129,72 +132,88 @@ Fase 0c — Conversión de documentos no legibles y uso de documentos pre-conver
            · Cuando `md/` existe sin binarios visibles (binarios eliminados tras conversión),
              reportar en INVENTARIO con nota "Documentos pre-convertidos sin binario original"
              y confirmar con el usuario antes de usarlos en Fases 2-4.
-         Paso 1 — Detectar binarios pendientes de conversión (solo si Paso 0 identifica pendientes):
-           Extensiones convertibles:
-             markitdown (principal): .pdf, .docx, .pptx, .xlsx, .xls, .html, .htm, .csv, .epub, .ipynb
-             pandoc (complemento):   .doc, .odt, .rst
-         Paso 2 — Validación previa (OBLIGATORIO antes de convertir):
-           → proponer al usuario ejecutar validación primero:
+         Paso 1 — Detectar binarios pendientes y asignar motor (solo si Paso 0 identifica pendientes):
+           El motor se elige en cada ejecución con `--engine` (por defecto `docling`); el script
+           no reparte por extensión ni cambia de motor por su cuenta. Asignación por extensión:
+             docling (por defecto, principal): .pdf, .docx, .pptx, .xlsx, .csv, .html, .htm, .epub,
+                       imágenes (.png, .jpg, .jpeg, .tiff, .bmp, .webp), .eml, .msg, .tex, .latex,
+                       audio (.wav, .mp3)
+             markitdown (alternativa ligera): solo lo que docling no cubre → .xls
+             pandoc (complemento):            .doc, .odt, .rst
+           Una ejecución por motor necesario, siempre docling primero: cada ejecución solo recoge
+           las extensiones de su motor y omite los ficheros cuyo `.md` ya existe.
+         Paso 2 — Validación previa (OBLIGATORIO antes de convertir), una por motor del Paso 1:
                 python scripts/convert_to_md.py <ruta_origen> --validate-only
-           La validación comprueba tres dimensiones ANTES de intentar la conversión:
-             a) Extensiones soportadas: cada fichero tiene extensión reconocida por algún conversor.
-             b) Plugins disponibles: markitdown está instalado y los plugins opcionales para
-                cada extensión están presentes (pdfminer→PDF, python-docx→DOCX, python-pptx→PPTX,
-                openpyxl→XLSX, xlrd→XLS). Si falta un plugin pero pandoc está disponible,
-                se usa como fallback para DOCX/PPTX/EPUB.
-             c) Integridad de ficheros: cada fichero existe, no está vacío (0 bytes) y es legible.
-           El informe de validación lista cada fichero con su estado:
-             OK → conversor_asignado | ERROR: motivo | SIN PLUGIN: pip install <plugin>
+                python scripts/convert_to_md.py <ruta_origen> --validate-only --engine markitdown  ← solo si hay .xls
+                python scripts/convert_to_md.py <ruta_origen> --validate-only --engine pandoc      ← solo si hay .doc/.odt/.rst
+           Comprueba, sin convertir:
+             a) Motor instalado: si falta, avisa con su instrucción de instalación (Paso 4).
+             b) Integridad de cada fichero: legible y no vacío; ZIP válido en DOCX/PPTX/XLSX/EPUB;
+                cabecera correcta en PDF e imágenes; audio de al menos 1 KB.
+           Informe por fichero: `OK` | `INVÁLID <motivo>`; termina con código 1 si hay inválidos.
            Si la validación reporta errores:
-             · Errores de plugin → proponer instalación (Paso 3)
-             · Errores de integridad → reportar al usuario para resolución manual
-             · Ficheros válidos se procesan igualmente; los inválidos se registran (Paso 6)
-         Paso 3 — Proponer conversión de los pendientes validados:
-           → proponer al usuario ejecutar conversión completa:
-                python scripts/convert_to_md.py <ruta_origen>
+             · Motor no instalado → Paso 4
+             · Ficheros inválidos → reportar al usuario para resolución manual
+             · Los válidos se convierten igualmente; los inválidos se registran (Paso 7)
+         Paso 3 — Proponer la conversión de los pendientes validados (mismo orden de motores):
+                python scripts/convert_to_md.py <ruta_origen>                      ← docling
+                python scripts/convert_to_md.py <ruta_origen> --engine markitdown  ← solo si hay .xls
+                python scripts/convert_to_md.py <ruta_origen> --engine pandoc      ← solo si hay .doc/.odt/.rst
             Crea una carpeta `md/` dentro del origen con las versiones Markdown convertidas,
             reflejando la estructura de subdirectorios para evitar colisiones de nombres.
-            El script selecciona automáticamente el conversor óptimo según extensión y plugins:
-              markitdown (principal):
-                PDF (.pdf)               → requiere plugin pdfminer
-                DOCX (.docx)             → requiere plugin python-docx
-                PPTX (.pptx)             → requiere plugin python-pptx
-                XLSX (.xlsx)             → requiere plugin openpyxl
-                XLS (.xls)               → requiere plugin xlrd
-                HTML/HTM (.html, .htm)   → dependencia core (beautifulsoup4)
-                CSV (.csv)               → built-in
-                EPUB (.epub)             → built-in
-                IPYNB (.ipynb)           → built-in
-              pandoc (complemento):
-                DOC (.doc), ODT (.odt), RST (.rst) → solo pandoc
-              pandoc (fallback):
-                DOCX, PPTX, EPUB → cuando el plugin de markitdown no está instalado
-            IMPORTANTE: pandoc NO puede leer PDF. Para PDF usar siempre markitdown.
-            Si el origen no dispone del script (proyecto externo), usar directamente:
-                markitdown <fichero.pdf> -o <fichero_sin_ext>.md     ← para formatos markitdown
-                pandoc <fichero> -o <fichero_sin_ext>.md --wrap=none  ← para DOC/ODT/RST
+            docling: OCR activado (idiomas `es,en`; `--ocr-lang` para otros), CPU por defecto
+            (`--device auto` usa GPU NVIDIA si la hay), límite de 300 s por documento (`--timeout`).
+            El script se ejecuta desde doc_ia sobre cualquier ruta: no hace falta copiarlo al origen.
+            Sin docling (el usuario no quiere instalarlo): `--engine markitdown` cubre PDF, DOCX,
+            PPTX, XLSX, CSV, HTML, EPUB y MSG sin OCR; los PDF escaneados y las imágenes quedan
+            pendientes (Paso 7).
          Paso 4 — Resolver herramientas faltantes (si la validación detectó carencias):
-              markitdown:           pip install markitdown
-              Plugins markitdown:   pip install python-docx python-pptx openpyxl xlrd
-              pandoc (complemento): Windows: winget install JohnMacFarlane.Pandoc
-                                    macOS:   brew install pandoc
-                                    Linux:   sudo apt install pandoc | sudo dnf install pandoc
-         Paso 5 — Incluir ficheros md/ como contexto (siempre que md/ tenga contenido):
-           · Incluir en las Fases 2-4 todos los ficheros `.md` de carpetas `md/` del origen,
-             tanto los recién convertidos como los pre-existentes.
+              docling (principal):      pip install docling   (la primera conversión descarga sus modelos)
+              markitdown (alternativa): pip install markitdown
+              pandoc (complemento):     Windows: winget install JohnMacFarlane.Pandoc
+                                        macOS:   brew install pandoc
+                                        Linux:   sudo apt install pandoc | sudo dnf install pandoc
+            `python scripts/check_env.py` informa del estado de los tres motores.
+         Paso 5 — Sincronizar `_fuentes/` en el destino (SIEMPRE que haya contenido en `md/`,
+                  también si origen y destino son el mismo repositorio):
+           · Nombre único: `_fuentes/`, en la raíz del destino (la carpeta que contiene
+             `mkdocs.yml` / `zensical.toml`; `{destino}/..` cuando el destino es `docs/`).
+             Nunca dentro de `docs_dir`. Prohibido otro nombre (`.fuentes/`, `fuentes/`…):
+             `.fuentes/` es oculta y las búsquedas del agente la saltan.
+           · Ruta: `_fuentes/<nombre_origen>/<ruta relativa al origen>`, sin cambios y con el
+             segmento `md/` incluido. `<nombre_origen>` = carpeta raíz del origen; si dos
+             orígenes comparten nombre → `<padre>_<nombre>`.
+               Ej.: <origen>/Legales/md/CA/ley.md → _fuentes/<nombre_origen>/Legales/md/CA/ley.md
+           · Copiar los `.md` de cada carpeta `md/` válida (Paso 0) y las imágenes que
+             referencian. Nunca los binarios ni las carpetas de chunks (`--chunk`).
+           · Idempotente: copiar solo si el fichero falta o su contenido difiere. Los ficheros
+             de `_fuentes/` no se editan a mano: se regeneran desde el origen.
+           · Huérfanos (en `_fuentes/` sin equivalente en el origen) → listarlos en INVENTARIO
+             y borrarlos solo con confirmación del usuario.
+           · Migración (destino con `.fuentes/` o `fuentes/` en su raíz) → listarla en
+             INVENTARIO y, con confirmación: `git mv` a `_fuentes/` (si coexisten, fusionar los
+             ficheros idénticos; si un mismo fichero difiere → DETENER y preguntar) → reescribir
+             las referencias en `docs/**/*.md` (enlaces, evidencia y frontmatter `fuentes:`) →
+             volver a sellar esas páginas:
+                python scripts/doc_trace.py --root <raíz del destino> stamp <página>
+         Paso 6 — Usar `_fuentes/` como contexto en las Fases 2-4:
+           · Leer de `_fuentes/` del destino, tanto los recién convertidos como los previos.
            · Tratamiento idéntico a ficheros `.md` nativos del origen.
-           · Estos ficheros son artefactos generados — nunca editarlos directamente.
-         Paso 6 — Registrar en INVENTARIO los pendientes no resueltos:
-           Si el usuario no instala la herramienta/plugin o decide omitir → registrar en
+           · La evidencia (DOCUMENTATION_STANDARD.md §3.16) y el frontmatter `fuentes:` citan
+             la ruta `_fuentes/...` del destino, nunca la ruta del origen externo.
+           · Son artefactos generados — nunca editarlos directamente.
+         Paso 7 — Registrar en INVENTARIO los pendientes no resueltos:
+           Si el usuario no instala el motor o decide omitir → registrar en
            INVENTARIO (Fase 1) los ficheros no convertidos con estado A y nota:
-           "Pendiente: requiere markitdown + <plugin> para convertir [nombre.ext]"
+           "Pendiente: requiere docling para convertir [nombre.ext]"
+           "Pendiente: requiere markitdown para convertir [nombre.xls]"
            "Pendiente: requiere pandoc para convertir [nombre.doc]" (DOC/ODT/RST)
            "Pendiente: fichero inválido [nombre.ext] — <motivo de la validación>"
          Nota: omitir esta fase solo si no existen ficheros binarios NI carpeta `md/` con
-         contenido válido en el origen.
+         contenido válido en el origen NI `_fuentes/` (o nombre no canónico) en el destino.
 Fase 1 — Inventariar y clasificar:
          Leer árbol real del origen (README, código, docs/, mkdocs.yml del destino,
-         y carpetas `md/` de documentos de referencia pre-convertidos si existen).
+         y `_fuentes/` del destino con los documentos convertidos si existe).
          Para cada módulo del origen y cada página existente en el destino, asignar estado:
            ESTADO A — sin doc: no existe página en docs/ para este módulo.
            ESTADO B — desactualizado: página existe pero al menos uno de los siguientes:
@@ -451,8 +470,8 @@ APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reg
    - ⚠️ Confirmar con el usuario antes de continuar.
 3. **INVENTARIO** (Fase 0+0b+0c+1) — tabla: | Módulo / Página | Estado (A/B/C) | Acción (CREAR/ACTUALIZAR/OMITIR) | Arquetipos / Secciones afectadas |
    - Con múltiples orígenes CÓDIGO: un sub-inventario por proyecto.
-   - Si Fase 0c activa: incluir resultado de la validación previa (extensiones, plugins, integridad) e indicar qué ficheros se convirtieron (conversor usado: markitdown o pandoc), cuáles quedan pendientes y motivo (plugin faltante, fichero inválido, etc.).
-   - Si existen carpetas `md/` de documentos pre-convertidos: añadir sub-sección "Documentos de referencia (md/)" con tabla | Carpeta `md/` | Ficheros disponibles | Fases donde aplica |. Sin estado A/B/C — son fuentes de contexto, no destinos de documentación.
+   - Si Fase 0c activa: incluir resultado de la validación previa (motor instalado, integridad) e indicar qué ficheros se convirtieron (motor usado: docling, markitdown o pandoc), cuáles quedan pendientes y motivo (motor no instalado, fichero inválido, etc.).
+   - Si hay documentos convertidos: añadir sub-sección "Fuentes convertidas (`_fuentes/`)" con tabla | Origen | Carpeta `md/` | Copiados / Sin cambios / Huérfanos | Fases donde aplica |, la migración desde un nombre no canónico si la hay, y el aviso de que su texto se versiona en el destino. Sin estado A/B/C — son fuentes de contexto, no destinos de documentación.
 4. **PLAN_DOC** — orden de generación con columnas CREAR / ACTUALIZAR (indicar secciones) / OMITIR; impacto en navegación.
 5. **GENERACIÓN** (Fases 2-4) — por fases e iterando módulo a módulo; nunca un único prompt masivo.
    - Orígenes MATERIAL: usar como fuente de enriquecimiento de las secciones mapeadas (ver Fase 0a); no crear páginas propias para ellos.
@@ -463,7 +482,8 @@ APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reg
 9. **RESUMEN** — archivos generados/actualizados, entradas de nav, pendientes de verificación humana.
 10. **CIERRE DE SESIÓN** (siempre obligatorio) — crear artefacto `.ai/sessions/YYYY-MM-DD/` en el
     destino (`00_REQUEST.md`, `00_CONTEXT_SNAPSHOT.md`, `TRACEABILITY.md`) y proponer commit
-    `docs(<scope>): <resumen>` con recuento de páginas creadas/actualizadas/omitidas.
+    `docs(<scope>): <resumen>` con recuento de páginas creadas/actualizadas/omitidas; el commit
+    incluye `_fuentes/` si la Fase 0c la creó o cambió.
 
 ## Ejemplo de entrada
 

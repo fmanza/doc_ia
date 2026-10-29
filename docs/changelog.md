@@ -5,6 +5,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-10-29
+
 ### Added
 
 - **Regla transversal de diagramas** (`DOCUMENTATION_STANDARD.md` §3.17): fuente única de las
@@ -20,6 +22,11 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
   huella, orden de carga, coherencia con CI y el cargador del tema (AC-10 del ZIP offline).
 - **Producto**: la Fase 0b de `/document-project` sincroniza cinco recursos en vez de tres y lleva
   Mermaid local a los proyectos documentados.
+- **Producto**: el destino de `/document-project` recibe siempre los documentos convertidos en
+  `_fuentes/<nombre_origen>/<ruta relativa al origen>` (Fase 0c, Paso 5), versionados y fuera de
+  `docs/`, para que la evidencia y `doc_trace` citen rutas del propio repositorio.
+  `test_sources_folder_is_canonical` comprueba la regla en prompt, comando, agente y
+  `SHARED_INSTRUCTIONS.md`.
 
 ### Changed
 
@@ -34,6 +41,14 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - La regla `@` → `&#64;` pintaba un `&` sobrante (Mermaid no decodifica entidades HTML): las
   labels con `@ ( ) { }` van entre comillas. Corregido `on_post_build(config)` en
   `docs/api/build_docs_zip.md`.
+- **Producto**: los documentos convertidos llegaban al destino con nombres improvisados
+  (`.fuentes/` en unas sesiones, `_fuentes/` en otras) porque ninguna instrucción fijaba la
+  ubicación. Ahora `_fuentes/` es el único nombre; los otros se migran con confirmación.
+- **Producto**: la Fase 0c de `/document-project` describía markitdown como motor principal,
+  con enrutado por extensión, plugins y fallback a pandoc que `convert_to_md.py` ya no tiene.
+  Ahora usa docling (motor por defecto) y recurre a `--engine markitdown` solo para XLS y a
+  `--engine pandoc` para DOC/ODT/RST. Alineados `SHARED_INSTRUCTIONS.md`, `.ai/` y los textos
+  de `check_env.py`.
 
 ## [0.2.0] — 2026-10-28
 
@@ -172,6 +187,7 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - Restauración de `config-reviewer.agent.md` y creación de `docs.instructions.md`
   tras corrupción del bootstrap.
 
-[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/fmanza/doc_ia/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/fmanza/doc_ia/compare/docs-v0.1.0...v0.2.0
 [0.1.0]: https://github.com/fmanza/doc_ia/releases/tag/docs-v0.1.0

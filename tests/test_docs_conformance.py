@@ -20,6 +20,16 @@ SECTION_RE = re.compile(r"^## (\d+)\. ", re.M)
 UNDOCUMENTED_SCRIPTS = {"__init__", "start-server"}
 # Ejemplos cuyo nombre no coincide con el del módulo.
 EXAMPLE_FOR = {"build_docs_zip": "build_docs_zip_offline"}
+# Regla única de fuentes convertidas en el destino (Fase 0c, Paso 5 del producto).
+SOURCES_PATH = "_fuentes/<nombre_origen>/<ruta relativa al origen>"
+SOURCES_RULE_FILES = [
+    ".github/prompts/document_project.prompt.md",
+    ".claude/commands/document-project.md",
+    ".github/agents/documentation-generator.agent.md",
+    ".github/SHARED_INSTRUCTIONS.md",
+]
+NON_CANONICAL_SOURCES_RE = re.compile(r"(?<!\w)\.?fuentes/")
+FORBIDDING_RE = re.compile(r"Prohibido|Ningún otro nombre|[Mm]igra|no canónico")
 
 
 def _sections(page: Path) -> list[int]:
@@ -308,3 +318,13 @@ def test_guides_naming_convention() -> None:
     for guide in guides.glob("*.md"):
         assert re.fullmatch(r"[a-z0-9_]+\.md", guide.name), guide.name
         assert not ("_howto" in guide.stem and "_tutorial" in guide.stem), guide.name
+
+
+@pytest.mark.parametrize("path", SOURCES_RULE_FILES)
+def test_sources_folder_is_canonical(path: str) -> None:
+    """Las instrucciones fijan `_fuentes/`; otros nombres solo aparecen para prohibir o migrar."""
+    text = (ROOT / path).read_text(encoding="utf-8")
+    assert SOURCES_PATH in text
+    for match in NON_CANONICAL_SOURCES_RE.finditer(text):
+        window = text[max(0, match.start() - 200) : match.end() + 200]
+        assert FORBIDDING_RE.search(window), f"{path}: {match.group()} sin prohibición ni migración"
