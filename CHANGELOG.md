@@ -7,6 +7,14 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ### Added
 
+- **ZIP navegable sin servidor**: tras extraerlo, doble clic en `index.html` abre la
+  documentación con navegación, búsqueda y diagramas, sin Python, servidor ni red, con MkDocs
+  Material y con Zensical. `use_directory_urls: false`, plugin `offline` y shim
+  [iframe-worker](https://github.com/squidfunk/iframe-worker) 1.0.4 servido en local
+  (`docs/assets/vendor/iframe-worker/`, huella fijada) en `extra.polyfills`, porque los dos temas
+  lo descargaban de unpkg. `start-server.py` queda como alternativa. Producto: Fase 0b con seis
+  recursos, plantillas `TEMPLATE_mkdocs.yml` y `VER_DOCUMENTACION`, Paso B3 y Gap V3. Criterios
+  AC-12 a AC-15 del ZIP offline; `tests/test_offline_assets.py`.
 - **Producto — modo incremental de `/document-project`** (parámetro `Modo`, por defecto
   `incremental` si hay baseline): el CIERRE guarda el commit de cada origen en
   `<destino>/.ai/doc_state.json` (`doc_trace.py baseline`) y la Fase 1 siguiente parte de
@@ -27,6 +35,15 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ### Changed
 
+- `build_docs_zip.py` comprueba antes de empaquetar que `site/` se abre sin servidor (índice de
+  búsqueda en JS, ningún script remoto, ningún enlace a carpeta) y, si no, termina con código 1
+  y lista los problemas. Un destino que copie el script sin el plugin `offline` falla a propósito.
+  La CI lo ejecuta también sobre el build de MkDocs.
+- URLs del sitio en `*.html` (`api/archetypes.html` en lugar de `api/archetypes/`); `llms.txt`
+  regenerado.
+- `downloads.md`, `VER_DOCUMENTACION.md` y las notas de release: la ruta principal del ZIP es el
+  doble clic tras extraerlo; Python solo hace falta para el servidor local y la ruta de código
+  fuente.
 - `start-server.py` escucha solo en `127.0.0.1` (antes, todas las interfaces), atiende cada
   conexión en su hilo (antes, una conexión ociosa del navegador bloqueaba el servidor), sirve su
   carpeta sin cambiar el directorio de trabajo y, con el puerto ocupado, termina con código 1 y
@@ -36,6 +53,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ### Fixed
 
+- El ZIP `latest` del build con MkDocs no incluía `search/search_index.js`: el hook empaquetaba
+  antes de que el plugin `offline` lo escribiera. `mkdocs_hooks.py` corre ahora con prioridad -200.
 - Mapa funcional: totales y evidencia desfasados (decía 52 de 75 criterios; son 63 de 89) y
   referencia de `start-server.py` que aún describía el puerto ocupado como excepción no capturada.
 - El ZIP versionado (`dist/`, el que publican las Releases) no incluía `start-server.py` y

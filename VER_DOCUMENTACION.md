@@ -3,14 +3,14 @@
 Guía para ver la documentación en tu ordenador **partiendo de cero**: no hace falta saber
 programar ni tener nada instalado. Hay instrucciones para **Windows, macOS y Linux**.
 
-> Abrir `index.html` con doble clic **no funciona**: los enlaces del menú apuntan a carpetas y
-> la búsqueda necesita un servidor. Usa una de las rutas de esta guía.
+> Lo más sencillo: **extrae el ZIP y haz doble clic en `index.html`** (Ruta B). No necesitas
+> instalar nada ni conexión a Internet.
 
 ## 0. ¿Qué tienes?
 
 | Tienes… | Ruta | Necesitas instalar |
 |---|---|---|
-| Un fichero ZIP (`doc_ia-docs-0.3.0.zip`) | Ruta B (§4) | Python 3.7 o superior |
+| Un fichero ZIP (`doc_ia-docs-0.3.0.zip`) | Ruta B (§4) | Nada |
 | El repositorio o la carpeta del proyecto | Ruta C (§5) | Python 3.12 o superior + dependencias |
 
 Si dudas, usa la **Ruta B**: es la más sencilla y funciona sin conexión a Internet.
@@ -22,10 +22,12 @@ Si dudas, usa la **Ruta B**: es la más sencilla y funciona sin conexión a Inte
 | Navegador actual (Edge, Chrome, Firefox, Safari) | ✅ | ✅ | ✅ |
 | Conexión a Internet | ✅ | Solo para descargar el ZIP | Para instalar dependencias |
 | Descompresor de ZIP (incluido en Windows y macOS; `unzip` en Linux) | — | ✅ | — |
-| Python | — | 3.7 o superior | 3.12 o superior |
+| Python | — | No (opcional: 3.7 o superior para el servidor local) | 3.12 o superior |
 | Git | — | — | Opcional (para clonar) |
 
 ## 2. Instalar Python desde cero
+
+Solo hace falta para la **Ruta C** y para la alternativa con servidor local de la Ruta B.
 
 Comprueba primero si ya lo tienes (abre una terminal y escribe el comando):
 
@@ -59,7 +61,7 @@ Si muestra `Python 3.x.y` con una versión suficiente para tu ruta, salta a la r
 2. **Cierra y vuelve a abrir** Terminal y comprueba: `python3 --version`.
 
 > Si al escribir `python3` macOS ofrece instalar las "herramientas de desarrollo de línea de
-> comandos", aceptar instala un Python de Apple válido para la **Ruta B**; para la Ruta C
+> comandos", aceptar instala un Python de Apple válido para el servidor local de la **Ruta B**; para la Ruta C
 > comprueba que la versión es 3.12 o superior.
 
 ### Linux
@@ -71,7 +73,7 @@ Si muestra `Python 3.x.y` con una versión suficiente para tu ruta, salta a la r
 | Arch | `sudo pacman -S python` |
 
 Comprueba: `python3 --version`. Si tu distribución trae una versión inferior a 3.12,
-usa la Ruta B (sirve cualquier Python 3.7+) o instala una versión más reciente desde los
+usa la Ruta B (no necesita Python) o instala una versión más reciente desde los
 repositorios de tu distribución.
 
 ## 3. Ruta A — Documentación publicada en web
@@ -100,11 +102,21 @@ o la Ruta C.
     | macOS | Doble clic en el ZIP | `unzip doc_ia-docs-0.3.0.zip -d doc_ia-docs` |
     | Linux | Clic derecho → **Extraer aquí** | `unzip doc_ia-docs-0.3.0.zip -d doc_ia-docs` |
 
-4. **Abre una terminal en la carpeta extraída** (la que contiene `index.html`):
+4. **Abre la documentación**: entra en la carpeta extraída y haz **doble clic en `index.html`**.
+   Se abre en tu navegador con menú, búsqueda y diagramas, sin servidor y sin conexión.
+   Para terminar, cierra la pestaña. Nunca cambies opciones de seguridad del navegador para
+   abrirla: no hace falta.
+
+### Alternativa: servidor local
+
+Úsala si el doble clic no funciona en tu equipo (§6) o con los ZIP de doc_ia 0.3.0 y anteriores, que no se abren con doble clic.
+Requiere Python 3.7 o superior (§2).
+
+1. **Abre una terminal en la carpeta extraída** (la que contiene `index.html`):
     - Windows: abre la carpeta en el Explorador → clic derecho en un hueco → **Abrir en Terminal**.
     - macOS: en Terminal escribe `cd ` (con espacio) y arrastra la carpeta a la ventana → Intro.
     - Linux: clic derecho en la carpeta → **Abrir en una terminal**.
-5. **Arranca el servidor local**:
+2. **Arranca el servidor local**:
 
     | Sistema | Comando |
     |---|---|
@@ -114,7 +126,7 @@ o la Ruta C.
     El navegador se abre solo en <http://127.0.0.1:8000>. Si no se abre, escribe esa dirección.
     La documentación solo es visible desde tu equipo.
 
-6. **Para terminar**, vuelve a la terminal y pulsa `Ctrl + C`.
+3. **Para terminar**, vuelve a la terminal y pulsa `Ctrl + C`.
 
 Si la carpeta no contiene `start-server.py` (los ZIP de las releases 0.3.0 y anteriores no lo
 incluyen), usa en la misma carpeta
@@ -155,8 +167,9 @@ Requiere Python 3.12 o superior (§2) y conexión a Internet para instalar depen
 
 | Síntoma | Causa | Solución |
 |---|---|---|
-| Veo un listado de carpetas o el menú no navega | Se abrió `index.html` con doble clic | Ruta B, paso 5 (servidor local) |
-| La búsqueda no devuelve nada | Igual que el anterior | Ruta B, paso 5 |
+| La página sale sin estilos ni menú | Se abrió `index.html` dentro del ZIP, sin extraerlo | Extrae el ZIP completo (Ruta B, paso 3) |
+| Veo un listado de carpetas o el menú no navega | ZIP antiguo, que no se abre con doble clic | Ruta B, alternativa: servidor local |
+| Con doble clic, la búsqueda no devuelve nada o no salen los diagramas | El navegador o una política de la empresa bloquea los scripts de ficheros locales | Ruta B, alternativa: servidor local (no cambies opciones de seguridad del navegador) |
 | En Windows, la primera página tarda unos segundos | El antivirus analiza los ficheros recién extraídos | Espera: las cargas siguientes son inmediatas |
 | Windows abre Microsoft Store al escribir `python` | Alias de Windows sin Python instalado | Instala Python (§2) y usa `py` |
 | `'py' no se reconoce…` / `command not found` | Python no instalado o terminal abierta antes de instalar | §2 y vuelve a abrir la terminal |

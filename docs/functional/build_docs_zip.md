@@ -1,11 +1,13 @@
 ---
 arquetipo: "1"
 fuentes:
-  mkdocs.yml: 2179f8729495
-  mkdocs_hooks.py: 433551c5505f
-  scripts/build_docs_zip.py: 7cecc3d4e93e
-  tests/test_build_docs_zip.py: 154cc021ca24
+  mkdocs.yml: 5dd76a635c78
+  mkdocs_hooks.py: 31259b7911a3
+  scripts/build_docs_zip.py: 5f972ee674c8
+  tests/test_build_docs_zip.py: 82a1d595e6f4
+  tests/test_docs_conformance.py: be62cd8b5764
   tests/test_mermaid_assets.py: e49f4b5a3361
+  tests/test_offline_assets.py: 7e632c37987d
   tests/test_zensical_compat.py: d62c11ebe8cd
 revisado: 2026-10-29
 ---
@@ -16,7 +18,8 @@ revisado: 2026-10-29
 La distribución offline empaqueta el sitio de documentación completo en un único archivo
 ZIP con verificación de integridad, para que cualquier persona pueda consultar la
 documentación sin conexión, archivarla por versión o distribuirla en entornos sin acceso
-al repositorio.
+al repositorio. Quien recibe el ZIP lo extrae y hace doble clic en `index.html`: navega, busca
+y ve los diagramas sin instalar Python, sin servidor y sin red.
 
 Existen **dos mecanismos complementarios**, no alternativos:
 
@@ -99,7 +102,10 @@ proyecto en el nombre, su huella y una nueva línea en el registro histórico de
   quedan `doc_ia-docs-<versión>.zip`, su `.zip.sha256` y una línea nueva con fecha en
   `CHECKSUMS.txt` (acumulativo; nunca se borra).
 - El sitio generado se sobrescribe cuando el empaquetado versionado reconstruye.
-- El ZIP automático incluye el servidor local para navegar la documentación sin conexión.
+- Los dos ZIP se abren con doble clic en `index.html` tras extraerlos, con navegación,
+  búsqueda y diagramas, sin servidor ni red. El servidor local va incluido como alternativa.
+- El ZIP automático se genera después de que el generador escriba el índice de búsqueda para
+  ficheros locales, así que también lo incluye.
 - Los diagramas se dibujan sin conexión: el sitio lleva su propia copia de Mermaid con versión
   fija, la misma con los dos generadores. Las fuentes tipográficas siguen descargándose de
   internet; sin conexión se usan las del sistema.
@@ -115,6 +121,7 @@ proyecto en el nombre, su huella y una nueva línea en el registro histórico de
 | Sin servicios IA | El empaquetado es tooling determinista local; nunca invoca servicios IA | Violaría el principio innegociable del proyecto |
 | Sin instalación | El empaquetado automático funciona con cualquier Python que tenga el generador; no requiere instalar el proyecto como paquete | Dependencia frágil del entorno; falla si no está activo el entorno correcto |
 | Diagramas sin conexión | El sitio sirve su propia copia de Mermaid, con versión exacta y huella fija, coherente con la configuración y con la validación de CI | Sin conexión, los diagramas aparecerían como bloques de código |
+| Abrir sin servidor | Antes de empaquetar se comprueba que el sitio se puede abrir desde ficheros locales: índice de búsqueda en JS, ningún script descargado de internet y ningún enlace a carpeta. Si no, no se crea el ZIP | Quien recibe el ZIP necesitaría Python y un servidor, o vería listados de carpetas y una búsqueda que no responde |
 | Enlaces de descarga coherentes | Los enlaces de la página de descargas resuelven, desde la URL publicada de esa página, al ZIP "latest" y a su huella tal como los genera el empaquetado automático | El modo estricto no revisa enlaces en HTML: la descarga quedaría rota sin aviso |
 
 ## 6. Límites, Flujos Alternativos y Casos Especiales
@@ -147,6 +154,14 @@ proyecto en el nombre, su huella y una nueva línea en el registro histórico de
 - **Sitio inexistente en el flujo automático**: se muestra un aviso y no se genera ZIP.
 - **Servidor local ausente**: si el servidor local no existe en el repositorio, el ZIP
   automático se genera sin él.
+- **Sitio que no se abre sin servidor**: si falta el índice de búsqueda en JS, alguna página
+  carga un script de internet o enlaza a una carpeta, el empaquetado versionado se detiene con
+  código 1 y lista hasta 20 problemas (con el número de los restantes). El ZIP automático no hace
+  esta comprobación; la cubre la CI empaquetando cada build.
+- **ZIP abierto sin extraer**: el doble clic dentro del ZIP abre solo `index.html`, sin estilos
+  ni menú; las instrucciones piden extraerlo completo antes.
+- **Navegador que bloquea scripts de ficheros locales** (p. ej. por política de empresa): el
+  servidor local incluido es la alternativa; nunca se piden opciones de seguridad del navegador.
 
 ## 7. Criterios de Aceptación
 
@@ -163,13 +178,21 @@ proyecto en el nombre, su huella y una nueva línea en el registro histórico de
 | AC-09 | La página de descargas y la configuración del sitio (estilo de URL) | Se comprueba la conformidad del repositorio | Cada enlace al ZIP "latest" o a su huella resuelve, desde la URL de la página de descargas, a un fichero que genera el empaquetado automático en la raíz del sitio | `tests/test_zensical_compat.py::test_downloads_links_point_to_latest_zip` |
 | AC-10 | El sitio construido con cualquiera de los dos generadores | Se abre una página con diagramas sin conexión a internet | Los diagramas se dibujan con la copia local de Mermaid, cuya versión coincide con la configuración del sitio y con la validación de CI | `tests/test_mermaid_assets.py::test_vendored_mermaid_is_pinned`, `tests/test_mermaid_assets.py::test_extra_javascript_loads_local_mermaid_then_theme`, `tests/test_mermaid_assets.py::test_ci_validates_the_vendored_version` |
 | AC-11 | Un sitio generado que ya contiene el ZIP "latest" y su huella, y las instrucciones de visualización en la raíz del proyecto | Se solicita el empaquetado versionado | El ZIP versionado no contiene ningún ZIP ni huella anidados e incluye en su raíz el servidor local y `VER_DOCUMENTACION.md`, igual que el ZIP "latest" | `tests/test_build_docs_zip.py::test_versioned_zip_matches_latest_layout` |
+| AC-12 | La configuración del sitio y la plantilla para destinos | Se comprueba la conformidad del repositorio | Las dos declaran URLs `*.html`, el plugin `offline` y solo la copia local del shim de búsqueda, cuya huella está fijada | `tests/test_offline_assets.py::test_vendored_shim_is_pinned`, `tests/test_offline_assets.py::test_config_builds_a_site_that_opens_without_server` |
+| AC-13 | Un sitio con un enlace a carpeta, un script de internet o sin índice de búsqueda en JS | Se solicita el empaquetado versionado | El proceso termina con código 1, nombra la página y el problema, y no crea ningún ZIP; con el índice de MkDocs o el de Zensical y solo enlaces externos o a ficheros, el ZIP se crea | `tests/test_build_docs_zip.py::test_site_not_browsable_from_file_exits_1`, `tests/test_build_docs_zip.py::test_missing_search_index_js_exits_1`, `tests/test_build_docs_zip.py::test_zensical_search_index_layout_is_accepted`, `tests/test_build_docs_zip.py::test_external_and_file_links_are_not_folder_links` |
+| AC-14 | El empaquetado automático y el plugin `offline` en el mismo build | Se construye el sitio | El ZIP "latest" se genera después de que el plugin escriba el índice de búsqueda en JS, así que lo incluye | `tests/test_offline_assets.py::test_zip_hook_runs_after_offline_plugin` |
+| AC-15 | Las páginas de descargas y las instrucciones de visualización (instancia y plantilla) | Se comprueba la conformidad del repositorio | Indican extraer el ZIP y abrir `index.html` con doble clic, mantienen el servidor local como alternativa y nunca piden opciones de seguridad del navegador | `tests/test_docs_conformance.py::test_zip_opens_with_double_click_after_extracting`, `tests/test_docs_conformance.py::test_browser_security_flags_only_to_forbid_them` |
 
 Verificación manual: `python scripts/build_docs_zip.py` (AC-01/AC-03),
 `python scripts/build_docs_zip.py --no-build` sin `site/` previo (AC-02),
 `sha256sum -c dist/*.sha256` (AC-04), `python -m mkdocs build` → comprobar
 `site/doc_ia-docs-latest.zip` (AC-05/AC-06),
 `python scripts/build_docs_zip.py --builder zensical` con Zensical instalado (AC-07/AC-08).
-Los tests simulan el generador; el build real no está automatizado.
+Los tests simulan el generador; el build real lo ejecuta la CI. La apertura con doble clic se
+probó en navegador real, sin red, con los ZIP de los dos generadores en Edge, Chrome y Firefox:
+portada, navegación por enlaces, búsqueda con resultados y diagramas, sin peticiones locales
+fallidas (`.ai/sessions/2026-10-29d_zip_sin_servidor/smoke/`). No forma parte de la CI.
+
 
 ## 8. Glosario de Dominio
 
@@ -206,3 +229,10 @@ Los tests simulan el generador; el build real no está automatizado.
     | AC-09 | `tests/test_zensical_compat.py::test_downloads_links_point_to_latest_zip` | ✅ |
     | Regla «Diagramas sin conexión» y AC-10 | `mkdocs.yml::extra_javascript`, `tests/test_mermaid_assets.py` | ✅ |
     | AC-11 | `scripts/build_docs_zip.py::_zip`, `::EXTRA_FILES` | ✅ |
+    | Regla «Abrir sin servidor», AC-13 | `scripts/build_docs_zip.py::_offline_problems`, `::_check_offline`, `::OFFLINE_SEARCH_INDEXES` | ✅ |
+    | AC-12 | `mkdocs.yml::use_directory_urls`, `::plugins`, `::extra` (`polyfills`), `.github/templates/TEMPLATE_mkdocs.yml`, `docs/assets/vendor/iframe-worker/SOURCE.txt` | ✅ |
+    | Shim descargado de unpkg si falta la copia local | `material/plugins/offline/plugin.py::OfflinePlugin.on_config`, `zensical/config.py::_apply_offline_plugin` (Material 9.8.0, Zensical 0.0.73) | ✅ |
+    | AC-14 | `mkdocs_hooks.py::on_post_build` (`mkdocs_priority = -200`) | ✅ |
+    | AC-15 | `docs/downloads.md`, `VER_DOCUMENTACION.md`, `.github/templates/VER_DOCUMENTACION.template.md` | ✅ |
+    | Navegación, búsqueda y diagramas por `file://`, sin red, en Edge y Chrome | `.ai/sessions/2026-10-29d_zip_sin_servidor/smoke/RESULTADOS.txt` (prueba con navegador sin ventana, fuera de la CI) | ✅ |
+    | Ídem en Firefox | Mismo fichero; sin ventana, Firefox no abre la búsqueda al enfocar el campo y la prueba la abre como el icono | ⚠️ |

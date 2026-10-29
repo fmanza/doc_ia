@@ -70,6 +70,7 @@ repo_url: https://github.com/<usuario>/<repo>
 repo_name: <usuario>/<repo>
 docs_dir: docs
 site_dir: site
+use_directory_urls: false  # URLs *.html: ZIP con doble clic en index.html
 
 theme:
   name: material
@@ -106,6 +107,7 @@ theme:
 plugins:
   - search:
       lang: <es|en|...>
+  - offline  # índice de búsqueda también como JS (file://)
   # Solo si el proyecto tiene código Python con docstrings a autodocumentar:
   # - mkdocstrings:
   #     handlers:
@@ -152,6 +154,8 @@ nav:
   # ... ver sección "Agrupación en subsecciones por área"
 
 extra:
+  polyfills:
+    - assets/vendor/iframe-worker/iframe-worker-shim-1.0.4.min.js  # shim local: sin unpkg
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/<usuario>/<repo>
@@ -174,7 +178,7 @@ extra_css:
 - `!!python/name:` genera advertencias en linters YAML estándar; es válido para MkDocs (falso positivo).
 - Sin `custom_fences` de `mermaid` en `pymdownx.superfences`, los bloques mermaid salen como código resaltado y **no se renderizan**. Con él, el tema renderiza con la copia local de Mermaid (usa `window.mermaid` si existe y no descarga nada, así que los diagramas se ven sin conexión). **No** añadir el CDN de Mermaid ni un `mermaid.run()` propio: duplican el render (`.claude/EDGE_CASES.md § Mermaid`).
 - `pymdownx.snippets.base_path: [docs]` → las rutas en `--8<--` son **relativas a `docs/`** (no a la raíz del repo). Ejemplo: `--8<-- "examples/mi_snippet.py"`, no `--8<-- "docs/examples/mi_snippet.py"`.
-- Los cinco recursos se copian íntegros desde `doc_ia/docs/assets/` sin modificación:
+- Los seis recursos se copian íntegros desde `doc_ia/docs/assets/` sin modificación:
   - `sidebar-toggle.js` — botón ◀/▶ fijo en desktop para ocultar/mostrar la sidebar; persiste en `localStorage`; desactivado automáticamente en móvil (viewport < 76.1875em)
   - `mermaid.css` — centrado y responsive de SVGs Mermaid
   - `nav.css` — grupos colapsables + `.md-grid { max-width: min(90vw, 1600px) }` + CSS del toggle
@@ -182,6 +186,9 @@ extra_css:
     `SOURCE.txt`; una versión distinta en el destino se sustituye
   - `mermaid-theme.js` — `startOnLoad: false` (evita el render propio de la librería) y
     `theme: "default"` (con Mermaid 12, Material dejaba los subgrafos ilegibles en modo oscuro)
+  - `vendor/iframe-worker/` — shim con versión exacta (`iframe-worker-shim-<versión>.min.js`), `LICENSE`
+    y `SOURCE.txt`, declarado en `extra.polyfills`: la búsqueda funciona abriendo `index.html` con
+    doble clic (plugin `offline`); sin él, el tema lo descarga de unpkg
 - `mkdocstrings` solo si el proyecto tiene código Python con docstrings; comentado por defecto.
 
 ### Agrupación en subsecciones por área

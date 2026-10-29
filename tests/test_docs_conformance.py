@@ -354,12 +354,22 @@ def test_view_instructions_filled_for_doc_ia() -> None:
     assert "PLANTILLA" not in text
 
 
-def test_downloads_never_offers_opening_index_html() -> None:
-    """Con `use_directory_urls: true`, abrir `index.html` sin servidor no navega."""
-    text = (DOCS / "downloads.md").read_text(encoding="utf-8")
-    for match in re.finditer(r"index\.html", text):
+@pytest.mark.parametrize("path", ["docs/downloads.md", "VER_DOCUMENTACION.md", VIEW_TEMPLATE])
+def test_zip_opens_with_double_click_after_extracting(path: str) -> None:
+    """Plugin `offline`: doble clic en `index.html` sin Python, tras extraer el ZIP completo."""
+    text = (ROOT / path).read_text(encoding="utf-8")
+    assert re.search(r"doble clic en `index\.html`", text)
+    assert re.search(r"[Ee]xtrae", text)
+    assert "start-server.py" in text, "el servidor local sigue siendo la alternativa"
+
+
+@pytest.mark.parametrize("path", [*SOURCES_RULE_FILES, "docs/downloads.md", VIEW_TEMPLATE])
+def test_browser_security_flags_only_to_forbid_them(path: str) -> None:
+    """Abrir el ZIP nunca exige desactivar protecciones del navegador para ficheros locales."""
+    text = (ROOT / path).read_text(encoding="utf-8")
+    for match in re.finditer(r"allow-file-access-from-files", text):
         window = text[max(0, match.start() - 200) : match.end() + 200]
-        assert re.search(r"no funciona|[Nn]unca|Prohibido", window), window
+        assert re.search(r"Prohibido|[Nn]unca", window), window
 
 
 @pytest.mark.parametrize("path", SOURCES_RULE_FILES)

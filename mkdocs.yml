@@ -6,7 +6,9 @@ repo_url: https://github.com/fmanza/doc_ia
 repo_name: fmanza/doc_ia
 docs_dir: docs
 site_dir: site
-use_directory_urls: true
+# URLs *.html: el sitio y el ZIP se abren con doble clic en index.html, sin servidor. El plugin
+# `offline` ya lo fuerza; se declara para que doc_trace (llms.txt) y los tests lo lean.
+use_directory_urls: false
 
 theme:
   name: material
@@ -47,6 +49,8 @@ hooks:
 plugins:
   - search:
       lang: es
+  # Índice de búsqueda también como JS (file://). Necesita el shim de extra.polyfills.
+  - offline
 
 markdown_extensions:
   - admonition
@@ -146,6 +150,10 @@ nav:
   - Contribuir: contributing.md
 
 extra:
+  # Búsqueda por file://: con una ruta que contenga «iframe-worker», Material y Zensical no
+  # añaden https://unpkg.com/iframe-worker/shim (ver EDGE_CASES § offline).
+  polyfills:
+    - assets/vendor/iframe-worker/iframe-worker-shim-1.0.4.min.js
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/fmanza/doc_ia

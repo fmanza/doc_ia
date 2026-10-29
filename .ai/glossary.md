@@ -39,6 +39,7 @@
 | **Directrices para Futuras IAs** | Sección obligatoria del TRACEABILITY.md al cerrar sesión: hechos verificables que evitan repetir análisis. |
 | **Estrategia multi-CÓDIGO** | Forma de documentar ≥2 orígenes CÓDIGO: `federado`, `hub+satélite` o `monorepo`. Nunca se autodetecta; el usuario elige. |
 | **`downloads.md`** | Página obligatoria en todo destino documentado. Variante A (con ZIP script) o Variante B (sin script, solo instrucciones). |
-| **`start-server.py`** | Servidor HTTP local (solo `127.0.0.1`, Python 3.7+ sin paquetes) para navegación offline; viaja en la raíz de los dos ZIP (`EXTRA_FILES`). |
+| **`start-server.py`** | Servidor HTTP local (solo `127.0.0.1`, Python 3.7+ sin paquetes), alternativa al doble clic en `index.html`; viaja en la raíz de los dos ZIP (`EXTRA_FILES`). |
+| **Shim iframe-worker** | Script de 1,4 KB que sustituye el Web Worker de la búsqueda por un iframe cuando la página se abre desde `file://`. Se sirve en local (`docs/assets/vendor/iframe-worker/`, `extra.polyfills`); sin él, Material y Zensical lo descargan de unpkg. |
 | **`VER_DOCUMENTACION.md`** | Instrucciones para ver la documentación desde cero (Windows, macOS, Linux; Python incluido) en la raíz del destino, fuera de `docs/`. Fase 7c, siempre; desde `.github/templates/VER_DOCUMENTACION.template.md`. En inglés, `VIEW_DOCS.md`. |
 | **Baseline / modo incremental** | `.ai/doc_state.json` del destino guarda el commit de cada origen al cerrar una sesión de `/document-project` (`doc_trace.py baseline`). En la siguiente, `doc_trace.py changes` lista lo cambiado desde ese commit y las páginas que lo **citan** (frontmatter `fuentes:` o bloque «Evidencia») o solo lo **mencionan**; el inventario se limita a eso. Código 3 → modo completo. |

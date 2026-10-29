@@ -1,10 +1,10 @@
 ---
 arquetipo: "1"
 fuentes:
-  .claude/commands/document-project.md: b897d08ce532
-  .github/DOCUMENTATION_STANDARD.md: 03090ee7a89d
+  .claude/commands/document-project.md: 6972f09030fa
+  .github/DOCUMENTATION_STANDARD.md: 982112df33b0
   hooks/sync_root_docs.py: ef5e576436c6
-  tests/test_docs_conformance.py: 84a65e388ffa
+  tests/test_docs_conformance.py: be62cd8b5764
 revisado: 2026-10-29
 ---
 # Arquetipos Formales de Documentación

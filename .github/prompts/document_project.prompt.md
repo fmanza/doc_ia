@@ -109,8 +109,13 @@ Fase 0b — Sincronización visual del destino (OBLIGATORIO en toda sesión, cre
              .venv/, *.pdf, *.doc, *.docx (crear si no existe; añadir los que falten).
              Nunca ignorar `_fuentes/`: el texto convertido se versiona (Fase 0c, Paso 5)
            · theme.features SIN navigation.sections si nav.css está en extra_css
-           · los 5 recursos de docs/assets/ existen y están en extra_css / extra_javascript
-             (Mermaid local: vendor/mermaid/mermaid-<versión>.min.js y después js/mermaid-theme.js)
+           · los 6 recursos de docs/assets/ existen y están en extra_css / extra_javascript /
+             extra.polyfills (Mermaid local: vendor/mermaid/mermaid-<versión>.min.js y después
+             js/mermaid-theme.js; shim local: vendor/iframe-worker/iframe-worker-shim-<versión>.min.js)
+           · ZIP sin servidor: use_directory_urls: false + plugin `offline` + el shim en
+             extra.polyfills (sin él, el tema lo descarga de unpkg y la búsqueda por file:// falla
+             sin red). Si el destino ya publica la web con URLs de carpeta, avisar en RESUMEN: los
+             enlaces profundos pasan a *.html
            · custom_fences mermaid presente; sin CDN de Mermaid ni assets/js/mermaid.js
          (La Fase 5 vuelve a verificar la configuración estándar al final.)
 Fase 0c — Conversión de documentos no legibles y uso de documentos pre-convertidos:
@@ -285,11 +290,15 @@ Fase 5 — Sincronizar navegación y verificar configuración estándar del gene
             · extra_css: assets/css/mermaid.css + assets/css/nav.css
             · markdown_extensions: attr_list, md_in_html, pymdownx.snippets (base_path:[docs]),
               line_spans:__span y pygments_lang_class:true en pymdownx.highlight
-            · plugins: search con lang del idioma del proyecto
+            · plugins: search con lang del idioma del proyecto + offline
+            · use_directory_urls: false y extra.polyfills:
+              [assets/vendor/iframe-worker/iframe-worker-shim-1.0.4.min.js] — sin unpkg: el ZIP se
+              abre con doble clic en index.html, con búsqueda, sin servidor ni red
             · Generador = zensical: plugins soportados y `hooks:` (ver § Reglas por generador: Zensical)
-         c. Assets: si alguno de los cinco recursos de docs/assets/ (js/sidebar-toggle.js,
+         c. Assets: si alguno de los seis recursos de docs/assets/ (js/sidebar-toggle.js,
             css/mermaid.css, css/nav.css, vendor/mermaid/ con la librería, LICENSE y SOURCE.txt,
-            js/mermaid-theme.js) no existe en el destino, o su librería Mermaid es de otra versión,
+            js/mermaid-theme.js, vendor/iframe-worker/ con el shim, LICENSE y SOURCE.txt) no existe
+            en el destino, o su librería Mermaid o su shim es de otra versión,
             indicarlo explícitamente en RESUMEN con la acción: "Copiar desde doc_ia/docs/assets/"
             (una versión distinta se sustituye: borrar la antigua y actualizar extra_javascript).
 Fase 6 — Revisión final: Markdown, enlaces relativos, sintaxis y conformidad Mermaid (§3.17 del
@@ -320,9 +329,12 @@ Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
            2. Verificar TIENE_MKDOCS_PLUGIN:
                 · true  → reportar en RESUMEN: "✅ Hook MkDocs presente — ZIP generado
                     automáticamente en site/ en cada `mkdocs build`. Sin instalación requerida."
+                  Verificar que el hook se ejecuta después del plugin `offline`
+                  (`on_post_build.mkdocs_priority = -200`, como `doc_ia/mkdocs_hooks.py`); si no
+                  (Gap V3), añadirlo: sin él, el ZIP latest sale sin índice de búsqueda en JS.
                   Verificar que `docs/downloads.md` usa la estructura normalizada con enlace HTML:
-                    `<a href="../{nombre}-docs-latest.zip">{nombre}-docs-latest.zip</a>`
-                    `<a href="../{nombre}-docs-latest.zip.sha256">.sha256</a>`
+                    `<a href="{nombre}-docs-latest.zip">{nombre}-docs-latest.zip</a>`
+                    `<a href="{nombre}-docs-latest.zip.sha256">.sha256</a>`
                   Si la tabla no tiene estos enlaces → actualizar siguiendo la estructura del Paso B3.
                 · false (Gap A2) → ⚠️ ACCIÓN OBLIGATORIA: CREAR el hook antes de cerrar sesión.
 
@@ -339,6 +351,8 @@ Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
                       ```python
                       EXTRA_FILES = ("scripts/start-server.py", "VER_DOCUMENTACION.md")
                       ```
+                    Mantener `on_post_build.mkdocs_priority = -200`: el hook debe ir después del
+                    plugin `offline`, que escribe el índice de búsqueda en JS.
                     Hook existente sin `EXTRA_FILES` (Gap V2) → actualizarlo siguiendo
                     `doc_ia/mkdocs_hooks.py`; igual con `EXTRA_FILES` en `build_docs_zip.py`.
                     No crear `{nombre}_docs/` ni `pyproject.toml` — el hook no requiere instalación.
@@ -380,6 +394,8 @@ Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
              `python scripts/build_docs_zip.py`
              Leer `dist/{nombre}-docs-{version}.zip.sha256` → hash SHA256.
              Calcular tamaño del ZIP en MB.
+             Si termina con «cannot be opened without a server», falta la configuración de la
+             Fase 0b (offline, use_directory_urls: false, shim local): corregirla y repetir.
              Si el script falla (dependencias, build error) → indicarlo en RESUMEN y
              dejar la tabla con valores reales hasta donde sea posible, marcando el resto
              como "Pendiente de verificación manual".
@@ -388,16 +404,18 @@ Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
              Estructura canónica (idéntica en todos los proyectos):
              1. **"Descarga Actual"** — tabla con enlace HTML directo al ZIP del plugin:
                 ```
-                | <a href="../{nombre}-docs-latest.zip">{nombre}-docs-latest.zip</a> | ~X MB | <a href="../{nombre}-docs-latest.zip.sha256">.sha256</a> | YYYY-MM-DD |
+                | <a href="{nombre}-docs-latest.zip">{nombre}-docs-latest.zip</a> | ~X MB | <a href="{nombre}-docs-latest.zip.sha256">.sha256</a> | YYYY-MM-DD |
                 ```
-                El path `../` funciona porque con `use_directory_urls: true`,
-                `downloads.md` → `site/downloads/index.html` y el ZIP está en `site/`.
+                Sin `../`: con `use_directory_urls: false` (plugin `offline`), `downloads.md` →
+                `site/downloads.html`, junto al ZIP en `site/`.
                 Línea de versión bajo la tabla: `**{Proyecto} {versión}** — descripción breve`.
-             2. **"Cómo usar el ZIP"** — extraer (Windows + Linux/macOS) + visualizar:
-                `python start-server.py` — el script está incluido en el ZIP y abre el
-                navegador en `http://127.0.0.1:8000`. **Prohibido** ofrecer «abrir `index.html`
-                directamente» como opción: con `use_directory_urls: true` los enlaces apuntan a
-                carpetas (el navegador muestra listados) y la búsqueda no funciona sin servidor.
+             2. **"Cómo usar el ZIP"** — extraer el ZIP **completo** (Windows: «Extraer todo…»;
+                Linux/macOS: `unzip`) + visualizar con **doble clic en `index.html`**: sin Python,
+                sin servidor y sin red (plugin `offline` + shim local, Fase 0b). Avisar de que el
+                doble clic dentro del ZIP sin extraer abre la página sin estilos. Alternativa:
+                `python start-server.py` (incluido en el ZIP; `http://127.0.0.1:8000`).
+                **Prohibido** indicar flags del navegador como `--allow-file-access-from-files`:
+                no hacen falta y desactivan protecciones.
                 Remitir a `VER_DOCUMENTACION.md` (incluido en el ZIP) para empezar desde cero.
              3. **"Validar Integridad (SHA256)"** — comandos Windows (PowerShell) + Linux/macOS.
              4. **"Para Desarrolladores"** — `python scripts/build_docs_zip.py` + info CI.
@@ -480,9 +498,10 @@ ADR-003).
   - Serve: `python -m zensical serve` (no ejecuta hooks: los ficheros sincronizados pueden estar
     desfasados).
 - **Fase 7b — `downloads.md`**: "Para Desarrolladores" usa `python scripts/build_docs_zip.py
-  --builder zensical`; "Información de versión" indica Zensical. Los enlaces `../{nombre}-docs-latest.zip`
-  solo valen con `use_directory_urls: true` (ver Paso B3); con el plugin `offline` las URLs pasan a
-  `*.html` y el enlace debe ser `{nombre}-docs-latest.zip`.
+  --builder zensical`; "Información de versión" indica Zensical. Los enlaces son
+  `{nombre}-docs-latest.zip`, sin `../` (Paso B3): Zensical también aplica `offline` y
+  `use_directory_urls: false`. Su índice JS es `search.js` en la raíz de `site/` (MkDocs:
+  `search/search_index.js`); `build_docs_zip.py` acepta los dos.
 - **Dependencias del destino**: `zensical` con **versión exacta** (está en alfa); en DOWNLOADS y
   RESUMEN, recordar que el workflow de release debe llamar a `build_docs_zip.py --builder zensical`.
 - **Salida 8b DOWNLOADS**: añadir el estado de `TIENE_PIPELINE_SIN_HOOKS` y, si aplica, el Gap A4.

@@ -1,10 +1,10 @@
 ---
 arquetipo: "2"
 fuentes:
-  .claude/commands/document-project.md: b897d08ce532
-  .github/agents/documentation-generator.agent.md: 7217dfcad18f
-  .github/prompts/document_project.prompt.md: 7ccd7c33e6af
-  mkdocs.yml: 2179f8729495
+  .claude/commands/document-project.md: 6972f09030fa
+  .github/agents/documentation-generator.agent.md: d321ae7f6268
+  .github/prompts/document_project.prompt.md: 85c36e26ec88
+  mkdocs.yml: 5dd76a635c78
 revisado: 2026-10-29
 ---
 # document_project
@@ -88,7 +88,7 @@ Doce bloques en el chat, en este orden:
 7. `REVISIÓN` — checklist de validación.
 8. `BUILD` — resultado de `--verify-build` (solo opt-in).
 9. `DOWNLOADS` — `docs/downloads.md` creado/actualizado (siempre obligatorio); indica variante A o B; reporta huecos de las señales ZIP que falten (Gaps A1-A3 y, con Zensical, A4: script de build sin pasos pre/post).
-10. `VISUALIZACIÓN` — `VER_DOCUMENTACION.md` (idioma `en`: `VIEW_DOCS.md`) creado/actualizado en la raíz del destino desde `.github/templates/VER_DOCUMENTACION.template.md` (siempre obligatorio); tabla marcador → valor → fuente verificada; Ruta A solo con publicación verificada; Gaps V1 (sin `requirements-docs.txt`) y V2 (`EXTRA_FILES` en hook/script).
+10. `VISUALIZACIÓN` — `VER_DOCUMENTACION.md` (idioma `en`: `VIEW_DOCS.md`) creado/actualizado en la raíz del destino desde `.github/templates/VER_DOCUMENTACION.template.md` (siempre obligatorio); tabla marcador → valor → fuente verificada; Ruta A solo con publicación verificada; Gaps V1 (sin `requirements-docs.txt`), V2 (`EXTRA_FILES` en hook/script) y V3 (hook sin `on_post_build.mkdocs_priority = -200`: el ZIP latest sale sin búsqueda). La Ruta B es el doble clic en `index.html` del ZIP extraído, que la Fase 0b hace posible (`use_directory_urls: false`, plugin `offline`, shim iframe-worker local en `extra.polyfills`); `start-server.py`, la alternativa.
 11. `RESUMEN` — contadores de archivos creados/actualizados/omitidos y entradas de nav.
 12. `CIERRE DE SESIÓN` — siempre obligatorio: artefactos `.ai/sessions/YYYY-MM-DD/` en el destino + propuesta de commit Conventional Commits.
 

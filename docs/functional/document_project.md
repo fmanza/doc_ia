@@ -1,10 +1,10 @@
 ---
 arquetipo: "1"
 fuentes:
-  .claude/commands/document-project.md: b897d08ce532
-  .github/DOCUMENTATION_STANDARD.md: 03090ee7a89d
-  .github/prompts/document_project.prompt.md: 7ccd7c33e6af
-  CLAUDE.md: 1be4ae56b47a
+  .claude/commands/document-project.md: 6972f09030fa
+  .github/DOCUMENTATION_STANDARD.md: 982112df33b0
+  .github/prompts/document_project.prompt.md: 85c36e26ec88
+  CLAUDE.md: 4e93b57b44ea
 revisado: 2026-10-29
 ---
 # Documentar un Proyecto
@@ -90,7 +90,7 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
   offline quedan reportados en el resumen.
 - `VER_DOCUMENTACION.md` existe en la raíz del destino, fuera de `docs/`, con los requisitos y
   pasos para ver la documentación desde cero en Windows, macOS y Linux, y viaja dentro del ZIP.
-- El destino tiene los cinco recursos visuales en `docs/assets/`, entre ellos su propia copia de Mermaid, de modo que los diagramas se ven también sin conexión, y un `.gitignore` con los
+- El destino tiene los seis recursos visuales en `docs/assets/`, entre ellos su propia copia de Mermaid y el shim de búsqueda para ficheros locales, y su configuración genera URLs `*.html` con el plugin `offline`: el ZIP se abre con doble clic en `index.html`, con búsqueda y diagramas, sin servidor ni conexión. Tiene además un `.gitignore` con los
   patrones estándar.
 - Si el origen tiene documentos convertidos a Markdown, el destino tiene su copia en
   `_fuentes/`, fuera de `docs/` y versionada, y ninguna carpeta con otro nombre para ellos.
@@ -112,7 +112,7 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
 | Sin inventar | El contenido generado se basa únicamente en el código y la documentación real del origen; no se inventan módulos, APIs, salidas ni dependencias | Documentación incorrecta que no corresponde al proyecto real |
 | Preservación de lo vigente | Las páginas clasificadas como vigentes (estado C) no se modifican; las desactualizadas (B) se actualizan conservando las secciones aún correctas | Se perdería documentación válida o se introduciría regresión de contenido |
 | `downloads.md` siempre obligatorio | Cada sesión genera o actualiza `docs/downloads.md` en el destino (Fase 7b); el flujo detecta tres señales de distribución offline (`TIENE_ZIP_SCRIPT`, `TIENE_MKDOCS_PLUGIN`, `TIENE_WORKFLOW_GITHUB`) y reporta los huecos | El destino quedaría sin una página de descarga offline o con datos desactualizados |
-| Instrucciones de visualización siempre | Cada sesión genera o actualiza `VER_DOCUMENTACION.md` en la raíz del destino (Fase 7c) desde una plantilla con secciones fijas: qué ruta seguir (web, ZIP, código fuente), cómo instalar Python en cada sistema, cómo arrancar el servidor local y problemas frecuentes; los valores (versión de Python, dependencias, nombre del ZIP, publicación) salen del destino | Quien recibe la documentación sin conocimientos técnicos ni Python no sabría verla: abrir `index.html` con doble clic no navega |
+| Instrucciones de visualización siempre | Cada sesión genera o actualiza `VER_DOCUMENTACION.md` en la raíz del destino (Fase 7c) desde una plantilla con secciones fijas: qué ruta seguir (web, ZIP, código fuente), cómo abrir el ZIP con doble clic tras extraerlo, el servidor local como alternativa, cómo instalar Python para la ruta de código fuente y problemas frecuentes; los valores (versión de Python, dependencias, nombre del ZIP, publicación) salen del destino | Quien recibe la documentación sin conocimientos técnicos no sabría verla |
 | Relanzar solo sobre lo cambiado | Al cerrar cada sesión se guarda el punto del historial de cada proyecto documentado; al relanzar, el inventario parte de los ficheros cambiados desde ese punto y de las páginas que los citan, y el resto se da por vigente sin releerlo. Si no hay punto guardado, el proyecto no usa Git, el punto ya no existe o cambió la versión de doc_ia, la sesión es completa | Releer todo el proyecto en cada actualización, o dar por vigente una página cuyo código cambió |
 | Sincronización visual obligatoria (Fase 0b) | Al inicio de toda sesión se verifican: assets CSS/JS en `docs/assets/`, configuración de `mkdocs.yml` (sin `navigation.sections` si `nav.css` presente), `.gitignore` con patrones estándar (`site/`, `*.pdf`, `*.doc`, `*.docx`). Aplica tanto en creación como en actualización ⚠️ | El destino tendría assets desincronizados, menú lateral sin colapso o binarios versionados por error |
 | Zensical sin pérdidas silenciosas | Con generador Zensical, que no ejecuta `hooks:` ni los plugins que no soporta, el flujo detecta si el script de build del destino ejecuta él mismo esos pasos (`TIENE_PIPELINE_SIN_HOOKS`), reporta el Gap A4 si no lo hace y señala los plugins no soportados; nunca crea `zensical.toml` | El destino perdería sin aviso la sincronización de ficheros raíz, el ZIP "latest" o la función de un plugin |

@@ -24,7 +24,9 @@ repo_name: "[REEMPLAZAR: user]/[REEMPLAZAR: repo]"
 
 docs_dir: docs
 site_dir: site
-use_directory_urls: true
+# URLs *.html: el ZIP se abre con doble clic en index.html, sin servidor ni Python. El plugin
+# `offline` ya lo fuerza; se declara para que las herramientas que leen mkdocs.yml lo vean.
+use_directory_urls: false
 
 # ────────────────────────────────────────────────────────────────────────────
 # THEME: Material for MkDocs [REUTILIZABLE]
@@ -75,6 +77,8 @@ theme:
 plugins:
   - search:
       lang: es
+  # Índice de búsqueda también como JS: búsqueda por file://. Necesita el shim de extra.polyfills.
+  - offline
 
 # [OPCIONAL] Descomentar si el proyecto tiene código Python a documentar
 # - mkdocstrings:
@@ -152,6 +156,10 @@ extra:
   # [OPCIONAL] Descomentar para versionado multi-versión (requiere: pip install mike)
   # version:
   #   provider: mike
+  # Búsqueda por file://: con una ruta que contenga «iframe-worker», Material y Zensical no
+  # añaden https://unpkg.com/iframe-worker/shim. Copia local desde doc_ia/docs/assets/vendor/.
+  polyfills:
+    - assets/vendor/iframe-worker/iframe-worker-shim-1.0.4.min.js
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/[REEMPLAZAR: user]/[REEMPLAZAR: repo]

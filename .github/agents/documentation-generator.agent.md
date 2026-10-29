@@ -291,8 +291,9 @@ Cuando el usuario pida documentar o actualizar todo el proyecto, usa este flujo 
 - **Variante B** (`TIENE_ZIP_SCRIPT = false`): instrucciones de build local con MkDocs (requisitos,
   comandos, cómo comprimir site/), tabla placeholder con fila `| — | — | — | — |`,
   nota sobre búsqueda offline y enlaces relacionados.
-- Visualizar el ZIP: solo `python start-server.py` (servidor local). Nunca «abrir `index.html`»:
-  con `use_directory_urls: true` los enlaces apuntan a carpetas y la búsqueda no funciona.
+- Visualizar el ZIP: extraerlo completo y doble clic en `index.html` (sin Python ni servidor:
+  plugin `offline` + shim iframe-worker local); alternativa, `python start-server.py`. Nunca
+  flags del navegador como `--allow-file-access-from-files`: no hacen falta.
 - Añadir `- Descargas: downloads.md` al nav tras "Inicio rápido" (o tras "Instalación" si no existe quickstart).
 
 **`VER_DOCUMENTACION.md` — SIEMPRE obligatorio** (Fase 7c; idioma `en`: `VIEW_DOCS.md`):
@@ -321,10 +322,13 @@ Cuando el usuario pida documentar o actualizar todo el proyecto, usa este flujo 
 - `extra_css`: `assets/css/mermaid.css` + `assets/css/nav.css`.
 - `markdown_extensions`: `attr_list`, `md_in_html`, `pymdownx.snippets` (con `base_path: [docs]`),
   `line_spans: __span` y `pygments_lang_class: true` en `pymdownx.highlight`.
-- `plugins`: `search` con `lang` del idioma del proyecto.
+- `plugins`: `search` con `lang` del idioma del proyecto + `offline`.
+- `use_directory_urls: false` y `extra.polyfills: [assets/vendor/iframe-worker/iframe-worker-shim-1.0.4.min.js]`:
+  sin el shim local, el tema lo descarga de unpkg y la búsqueda por `file://` falla sin red.
+- `mkdocs_hooks.py` con `on_post_build.mkdocs_priority = -200` (después de `offline`).
 
-**Assets** — si alguno de los cinco recursos no existe en `docs/assets/` del destino, o su
-librería Mermaid es de otra versión, indicarlo explícitamente en el RESUMEN con la acción:
+**Assets** — si alguno de los seis recursos no existe en `docs/assets/` del destino, o su
+librería Mermaid o su shim es de otra versión, indicarlo explícitamente en el RESUMEN con la acción:
 "Copiar desde `doc_ia/docs/assets/`" (una versión distinta se sustituye y se actualiza
 `extra_javascript`):
 - `docs/assets/js/sidebar-toggle.js`
@@ -332,6 +336,7 @@ librería Mermaid es de otra versión, indicarlo explícitamente en el RESUMEN c
 - `docs/assets/css/nav.css`
 - `docs/assets/vendor/mermaid/` (`mermaid-<versión>.min.js`, `LICENSE`, `SOURCE.txt`)
 - `docs/assets/js/mermaid-theme.js`
+- `docs/assets/vendor/iframe-worker/` (`iframe-worker-shim-<versión>.min.js`, `LICENSE`, `SOURCE.txt`)
 
 ### Fase 6 — Revisión y entrega
 - Valida Markdown, enlaces relativos y sintaxis y conformidad Mermaid (`DOCUMENTATION_STANDARD.md` §3.17).

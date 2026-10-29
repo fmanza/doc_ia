@@ -6,11 +6,12 @@ Descarga la documentación completa de **doc_ia** en formato offline (ZIP) para 
 
 ## 📦 Documentación Offline
 
-La documentación completa está disponible como un archivo ZIP comprimido que puedes descargar y abrir en cualquier navegador, incluso sin acceso a Internet.
+La documentación completa está disponible como un archivo ZIP comprimido que puedes descargar y abrir en cualquier navegador, incluso sin acceso a Internet y sin instalar nada: basta con extraerlo y hacer doble clic en `index.html`.
 
 ### Características del ZIP
 
-- ✅ **Búsqueda offline** — Índice de búsqueda completo en local
+- ✅ **Sin Python ni servidor** — Doble clic en `index.html` tras extraer el ZIP
+- ✅ **Búsqueda offline** — Índice de búsqueda completo en local, también abriendo los ficheros directamente
 - ✅ **Navegación interactiva** — Menú, referencias cruzadas, breadcrumbs
 - ✅ **Diagramas Mermaid** — Flujos y arquitectura, dibujados sin conexión (Mermaid va incluido en el ZIP)
 - ✅ **Responsive** — Compatible con móvil, tablet y desktop
@@ -21,7 +22,7 @@ La documentación completa está disponible como un archivo ZIP comprimido que p
 
 | Versión | Tamaño | Checksum | Fecha |
 |---|---|---|---|
-| <a href="../doc_ia-docs-latest.zip">doc_ia-docs-latest.zip</a> | ~2.7 MB | <a href="../doc_ia-docs-latest.zip.sha256">.sha256</a> | 2026-10-29 |
+| <a href="doc_ia-docs-latest.zip">doc_ia-docs-latest.zip</a> | ~2.8 MB | <a href="doc_ia-docs-latest.zip.sha256">.sha256</a> | 2026-10-29 |
 
 **doc_ia 0.3.0** — Instrucciones IA y tooling para documentar proyectos de desarrollo
 
@@ -35,6 +36,8 @@ Descarga el ZIP desde el link superior.
 
 ### Paso 2: Extraer
 
+Extrae **todo** el ZIP a una carpeta. En el Explorador de Windows: clic derecho → «Extraer todo…».
+
 ```bash
 # Windows (PowerShell)
 Expand-Archive doc_ia-docs-latest.zip -DestinationPath ./doc_ia-docs
@@ -45,22 +48,22 @@ unzip doc_ia-docs-latest.zip -d ./doc_ia-docs
 
 ### Paso 3: Visualizar
 
-```bash
-cd doc_ia-docs
-python start-server.py      # Windows: py start-server.py
-```
+Haz doble clic en `index.html` dentro de la carpeta extraída. Se abre en tu navegador con
+navegación, búsqueda y diagramas, sin Python, sin servidor y sin conexión.
 
-El ZIP incluye `start-server.py` (Python 3.7 o superior, sin instalar paquetes). Al ejecutarlo,
-abre el navegador en `http://127.0.0.1:8000`, accesible solo desde tu equipo. Para terminar,
-`Ctrl + C`.
+!!! warning "Extrae antes de abrir"
+    Si haces doble clic en `index.html` **dentro** del ZIP sin extraerlo, el sistema abre solo ese
+    fichero y la página sale sin estilos ni menú. Extrae siempre la carpeta completa.
 
-!!! warning "Abrir `index.html` con doble clic no funciona"
-    Los enlaces del sitio apuntan a carpetas (`api/archetypes/`): sin servidor, el navegador
-    muestra listados de carpetas en lugar de páginas y la búsqueda no carga.
+!!! note "Alternativa: servidor local"
+    El ZIP incluye también `start-server.py` (Python 3.7 o superior, sin instalar paquetes):
+    `python start-server.py` (Windows: `py start-server.py`) abre `http://127.0.0.1:8000`,
+    accesible solo desde tu equipo; para terminar, `Ctrl + C`. Es la única opción con los ZIP
+    de doc_ia 0.3.0 o anteriores, que no se pueden abrir con doble clic.
 
-!!! tip "¿Sin Python o empezando desde cero?"
+!!! tip "¿Empezando desde cero?"
     El ZIP incluye `VER_DOCUMENTACION.md` (también en la raíz del repositorio): requisitos y pasos
-    para Windows, macOS y Linux, instalación de Python incluida, y problemas frecuentes.
+    para Windows, macOS y Linux, y problemas frecuentes.
 
 ---
 
@@ -100,7 +103,8 @@ hooks:
 ```
 
 Este hook es también el patrón canónico para otros proyectos: copiar `mkdocs_hooks.py`
-al proyecto destino y cambiar únicamente la línea `zip_path`.
+al proyecto destino y cambiar únicamente la línea `zip_path`. Se ejecuta después del plugin
+`offline` (prioridad -200), para que el ZIP lleve el índice de búsqueda en JS.
 
 ### Generar ZIP versionado
 
@@ -114,6 +118,9 @@ python scripts/build_docs_zip.py --no-build
 # Con Zensical, si está instalado (recíprocamente compatible)
 python scripts/build_docs_zip.py --builder zensical
 ```
+
+Antes de empaquetar, el script comprueba que `site/` se puede abrir sin servidor (índice de
+búsqueda en JS, ningún script remoto, ningún enlace a carpeta); si no, termina con código 1.
 
 **Output**: `dist/doc_ia-docs-{versión}.zip` + `dist/doc_ia-docs-{versión}.zip.sha256` +
 `dist/CHECKSUMS.txt` (histórico de hashes).
@@ -130,5 +137,5 @@ Releases publicadas: [github.com/fmanza/doc_ia/releases](https://github.com/fman
 ## 📝 Información de versión
 
 - **Versión de doc_ia**: 0.3.0
-- **Generador**: MkDocs + Material for MkDocs (Mermaid 12.2.0 incluido en el sitio, con la integración nativa del tema)
+- **Generador**: MkDocs + Material for MkDocs (Mermaid 12.2.0 incluido en el sitio, con la integración nativa del tema; plugin `offline` con iframe-worker 1.0.4 local)
 - **Actualización**: 2026-10-29

@@ -185,8 +185,11 @@ Los dos ZIP (latest y versionado) llevan en su raíz `start-server.py` (servidor
 `127.0.0.1`) y `VER_DOCUMENTACION.md` (`EXTRA_FILES`). `VER_DOCUMENTACION.md` vive en la raíz del
 destino, fuera de `docs/`, y se genera **siempre** en la Fase 7c desde
 `.github/templates/VER_DOCUMENTACION.template.md`: requisitos y pasos para ver la documentación
-desde cero (Windows, macOS, Linux; Python incluido). Abrir `index.html` con doble clic **no** es
-una opción válida: con `use_directory_urls: true` los enlaces apuntan a carpetas.
+desde cero (Windows, macOS, Linux). El ZIP se abre **extrayéndolo y con doble clic en
+`index.html`**, sin Python, servidor ni red: `use_directory_urls: false`, plugin `offline` y el shim
+iframe-worker local en `extra.polyfills` (sin él, el tema lo descarga de unpkg).
+`build_docs_zip.py` se niega a empaquetar un `site/` que no se abra así; `start-server.py` queda
+como alternativa. Nunca se indican flags del navegador (`--allow-file-access-from-files`).
 
 #### Configuración de documentación
 
@@ -223,6 +226,8 @@ son complementarias, no alternativas:
 3. **Hook MkDocs** (`mkdocs_hooks.py` en la raíz + `hooks: [mkdocs_hooks.py]` en `mkdocs.yml`) —
    genera `{nombre}-docs-latest.zip` en `site/` automáticamente en cada build.
    El ZIP incluye siempre `start-server.py` (desde `scripts/start-server.py` en la raíz del proyecto).
+   Se ejecuta después del plugin `offline` (`on_post_build.mkdocs_priority = -200`), para que el
+   ZIP lleve el índice de búsqueda en JS.
    **Sin instalación**: cargado directamente por MkDocs; funciona con cualquier Python que tenga mkdocs.
    No requiere `pyproject.toml`, `setup.py`, `pip install -e .` ni activar ningún venv.
    Patrón de referencia: `doc_ia/mkdocs_hooks.py` (solo cambiar la línea `zip_path`).

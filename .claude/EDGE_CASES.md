@@ -199,7 +199,7 @@
   instrucciones.
 - **Sesión**: `.ai/sessions/2026-10-29_fuentes_destino/`
 
-## [ZIP offline] — Abrir `index.html` sin servidor muestra listados de carpetas
+## [ZIP offline] — Abrir `index.html` sin servidor muestra listados de carpetas (RESUELTO)
 
 - **Síntoma**: tras extraer el ZIP, abrir `index.html` con doble clic carga la portada, pero el
   menú lleva a listados de carpetas (o a nada) y la búsqueda no responde. `downloads.md` y el
@@ -207,11 +207,40 @@
 - **Causa**: `use_directory_urls: true` genera enlaces a carpetas (`api/archetypes/`); con
   `file://` el navegador no resuelve `index.html` dentro de ellas. La búsqueda usa un Web Worker,
   que los navegadores bloquean en `file://`.
-- **Tratamiento**: la única vía documentada es el servidor local (`start-server.py`, solo
-  `127.0.0.1`). `VER_DOCUMENTACION.md` (Fase 7c) explica cómo instalar Python desde cero.
-  `test_downloads_never_offers_opening_index_html` impide volver a ofrecerlo. Un ZIP navegable
-  sin servidor (plugin `offline` / `use_directory_urls: false`) queda como feature aparte.
-- **Sesión**: .ai/sessions/2026-10-29b_ver_documentacion/
+- **Tratamiento**: primero, solo servidor local (`start-server.py`, solo `127.0.0.1`). Desde
+  2026-10-29d, `use_directory_urls: false` + plugin `offline` + shim iframe-worker local: el ZIP se
+  abre con doble clic en `index.html` tras extraerlo (ver los dos casos siguientes);
+  `test_zip_opens_with_double_click_after_extracting` vigila las instrucciones y
+  `build_docs_zip.py` rechaza un `site/` con enlaces a carpetas o scripts remotos.
+- **Sesión**: .ai/sessions/2026-10-29b_ver_documentacion/, .ai/sessions/2026-10-29d_zip_sin_servidor/
+
+## [offline] — Material y Zensical descargan el shim iframe-worker de unpkg
+
+- **Síntoma**: con el plugin `offline`, cada página carga
+  `<script src="https://unpkg.com/iframe-worker/shim">`. Sin red, el ZIP navega pero la búsqueda
+  no responde, y el build `--strict` no avisa.
+- **Causa**: el plugin (Material `plugins/offline/plugin.py`; Zensical `_apply_offline_plugin`)
+  añade esa URL a `extra.polyfills` salvo que ya exista una entrada que contenga `iframe-worker`.
+  El shim sustituye `Worker` por un iframe cuando `protocol === "file:"`.
+- **Tratamiento**: copia local en `docs/assets/vendor/iframe-worker/` (huella fijada, `LICENSE`,
+  `SOURCE.txt`) declarada en `extra.polyfills`; los dos generadores emiten la ruta relativa por
+  página y no añaden unpkg. `test_config_builds_a_site_that_opens_without_server` y el validador
+  de `build_docs_zip.py` (ningún `<script src="http…">`). El índice JS difiere:
+  `search/search_index.js` (MkDocs) y `search.js` en la raíz (Zensical); se aceptan los dos.
+- **Sesión**: .ai/sessions/2026-10-29d_zip_sin_servidor/
+
+## [mkdocs_hooks.py] — El ZIP `latest` salía sin el índice de búsqueda en JS
+
+- **Síntoma**: con MkDocs, `site/doc_ia-docs-latest.zip` (2,69 MB) no traía
+  `search/search_index.js` y el ZIP versionado (2,80 MB) sí: la búsqueda fallaba justo en el ZIP
+  que se descarga desde la web.
+- **Causa**: el plugin `offline` escribe el índice en su `on_post_build` con prioridad -100
+  («last»); el hook, con prioridad 0, empaquetaba antes.
+- **Tratamiento**: `on_post_build.mkdocs_priority = -200` en `mkdocs_hooks.py` (lo mismo que
+  `mkdocs.plugins.event_priority`, sin importar mkdocs: Zensical carga el hook sin él).
+  `test_zip_hook_runs_after_offline_plugin` compara con la prioridad real del plugin. El producto
+  lo exige en destinos con hook propio (Gap V3).
+- **Sesión**: .ai/sessions/2026-10-29d_zip_sin_servidor/
 
 ## [build_docs_zip.py] — El ZIP versionado anidaba el ZIP `latest` y no traía `start-server.py`
 

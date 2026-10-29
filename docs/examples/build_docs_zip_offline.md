@@ -50,13 +50,15 @@ python scripts/build_docs_zip.py --builder zensical
 **Hook (`mkdocs_hooks.py`)**:
 - `on_post_build(config)` recibe `config["site_dir"]` directamente de MkDocs; nunca asume `site/` por nombre.
 - Excluye `.zip` y `.sha256` del propio ZIP para evitar recursividad.
-- Incluye `scripts/start-server.py` en la raíz del ZIP (permite `python start-server.py` tras descomprimir).
+- Incluye `scripts/start-server.py` en la raíz del ZIP (alternativa: `python start-server.py` tras descomprimir).
+- Se ejecuta después del plugin `offline` (`on_post_build.mkdocs_priority = -200`), así que el ZIP lleva `search/search_index.js`.
 - Sobreescribe el ZIP "latest" en cada build; no acumula histórico (sin versión en el nombre).
 
 **Script (`build_docs_zip.py`)**:
 - El nombre del ZIP toma la versión de `pyproject.toml`: con `version = "0.1.0"` el resultado es `dist/doc_ia-docs-0.1.0.zip`.
 - El build es **estricto por defecto** (`--strict`): cualquier warning detiene el proceso antes de empaquetar. `--no-strict` lo desactiva.
 - `--no-build` falla con código `1` si no existe `site/` previo — evita empaquetar nada silenciosamente.
+- Antes de empaquetar comprueba que `site/` se abre con doble clic en `index.html`; si no, código `1` (ver §4).
 - `dist/CHECKSUMS.txt` es acumulativo: conserva el histórico de hashes con timestamp.
 
 ## 4. Ejecución y Pruebas
@@ -103,6 +105,31 @@ Get-Content dist\doc_ia-docs-0.1.0.zip.sha256
 
 El tamaño en MB y el hash varían con el contenido del sitio; el formato del output es
 estable.
+
+**Abrir el ZIP sin servidor** (lo que hará quien lo reciba):
+
+```powershell
+Expand-Archive dist\doc_ia-docs-0.1.0.zip -DestinationPath $env:TEMP\doc_ia-docs
+Invoke-Item $env:TEMP\doc_ia-docs\index.html   # equivale al doble clic
+```
+
+```bash
+unzip dist/doc_ia-docs-0.1.0.zip -d /tmp/doc_ia-docs
+xdg-open /tmp/doc_ia-docs/index.html            # macOS: open
+```
+
+**Sitio que no se abre sin servidor** — por ejemplo, si se quita el shim local de
+`extra.polyfills` y el tema vuelve a pedirlo a unpkg:
+
+```bash
+python scripts/build_docs_zip.py --no-build
+# [build_docs_zip] ERROR: ...\site cannot be opened without a server (use_directory_urls: false, `offline` plugin, local iframe-worker in extra.polyfills):
+#   - 404.html: remote script https://unpkg.com/iframe-worker/shim
+#   - adr/ADR-001-mkdocs-material-por-defecto.html: remote script https://unpkg.com/iframe-worker/shim
+#   ...
+#   ... and N more
+echo $?   # 1 — no se crea ningún ZIP
+```
 
 ## 5. Referencias Relacionadas
 

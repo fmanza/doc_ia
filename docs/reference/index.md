@@ -2,12 +2,12 @@
 arquetipo: "12"
 fuentes:
   .claude/settings.json.example: e1c10842aa20
-  .github/workflows/docs-zip-release.yml: 024d0cf6aeb6
-  CLAUDE.md: 1be4ae56b47a
+  .github/workflows/docs-zip-release.yml: bd807d444ea2
+  CLAUDE.md: 4e93b57b44ea
   hooks/sync_root_docs.py: ef5e576436c6
-  mkdocs.yml: 2179f8729495
-  mkdocs_hooks.py: 433551c5505f
-  scripts/build_docs_zip.py: 7cecc3d4e93e
+  mkdocs.yml: 5dd76a635c78
+  mkdocs_hooks.py: 31259b7911a3
+  scripts/build_docs_zip.py: 5f972ee674c8
   scripts/check_env.py: 6202875214f7
   scripts/convert_to_md.py: e7e60518d96f
   scripts/doc_trace.py: 9b1c4d981f6a
@@ -27,6 +27,9 @@ línea de comandos, códigos de salida y eventos de build. La API interna de cad
 | `CUDA_VISIBLE_DEVICES` | `env` | cadena | `""` (lo fija `convert_to_md.py` al importarse si no existe) | Visibilidad de GPU para docling. `--device cpu` la fija a `""`; `--device cuda` la elimina; `--device auto` respeta un valor exportado por el usuario e ignora el que fija el propio módulo |
 | `project.version` | fichero `pyproject.toml` | cadena SemVer | `0.3.0` (valor actual) | Versión usada en el nombre del ZIP (`doc_ia-docs-{versión}.zip`) y en la release `docs-v{versión}` |
 | `site_dir` | fichero `mkdocs.yml` | ruta | `site` | Directorio de salida del build; `mkdocs_hooks.py` lo lee de la configuración. `build_docs_zip.py` usa `site/` fijo |
+| `use_directory_urls` | fichero `mkdocs.yml` | booleano | `false` | URLs `*.html`: el sitio y el ZIP se abren con doble clic en `index.html` (el plugin `offline` lo fuerza igualmente) |
+| `plugins: offline` | fichero `mkdocs.yml` | plugin | activo | Escribe el índice de búsqueda como JS (`search/search_index.js`; Zensical: `search.js`) para buscar desde `file://` |
+| `extra.polyfills` | fichero `mkdocs.yml` | lista de rutas | `assets/vendor/iframe-worker/iframe-worker-shim-1.0.4.min.js` | Shim local para la búsqueda desde `file://`; sin una ruta con `iframe-worker`, el tema añade la de unpkg y `build_docs_zip.py` termina con `1` |
 | `hooks` | fichero `mkdocs.yml` | lista de rutas | `hooks/sync_root_docs.py`, `mkdocs_hooks.py` | Hooks MkDocs cargados en cada build (ver §4). Zensical los ignora: con `--builder zensical`, `build_docs_zip.py` los ejecuta él mismo |
 | `hooks.PostToolUse` | fichero `.claude/settings.json` (no versionado; plantilla en `.claude/settings.json.example`) | objeto JSON | `sync_root_docs.py` + ruff + mypy + pytest `--collect-only` sobre `Edit\|Write` | Sincronización y validaciones automáticas tras cada edición en Claude Code |
 
@@ -125,7 +128,8 @@ Se distribuye en la raíz de los dos ZIP offline (`EXTRA_FILES` de `mkdocs_hooks
 `build_docs_zip.py`, junto a `VER_DOCUMENTACION.md`) y sirve el directorio donde está, solo en
 `127.0.0.1`, con un hilo por conexión (una conexión ociosa del navegador no bloquea las
 demás). Basta Python 3.7 o superior, sin paquetes. Si el puerto está ocupado, termina con
-código 1 y sugiere `--port <puerto+1>`.
+código 1 y sugiere `--port <puerto+1>`. Es la alternativa al doble clic en `index.html` (por
+ejemplo, si una política de empresa bloquea los scripts de ficheros locales).
 
 | Opción / Argumento | Tipo | Por defecto | Descripción |
 |---|---|---|---|
@@ -146,6 +150,7 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 |---|---|---|---|
 | `0` | `build_docs_zip.py` | ZIP y checksums generados | — |
 | `1` | `build_docs_zip.py` | `--no-build` sin `site/` existente | Ejecutar sin `--no-build` |
+| `1` | `build_docs_zip.py` | `site/` no se abre sin servidor: falta `index.html` o el índice de búsqueda en JS, script remoto o enlace a carpeta (hasta 20 líneas `- <página>: <problema>` por stderr) | Revisar `use_directory_urls: false`, el plugin `offline` y el shim local en `extra.polyfills` |
 | `≠ 0` (propagado) | `build_docs_zip.py` | El build del generador falla (p. ej. enlace roto con `--strict`) | Corregir los avisos del build |
 | `2` | `build_docs_zip.py`, `convert_to_md.py`, `start-server.py` | Opción desconocida o valor fuera de `choices` (argparse) | Revisar la sinopsis del §2 |
 | `0` | `check_env.py` | Herramientas obligatorias presentes (con o sin avisos de opcionales) | — |
@@ -172,7 +177,7 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 | Evento / Mensaje | Productor | Consumidor | Payload / formato |
 |---|---|---|---|
 | `on_pre_build` | MkDocs | `hooks/sync_root_docs.py` | Configuración MkDocs (`docs_dir`); copia los ficheros raíz a `docs/` |
-| `on_post_build` | MkDocs | `mkdocs_hooks.py` | Configuración MkDocs (`site_dir`); genera `site/doc_ia-docs-latest.zip` + `.sha256` |
+| `on_post_build` | MkDocs | `mkdocs_hooks.py` | Configuración MkDocs (`site_dir`); genera `site/doc_ia-docs-latest.zip` + `.sha256`, con prioridad -200: después del plugin `offline`, para incluir el índice de búsqueda en JS |
 | Pre/post-build sin hooks | `build_docs_zip.py --builder zensical` | `sync_root_docs.main()` / `mkdocs_hooks.on_post_build({"site_dir": ...})` | Mismo efecto que los dos eventos anteriores; el post-build solo si el build termina con `0` |
 | `PostToolUse` (`Edit\|Write`) | Claude Code | Comandos de `.claude/settings.json` | Ejecuta `sync_root_docs.py`, ruff, mypy y pytest `--collect-only`; salida truncada a 5–15 líneas |
 | Prefijos de log `[build_docs_zip]`, `[ZIP]`, `[OK]`, `[sync_root_docs]`, `[doc_ia-docs]` | Scripts y hooks | Usuario / CI | Texto libre por stdout; sin contrato estable más allá del prefijo |
@@ -249,6 +254,9 @@ convertido: hereda la sensibilidad del origen.
     | Código `0` de `sync_root_docs.py` | `hooks/sync_root_docs.py::main` | ✅ |
     | `on_pre_build` | `hooks/sync_root_docs.py::on_pre_build` | ✅ |
     | `on_post_build` + `start-server.py` en el ZIP | `mkdocs_hooks.py::on_post_build` | ✅ |
+    | `on_post_build` con prioridad -200 | `mkdocs_hooks.py::on_post_build` (`mkdocs_priority`) | ✅ |
+    | `use_directory_urls`, plugin `offline`, `extra.polyfills` | `mkdocs.yml::use_directory_urls`, `::plugins`, `::extra` | ✅ |
+    | Código `1` de `build_docs_zip.py` por sitio que no se abre sin servidor | `scripts/build_docs_zip.py::_check_offline`, `::_offline_problems` | ✅ |
     | Pre/post-build ejecutados por el script con `zensical` | `scripts/build_docs_zip.py::HOOKLESS_BUILDERS`, `::_pre_build`, `::_post_build` | ✅ |
     | Release `docs-v{versión}` | `.github/workflows/docs-zip-release.yml::build-and-publish` | ✅ |
     | Salida `md/` de `convert_to_md.py` | `scripts/convert_to_md.py::output_path` | ✅ |

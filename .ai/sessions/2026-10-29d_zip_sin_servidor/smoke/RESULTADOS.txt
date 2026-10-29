@@ -1,0 +1,78 @@
+== Edge + MkDocs: OK
+  ✅ portada — doc_ia
+  ✅ shim activo (Worker = IFrameWorker)
+  ✅ sin enlaces a carpeta en la portada — 0
+  ✅ búsqueda «mermaid» con resultados — 10 resultados; 10 documentos encontrados | foco: INPUT.md-search__input focus-visible | valor: mermaid
+  ✅ navegar a quickstart.html — Quick Start¶
+  ✅ navegar a api/build_docs_zip.html — build_docs_zip¶
+  ✅ diagramas Mermaid dibujados — 2
+  ✅ navegar a functional/build_docs_zip.html — ZIP de Documentación Offline¶
+  ✅ navegar a reference/index.html — Referencia — doc_ia¶
+  ✅ navegar a downloads.html — 📥 Descargas¶
+  ✅ ninguna petición local fallida
+  ✅ sin excepciones JS
+  ✅ ninguna petición remota salvo fuentes y datos del repo
+  (peticiones remotas intentadas: https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback, https://api.github.com/repos/fmanza/doc_ia/releases/latest, https://api.github.com/repos/fmanza/doc_ia)
+== Edge + Zensical: OK
+  ✅ portada — Inicio - doc_ia
+  ✅ shim activo (Worker = IFrameWorker)
+  ✅ sin enlaces a carpeta en la portada — 0
+  ✅ búsqueda «mermaid» con resultados — 10 resultados;  | foco: DIV. | valor: 
+  ✅ navegar a quickstart.html — Quick Start¶
+  ✅ navegar a api/build_docs_zip.html — build_docs_zip¶
+  ✅ diagramas Mermaid dibujados — 2
+  ✅ navegar a functional/build_docs_zip.html — ZIP de Documentación Offline¶
+  ✅ navegar a reference/index.html — Referencia — doc_ia¶
+  ✅ navegar a downloads.html — 📥 Descargas¶
+  ✅ ninguna petición local fallida
+  ✅ sin excepciones JS
+  ✅ ninguna petición remota salvo fuentes y datos del repo
+  (peticiones remotas intentadas: https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback, https://api.github.com/repos/fmanza/doc_ia/releases/latest, https://api.github.com/repos/fmanza/doc_ia)
+== Chrome + MkDocs: OK
+  ✅ portada — doc_ia
+  ✅ shim activo (Worker = IFrameWorker)
+  ✅ sin enlaces a carpeta en la portada — 0
+  ✅ búsqueda «mermaid» con resultados — 10 resultados; 10 documentos encontrados | foco: INPUT.md-search__input focus-visible | valor: mermaid
+  ✅ navegar a quickstart.html — Quick Start¶
+  ✅ navegar a api/build_docs_zip.html — build_docs_zip¶
+  ✅ diagramas Mermaid dibujados — 2
+  ✅ navegar a functional/build_docs_zip.html — ZIP de Documentación Offline¶
+  ✅ navegar a reference/index.html — Referencia — doc_ia¶
+  ✅ navegar a downloads.html — 📥 Descargas¶
+  ✅ ninguna petición local fallida
+  ✅ sin excepciones JS
+  ✅ ninguna petición remota salvo fuentes y datos del repo
+  (peticiones remotas intentadas: https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback, https://api.github.com/repos/fmanza/doc_ia/releases/latest, https://api.github.com/repos/fmanza/doc_ia)
+== Chrome + Zensical: OK
+  ✅ portada — Inicio - doc_ia
+  ✅ shim activo (Worker = IFrameWorker)
+  ✅ sin enlaces a carpeta en la portada — 0
+  ✅ búsqueda «mermaid» con resultados — 10 resultados;  | foco: DIV. | valor: 
+  ✅ navegar a quickstart.html — Quick Start¶
+  ✅ navegar a api/build_docs_zip.html — build_docs_zip¶
+  ✅ diagramas Mermaid dibujados — 2
+  ✅ navegar a functional/build_docs_zip.html — ZIP de Documentación Offline¶
+  ✅ navegar a reference/index.html — Referencia — doc_ia¶
+  ✅ navegar a downloads.html — 📥 Descargas¶
+  ✅ ninguna petición local fallida
+  ✅ sin excepciones JS
+  ✅ ninguna petición remota salvo fuentes y datos del repo
+  (peticiones remotas intentadas: https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback, https://api.github.com/repos/fmanza/doc_ia/releases/latest, https://api.github.com/repos/fmanza/doc_ia)
+== Firefox + MkDocs: OK
+  ✅ portada — doc_ia
+  ✅ shim activo (Worker = IFrameWorker)
+  ✅ búsqueda «mermaid» con resultados — 10 resultados
+  ✅ navegar a quickstart.html — Quick Start¶
+  ✅ navegar a api/build_docs_zip.html — build_docs_zip¶
+  ✅ diagramas Mermaid dibujados — 2
+  ✅ navegar a reference/index.html — Referencia — doc_ia¶
+  ✅ navegar a downloads.html — 📥 Descargas¶
+== Firefox + Zensical: OK
+  ✅ portada — Inicio - doc_ia
+  ✅ shim activo (Worker = IFrameWorker)
+  ✅ búsqueda «mermaid» con resultados — 10 resultados
+  ✅ navegar a quickstart.html — Quick Start¶
+  ✅ navegar a api/build_docs_zip.html — build_docs_zip¶
+  ✅ diagramas Mermaid dibujados — 2
+  ✅ navegar a reference/index.html — Referencia — doc_ia¶
+  ✅ navegar a downloads.html — 📥 Descargas¶

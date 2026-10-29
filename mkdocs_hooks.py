@@ -52,6 +52,12 @@ def on_post_build(config, **kwargs):
     print(f"[OK] Checksum guardado: {sha256_file.name}")
 
 
+# Ejecutar después del plugin `offline` (prioridad -100), que escribe search/search_index.js en
+# su on_post_build: sin él, el ZIP latest no tendría búsqueda por file://. Es lo que hace
+# mkdocs.plugins.event_priority, sin importar mkdocs (Zensical carga este hook sin MkDocs).
+on_post_build.mkdocs_priority = -200
+
+
 def _sha256(file_path: Path) -> str:
     h = hashlib.sha256()
     with open(file_path, "rb") as f:

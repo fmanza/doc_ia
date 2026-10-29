@@ -79,6 +79,7 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 - [ ] `extra_css` incluye `assets/css/nav.css` y `assets/css/mermaid.css`
 - [ ] `extra_javascript` incluye, en este orden, `assets/js/sidebar-toggle.js`, `assets/vendor/mermaid/mermaid-12.2.0.min.js` y `assets/js/mermaid-theme.js`, y **no** incluye el CDN de Mermaid ni `assets/js/mermaid.js` (si están, retirarlos: duplican el render — ver `.claude/EDGE_CASES.md § Mermaid`)
 - [ ] Los archivos `docs/assets/css/nav.css`, `docs/assets/css/mermaid.css`, `docs/assets/js/sidebar-toggle.js`, `docs/assets/js/mermaid-theme.js` y `docs/assets/vendor/mermaid/` (librería de la misma versión que doc_ia, `LICENSE`, `SOURCE.txt`) existen en disco; una librería de otra versión se sustituye
+- [ ] ZIP sin servidor: `use_directory_urls: false`, plugin `offline` y `extra.polyfills: [assets/vendor/iframe-worker/iframe-worker-shim-1.0.4.min.js]` (sin él, el tema descarga el shim de unpkg y la búsqueda por `file://` falla sin red — ver `.claude/EDGE_CASES.md § offline`); `docs/assets/vendor/iframe-worker/` (shim de la misma versión que doc_ia, `LICENSE`, `SOURCE.txt`) existe en disco
 - [ ] `pymdownx.superfences` con `custom_fences` para `mermaid` (`format: !!python/name:pymdownx.superfences.fence_code_format`): sin él los diagramas salen como código
 - [ ] `markdown_extensions` incluye los universales (ver tabla abajo)
 
@@ -86,6 +87,7 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 - `theme.features` — Ver tabla de compatibilidad más abajo; algunas requieren decisión
 - `markdown_extensions` críticas — `pymdownx.snippets` (para `--8<--`), `pymdownx.superfences` (Mermaid), `pymdownx.emoji`, `pymdownx.highlight`, `pymdownx.inlinehilite`, `attr_list`, `md_in_html`
 - `extra_javascript` y `extra_css` — Assets personalizados (`sidebar-toggle.js`, `nav.css`, `mermaid.css`, Mermaid local y `mermaid-theme.js`); el tema renderiza con la copia local de Mermaid
+- `plugins` (`offline`), `use_directory_urls: false` y `extra.polyfills` (shim iframe-worker local) — ZIP con doble clic en `index.html`
 - `extra.social` — Enlaces de redes sociales (si aplica)
 
 **Tabla de `theme.features` — copiables vs decisión**:
@@ -226,8 +228,11 @@ __pycache__/
    - `VER_DOCUMENTACION.md` creado / actualizado / vigente, en la raíz del destino (fuera de `docs/`)
    - Tabla: | Marcador | Valor | Fuente verificada | — sin valores inventados
    - Ruta A (web publicada) solo si hay `site_url` y publicación verificada; si no, "No aplica"
-   - Gap V1 (falta `requirements-docs.txt` → crearlo) y Gap V2 (`EXTRA_FILES` en hook/script)
-   - Prohibido indicar «abrir `index.html` con doble clic»: los enlaces apuntan a carpetas
+   - Gap V1 (falta `requirements-docs.txt` → crearlo), Gap V2 (`EXTRA_FILES` en hook/script) y
+     Gap V3 (hook sin `on_post_build.mkdocs_priority = -200`: el ZIP latest sale sin búsqueda)
+   - Ruta B: extraer el ZIP completo y doble clic en `index.html` (Fase 0b: `offline` + shim
+     local); `start-server.py` como alternativa. Prohibido indicar flags del navegador
+     (`--allow-file-access-from-files`)
 
 9. **RESUMEN**
    - Archivos generados/actualizados, entradas de nav, pendientes de verificación humana
