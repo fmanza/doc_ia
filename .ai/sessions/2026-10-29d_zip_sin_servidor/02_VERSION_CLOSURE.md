@@ -77,11 +77,14 @@ Detalle completo: `CHANGELOG.md` § `[0.4.0] — 2026-10-29`.
 - [x] `CHANGELOG.md` → `[0.4.0] — 2026-10-29` con enlaces (+ `docs/changelog.md` sincronizado)
 - [x] `doc_trace drift` sin drift, `matrix` y `llms --check` al día
 - [x] `mkdocs build --strict` + ZIP `dist/doc_ia-docs-0.4.0.zip` (2,81 MB, validado sin servidor); tabla de `docs/downloads.md`
-- [ ] CI de `develop` y de `main`, merge a `main` y tag `v0.4.0` → release `v0.4.0`
-- [ ] Release `docs-v0.4.0` con ZIP, `.sha256` y `CHECKSUMS.txt`
+- [x] CI de `develop` (run 40898388352) y de `main` (run 40898770989), merge a `main` (`520835c`) y tag `v0.4.0` → release `v0.4.0` (run 40899582347)
+- [x] Release `docs-v0.4.0` con ZIP, `.sha256` y `CHECKSUMS.txt` (run 40898770937). ZIP publicado descargado: `sha256sum -c` OK, `_offline_problems` = 0 y prueba de humo en Edge sin red OK
 
 ## Handoff
 
+- La prueba de humo de Chromium escribe ahora tecla a tecla (`Input.dispatchKeyEvent`): con
+  `Input.insertText` Material no procesa la consulta si el índice ya está listo, y fallaba de forma
+  intermitente (3/3 en el ZIP publicado y en el local, antes de corregirla).
 - Comprobar con Firefox con ventana que un clic en la búsqueda la abre (K5 de AUDIT_CODE).
 - C2 de ADR-003: F8 no antes del 2026-11-11; F7 al publicarse Zensical 0.1.
 - Las fuentes de Google y la API de GitHub (`repo_url`) se piden al abrir el sitio con red (D4).

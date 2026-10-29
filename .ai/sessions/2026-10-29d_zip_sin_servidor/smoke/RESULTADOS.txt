@@ -76,3 +76,6 @@
   ✅ diagramas Mermaid dibujados — 2
   ✅ navegar a reference/index.html — Referencia — doc_ia¶
   ✅ navegar a downloads.html — 📥 Descargas¶
+
+== Edge + ZIP publicado docs-v0.4.0 (descargado de GitHub Releases, hash OK): OK
+  ✅ búsqueda «mermaid» con resultados — 10 documentos encontrados; navegación, diagramas, 0 peticiones locales fallidas
