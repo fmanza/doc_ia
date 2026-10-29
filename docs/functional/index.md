@@ -6,7 +6,7 @@ fuentes:
   docs/functional/build_docs_zip.md: 79aa5c840b2d
   docs/functional/check_env.md: f9e9d9c5e13d
   docs/functional/convert_to_md.md: 52a46b57a810
-  docs/functional/doc_trace.md: 04639ce0babf
+  docs/functional/doc_trace.md: 576ed30336c1
   docs/functional/document_project.md: b09dcaefe6ca
   docs/functional/origin_types.md: 8d51f61b1bac
 revisado: 2026-10-29

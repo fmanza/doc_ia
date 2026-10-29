@@ -71,7 +71,11 @@ const rect = await evaluate(`(() => { const q = document.querySelector('[data-md
   const r = q.getBoundingClientRect(); return {x: r.x + r.width / 2, y: r.y + r.height / 2, tag: q.tagName}; })()`);
 for (const type of ["mousePressed", "mouseReleased"]) await send("Input.dispatchMouseEvent", { type, x: rect.x, y: rect.y, button: "left", clickCount: 1 });
 await sleep(300);
-await send("Input.insertText", { text: query });
+for (const c of query) {
+  await send("Input.dispatchKeyEvent", { type: "keyDown", key: c, text: c, unmodifiedText: c, code: `Key${c.toUpperCase()}`, windowsVirtualKeyCode: c.toUpperCase().charCodeAt(0) });
+  await send("Input.dispatchKeyEvent", { type: "keyUp", key: c, code: `Key${c.toUpperCase()}`, windowsVirtualKeyCode: c.toUpperCase().charCodeAt(0) });
+  await sleep(60);
+}
 const results = await poll(`document.querySelectorAll('.md-search-result__item').length + (document.activeElement?.shadowRoot?.querySelectorAll('a[href]').length ?? 0)`);
 const meta = await evaluate(`(document.querySelector('.md-search-result__meta')?.textContent?.trim() ?? '') + ' | foco: ' + document.activeElement?.tagName + '.' + document.activeElement?.className + ' | valor: ' + (document.activeElement?.value ?? '')`);
 check(`búsqueda «${query}» con resultados`, results > 0, `${results} resultados; ${meta}`);

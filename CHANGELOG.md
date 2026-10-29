@@ -5,6 +5,14 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+## [0.4.1] — 2026-10-29
+
+### Fixed
+
+- **`doc_trace.py llms` con `--root`**: `--config` y `--output` se resolvían contra la raíz de
+  doc_ia, así que sobre un destino externo leía el `mkdocs.yml` de doc_ia y sobrescribía su
+  `docs/llms.txt`. Ahora, por defecto, `<root>/mkdocs.yml` y `<docs_dir>/llms.txt` de ese config.
+
 ## [0.4.0] — 2026-10-29
 
 ### Added
@@ -248,7 +256,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - Restauración de `config-reviewer.agent.md` y creación de `docs.instructions.md`
   tras corrupción del bootstrap.
 
-[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/fmanza/doc_ia/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/fmanza/doc_ia/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/fmanza/doc_ia/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/fmanza/doc_ia/compare/docs-v0.1.0...v0.2.0
