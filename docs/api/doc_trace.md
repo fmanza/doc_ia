@@ -1,8 +1,8 @@
 ---
 arquetipo: "2"
 fuentes:
-  scripts/doc_trace.py: 9b1c4d981f6a
-  tests/test_doc_trace.py: f8c5c5a612ab
+  scripts/doc_trace.py: c87edf981515
+  tests/test_doc_trace.py: 4bd33cb88910
 revisado: 2026-10-29
 ---
 # doc_trace
@@ -103,7 +103,7 @@ Las rutas de git y las citas se comparan en POSIX y relativas a la raíz del ori
 | `stamp --source` | `str` (repetible) | Fuente relativa a `--root` | Dentro del repositorio y existente; si se omite, se reutilizan las del frontmatter; si se indica, sustituye la lista completa (no añade) |
 | `stamp --archetype` / `--date` | `str` | Arquetipo y fecha `YYYY-MM-DD` | Por defecto, el arquetipo actual y la fecha del día |
 | `matrix --docs` / `--tests` / `--output` | `Path` | Carpetas de docs y tests; fichero de salida opcional | Lee `--docs/functional/*.md` (no recursivo) |
-| `llms --config` / `--output` / `--site-url` / `--check` | `Path` / `str` / flag | Configuración MkDocs, destino, URL base, modo comprobación | Por defecto `mkdocs.yml`, `docs/llms.txt` y `site_url` del config |
+| `llms --config` / `--output` / `--site-url` / `--check` | `Path` / `str` / flag | Configuración MkDocs, destino, URL base, modo comprobación | Por defecto `<root>/mkdocs.yml`, `<docs_dir>/llms.txt` de ese config y `site_url` del config |
 | `baseline` / `changes --origin` | `Path` | Raíz del origen documentado | Obligatorio; puede ser una subcarpeta de un repositorio |
 | `baseline` / `changes --name` | `str` | Clave del origen en el estado | Por defecto, el nombre de la carpeta del origen (regla de `_fuentes/`) |
 | `baseline` / `changes --docs` / `--state` | `Path` | Docs y estado del destino | Por defecto `<--root>/docs` y `<--root>/.ai/doc_state.json` |
@@ -179,6 +179,7 @@ Las rutas de git y las citas se comparan en POSIX y relativas a la raíz del ori
 | `test_main_matrix_exit_code_on_unknown_test` (1) | `matrix` devuelve `1` con un test inexistente | integración (CLI) |
 | `test_build_llms_txt_tolerates_python_tags` (1) | Etiquetas `!!python/name:`, URLs con `site_url` y omisión de enlaces externos | unitario |
 | `test_main_llms_check_detects_outdated` (1) | `llms --check` antes y después de generar | integración (CLI) |
+| `test_main_llms_defaults_follow_root` (1) | Sin `--config` ni `--output`: lee `<root>/mkdocs.yml` y escribe en su `docs_dir` | integración (CLI) |
 | `test_main_llms_without_nav_returns_error`, `test_main_stamp_missing_page_returns_error` (2) | Errores controlados de la CLI con código `1` | integración (CLI) |
 | `test_main_requires_subcommand` (1) | Sin subcomando → `SystemExit(2)` | integración (CLI) |
 | `test_baseline_records_clean_head`, `test_write_baseline_keeps_other_origins` (2) | Estado escrito: commit, rama, pendiente, versión; conserva otros orígenes | integración (git local) / unitario |

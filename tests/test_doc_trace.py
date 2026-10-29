@@ -248,6 +248,17 @@ def test_main_llms_check_detects_outdated(tmp_path: Path) -> None:
     assert main(["llms", "--config", str(cfg), "--output", str(out), "--check"]) == 0
 
 
+def test_main_llms_defaults_follow_root(tmp_path: Path) -> None:
+    # Destino externo: sin --config ni --output, lee <root>/mkdocs.yml y escribe en su docs_dir.
+    dest = tmp_path / "dest"
+    (dest / "manual").mkdir(parents=True)
+    (dest / "mkdocs.yml").write_text("docs_dir: manual\n" + MKDOCS_YML, encoding="utf-8")
+    assert main(["--root", str(dest), "llms"]) == 0
+    out = dest / "manual" / "llms.txt"
+    assert out.read_text(encoding="utf-8").startswith("# Demo\n")
+    assert main(["--root", str(dest), "llms", "--check"]) == 0
+
+
 def test_main_llms_without_nav_returns_error(tmp_path: Path) -> None:
     cfg = tmp_path / "mkdocs.yml"
     cfg.write_text("site_name: Demo\n", encoding="utf-8")

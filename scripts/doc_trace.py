@@ -689,12 +689,14 @@ def _cmd_matrix(args: argparse.Namespace) -> int:
 
 
 def _cmd_llms(args: argparse.Namespace) -> int:
+    # Por defecto, relativos a --root (destino externo), no a la raíz de doc_ia.
+    config: Path = args.config or args.root.resolve() / "mkdocs.yml"
     try:
-        content = build_llms_txt(args.config, args.site_url)
+        content = build_llms_txt(config, args.site_url)
+        output: Path = args.output or _default_llms_output(config)
     except (ValueError, OSError) as exc:
         print(f"[doc_trace] ERROR: {exc}", file=sys.stderr)
         return 1
-    output: Path = args.output
     if args.check:
         current = output.read_text(encoding="utf-8") if output.exists() else ""
         if current != content:
@@ -705,6 +707,13 @@ def _cmd_llms(args: argparse.Namespace) -> int:
     output.write_text(content, encoding="utf-8", newline="\n")
     print(f"[doc_trace] {output} generado ({content.count('- [')} páginas).")
     return 0
+
+
+def _default_llms_output(mkdocs_yml: Path) -> Path:
+    """``<docs_dir>/llms.txt`` junto a ``mkdocs.yml`` (``docs_dir`` por defecto: ``docs``)."""
+    config = _load_yaml(mkdocs_yml.read_text(encoding="utf-8"))
+    docs_dir = config.get("docs_dir", "docs") if isinstance(config, dict) else "docs"
+    return mkdocs_yml.parent / str(docs_dir) / "llms.txt"
 
 
 def _origin_args(args: argparse.Namespace) -> tuple[Path, Path, Path, str]:
@@ -784,8 +793,8 @@ def _parser() -> argparse.ArgumentParser:
     matrix.set_defaults(func=_cmd_matrix)
 
     llms = sub.add_parser("llms", help="Genera llms.txt desde el nav de mkdocs.yml.")
-    llms.add_argument("--config", type=Path, default=ROOT / "mkdocs.yml", help="mkdocs.yml.")
-    llms.add_argument("--output", type=Path, default=ROOT / "docs" / "llms.txt", help="Salida.")
+    llms.add_argument("--config", type=Path, help="mkdocs.yml (<root>/mkdocs.yml).")
+    llms.add_argument("--output", type=Path, help="Salida (<docs_dir de --config>/llms.txt).")
     llms.add_argument("--site-url", help="URL base (por defecto, site_url de mkdocs.yml).")
     llms.add_argument("--check", action="store_true", help="Solo comprueba que está al día.")
     llms.set_defaults(func=_cmd_llms)

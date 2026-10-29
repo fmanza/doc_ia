@@ -5,6 +5,12 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+### Fixed
+
+- **`doc_trace.py llms` con `--root`**: `--config` y `--output` se resolvían contra la raíz de
+  doc_ia, así que sobre un destino externo leía el `mkdocs.yml` de doc_ia y sobrescribía su
+  `docs/llms.txt`. Ahora, por defecto, `<root>/mkdocs.yml` y `<docs_dir>/llms.txt` de ese config.
+
 ## [0.4.0] — 2026-10-29
 
 ### Added

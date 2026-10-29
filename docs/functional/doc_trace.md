@@ -1,7 +1,7 @@
 ---
 arquetipo: "1"
 fuentes:
-  scripts/doc_trace.py: 9b1c4d981f6a
+  scripts/doc_trace.py: c87edf981515
 revisado: 2026-10-29
 ---
 # Trazabilidad entre Documentación y Código
@@ -78,8 +78,8 @@ criterios y el índice para agentes IA se ejecutan como operaciones independient
 - **Comprobar desactualizaciones**: no modifica nada; informa por pantalla y con el código de
   finalización.
 - **Matriz de criterios**: muestra la matriz por pantalla o la escribe en el fichero indicado.
-- **Índice para agentes IA**: escribe `llms.txt` en la carpeta de documentación (el sitio lo
-  publica en su raíz); en modo comprobación no escribe nada.
+- **Índice para agentes IA**: escribe `llms.txt` en la carpeta de documentación del proyecto
+  indicado como raíz (el sitio lo publica en su raíz); en modo comprobación no escribe nada.
 - **Baseline**: escribe o actualiza la entrada del proyecto en `.ai/doc_state.json` del
   destino, conservando la de los demás proyectos.
 - **Cambios desde el baseline**: no modifica nada; informa de los ficheros cambiados, las

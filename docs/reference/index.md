@@ -10,7 +10,7 @@ fuentes:
   scripts/build_docs_zip.py: 5f972ee674c8
   scripts/check_env.py: 6202875214f7
   scripts/convert_to_md.py: e7e60518d96f
-  scripts/doc_trace.py: 9b1c4d981f6a
+  scripts/doc_trace.py: c87edf981515
   scripts/start-server.py: a12209ac8507
 revisado: 2026-10-29
 ---
@@ -108,8 +108,8 @@ python scripts/doc_trace.py [--root DIR] {drift,stamp,matrix,llms,baseline,chang
 | `matrix --docs` | ruta | `docs` | Se leen los `AC-xx` de `<docs>/functional/*.md` |
 | `matrix --tests` | ruta | `tests` | Carpeta con `test_*.py` |
 | `matrix --output` | ruta | stdout | Fichero Markdown de la matriz |
-| `llms --config` | ruta | `mkdocs.yml` | Configuración con `site_name`, `site_url` y `nav` |
-| `llms --output` | ruta | `docs/llms.txt` | Fichero generado |
+| `llms --config` | ruta | `<root>/mkdocs.yml` | Configuración con `site_name`, `site_url` y `nav` |
+| `llms --output` | ruta | `<docs_dir>/llms.txt` junto a `--config` | Fichero generado (`docs_dir` por defecto: `docs`) |
 | `llms --site-url` | URL | `site_url` de `mkdocs.yml` | Base de los enlaces |
 | `llms --check` | flag | desactivado | Solo comprueba que el fichero está al día |
 | `baseline` / `changes --origin` | ruta (obligatorio) | — | Raíz del origen documentado (git); puede ser una subcarpeta de un repositorio |
