@@ -2,10 +2,10 @@
 arquetipo: "2"
 fuentes:
   mkdocs_hooks.py: 2f510611cb6f
-  pyproject.toml: b6a2ca1ee162
+  pyproject.toml: 30d10ea138cb
   scripts/build_docs_zip.py: b9a2694d122f
   tests/test_build_docs_zip.py: 0dad72a78801
-revisado: 2026-10-28
+revisado: 2026-10-29
 ---
 # build_docs_zip
 

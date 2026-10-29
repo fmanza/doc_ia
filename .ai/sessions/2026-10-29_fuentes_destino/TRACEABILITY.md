@@ -30,5 +30,11 @@ ruff ✅ · mypy ✅ · pytest ✅ · `doc_trace drift` sin hallazgos · `doc_tr
 - Pendiente A7 resuelto en la misma fecha: la Fase 0c usa docling como motor por defecto
   (markitdown solo para XLS, pandoc para DOC/ODT/RST).
 
+## Versión
+| Paso | Resultado | Commit | Estado |
+|---|---|---|---|
+| Commits de la sesión | `add850b` (`_fuentes/`), `3f1f024` (docling en Fase 0c) | — | HECHO |
+| VERSION | `release: v0.3.0 - …` (`02_VERSION_CLOSURE.md`) | — | EN CURSO |
+
 ## Veredicto
-GO — pendiente de commit (no solicitado).
+CLOSED tras la release v0.3.0.

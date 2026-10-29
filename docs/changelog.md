@@ -5,6 +5,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-10-29
+
 ### Added
 
 - **Regla transversal de diagramas** (`DOCUMENTATION_STANDARD.md` §3.17): fuente única de las
@@ -185,6 +187,7 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - Restauración de `config-reviewer.agent.md` y creación de `docs.instructions.md`
   tras corrupción del bootstrap.
 
-[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/fmanza/doc_ia/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/fmanza/doc_ia/compare/docs-v0.1.0...v0.2.0
 [0.1.0]: https://github.com/fmanza/doc_ia/releases/tag/docs-v0.1.0
