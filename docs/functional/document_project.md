@@ -1,9 +1,9 @@
 ---
 arquetipo: "1"
 fuentes:
-  .claude/commands/document-project.md: 0ed86a22efca
-  .github/DOCUMENTATION_STANDARD.md: 10dd01cc5e3b
-  .github/prompts/document_project.prompt.md: f626f8518ed1
+  .claude/commands/document-project.md: f03102a6de92
+  .github/DOCUMENTATION_STANDARD.md: 03090ee7a89d
+  .github/prompts/document_project.prompt.md: 448c66c6aacf
   CLAUDE.md: 1be4ae56b47a
 revisado: 2026-10-29
 ---
@@ -88,6 +88,8 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
   offline quedan reportados en el resumen.
 - El destino tiene los cinco recursos visuales en `docs/assets/`, entre ellos su propia copia de Mermaid, de modo que los diagramas se ven también sin conexión, y un `.gitignore` con los
   patrones estándar.
+- Si el origen tiene documentos convertidos a Markdown, el destino tiene su copia en
+  `_fuentes/`, fuera de `docs/` y versionada, y ninguna carpeta con otro nombre para ellos.
 - Existe `.ai/sessions/YYYY-MM-DD/` en el destino con `00_REQUEST.md`,
   `00_CONTEXT_SNAPSHOT.md` y `TRACEABILITY.md`; en la primera sesión se crean además los
   cinco ficheros de contexto `.ai/*.md`.
@@ -109,6 +111,7 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
 | Sincronización visual obligatoria (Fase 0b) | Al inicio de toda sesión se verifican: assets CSS/JS en `docs/assets/`, configuración de `mkdocs.yml` (sin `navigation.sections` si `nav.css` presente), `.gitignore` con patrones estándar (`site/`, `*.pdf`, `*.doc`, `*.docx`). Aplica tanto en creación como en actualización ⚠️ | El destino tendría assets desincronizados, menú lateral sin colapso o binarios versionados por error |
 | Zensical sin pérdidas silenciosas | Con generador Zensical, que no ejecuta `hooks:` ni los plugins que no soporta, el flujo detecta si el script de build del destino ejecuta él mismo esos pasos (`TIENE_PIPELINE_SIN_HOOKS`), reporta el Gap A4 si no lo hace y señala los plugins no soportados; nunca crea `zensical.toml` | El destino perdería sin aviso la sincronización de ficheros raíz, el ZIP "latest" o la función de un plugin |
 | Documentos pre-convertidos (`md/`) | Si el origen contiene carpetas `md/` (generadas por `convert_to_md.py`), se usan como contexto de primera clase en Fases 2-4 sin re-conversión; no generan páginas propias ni reciben estado A/B/C | Se perdería contexto valioso de documentos binarios o se intentaría re-convertir innecesariamente |
+| Fuentes convertidas en `_fuentes/` | El destino recibe siempre una copia de los documentos convertidos en `_fuentes/<origen>/…`, con la misma ruta que en el origen, aunque origen y destino sean el mismo repositorio. Es el único nombre válido: otro nombre existente se migra a `_fuentes/` con confirmación, y nada se borra sin confirmar. Su texto se versiona en el destino; los binarios, no | Cada sesión elegiría un nombre distinto (`.fuentes/`, `_fuentes/`), la evidencia apuntaría a rutas fuera del repositorio y la trazabilidad no detectaría cambios en esos documentos |
 | Contexto persistente `.ai/*.md` | En la primera sesión de un destino nuevo (o si faltan), se crean los 5 ficheros de contexto raíz: `product.md`, `architecture.md`, `glossary.md`, `runtime.md`, `standards.md`; en sesiones posteriores se actualizan si el inventario detecta cambios relevantes | Una IA futura no tendría el snapshot del proyecto para su `00_CONTEXT_SNAPSHOT` |
 
 ## 6. Límites, Flujos Alternativos y Casos Especiales
@@ -156,6 +159,9 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
 - **Normativa detectada**: si el origen referencia normativa de obligado cumplimiento, el
   flujo ofrece el Arquetipo 8; si no, lo omite.
 - **Carpetas `md/` pre-convertidas**: se reutilizan como contexto sin volver a convertir.
+- **Destino con fuentes bajo otro nombre** (`.fuentes/` o `fuentes/` en su raíz): el
+  inventario propone migrarlas a `_fuentes/` y actualizar las páginas que las citan; si una misma
+  fuente difiere entre las dos carpetas, el flujo se detiene y pregunta.
 
 ## 7. Criterios de Aceptación
 
@@ -169,6 +175,8 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
 | AC-06 | Todos los orígenes indicados son MATERIAL (sin ningún proyecto de código) | Se inicia la ejecución | El flujo se detiene con un mensaje que informa que se requiere al menos un origen de tipo CÓDIGO y orienta al prompt de arquetipo directo | Sin test |
 | AC-07 | Cualquier sesión de `/document-project` completada | El flujo llega al RESUMEN | Existe el artefacto `.ai/sessions/YYYY-MM-DD/` con los tres ficheros obligatorios (`00_REQUEST.md`, `00_CONTEXT_SNAPSHOT.md`, `TRACEABILITY.md`) y se propone un commit Conventional Commits | Sin test |
 | AC-08 | Un destino con generador Zensical, `hooks:` en `mkdocs.yml` y un script de build que no ejecuta esos hooks | Se ejecuta el flujo | El inventario y DOWNLOADS reportan `TIENE_PIPELINE_SIN_HOOKS = false` y el Gap A4 con la acción de actualizar el script; los plugins no soportados aparecen como hallazgo en RESUMEN; no se crea `zensical.toml` | Sin test |
+| AC-09 | Un origen con PDFs convertidos en `md/`, documentado en su propio repositorio o en uno aparte | Se ejecuta el flujo | Los `.md` convertidos quedan copiados en `_fuentes/<origen>/…` de la raíz del destino, fuera de `docs/`; el inventario los lista y el commit propuesto los incluye | Sin test |
+| AC-10 | Un destino que ya guarda fuentes convertidas en `.fuentes/` | Se ejecuta el flujo y el usuario confirma la migración | Las fuentes pasan a `_fuentes/`, las páginas que las citaban apuntan a la nueva ruta y no queda ninguna carpeta `.fuentes/` | Sin test |
 
 Verificación: ejecutar `/document-project` (Claude Code) o
 `Lee y aplica .github/prompts/document_project.prompt.md` con los cuatro parámetros en
@@ -193,7 +201,8 @@ automatizados.
 | `MANUAL` | Documentación narrativa ya escrita para el propio proyecto (manuales de usuario, guías de administrador, runbooks…); enriquece Arquetipos 3a, 3b, 6 y 7 |
 | Fase 0a | Paso de clasificación de orígenes ejecutado antes del inventario cuando hay ≥2 orígenes o el único origen no es CÓDIGO; requiere confirmación del usuario antes de continuar |
 | Fase 0b | Sincronización visual obligatoria al inicio de toda sesión: verificar assets CSS/JS, `mkdocs.yml` (sin `navigation.sections`), `.gitignore` con patrones estándar |
-| Carpeta `md/` | Artefactos generados por `convert_to_md.py` en la Fase 0c: versiones Markdown de documentos binarios del origen. Se usan como contexto en Fases 2-4, no generan páginas propias |
+| Carpeta `md/` | Artefactos generados por `convert_to_md.py` en la Fase 0c: versiones Markdown de documentos binarios del origen. No generan páginas propias |
+| `_fuentes/` | Copia de las carpetas `md/` en la raíz del destino, fuera de `docs/`; es lo que se lee como contexto en Fases 2-4 y lo que cita la evidencia. Único nombre válido |
 | Contexto `.ai/*.md` | Ficheros de contexto persistente del proyecto (`product.md`, `architecture.md`, `glossary.md`, `runtime.md`, `standards.md`); creados en la primera sesión de un destino nuevo |
 | Estrategia | Forma de documentar múltiples orígenes de tipo CÓDIGO: `federado` (cada proyecto independiente), `hub+satélite` (un proyecto concentra el destino), `monorepo` (un `mkdocs.yml` raíz agrupa secciones); nunca se autodetecta |
 | Cierre de sesión | Paso final obligatorio del flujo: crea los artefactos `.ai/sessions/YYYY-MM-DD/` en el destino, actualiza o crea `.ai/*.md` si es primera sesión, y propone un commit Conventional Commits con el resumen de la sesión |
@@ -211,6 +220,7 @@ automatizados.
     | Regla «`downloads.md` siempre obligatorio» | `.github/prompts/document_project.prompt.md::Fase 7b` | ✅ |
     | Regla «Sincronización visual (Fase 0b)» | `.claude/commands/document-project.md::Sincronización de Configuración Visual (Fase 0b)`, `.github/prompts/document_project.prompt.md::Fase 0b` | ✅ |
     | Regla «Documentos pre-convertidos (`md/`)» | `.github/prompts/document_project.prompt.md::Fase 0c — Paso 0` | ✅ |
+    | Regla «Fuentes convertidas en `_fuentes/`», AC-09 y AC-10 | `.github/prompts/document_project.prompt.md::Fase 0c — Paso 5`, `tests/test_docs_conformance.py::test_sources_folder_is_canonical` (coherencia de las instrucciones, no del resultado) | ⚠️ |
     | Regla «Contexto persistente `.ai/*.md`» | `.claude/commands/document-project.md::Devuelve en este orden` (tabla de ficheros `.ai/`) | ✅ |
     | Precondición «generador instalado para `--verify-build`» | `.github/prompts/document_project.prompt.md::Fase 7` | ✅ |
     | Postcondición «commit propuesto, no ejecutado» | `.github/prompts/document_project.prompt.md::Devuelve en este orden` (punto 10) | ✅ |

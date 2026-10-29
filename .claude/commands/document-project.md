@@ -66,7 +66,7 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 
 **Checklist obligatorio** (ejecutar al inicio de CADA sesión, antes de cualquier otra fase):
 
-- [ ] `.gitignore` presente en la raíz del destino con los patrones estándar (primera sesión: crear si no existe; ver tabla abajo)
+- [ ] `.gitignore` presente en la raíz del destino con los patrones estándar (primera sesión: crear si no existe; ver tabla abajo), sin ignorar `_fuentes/`
 - [ ] `theme.features` verificado — sin `navigation.sections` si `nav.css` presente
 - [ ] `extra_css` incluye `assets/css/nav.css` y `assets/css/mermaid.css`
 - [ ] `extra_javascript` incluye, en este orden, `assets/js/sidebar-toggle.js`, `assets/vendor/mermaid/mermaid-12.2.0.min.js` y `assets/js/mermaid-theme.js`, y **no** incluye el CDN de Mermaid ni `assets/js/mermaid.js` (si están, retirarlos: duplican el render — ver `.claude/EDGE_CASES.md § Mermaid`)
@@ -134,8 +134,10 @@ __pycache__/
 ```
 
 > **Por qué `*.pdf` / `*.doc` / `*.docx`**: los proyectos origen pueden incluir binarios de
-> documentación fuente (especificaciones, manuales). Nunca deben entrar en el repositorio de
-> documentación MkDocs — son fuentes de lectura, no artefactos versionables.
+> documentación fuente (especificaciones, manuales). Los binarios nunca entran en el repositorio
+> de documentación; su **texto convertido** sí, en `_fuentes/` (ver *Fuentes convertidas* abajo),
+> para que la evidencia y `doc_trace` apunten a rutas del propio repositorio. Nunca añadir
+> `_fuentes/` al `.gitignore`.
 >
 > **Por qué `site/`**: MkDocs regenera `site/` en cada build. Si se versiona, genera ruido en
 > cada `git status` y conflictos innecesarios. La página de descargas documenta cómo obtener
@@ -178,12 +180,20 @@ __pycache__/
      - Estado C — vigente → OMITIR
    - Criterios estado B: firma cambiada · símbolo nuevo no documentado · símbolo retirado
      del módulo · tests contradicen docs · sección "Pendiente de verificación" verificable ya
-   - **Documentos de referencia pre-convertidos** — si el origen contiene carpetas `md/`
-     (generadas por `scripts/convert_to_md.py`), añadir sub-sección separada:
-     | Carpeta `md/` | Ficheros `.md` disponibles | Fases donde aplica como contexto |
+   - **Fuentes convertidas (`_fuentes/`)** — si el origen contiene carpetas `md/`
+     (generadas por `scripts/convert_to_md.py`) o el destino ya tiene `_fuentes/`, añadir
+     sub-sección separada:
+     | Origen | Carpeta `md/` | Copiados / Sin cambios / Huérfanos | Fases donde aplica como contexto |
      No asignar estado A/B/C: son fuentes de contexto, no destinos de documentación.
-     Enriquecen Fases 2-4 con el mismo tratamiento que ficheros `.md` nativos del origen.
-     Si `md/` existe sin binarios originales visibles: confirmar con el usuario antes de usar.
+     Regla única (Fase 0c, Paso 5, de `document_project.prompt.md`): el destino recibe **siempre**
+     una copia en `<raíz del destino>/_fuentes/<nombre_origen>/<ruta relativa al origen>`, fuera
+     de `docs/`, aunque origen y destino sean el mismo repositorio. Ningún otro nombre: si el
+     destino tiene `.fuentes/` o `fuentes/` en su raíz, proponer la migración a `_fuentes/`
+     y esperar confirmación. Huérfanos: listar y borrar solo con confirmación. Avisar de que el
+     texto de los documentos se versiona en el destino.
+     Enriquecen Fases 2-4 (leídos desde `_fuentes/`) con el mismo tratamiento que ficheros `.md`
+     nativos del origen. Si `md/` existe sin binarios originales visibles: confirmar con el
+     usuario antes de usar.
 
 4. **PLAN_DOC**
    - Orden de ejecución: CREAR (A) antes que ACTUALIZAR (B); OMITIR (C) no se toca
@@ -253,7 +263,10 @@ __pycache__/
     Sesión: .ai/sessions/YYYY-MM-DD/
     Arquetipos: <lista de arquetipos generados/actualizados>
     Páginas: <N> creadas · <M> actualizadas · <K> omitidas
+    Fuentes: _fuentes/ <N> copiadas · <M> sin cambios     ← solo si hubo Fase 0c
     ```
+
+    - `git add` incluye `_fuentes/` cuando la Fase 0c la creó o cambió
 
     - `<scope>` = nombre corto del origen (ej. `util_bbdd`, `mi_api`)
     - Conventional Commits: usar `docs:` para sesiones de documentación pura

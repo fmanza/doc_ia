@@ -1,9 +1,9 @@
 ---
 arquetipo: "2"
 fuentes:
-  .claude/commands/document-project.md: 0ed86a22efca
-  .github/agents/documentation-generator.agent.md: a38706f2cd03
-  .github/prompts/document_project.prompt.md: f626f8518ed1
+  .claude/commands/document-project.md: f03102a6de92
+  .github/agents/documentation-generator.agent.md: 498ec810fe2a
+  .github/prompts/document_project.prompt.md: 448c66c6aacf
   mkdocs.yml: 2179f8729495
 revisado: 2026-10-29
 ---
@@ -20,7 +20,7 @@ stateDiagram-v2
     state "VALIDACIÓN · 4 parámetros" as VALIDACION
     state "Fase 0a · Clasificación" as CLASIFICACION
     state "Fase 0b · Sincronización visual" as SYNC_VISUAL
-    state "Fase 0 normativa · Fase 0c conversión md/" as PREPARACION
+    state "Fase 0 normativa · Fase 0c md/ y _fuentes/" as PREPARACION
     state "Fase 1 · Inventario A/B/C" as INVENTARIO
     state "PLAN_DOC" as PLAN_DOC
     state "Fases 2-4 · Arquetipos 1, 2, 12, 3, 4, 6, 7" as GENERACION
@@ -80,7 +80,7 @@ La vista del mismo flujo desde el usuario (qué pide, qué confirma y qué recib
 Once bloques en el chat, en este orden:
 1. `VALIDACIÓN DE INPUTS` — tabla de estado por parámetro; si hay ❌ el flujo se detiene.
 2. `CLASIFICACIÓN DE ORÍGENES` — solo con ≥2 orígenes o si el único no es CÓDIGO.
-3. `INVENTARIO` — tabla módulo × estado (A/B/C) × acción × arquetipos afectados; incluye estado de las tres señales ZIP offline (`TIENE_ZIP_SCRIPT`, `TIENE_MKDOCS_PLUGIN`, `TIENE_WORKFLOW_GITHUB`) y, con Zensical, `TIENE_PIPELINE_SIN_HOOKS`.
+3. `INVENTARIO` — tabla módulo × estado (A/B/C) × acción × arquetipos afectados; incluye estado de las tres señales ZIP offline (`TIENE_ZIP_SCRIPT`, `TIENE_MKDOCS_PLUGIN`, `TIENE_WORKFLOW_GITHUB`) y, con Zensical, `TIENE_PIPELINE_SIN_HOOKS`; con documentos convertidos, la sub-sección "Fuentes convertidas (`_fuentes/`)" (copiados, sin cambios, huérfanos y migración pendiente).
 4. `PLAN_DOC` — orden de ejecución con secciones afectadas por módulo.
 5. `GENERACIÓN` — contenido de cada página, fase a fase.
 6. `SYNC NAV` — diff de `mkdocs.yml`.
@@ -99,6 +99,8 @@ Once bloques en el chat, en este orden:
 | Todos los orígenes son MATERIAL (sin CÓDIGO) | El flujo se detiene con mensaje orientativo hacia los prompts de arquetipo directo |
 | `--verify-build` falla | Se reportan errores del build MkDocs; el RESUMEN los lista como pendientes |
 | Estado B con secciones vigentes | Solo se actualizan las secciones afectadas; las vigentes se copian verbatim |
+| Origen con carpetas `md/` | Fase 0c, Paso 5: copia siempre en `<raíz del destino>/_fuentes/<nombre_origen>/<ruta relativa al origen>`, fuera de `docs_dir`; solo copia lo que falta o cambió; los huérfanos se listan y no se borran sin confirmación |
+| Destino con `.fuentes/` o `fuentes/` en su raíz | Migración a `_fuentes/` con confirmación; si un mismo fichero difiere entre carpetas, el flujo se detiene; las referencias de `docs/` se reescriben y se vuelven a sellar con `doc_trace.py --root` |
 | CIERRE omitido por el agente | Error del flujo: el cierre es siempre obligatorio; si falta, solicitar al agente que cree los artefactos `.ai/sessions/` y proponga el commit antes de cerrar la sesión |
 
 ## 3. Componentes y Clases
@@ -128,10 +130,12 @@ Once bloques en el chat, en este orden:
 
 ## 6. Verificación y Tests
 
-*Sin tests automatizados.* El flujo es un conjunto de instrucciones ejecutadas en el chat, no
+*Sin tests del comportamiento.* El flujo es un conjunto de instrucciones ejecutadas en el chat, no
 código Python. Riesgo principal sin cubrir: que el comando, el prompt y el agente se desincronicen
 (fases, bloques de salida, mapeos MATERIAL → arquetipos). Hoy solo lo detecta una revisión manual
-o el Documentation Reviewer.
+o el Documentation Reviewer, salvo en un punto: `test_sources_folder_is_canonical` comprueba que
+las cuatro instrucciones fijan la misma ruta `_fuentes/` y que los demás nombres solo aparecen
+para prohibirlos o migrarlos.
 
 ??? note "Evidencia"
 
@@ -149,5 +153,6 @@ o el Documentation Reviewer.
     | Caso degenerado sin origen CÓDIGO | `.github/prompts/document_project.prompt.md` (Fase 0a, paso 5) | ✅ |
     | Estado B: secciones vigentes verbatim | `.github/prompts/document_project.prompt.md` (protocolo ACTUALIZAR) | ✅ |
     | Cierre de sesión obligatorio | `.github/prompts/document_project.prompt.md` (bloque 10) | ✅ |
+    | Copia en `_fuentes/` y migración de otros nombres | `.github/prompts/document_project.prompt.md` (Fase 0c, Paso 5), `tests/test_docs_conformance.py::test_sources_folder_is_canonical` | ✅ |
     | Generador `zensical`: `TIENE_PIPELINE_SIN_HOOKS`, Gap A4, plugins soportados, build vía script | `.github/prompts/document_project.prompt.md` (sección "Reglas por generador: Zensical") | ✅ |
     | Dependencias: norma, `docs.instructions.md`, `mkdocs.yml`, prompts, `mkdocs build` | `.github/prompts/document_project.prompt.md`, `.github/agents/documentation-generator.agent.md` | ✅ |

@@ -13,7 +13,9 @@ La conversión transforma documentos en formatos que el agente IA no puede leer 
 (PDF, Word, PowerPoint, Excel, ODT, EPUB, RST, HTML, imágenes, correo, LaTeX, audio…) en
 Markdown, y deja el resultado en una carpeta `md/` junto a los originales. Así el flujo
 [Documentar un Proyecto](document_project.md) puede aprovechar manuales, especificaciones y
-normativa que solo existen en formatos binarios o propietarios.
+normativa que solo existen en formatos binarios o propietarios. La conversión no escribe en el
+destino de la documentación: es ese flujo el que copia las carpetas `md/` a `_fuentes/` del
+destino.
 
 Ofrece tres motores de conversión, elegidos con `--engine`:
 

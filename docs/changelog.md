@@ -20,6 +20,11 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
   huella, orden de carga, coherencia con CI y el cargador del tema (AC-10 del ZIP offline).
 - **Producto**: la Fase 0b de `/document-project` sincroniza cinco recursos en vez de tres y lleva
   Mermaid local a los proyectos documentados.
+- **Producto**: el destino de `/document-project` recibe siempre los documentos convertidos en
+  `_fuentes/<nombre_origen>/<ruta relativa al origen>` (Fase 0c, Paso 5), versionados y fuera de
+  `docs/`, para que la evidencia y `doc_trace` citen rutas del propio repositorio.
+  `test_sources_folder_is_canonical` comprueba la regla en prompt, comando, agente y
+  `SHARED_INSTRUCTIONS.md`.
 
 ### Changed
 
@@ -34,6 +39,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - La regla `@` → `&#64;` pintaba un `&` sobrante (Mermaid no decodifica entidades HTML): las
   labels con `@ ( ) { }` van entre comillas. Corregido `on_post_build(config)` en
   `docs/api/build_docs_zip.md`.
+- **Producto**: los documentos convertidos llegaban al destino con nombres improvisados
+  (`.fuentes/` en unas sesiones, `_fuentes/` en otras) porque ninguna instrucción fijaba la
+  ubicación. Ahora `_fuentes/` es el único nombre; los otros se migran con confirmación.
 
 ## [0.2.0] — 2026-10-28
 

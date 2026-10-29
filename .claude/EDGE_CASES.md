@@ -183,3 +183,18 @@
   el render (§ CDN propio + `mermaid.run()`).
 - **Verificado**: 24/24 diagramas sin conexión, 0 SVG de error, MkDocs y Zensical, claro y oscuro.
 - **Sesión**: `.ai/sessions/2026-10-28f_mermaid_local/` (L1)
+
+## [document-project] — Fuentes convertidas copiadas al destino con nombres distintos
+
+- **Síntoma**: en distintas sesiones de `/document-project` los documentos convertidos a Markdown
+  aparecían en el destino como `.fuentes/` o como `_fuentes/`.
+- **Causa**: `convert_to_md.py` escribe siempre en `<origen>/md/`, pero ninguna instrucción decía
+  si el destino debía recibir una copia ni con qué nombre; el agente lo improvisaba.
+- **Tratamiento**: regla única en la Fase 0c (Paso 5) de `document_project.prompt.md`, repetida
+  en el comando, el agente y `SHARED_INSTRUCTIONS.md`: copia **siempre** en
+  `<raíz del destino>/_fuentes/<nombre_origen>/<ruta relativa al origen>`, versionada y fuera de
+  `docs/`; `.fuentes/` o `fuentes/` en la raíz del destino se migran a `_fuentes/` con
+  confirmación. `.fuentes/` se descartó por oculta: las búsquedas del agente la saltan.
+  `tests/test_docs_conformance.py::test_sources_folder_is_canonical` comprueba las cuatro
+  instrucciones.
+- **Sesión**: `.ai/sessions/2026-10-29_fuentes_destino/`

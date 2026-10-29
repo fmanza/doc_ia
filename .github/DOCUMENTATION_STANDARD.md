@@ -941,7 +941,9 @@ la numeración de los arquetipos):
    rompen `mkdocs build --strict` y no existen en el sitio publicado.
 3. Citar la **ubicación**, nunca el contenido de secretos, tokens ni URLs internas.
 4. Rutas relativas a la raíz del origen documentado; con varios orígenes CÓDIGO, prefijar con
-   el nombre del proyecto (`api_core/src/x.py::f`).
+   el nombre del proyecto (`api_core/src/x.py::f`). Los documentos convertidos a Markdown se
+   citan por su copia en el destino, relativa a la raíz del destino
+   (`_fuentes/legales/CA/md/ley.md::Art. 12`), nunca por la ruta del origen externo.
 5. En el Arquetipo 1 las rutas solo aparecen dentro del bloque "Evidencia" (el cuerpo sigue
    sin jerga técnica).
 

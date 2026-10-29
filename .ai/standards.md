@@ -30,7 +30,8 @@
 - `docs/changelog.md` y `docs/contributing.md` son artefactos generados por
   `hooks/sync_root_docs.py`; editar siempre los ficheros raíz.
 - Convención `md/`: carpeta de artefactos convertidos por `scripts/convert_to_md.py`;
-  nunca editar directamente; usarlos como contexto de lectura en documentación.
+  nunca editar directamente; usarlos como contexto de lectura en documentación. En el destino
+  de `/document-project` se copian siempre a `_fuentes/` (ningún otro nombre).
 
 ## Instrucciones IA
 
