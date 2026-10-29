@@ -10,7 +10,7 @@ programar ni tener nada instalado. Hay instrucciones para **Windows, macOS y Lin
 
 | Tienes… | Ruta | Necesitas instalar |
 |---|---|---|
-| Un fichero ZIP (`doc_ia-docs-0.3.0.zip`) | Ruta B (§4) | Nada |
+| Un fichero ZIP (`doc_ia-docs-0.4.0.zip`) | Ruta B (§4) | Nada |
 | El repositorio o la carpeta del proyecto | Ruta C (§5) | Python 3.12 o superior + dependencias |
 
 Si dudas, usa la **Ruta B**: es la más sencilla y funciona sin conexión a Internet.
@@ -84,23 +84,23 @@ o la Ruta C.
 
 ## 4. Ruta B — ZIP sin conexión
 
-1. **Descarga** `doc_ia-docs-0.3.0.zip` desde la sección **Assets** de la release más reciente en <https://github.com/fmanza/doc_ia/releases>. Si tu fichero lleva otra versión en el
+1. **Descarga** `doc_ia-docs-0.4.0.zip` desde la sección **Assets** de la release más reciente en <https://github.com/fmanza/doc_ia/releases>. Si tu fichero lleva otra versión en el
    nombre, usa ese nombre en los comandos siguientes.
 2. **(Opcional) Comprueba su integridad** si te facilitan el fichero `.sha256`:
 
     | Sistema | Comando (el resultado debe coincidir con el `.sha256`; mayúsculas y minúsculas dan igual) |
     |---|---|
-    | Windows | `Get-FileHash .\doc_ia-docs-0.3.0.zip -Algorithm SHA256` |
-    | macOS | `shasum -a 256 doc_ia-docs-0.3.0.zip` |
-    | Linux | `sha256sum -c doc_ia-docs-0.3.0.zip.sha256` |
+    | Windows | `Get-FileHash .\doc_ia-docs-0.4.0.zip -Algorithm SHA256` |
+    | macOS | `shasum -a 256 doc_ia-docs-0.4.0.zip` |
+    | Linux | `sha256sum -c doc_ia-docs-0.4.0.zip.sha256` |
 
 3. **Extrae** el ZIP en una carpeta (no lo abras sin extraer):
 
     | Sistema | Gráfico | Terminal |
     |---|---|---|
-    | Windows | Clic derecho → **Extraer todo…** | `Expand-Archive .\doc_ia-docs-0.3.0.zip -DestinationPath .\doc_ia-docs` |
-    | macOS | Doble clic en el ZIP | `unzip doc_ia-docs-0.3.0.zip -d doc_ia-docs` |
-    | Linux | Clic derecho → **Extraer aquí** | `unzip doc_ia-docs-0.3.0.zip -d doc_ia-docs` |
+    | Windows | Clic derecho → **Extraer todo…** | `Expand-Archive .\doc_ia-docs-0.4.0.zip -DestinationPath .\doc_ia-docs` |
+    | macOS | Doble clic en el ZIP | `unzip doc_ia-docs-0.4.0.zip -d doc_ia-docs` |
+    | Linux | Clic derecho → **Extraer aquí** | `unzip doc_ia-docs-0.4.0.zip -d doc_ia-docs` |
 
 4. **Abre la documentación**: entra en la carpeta extraída y haz **doble clic en `index.html`**.
    Se abre en tu navegador con menú, búsqueda y diagramas, sin servidor y sin conexión.

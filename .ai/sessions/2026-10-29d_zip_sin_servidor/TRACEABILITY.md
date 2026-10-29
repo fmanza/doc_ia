@@ -38,4 +38,4 @@ pedían a unpkg). `build_docs_zip.py` rechaza un `site/` que no se abra así. Se
   siempre por el nombre del perfil temporal, nunca por el nombre del ejecutable.
 
 ## Veredicto final
-GO — sin commit (pendiente de indicación).
+CLOSED — commit `a43ebcc`; release v0.4.0 (`02_VERSION_CLOSURE.md`).

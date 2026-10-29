@@ -5,6 +5,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-10-29
+
 ### Added
 
 - **ZIP navegable sin servidor**: tras extraerlo, doble clic en `index.html` abre la
@@ -61,7 +63,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
   contenía anidado `doc_ia-docs-latest.zip` con su `.sha256`: ahora tiene el mismo contenido
   que el ZIP "latest".
 - `docs/downloads.md`, el Paso B3 del producto y las notas de release ofrecían abrir `index.html`
-  directamente: con `use_directory_urls: true` los enlaces apuntan a carpetas y no navega.
+  directamente cuando no navegaba (`use_directory_urls: true`, enlaces a carpetas); desde esta
+  versión el doble clic sí funciona (ver «ZIP navegable sin servidor»).
 
 ## [0.3.0] — 2026-10-29
 
@@ -245,7 +248,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - Restauración de `config-reviewer.agent.md` y creación de `docs.instructions.md`
   tras corrupción del bootstrap.
 
-[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/fmanza/doc_ia/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/fmanza/doc_ia/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/fmanza/doc_ia/compare/docs-v0.1.0...v0.2.0
 [0.1.0]: https://github.com/fmanza/doc_ia/releases/tag/docs-v0.1.0
