@@ -42,6 +42,11 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - **Producto**: los documentos convertidos llegaban al destino con nombres improvisados
   (`.fuentes/` en unas sesiones, `_fuentes/` en otras) porque ninguna instrucción fijaba la
   ubicación. Ahora `_fuentes/` es el único nombre; los otros se migran con confirmación.
+- **Producto**: la Fase 0c de `/document-project` describía markitdown como motor principal,
+  con enrutado por extensión, plugins y fallback a pandoc que `convert_to_md.py` ya no tiene.
+  Ahora usa docling (motor por defecto) y recurre a `--engine markitdown` solo para XLS y a
+  `--engine pandoc` para DOC/ODT/RST. Alineados `SHARED_INSTRUCTIONS.md`, `.ai/` y los textos
+  de `check_env.py`.
 
 ## [0.2.0] — 2026-10-28
 

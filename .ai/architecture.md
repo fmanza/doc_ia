@@ -20,9 +20,9 @@ doc_ia/
   CHANGELOG.md            # Fuente de verdad → docs/changelog.md (sync automático)
   CONTRIBUTING.md         # Fuente de verdad → docs/contributing.md (sync automático)
   scripts/
-    check_env.py          # Verifica herramientas instaladas (mkdocs, ruff, mypy, pytest, markitdown, pandoc)
+    check_env.py          # Verifica herramientas instaladas (mkdocs, ruff, mypy, pytest; opcionales zensical, docling, markitdown, pandoc)
     build_docs_zip.py     # Build (mkdocs|zensical) + ZIP + SHA256 en dist/
-    convert_to_md.py      # Convierte documentos binarios a Markdown (PDF→markitdown, DOCX/PPTX/…→pandoc)
+    convert_to_md.py      # Convierte documentos binarios a Markdown (--engine docling por defecto | markitdown | pandoc)
     start-server.py       # Servidor HTTP local para navegación offline (incluido en el ZIP)
   hooks/
     sync_root_docs.py     # Copia CHANGELOG.md y CONTRIBUTING.md a docs/ (hook MkDocs + PostToolUse)

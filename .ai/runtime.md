@@ -6,12 +6,13 @@
 
 - **Python**: >= 3.12 (`pyproject.toml`)
 - **SO de desarrollo**: Windows 11 (rutas con `\`, venv en `.venv\Scripts\`); CI en ubuntu-latest
-- **Herramientas opcionales**: `markitdown` (Python, para PDF→MD), `pandoc` (sistema, para DOCX/PPTX/…→MD)
+- **Herramientas opcionales**: `docling` (Python, motor por defecto de `convert_to_md.py`), `markitdown` (Python, alternativa ligera; necesaria para XLS), `pandoc` (sistema, para DOC/ODT/RST)
 - **Instalación**:
   ```bash
   python -m venv .venv
   .venv\Scripts\python -m pip install -r requirements.txt
-  pip install markitdown           # opcional, para convert_to_md.py con PDF
+  pip install docling              # opcional, motor por defecto de convert_to_md.py
+  pip install markitdown           # opcional, alternativa ligera (XLS)
   # pandoc: instalar desde https://pandoc.org/installing.html
   ```
 

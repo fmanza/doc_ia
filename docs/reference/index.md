@@ -8,11 +8,11 @@ fuentes:
   mkdocs.yml: 2179f8729495
   mkdocs_hooks.py: 2f510611cb6f
   scripts/build_docs_zip.py: b9a2694d122f
-  scripts/check_env.py: a30937ae040f
+  scripts/check_env.py: 6202875214f7
   scripts/convert_to_md.py: e7e60518d96f
   scripts/doc_trace.py: a1824b159937
   scripts/start-server.py: ec67386821f7
-revisado: 2026-10-28
+revisado: 2026-10-29
 ---
 # Referencia — doc_ia
 

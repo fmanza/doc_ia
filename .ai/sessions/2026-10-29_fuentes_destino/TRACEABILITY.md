@@ -27,8 +27,8 @@ ruff ✅ · mypy ✅ · pytest ✅ · `doc_trace drift` sin hallazgos · `doc_tr
 ## Directrices para IAs futuras
 - El nombre de la carpeta en el destino es literal: `_fuentes/`. No proponer alternativas.
 - `md/` en la raíz del destino NO es un nombre a migrar: puede ser la salida de `convert_to_md.py`.
-- Pendiente fuera de alcance: la Fase 0c del prompt describe markitdown como motor principal;
-  `convert_to_md.py` usa docling por defecto.
+- Pendiente A7 resuelto en la misma fecha: la Fase 0c usa docling como motor por defecto
+  (markitdown solo para XLS, pandoc para DOC/ODT/RST).
 
 ## Veredicto
 GO — pendiente de commit (no solicitado).

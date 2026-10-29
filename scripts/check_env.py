@@ -8,10 +8,10 @@ Generador de documentación opcional:
              `python scripts/build_docs_zip.py --builder zensical`.
 
 Herramientas de conversión:
-  docling    (Python, opcional) — PDF, DOCX, PPTX, XLSX, CSV, HTML, EPUB, imágenes, email,
-             LaTeX, audio. OCR integrado, GPU acelerada, chunking RAG.
-  markitdown (Python, principal) — cubre PDF, DOCX, PPTX, XLSX, XLS, HTML, CSV, EPUB, IPYNB.
-  pandoc     (binario, complemento) — cubre DOC, ODT, RST y fallback para DOCX/PPTX/EPUB.
+  docling    (Python, principal; motor por defecto de convert_to_md.py) — PDF, DOCX, PPTX,
+             XLSX, CSV, HTML, EPUB, imágenes, email, LaTeX, audio. OCR, GPU, chunking RAG.
+  markitdown (Python, alternativa ligera) — PDF, DOCX, PPTX, XLSX, XLS, CSV, EPUB, HTML, MSG.
+  pandoc     (binario, complemento) — DOC, ODT, RST, TEX/LATEX.
 
 Plugins opcionales de markitdown (amplían formatos soportados):
   pdfminer   → PDF        python-docx → DOCX       python-pptx → PPTX
@@ -92,8 +92,8 @@ def main() -> int:
     has_docling = importlib.util.find_spec("docling") is not None
     if not has_docling:
         warnings.append(
-            "docling no instalado (opcional): motor avanzado de conversión con OCR, GPU y"
-            " chunking RAG.\n"
+            "docling no instalado (opcional): motor por defecto de convert_to_md.py, con OCR,"
+            " GPU y chunking RAG.\n"
             f"   Instalar con:\n{_DOCLING_INSTALL}"
         )
     else:
@@ -120,7 +120,7 @@ def main() -> int:
     absent_system = missing_system_tools()
     if absent_system:
         warnings.append(
-            "pandoc no encontrado: complemento para DOC, ODT, RST y fallback de DOCX/PPTX/EPUB.\n"
+            "pandoc no encontrado: complemento para DOC, ODT, RST y TEX/LATEX.\n"
             f"   Instalar con:\n{_PANDOC_INSTALL}"
         )
 

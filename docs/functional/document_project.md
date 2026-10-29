@@ -3,7 +3,7 @@ arquetipo: "1"
 fuentes:
   .claude/commands/document-project.md: f03102a6de92
   .github/DOCUMENTATION_STANDARD.md: 03090ee7a89d
-  .github/prompts/document_project.prompt.md: 448c66c6aacf
+  .github/prompts/document_project.prompt.md: a2c439b61b93
   CLAUDE.md: 1be4ae56b47a
 revisado: 2026-10-29
 ---

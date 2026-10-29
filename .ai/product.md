@@ -34,7 +34,7 @@ Code Assist, GitHub Copilot Chat, Cursor, Codex). Los **orígenes a documentar**
 | Bootstrap multiplataforma (modelo PULL) | ✅ | `.github/prompts/bootstrap_ai_config.prompt.md` (capas A/B/C/D) |
 | Verificación de entorno | ✅ | `scripts/check_env.py` + `tests/test_check_env.py` |
 | ZIP offline de docs con SHA256 | ✅ | Mecanismo dual: `scripts/build_docs_zip.py` (script) + `mkdocs_hooks.py` (hook nativo MkDocs); `.github/workflows/docs-zip-release.yml` (CI) |
-| Conversión de documentos a Markdown | ✅ | `scripts/convert_to_md.py` — PDF vía markitdown, DOCX/PPTX/ODT/… vía pandoc; genera carpeta `md/` como contexto IA |
+| Conversión de documentos a Markdown | ✅ | `scripts/convert_to_md.py` — docling por defecto (con OCR); markitdown para XLS y pandoc para DOC/ODT/RST con `--engine`; genera carpeta `md/` como contexto IA |
 | Sincronización raíz→docs/ | ✅ | `hooks/sync_root_docs.py` — copia CHANGELOG.md y CONTRIBUTING.md a docs/ automáticamente |
 | Servidor offline para ZIP | ✅ | `scripts/start-server.py` — servidor HTTP local incluido en el ZIP offline |
 | Sitio de documentación propio (dogfooding) | ✅ | `mkdocs.yml` + `docs/` (33 páginas, 12 arquetipos aplicados al propio proyecto) |

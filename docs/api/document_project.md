@@ -3,7 +3,7 @@ arquetipo: "2"
 fuentes:
   .claude/commands/document-project.md: f03102a6de92
   .github/agents/documentation-generator.agent.md: 498ec810fe2a
-  .github/prompts/document_project.prompt.md: 448c66c6aacf
+  .github/prompts/document_project.prompt.md: a2c439b61b93
   mkdocs.yml: 2179f8729495
 revisado: 2026-10-29
 ---
