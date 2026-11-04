@@ -5,6 +5,13 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+### Fixed
+
+- **`doc_trace.py drift` y `matrix` con `--root`**: `--docs` y `--tests` tomaban por defecto las
+  carpetas de doc_ia, así que sobre un destino externo `drift` revisaba el `docs/` de doc_ia y
+  `matrix` cruzaba sus criterios con los tests del destino. Ahora, por defecto, `<root>/docs` y
+  `<root>/tests` (como `llms`, `decisions` y `changes`). AC-28 de la trazabilidad.
+
 ## [0.5.0] — 2026-11-04
 
 ### Added

@@ -2,7 +2,7 @@
 arquetipo: "1"
 fuentes:
   docs/decisiones/doctrace_decisiones.md: 1cc61611500e
-  scripts/doc_trace.py: 511f3e656b2f
+  scripts/doc_trace.py: cce8cb952a67
 revisado: 2026-11-04
 ---
 # Trazabilidad entre Documentación y Código
@@ -189,6 +189,7 @@ criterios y el índice para agentes IA se ejecutan como operaciones independient
 | AC-25 | Una decisión sin responsable o sin fecha, fuera del vocabulario de su estado, con fecha mal escrita, de otro ámbito o con «No aplica» solo en uno de los dos campos | Se comprueban las decisiones | Se informa como incompleta o inválida y no se exige reflejarla | `tests/test_doc_trace.py::test_decided_without_owner_or_date_is_incomplete`, `tests/test_doc_trace.py::test_decision_not_allowed_for_state_is_invalid`, `tests/test_doc_trace.py::test_bad_date_and_scope_are_invalid`, `tests/test_doc_trace.py::test_not_applicable_must_match_and_be_written_in_page` |
 | AC-26 | Un apartado con dos fichas, una ficha que ninguna página cita, un apartado sin ficha o una ficha pendiente con otro estado en la página | Se comprueban las decisiones | Se informa cada caso | `tests/test_doc_trace.py::test_duplicate_orphan_entry_and_orphan_ref`, `tests/test_doc_trace.py::test_pending_card_with_different_page_symbol_is_mismatch` |
 | AC-27 | Identificadores escritos como código y apartados dentro del bloque plegable «Evidencia», con el símbolo de aviso en cualquiera de sus formas | Se comprueban las decisiones | Los de código se ignoran; los del bloque plegable se comprueban | `tests/test_doc_trace.py::test_ids_in_code_are_ignored_and_admonition_rows_are_read`, `tests/test_doc_trace.py::test_warning_symbol_without_variation_selector` |
+| AC-28 | Un proyecto documentado en otra carpeta, indicada como raíz | Se comprueban desactualizaciones o se genera la matriz sin indicar las carpetas de documentación y de tests | Se usan las del proyecto indicado, no las de doc_ia | `tests/test_doc_trace.py::test_main_drift_defaults_follow_root`, `tests/test_doc_trace.py::test_main_matrix_defaults_follow_root` |
 
 Verificación: `python -m pytest tests/test_doc_trace.py -q`.
 
@@ -242,4 +243,5 @@ Verificación: `python -m pytest tests/test_doc_trace.py -q`.
     | Regla «Decidir no es tarea de la herramienta» | `scripts/doc_trace.py::check_decisions` (fichas `Pendiente` sin hallazgo), `::_cmd_decisions` (solo lectura) | ✅ |
     | Regla «Vocabulario cerrado» | `scripts/doc_trace.py::DECISIONS_BY_STATE`, `::_validate_entry` | ✅ |
     | AC-22 – AC-27 | `scripts/doc_trace.py::check_decisions`, `::format_decisions`, `::_cmd_decisions` | ✅ |
+    | AC-28 | `scripts/doc_trace.py::_cmd_drift`, `::_cmd_matrix` (valores por defecto desde `--root`) | ✅ |
     | [COB-DOCTRACE-001](../decisiones/doctrace_decisiones.md#cob-doctrace-001) · AC-14 | `scripts/doc_trace.py::read_page_meta` | ⚠️ → ✅ (decisión: Remediar) |
