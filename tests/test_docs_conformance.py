@@ -442,7 +442,7 @@ def test_decisions_template_cards_have_fixed_fields() -> None:
 
 
 def test_doc_ia_coverage_decisions_are_consistent() -> None:
-    """doc_ia no adopta el registro: `decisions` sobre su docs/ termina sin hallazgos."""
+    """doc_ia adopta el registro: `decisions` sobre su docs/ termina sin hallazgos (AC-14)."""
     from scripts.doc_trace import check_decisions  # noqa: PLC0415
 
     assert check_decisions(DOCS, DOCS / "decisiones").findings == ()
@@ -467,3 +467,20 @@ def test_bootstrap_copies_every_referenced_template() -> None:
     bootstrap = (ROOT / ".github/prompts/bootstrap_ai_config.prompt.md").read_text(encoding="utf-8")
     layer_a = bootstrap.split("### Capa A", 1)[1].split("### Capa B", 1)[0]
     assert "`.github/templates/`" in layer_a
+
+
+def test_unverified_evidence_rows_have_coverage_id() -> None:
+    """Toda fila ⚠️ / ❌ / 🔍 de un bloque «Evidencia» de doc_ia tiene ficha `COB-…` (AC-14)."""
+    from scripts.doc_trace import COVERAGE_ID_RE, _last_symbol  # noqa: PLC0415
+
+    missing = []
+    for page in sorted(DOCS.rglob("*.md")):
+        text = page.read_text(encoding="utf-8")
+        if EVIDENCE not in text:
+            continue
+        for row in text.split(EVIDENCE, 1)[1].splitlines():
+            row = row.strip()
+            if row.startswith("|") and _last_symbol(row) not in (None, "✅"):
+                if not COVERAGE_ID_RE.search(row):
+                    missing.append(f"{page.relative_to(ROOT).as_posix()}: {row[:80]}")
+    assert not missing, missing

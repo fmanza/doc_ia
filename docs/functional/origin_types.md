@@ -1,8 +1,9 @@
 ---
 arquetipo: "1"
 fuentes:
-  .github/DOCUMENTATION_STANDARD.md: 15b5b304d20d
+  .github/DOCUMENTATION_STANDARD.md: fea7fbc4b62c
   .github/prompts/document_project.prompt.md: 65f89e26730c
+  docs/decisiones/origins_decisiones.md: eae8404ab780
 revisado: 2026-11-04
 ---
 # Catálogo de Tipos de Origen
@@ -185,20 +186,20 @@ el chat y no tiene tests automatizados.
     |---|---|---|
     | Precondición «≥2 orígenes o único no CÓDIGO» | `.github/prompts/document_project.prompt.md::Fase 0a` | ✅ |
     | Tabla de señales y orden de evaluación | `.github/DOCUMENTATION_STANDARD.md::3.10 Documentación con Múltiples Orígenes` (Tipos de origen, Orden de evaluación), `.github/prompts/document_project.prompt.md::Fase 0a` (paso 1) | ✅ |
-    | Mapeo MATERIAL → arquetipos (numeración v2 del Arq. 1) | `.github/DOCUMENTATION_STANDARD.md::3.10` (Mapeo MATERIAL → arquetipos), renumerado según `::3.1` | ⚠️ |
+    | [COB-ORIGINS-001](../decisiones/origins_decisiones.md#cob-origins-001) · Mapeo MATERIAL → arquetipos (numeración v2 del Arq. 1) | `.github/DOCUMENTATION_STANDARD.md::3.10` (Mapeo MATERIAL → arquetipos), renumerado según `::3.1` | ⚠️ |
     | Postcondición «tabla Origen · Tipo · Señales · Rol» | `.github/prompts/document_project.prompt.md::Fase 0a` (paso 2) | ✅ |
     | Regla «Un origen `CÓDIGO` obligatorio» | `.github/DOCUMENTATION_STANDARD.md::3.10` (Caso degenerado) | ✅ |
     | Regla «Autodetección + confirmación» | `.github/DOCUMENTATION_STANDARD.md::3.10` (Regla) | ✅ |
     | Regla «MATERIAL no genera páginas propias» | `.github/DOCUMENTATION_STANDARD.md::3.10` (Mapeo MATERIAL) | ✅ |
     | Regla «`CONTRATO` propio del proyecto» | `.github/DOCUMENTATION_STANDARD.md::3.10` (tabla de tipos, fila `CONTRATO`) | ✅ |
-    | Regla «`INFRAESTRUCTURA` sin inventario de código» | `.github/DOCUMENTATION_STANDARD.md::3.10` (fila `INFRAESTRUCTURA`) | 🔍 |
+    | [COB-ORIGINS-002](../decisiones/origins_decisiones.md#cob-origins-002) · Regla «`INFRAESTRUCTURA` sin inventario de código» | `.github/DOCUMENTATION_STANDARD.md::3.10` (fila `INFRAESTRUCTURA`) | 🔍 |
     | Regla «`MANUAL` propio del proyecto» | `.github/DOCUMENTATION_STANDARD.md::3.10` (fila `MANUAL`) | ✅ |
     | AC-01 | `.github/DOCUMENTATION_STANDARD.md::3.10` (filas `CONTRATO`) | ✅ |
     | AC-02 | `.github/DOCUMENTATION_STANDARD.md::3.10` (filas `INFRAESTRUCTURA`) | ✅ |
     | AC-03 | `.github/DOCUMENTATION_STANDARD.md::3.10` (`REFERENCIA` = ajena al proyecto) | ✅ |
-    | AC-04 | `.github/prompts/document_project.prompt.md::Fase 0a` | 🔍 |
+    | [COB-ORIGINS-003](../decisiones/origins_decisiones.md#cob-origins-003) · AC-04 | `.github/prompts/document_project.prompt.md::Fase 0a` | 🔍 |
     | AC-05 | `.github/DOCUMENTATION_STANDARD.md::3.10` (Caso degenerado) | ✅ |
     | AC-06 | `.github/DOCUMENTATION_STANDARD.md::3.10` (`.sql` DDL en `db/`/`migrations/`) | ✅ |
     | AC-07 | `.github/DOCUMENTATION_STANDARD.md::3.10` (fila `MANUAL`) | ✅ |
     | AC-08 | `.github/DOCUMENTATION_STANDARD.md::3.10` (`REFERENCIA` = manuales de terceros) | ✅ |
-    | AC-09 | `.github/DOCUMENTATION_STANDARD.md::3.10` (`ESPECIFICACIÓN` = requisitos) | 🔍 |
+    | [COB-ORIGINS-004](../decisiones/origins_decisiones.md#cob-origins-004) · AC-09 | `.github/DOCUMENTATION_STANDARD.md::3.10` (`ESPECIFICACIÓN` = requisitos) | 🔍 |

@@ -1,11 +1,12 @@
 ---
 arquetipo: "1"
 fuentes:
-  mkdocs.yml: 3cfcc736dd9a
+  docs/decisiones/buildzip_decisiones.md: abc5d5042d4d
+  mkdocs.yml: 5d3b9bd903d1
   mkdocs_hooks.py: 31259b7911a3
   scripts/build_docs_zip.py: 5f972ee674c8
   tests/test_build_docs_zip.py: 82a1d595e6f4
-  tests/test_docs_conformance.py: 6c3690cf165b
+  tests/test_docs_conformance.py: 2ee7d5cbd153
   tests/test_mermaid_assets.py: e49f4b5a3361
   tests/test_offline_assets.py: 7e632c37987d
   tests/test_zensical_compat.py: d62c11ebe8cd
@@ -217,7 +218,7 @@ fallidas (`.ai/sessions/2026-10-29d_zip_sin_servidor/smoke/`). No forma parte de
     | Regla «Enlaces de descarga coherentes» | `docs/downloads.md` (enlaces `href`), `mkdocs.yml::use_directory_urls`, `mkdocs_hooks.py::on_post_build` | ✅ |
     | ZIP automático excluye `.zip`/`.sha256` e incluye el servidor local | `mkdocs_hooks.py::on_post_build` | ✅ |
     | Generador alternativo Zensical con hooks ejecutados por el script | `scripts/build_docs_zip.py::main` (`--builder`), `::_build`, `::HOOKLESS_BUILDERS` | ✅ |
-    | Zensical no ejecuta `hooks:` y no avisa | zensical.org/compatibility/configuration (Zensical 0.0.73) | ⚠️ |
+    | [COB-BUILDZIP-002](../decisiones/buildzip_decisiones.md#cob-buildzip-002) · Zensical no ejecuta `hooks:` y no avisa | zensical.org/compatibility/configuration (Zensical 0.0.73) | ⚠️ |
     | AC-01 | `scripts/build_docs_zip.py::main`, `::_create_checksum_files` | ✅ |
     | AC-02 | `scripts/build_docs_zip.py::main` (`--no-build` + `SITE_DIR` inexistente → `sys.exit(1)`) | ✅ |
     | AC-03 | `scripts/build_docs_zip.py::_build` | ✅ |
@@ -235,4 +236,4 @@ fallidas (`.ai/sessions/2026-10-29d_zip_sin_servidor/smoke/`). No forma parte de
     | AC-14 | `mkdocs_hooks.py::on_post_build` (`mkdocs_priority = -200`) | ✅ |
     | AC-15 | `docs/downloads.md`, `VER_DOCUMENTACION.md`, `.github/templates/VER_DOCUMENTACION.template.md` | ✅ |
     | Navegación, búsqueda y diagramas por `file://`, sin red, en Edge y Chrome | `.ai/sessions/2026-10-29d_zip_sin_servidor/smoke/RESULTADOS.txt` (prueba con navegador sin ventana, fuera de la CI) | ✅ |
-    | Ídem en Firefox | Mismo fichero; sin ventana, Firefox no abre la búsqueda al enfocar el campo y la prueba la abre como el icono | ⚠️ |
+    | [COB-BUILDZIP-004](../decisiones/buildzip_decisiones.md#cob-buildzip-004) · Ídem en Firefox | Mismo fichero; sin ventana, Firefox no abre la búsqueda al enfocar el campo y la prueba la abre como el icono | ⚠️ |

@@ -1,8 +1,9 @@
 ---
 arquetipo: "1"
 fuentes:
+  docs/decisiones/checkenv_decisiones.md: 1ed24b46b1c4
   scripts/check_env.py: 6202875214f7
-revisado: 2026-10-29
+revisado: 2026-11-04
 ---
 # Verificación de Entorno
 
@@ -134,9 +135,9 @@ detección de herramientas, no el mensaje ni el código de salida final ⚠️.
     | Regla «Sin servicios externos» | `scripts/check_env.py` (solo `importlib.util.find_spec` y `shutil.which`) | ✅ |
     | Presencia sin comprobar versión | `scripts/check_env.py::missing_tools` | ✅ |
     | Aviso de GPU con docling | `scripts/check_env.py::main` (`nvidia-smi`) | ✅ |
-    | AC-01 | `scripts/check_env.py::main` | ⚠️ (el test cubre la detección, no el mensaje final) |
-    | AC-02 | `scripts/check_env.py::main`, `::missing_tools` | ⚠️ (el test no comprueba el código 1) |
-    | AC-03 | `scripts/check_env.py::missing_tools` | ⚠️ (el test usa una sola herramienta; el orden no se comprueba) |
-    | AC-04 | `scripts/check_env.py::main`, `::missing_system_tools` | ⚠️ (el test cubre la detección, no el aviso) |
+    | [COB-CHECKENV-001](../decisiones/checkenv_decisiones.md#cob-checkenv-001) · AC-01 | `scripts/check_env.py::main` | ⚠️ (el test cubre la detección, no el mensaje final) |
+    | [COB-CHECKENV-002](../decisiones/checkenv_decisiones.md#cob-checkenv-002) · AC-02 | `scripts/check_env.py::main`, `::missing_tools` | ⚠️ (el test no comprueba el código 1) |
+    | [COB-CHECKENV-003](../decisiones/checkenv_decisiones.md#cob-checkenv-003) · AC-03 | `scripts/check_env.py::missing_tools` | ⚠️ (el test usa una sola herramienta; el orden no se comprueba) |
+    | [COB-CHECKENV-004](../decisiones/checkenv_decisiones.md#cob-checkenv-004) · AC-04 | `scripts/check_env.py::main`, `::missing_system_tools` | ⚠️ (el test cubre la detección, no el aviso) |
     | AC-05 | `scripts/check_env.py` (bloque `__main__`: salida reconfigurada a UTF-8) | ✅ |
     | AC-06 | `scripts/check_env.py::main` (aviso de `OPTIONAL_DOC_BUILDERS`, retorno 0) | ✅ |

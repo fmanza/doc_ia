@@ -98,6 +98,18 @@ nav:
           - Arquetipos Formales: functional/archetypes.md
           - Bootstrap de Configuración IA: functional/bootstrap.md
 
+  # ── Audiencia: responsables que deciden sobre la cobertura (Arquetipo 13) ──
+  - Decisiones de Cobertura:
+      - Arquetipos Formales: decisiones/archetypes_decisiones.md
+      - Bootstrap de Configuración IA: decisiones/bootstrap_decisiones.md
+      - ZIP de Documentación Offline: decisiones/buildzip_decisiones.md
+      - Verificación de Entorno: decisiones/checkenv_decisiones.md
+      - Conversión de Documentos a Markdown: decisiones/convert_decisiones.md
+      - Trazabilidad Docs ↔ Código: decisiones/doctrace_decisiones.md
+      - Documentar un Proyecto: decisiones/docproj_decisiones.md
+      - Catálogo de Tipos de Origen: decisiones/origins_decisiones.md
+      - Sistema (arquitectura y mapa funcional): decisiones/sistema_decisiones.md
+
   # ── Audiencia: Desarrolladores, mantenedores del proyecto ──────────────────
   - Referencia Técnica:
       - Flujos IA:

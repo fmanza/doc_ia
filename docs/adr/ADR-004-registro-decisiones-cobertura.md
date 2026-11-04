@@ -50,7 +50,6 @@ aplicara lo decidido. Además, la leyenda tenía dos redacciones distintas: la d
 | Ventaja | Editar el registro marca como `stale` la página que lo declara en `fuentes:`, de modo que `drift` avisa de que hay decisiones nuevas |
 | Compromiso | Las filas de cobertura ganan una columna o un prefijo de identificador y un enlace |
 | Compromiso | Un registro publicado expone decisiones de la organización; las confidenciales se citan por la ubicación del acta |
-| Deuda técnica | La documentación de doc_ia no adopta el registro: sus ⚠️ y 🔍 actuales siguen sin ficha |
 | Riesgo aceptado | Una decisión que mantiene el estado ("Aceptar riesgo" sobre ⚠️) cuenta como reflejada en cuanto la fila enlaza la ficha |
 
 ## Alternativas Consideradas
@@ -65,6 +64,8 @@ aplicara lo decidido. Además, la leyenda tenía dos redacciones distintas: la d
 ## Estado y Revisión
 
 ACEPTADO — 2026-11-04. Sesión: `.ai/sessions/2026-11-04_registro_decisiones/`.
-Revisar cuando un proyecto destino real complete un ciclo de generación → decisión → aplicación,
-o si la documentación de doc_ia adopta el registro.
+Revisar cuando un proyecto destino real complete un ciclo de generación → decisión → aplicación.
+
+**Dogfooding (2026-11-04b)**: doc_ia adopta el registro en su propia documentación: 9 registros
+por módulo y 28 fichas pendientes de decisión. Se cierra la deuda «doc_ia no adopta el registro».
 Relacionado: [ADR-002](ADR-002-arquetipos-con-evidencia.md) (regla de evidencia y leyenda).

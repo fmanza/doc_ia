@@ -24,6 +24,18 @@
 - [Flujos IA › Arquetipos Formales](https://fmanza.github.io/doc_ia/functional/archetypes.html)
 - [Flujos IA › Bootstrap de Configuración IA](https://fmanza.github.io/doc_ia/functional/bootstrap.html)
 
+## Decisiones de Cobertura
+
+- [Arquetipos Formales](https://fmanza.github.io/doc_ia/decisiones/archetypes_decisiones.html)
+- [Bootstrap de Configuración IA](https://fmanza.github.io/doc_ia/decisiones/bootstrap_decisiones.html)
+- [ZIP de Documentación Offline](https://fmanza.github.io/doc_ia/decisiones/buildzip_decisiones.html)
+- [Verificación de Entorno](https://fmanza.github.io/doc_ia/decisiones/checkenv_decisiones.html)
+- [Conversión de Documentos a Markdown](https://fmanza.github.io/doc_ia/decisiones/convert_decisiones.html)
+- [Trazabilidad Docs ↔ Código](https://fmanza.github.io/doc_ia/decisiones/doctrace_decisiones.html)
+- [Documentar un Proyecto](https://fmanza.github.io/doc_ia/decisiones/docproj_decisiones.html)
+- [Catálogo de Tipos de Origen](https://fmanza.github.io/doc_ia/decisiones/origins_decisiones.html)
+- [Sistema (arquitectura y mapa funcional)](https://fmanza.github.io/doc_ia/decisiones/sistema_decisiones.html)
+
 ## Referencia Técnica
 
 - [Flujos IA › document_project](https://fmanza.github.io/doc_ia/api/document_project.html)

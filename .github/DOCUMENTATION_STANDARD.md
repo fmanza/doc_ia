@@ -1108,8 +1108,10 @@ posteriores lo leen y actualizan la documentación citándolo.
 - Con Arquetipos 1, 2 y 12: si el destino ya tiene `docs/decisiones/` o el usuario lo pide.
   Un registro por módulo (ámbito compartido por sus páginas funcional, técnica y de referencia).
 
-> **Este proyecto (doc_ia)**: sin Arquetipo 8 ni registro adoptado. El arquetipo no aplica
-> actualmente; `doc_trace decisions` termina con 0 al no haber registros ni IDs.
+> **Este proyecto (doc_ia)**: sin Arquetipo 8, pero adopta el registro para sus Arquetipos 1, 2,
+> 6C y 1-I (dogfooding, 2026-11-04): un registro por módulo en `docs/decisiones/`. Toda fila
+> ⚠️ / ❌ / 🔍 de un bloque "Evidencia" lleva su ID
+> (`tests/test_docs_conformance.py::test_unverified_evidence_rows_have_coverage_id`).
 
 **Audiencia**: responsables de producto, cumplimiento y arquitectura que deciden; equipo de
 documentación que aplica las decisiones.
@@ -1191,7 +1193,9 @@ viceversa. Una decisión distinta de `Pendiente` exige Responsable, Fecha y Esta
 2. Por cada ficha con decisión: en todas las filas de cobertura que citan el ID, enlazar el ID a
    la ficha (`[COB-RGPD-030](../decisiones/rgpd_decisiones.md#cob-rgpd-030)`) y dejar como
    **último** símbolo de la fila el «Estado resultante» (se admite la transición `🔍 → ✅`) o
-   escribir `No aplica`. En el Arq. 8, si la decisión cierra un gap, retirarlo de §N y de §N+2.
+   escribir `No aplica`. Actualizar también las marcas del cuerpo de la página que repiten esa
+   fila (§3.16: ⚠️ / 🔍 / ❌ al final de una frase o celda), que no llevan ID ni las comprueba
+   `decisions`. En el Arq. 8, si la decisión cierra un gap, retirarlo de §N y de §N+2.
 3. Añadir una fila a §4 «Historial de revisiones» con las decisiones aplicadas.
 4. Re-sellar la página (`stamp`) y volver a ejecutar `decisions` hasta que termine con 0.
 

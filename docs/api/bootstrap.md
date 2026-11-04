@@ -3,6 +3,7 @@ arquetipo: "2"
 fuentes:
   .github/agents/config-reviewer.agent.md: 376360c404e4
   .github/prompts/bootstrap_ai_config.prompt.md: 816386231dc9
+  docs/decisiones/bootstrap_decisiones.md: 947c4df75841
 revisado: 2026-11-04
 ---
 # bootstrap
@@ -66,7 +67,7 @@ Seis bloques en el chat, en este orden: ANÁLISIS → PLAN → AUDIT_PLAN → IM
 | Parámetro obligatorio faltante | El flujo se detiene antes del ANÁLISIS y pide completarlo |
 | Generador de docs no indicado | Como cualquier campo obligatorio: el flujo se detiene y lo pide (se admite `ninguno`) |
 | Bootstrap lanzado desde el origen en lugar del destino | Riesgo de arrastrar suposiciones del stack origen; el prompt exige invocarlo desde el destino y explica por qué |
-| Fichero de Capa D presente en el origen | Se excluye siempre; no se copia ni con instrucciones explícitas del usuario 🔍 |
+| [COB-BOOTSTRAP-004](../decisiones/bootstrap_decisiones.md#cob-bootstrap-004) · Fichero de Capa D presente en el origen | Se excluye siempre; no se copia ni con instrucciones explícitas del usuario 🔍 |
 
 ## 3. Componentes y Clases
 
@@ -113,6 +114,6 @@ a los ficheros reales de doc_ia; lo detecta la auditoría posterior del Config R
     | Seis bloques ANÁLISIS → VERSION | `.github/prompts/bootstrap_ai_config.prompt.md` (salida esperada) | ✅ |
     | Parada por parámetro faltante | `.github/prompts/bootstrap_ai_config.prompt.md` (VALIDACIÓN) | ✅ |
     | Invocación desde el destino (modelo PULL) | `.github/prompts/bootstrap_ai_config.prompt.md` (sección "Método y dirección de la llamada") | ✅ |
-    | Capa D excluida aunque el usuario lo pida | `.github/prompts/bootstrap_ai_config.prompt.md` (Capa D: "Excluir explícitamente", sin mención a peticiones del usuario) | 🔍 |
+    | [COB-BOOTSTRAP-004](../decisiones/bootstrap_decisiones.md#cob-bootstrap-004) · Capa D excluida aunque el usuario lo pida | `.github/prompts/bootstrap_ai_config.prompt.md` (Capa D: "Excluir explícitamente", sin mención a peticiones del usuario) | 🔍 |
     | Dependencias: código del destino, Capa A+B del origen, norma documental | `.github/prompts/bootstrap_ai_config.prompt.md` | ✅ |
     | Capa A con `.github/templates/` y su test | `.github/prompts/bootstrap_ai_config.prompt.md::Capa A`, `tests/test_docs_conformance.py::test_bootstrap_copies_every_referenced_template` | ✅ |

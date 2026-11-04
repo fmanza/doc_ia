@@ -1,3 +1,9 @@
+---
+arquetipo: "6C"
+fuentes:
+  docs/decisiones/sistema_decisiones.md: 10002f86c9c1
+revisado: 2026-11-04
+---
 # Arquitectura del Sistema
 
 Vista panorámica de doc_ia (modelo arc42-lite + C4). Las decisiones puntuales con
@@ -128,7 +134,7 @@ flowchart LR
 | Determinismo del tooling | Falta una herramienta obligatoria en el entorno | `check_env.py` imprime las ausentes y devuelve `1` | `scripts/check_env.py::main` |
 | Cero credenciales | Se crea un `.env` o un `*.key` en el repositorio | Git lo ignora; no llega al remoto | `.gitignore` (`.env`, `.env.*`, `*.key`) |
 | Integridad de la distribución | Un usuario descarga el ZIP offline | `sha256sum -c` coincide con el `.sha256` publicado | `scripts/build_docs_zip.py::_create_checksum_files` |
-| Trazabilidad de sesiones | Se cierra una sesión de trabajo | Existe `.ai/sessions/<id>/TRACEABILITY.md` y fila en `INDEX.md` | Instrucciones de cierre (sin verificación automática) ⚠️ |
+| [COB-SISTEMA-001](decisiones/sistema_decisiones.md#cob-sistema-001) · Trazabilidad de sesiones | Se cierra una sesión de trabajo | Existe `.ai/sessions/<id>/TRACEABILITY.md` y fila en `INDEX.md` | Instrucciones de cierre (sin verificación automática) ⚠️ |
 
 ## 5. Decisiones, Extensión y Límites
 

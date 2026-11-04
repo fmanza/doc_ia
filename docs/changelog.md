@@ -20,6 +20,11 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
   y de estados detectados que ya no coinciden (código `1`). Las fichas `Pendiente` se listan,
   pero no fallan. Ignora los identificadores escritos como código. Criterios AC-22 a AC-27 de la
   trazabilidad y AC-14 de los arquetipos.
+- **Dogfooding del Arquetipo 13**: doc_ia adopta su propio registro de decisiones — 9 registros
+  por módulo en `docs/decisiones/` (sección de nav «Decisiones de Cobertura») con 28 fichas
+  `Pendiente` para las 30 filas ⚠️ / 🔍 de su documentación; cada fila enlaza su ficha y cada
+  página declara su registro en `fuentes:`. Test `test_unverified_evidence_rows_have_coverage_id`:
+  ninguna fila no verificada de un bloque «Evidencia» queda sin ficha.
 
 ### Changed
 
