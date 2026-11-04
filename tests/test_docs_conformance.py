@@ -446,3 +446,24 @@ def test_doc_ia_coverage_decisions_are_consistent() -> None:
     from scripts.doc_trace import check_decisions  # noqa: PLC0415
 
     assert check_decisions(DOCS, DOCS / "decisiones").findings == ()
+
+
+# --- Bootstrap: la capa A lleva las plantillas que citan sus prompts ---
+
+TEMPLATE_REF_RE = re.compile(r"\.github/templates/([A-Za-z0-9_.-]+)")
+
+
+def test_bootstrap_copies_every_referenced_template() -> None:
+    """Las plantillas citadas en prompts, agentes y comandos existen y van en la capa A (AC-05)."""
+    sources = [
+        *sorted((ROOT / ".github" / "prompts").glob("*.md")),
+        *sorted((ROOT / ".github" / "agents").glob("*.md")),
+        *sorted((ROOT / ".claude" / "commands").glob("*.md")),
+    ]
+    cited = {m for s in sources for m in TEMPLATE_REF_RE.findall(s.read_text(encoding="utf-8"))}
+    assert cited, "ningún prompt cita plantillas: revisar el patrón"
+    for name in sorted(cited):
+        assert (ROOT / ".github" / "templates" / name).is_file(), name
+    bootstrap = (ROOT / ".github/prompts/bootstrap_ai_config.prompt.md").read_text(encoding="utf-8")
+    layer_a = bootstrap.split("### Capa A", 1)[1].split("### Capa B", 1)[0]
+    assert "`.github/templates/`" in layer_a

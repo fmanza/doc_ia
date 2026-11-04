@@ -2,8 +2,8 @@
 arquetipo: "2"
 fuentes:
   .github/agents/config-reviewer.agent.md: 376360c404e4
-  .github/prompts/bootstrap_ai_config.prompt.md: e7ef8b2fb106
-revisado: 2026-10-28
+  .github/prompts/bootstrap_ai_config.prompt.md: 816386231dc9
+revisado: 2026-11-04
 ---
 # bootstrap
 
@@ -50,7 +50,7 @@ flowchart TD
 
 | Capa | Carácter | Acción |
 |---|---|---|
-| **A — Metodología** | Agnóstico de lenguaje: ciclo PLAN/IMPLEMENT/VERSION, agentes, prompts, plantilla de sesión | Copiar verbatim (revisar comandos embebidos) |
+| **A — Metodología** | Agnóstico de lenguaje: ciclo PLAN/IMPLEMENT/VERSION, agentes, prompts, plantillas que citan (`.github/templates/`), plantilla de sesión | Copiar verbatim (revisar comandos embebidos) |
 | **B — Especialización** | Entry points IA + instrucciones compartidas; mezcla método + dominio | Copiar y reescribir las secciones de dominio |
 | **C — Contexto de dominio** | 100 % específico del origen: módulos, lenguaje, motores, capacidades | Regenerar desde cero analizando el destino |
 | **D — No copiar** | Historial y estado del origen: sesiones pasadas, CHANGELOG, caches | Excluir |
@@ -91,9 +91,15 @@ Seis bloques en el chat, en este orden: ANÁLISIS → PLAN → AUDIT_PLAN → IM
 
 ## 6. Verificación y Tests
 
-*Sin tests automatizados.* El bootstrap es un prompt ejecutado en el chat del proyecto destino.
-Riesgo principal sin cubrir: que la clasificación por capas (A/B/C/D) quede desfasada respecto a
-los ficheros reales de doc_ia; solo lo detecta la auditoría posterior del Config Reviewer.
+El bootstrap es un prompt ejecutado en el chat del proyecto destino; se comprueba solo su
+coherencia con los ficheros reales de doc_ia:
+
+| Test | Qué verifica | Tipo |
+|---|---|---|
+| `test_bootstrap_copies_every_referenced_template` | Cada `.github/templates/<fichero>` citado por los prompts, agentes o comandos existe, y la capa A incluye `.github/templates/` | conformidad |
+
+Riesgo sin cubrir: que el resto de la clasificación por capas (A/B/C/D) quede desfasada respecto
+a los ficheros reales de doc_ia; lo detecta la auditoría posterior del Config Reviewer.
 
 ??? note "Evidencia"
 
@@ -109,3 +115,4 @@ los ficheros reales de doc_ia; solo lo detecta la auditoría posterior del Confi
     | Invocación desde el destino (modelo PULL) | `.github/prompts/bootstrap_ai_config.prompt.md` (sección "Método y dirección de la llamada") | ✅ |
     | Capa D excluida aunque el usuario lo pida | `.github/prompts/bootstrap_ai_config.prompt.md` (Capa D: "Excluir explícitamente", sin mención a peticiones del usuario) | 🔍 |
     | Dependencias: código del destino, Capa A+B del origen, norma documental | `.github/prompts/bootstrap_ai_config.prompt.md` | ✅ |
+    | Capa A con `.github/templates/` y su test | `.github/prompts/bootstrap_ai_config.prompt.md::Capa A`, `tests/test_docs_conformance.py::test_bootstrap_copies_every_referenced_template` | ✅ |

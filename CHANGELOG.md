@@ -30,7 +30,14 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - **Arquetipo 8**: columna `ID` obligatoria en las tablas de cobertura y registro de decisiones
   siempre junto a la trazabilidad normativa.
 - **Mapa funcional**: el total de cobertura de pruebas estaba desfasado (decía 63 de 89; las
-  filas sumaban 67 de 93); ahora 74 de 100.
+  filas sumaban 67 de 93); ahora 75 de 101.
+
+### Fixed
+
+- **Bootstrap**: la capa A no copiaba `.github/templates/`, así que en el destino quedaban rotas
+  las referencias de los prompts y comandos copiados a `VER_DOCUMENTACION.template.md` y
+  `DECISIONES_COBERTURA.template.md`. Ahora la carpeta viaja verbatim; test de coherencia y
+  AC-05 del bootstrap.
 
 ## [0.4.1] — 2026-10-29
 

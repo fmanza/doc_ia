@@ -3,7 +3,7 @@ arquetipo: "12"
 fuentes:
   .claude/settings.json.example: e1c10842aa20
   .github/workflows/docs-zip-release.yml: bd807d444ea2
-  CLAUDE.md: 47e90d7b61e5
+  CLAUDE.md: bdce5f7fec35
   hooks/sync_root_docs.py: ef5e576436c6
   mkdocs.yml: 3cfcc736dd9a
   mkdocs_hooks.py: 31259b7911a3

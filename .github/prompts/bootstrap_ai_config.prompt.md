@@ -47,6 +47,7 @@ Fase: PLAN y AUDIT_PLAN únicamente.   # o "completa" para llegar hasta VERSION
 | `.github/prompts/` | `.github/prompts/` | verbatim (revisar comandos embebidos) |
 | `.claude/commands/` + `COMMAND_TEMPLATE.md` + `settings.json.example` | `.claude/` | verbatim (adaptar hooks) |
 | `.ai/sessions/TEMPLATE/` | `.ai/sessions/TEMPLATE/` | verbatim |
+| `.github/templates/` | `.github/templates/` | verbatim (los prompts y comandos copiados la citan) |
 | `.github/SHARED_INSTRUCTIONS.md` | idem | copiar + reescribir dominio |
 | `CLAUDE.md`, `GEMINI.md`, `.github/copilot-instructions.md`, `.github/AGENTS.md`, `.cursorrules` | idem | copiar + reescribir dominio |
 | `docs/guides/codex_guide.md` (guía de uso de Codex) | idem | copiar + reescribir dominio |
@@ -99,6 +100,10 @@ Clasifica **cada** activo IA del origen en una de estas cuatro capas:
 - `.github/prompts/*.prompt.md` (incluido este)
 - `.claude/commands/*.md`, `.claude/COMMAND_TEMPLATE.md`, `.claude/settings.json.example`
 - `.ai/sessions/TEMPLATE/`
+- `.github/templates/` — plantillas que citan los prompts y comandos copiados
+  (`VER_DOCUMENTACION.template.md`, `DECISIONES_COBERTURA.template.md`, `TEMPLATE_mkdocs.yml`).
+  Son plantillas del **producto** para los proyectos que el destino documente: no sustituyen la
+  configuración del generador del propio destino. Sin esta carpeta, esas referencias quedan rotas.
 
 > ⚠️ **No es verbatim puro**: estos ficheros contienen comandos embebidos del origen
 > (p.ej. `python -m pytest`, `mkdocs build`, rutas `src/<paquete>/...`). Revisa y sustituye

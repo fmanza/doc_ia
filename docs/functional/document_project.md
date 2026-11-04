@@ -4,7 +4,7 @@ fuentes:
   .claude/commands/document-project.md: 275755329577
   .github/DOCUMENTATION_STANDARD.md: 15b5b304d20d
   .github/prompts/document_project.prompt.md: 65f89e26730c
-  CLAUDE.md: 47e90d7b61e5
+  CLAUDE.md: bdce5f7fec35
 revisado: 2026-11-04
 ---
 # Documentar un Proyecto

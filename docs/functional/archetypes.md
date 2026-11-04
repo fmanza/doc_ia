@@ -4,7 +4,7 @@ fuentes:
   .claude/commands/document-project.md: 275755329577
   .github/DOCUMENTATION_STANDARD.md: 15b5b304d20d
   hooks/sync_root_docs.py: ef5e576436c6
-  tests/test_docs_conformance.py: bf78fb3af542
+  tests/test_docs_conformance.py: 6c3690cf165b
 revisado: 2026-11-04
 ---
 # Arquetipos Formales de Documentación
