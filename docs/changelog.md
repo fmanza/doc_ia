@@ -37,7 +37,7 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
   `MANUAL`. Remedia `COB-ORIGINS-004`; test de coherencia.
 - **Bootstrap, Capa D**: se excluye aunque el usuario pida copiarla (se informa del motivo);
   decisión `COB-BOOTSTRAP-004`.
-- **Decisiones de cobertura de doc_ia aplicadas**: las 30 fichas decididas; 7 tests nuevos
+- **Decisiones de cobertura de doc_ia aplicadas**: las 29 fichas decididas (19 ✅, 10 ⚠️ aceptados); 7 tests nuevos
   (`check_env` ×4, `convert_to_md`, `doc_trace`, sesiones con `TRACEABILITY.md`).
 - **Arquetipo 8**: columna `ID` obligatoria en las tablas de cobertura y registro de decisiones
   siempre junto a la trazabilidad normativa.
