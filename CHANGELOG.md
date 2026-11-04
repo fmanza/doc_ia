@@ -5,6 +5,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+## [0.6.0] — 2026-11-04
+
 ### Added
 
 - **`drift` vigila los registros de decisiones**: `stamp` guarda en la clave nueva `decisiones:`
@@ -330,7 +332,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - Restauración de `config-reviewer.agent.md` y creación de `docs.instructions.md`
   tras corrupción del bootstrap.
 
-[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/fmanza/doc_ia/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/fmanza/doc_ia/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/fmanza/doc_ia/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/fmanza/doc_ia/compare/v0.4.0...v0.4.1
