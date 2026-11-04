@@ -4,7 +4,7 @@ fuentes:
   docs/decisiones/buildzip_decisiones.md: e610c12daad7
   mkdocs.yml: 5d3b9bd903d1
   mkdocs_hooks.py: 31259b7911a3
-  pyproject.toml: 4e601ef8c03e
+  pyproject.toml: 25b00265b409
   scripts/build_docs_zip.py: 5f972ee674c8
   tests/test_build_docs_zip.py: 82a1d595e6f4
   tests/test_offline_assets.py: 7e632c37987d
