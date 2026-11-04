@@ -5,6 +5,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+## [0.7.0] — 2026-11-04
+
 ### Changed
 
 - **Barra superior en 9 pestañas como máximo**: con 14, la última quedaba cortada. Material y
@@ -342,7 +344,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - Restauración de `config-reviewer.agent.md` y creación de `docs.instructions.md`
   tras corrupción del bootstrap.
 
-[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/fmanza/doc_ia/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/fmanza/doc_ia/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/fmanza/doc_ia/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/fmanza/doc_ia/compare/v0.4.1...v0.5.0
