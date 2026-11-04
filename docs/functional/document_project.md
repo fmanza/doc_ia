@@ -2,8 +2,8 @@
 arquetipo: "1"
 fuentes:
   .claude/commands/document-project.md: 275755329577
-  .github/DOCUMENTATION_STANDARD.md: fea7fbc4b62c
-  .github/prompts/document_project.prompt.md: 65f89e26730c
+  .github/DOCUMENTATION_STANDARD.md: 1d52344cb93f
+  .github/prompts/document_project.prompt.md: 27bb482fa094
   CLAUDE.md: bdce5f7fec35
   docs/decisiones/docproj_decisiones.md: fc3d54e1de86
 revisado: 2026-11-04

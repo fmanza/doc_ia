@@ -32,6 +32,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
   el código; ⚠️ hueco funcional o defecto conocido; ❌ no hay módulo que lo implemente; 🔍 la
   evidencia no basta (configuración en base de datos, sistemas externos o documentación
   organizativa no aportada). §3.16 remite a ella; antes daba otro significado a ❌.
+- **Clasificación de orígenes — requisitos frente a manual** (§3.10 y Fase 0a): lo que se va a
+  construir (PRD, requisitos) es `ESPECIFICACIÓN` aunque se llame `manual`; lo ya construido es
+  `MANUAL`. Remedia `COB-ORIGINS-004`; test de coherencia.
 - **Arquetipo 8**: columna `ID` obligatoria en las tablas de cobertura y registro de decisiones
   siempre junto a la trazabilidad normativa.
 - **Mapa funcional**: el total de cobertura de pruebas estaba desfasado (decía 63 de 89; las

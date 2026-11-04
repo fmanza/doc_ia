@@ -484,3 +484,14 @@ def test_unverified_evidence_rows_have_coverage_id() -> None:
                 if not COVERAGE_ID_RE.search(row):
                     missing.append(f"{page.relative_to(ROOT).as_posix()}: {row[:80]}")
     assert not missing, missing
+
+
+@pytest.mark.parametrize(
+    "path", [".github/DOCUMENTATION_STANDARD.md", ".github/prompts/document_project.prompt.md"]
+)
+def test_specification_vs_manual_criterion(path: str) -> None:
+    """Un PRD sin implementar es ESPECIFICACIÓN aunque se llame manual (AC-09, tipos de origen)."""
+    text = (ROOT / path).read_text(encoding="utf-8")
+    assert re.search(r"[Rr]equisitos frente a manual", text)
+    assert re.search(r"(?i)se va a construir", text)
+    assert re.search(r"(?i)ya construido", text)

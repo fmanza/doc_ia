@@ -80,6 +80,10 @@ Fase 0a — Clasificación de orígenes (solo con ≥2 orígenes, o si el único
             - REFERENCIA     : manuales de TERCEROS, RFCs, especificaciones de protocolo AJENAS
                                al proyecto; también lo que no coincide con ningún tipo anterior.
                                Un contrato o manual de un tercero es REFERENCIA (la propiedad decide)
+            Requisitos frente a manual (el momento decide): lo que SE VA A CONSTRUIR (PRD,
+            requisitos, user stories, pliego) es ESPECIFICACIÓN aunque se llame manual/guide;
+            lo YA CONSTRUIDO (uso, operación, ayuda) es MANUAL. Si el contenido contradice el
+            nombre, proponer el tipo por contenido e indicarlo en «Señales encontradas».
          2. Presentar tabla: | Origen | Tipo detectado | Señales encontradas | Rol propuesto |
          3. DETENER y pedir confirmación al usuario antes de continuar.
          4. Si hay ≥2 orígenes CÓDIGO → preguntar estrategia al usuario:

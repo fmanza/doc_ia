@@ -44,7 +44,7 @@ está el acta o la evidencia, no su contenido.
 | ✅ | 0 | 0 | 0 |
 | ⚠️ | 1 | 0 | 1 |
 | ❌ | 0 | 0 | 0 |
-| 🔍 | 3 | 0 | 3 |
+| 🔍 | 4 | 1 | 3 |
 
 ## 3. Decisiones
 
@@ -100,9 +100,23 @@ está el acta o la evidencia, no su contenido.
 | **Fecha** | 2026-11-04 |
 | **Estado resultante** | ⚠️ |
 
+### COB-ORIGINS-005 — Flujo «Corrección del usuario» { #cob-origins-005 }
+
+| Campo | Valor |
+|---|---|
+| Página | [functional/origin_types.md](../functional/origin_types.md) |
+| Estado detectado | 🔍 |
+| Evidencia | `.github/DOCUMENTATION_STANDARD.md::3.10` (Regla) y `.github/prompts/document_project.prompt.md` (parámetro «Tipo de cada origen») exigen que el usuario confirme el tipo antes del INVENTARIO; que, si lo corrige, se use el tipo que indique se deduce de «confirma», no está escrito |
+| **Decisión** | Pendiente |
+| **Contexto aportado** | — |
+| **Responsable** | — |
+| **Fecha** | — |
+| **Estado resultante** | — |
+
 ## 4. Historial de revisiones
 
 | Fecha | Revisión | Decisiones aplicadas | Por |
 |---|---|---|---|
 | 2026-11-04 | Generación inicial | — | Agente |
 | 2026-11-04 | Aplicación de decisiones | COB-ORIGINS-001 ⚠️ → ✅, COB-ORIGINS-002 🔍 → ✅, COB-ORIGINS-003 🔍 → ✅, COB-ORIGINS-004 🔍 → ⚠️ en `functional/origin_types.md` | Agente |
+| 2026-11-04 | Ficha nueva y remediación | COB-ORIGINS-005 creada (🔍 del cuerpo sin fila); criterio «requisitos frente a manual» añadido a §3.10 y a la Fase 0a para COB-ORIGINS-004 (la ficha conserva su estado hasta que la persona responsable lo actualice) | Agente |

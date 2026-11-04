@@ -9,7 +9,7 @@ fuentes:
   docs/functional/convert_to_md.md: ae08de56054c
   docs/functional/doc_trace.md: 3def261d69a8
   docs/functional/document_project.md: 658df1cd30a5
-  docs/functional/origin_types.md: 067e6238b75b
+  docs/functional/origin_types.md: 59c50ab082a4
 revisado: 2026-11-04
 ---
 # Mapa Funcional — doc_ia
@@ -26,11 +26,11 @@ y qué términos comparten. Cada capacidad enlaza a su página funcional detalla
 | Empaquetar la documentación para consulta offline con verificación de integridad | Tooling determinista | [ZIP de Documentación Offline](build_docs_zip.md) | AC-01 – AC-15 | 14/15 |
 | Detectar documentación desactualizada respecto al código, cruzar criterios con tests y comprobar que las decisiones de cobertura se reflejan | Tooling determinista | [Trazabilidad Docs ↔ Código](doc_trace.md) | AC-01 – AC-27 | 27/27 |
 | Documentar un proyecto completo desde una única operación de entrada | Flujos IA | [Documentar un Proyecto](document_project.md) | AC-01 – AC-12 | 1/12 |
-| Clasificar cada origen (código, normativa, especificación, contrato…) y decidir su tratamiento | Flujos IA | [Catálogo de Tipos de Origen](origin_types.md) | AC-01 – AC-09 | 0/9 |
+| Clasificar cada origen (código, normativa, especificación, contrato…) y decidir su tratamiento | Flujos IA | [Catálogo de Tipos de Origen](origin_types.md) | AC-01 – AC-09 | 1/9 |
 | Producir documentación con estructura fija, evidencia verificable y decisiones humanas citadas | Flujos IA | [Arquetipos Formales](archetypes.md) | AC-01 – AC-14 | 14/14 |
 | Trasladar el sistema de instrucciones IA a otro proyecto | Flujos IA | [Bootstrap de Configuración IA](bootstrap.md) | AC-01 – AC-05 | 1/5 |
 
-**Cobertura de pruebas**: 75 de 101 criterios tienen un test automatizado. Los flujos IA se
+**Cobertura de pruebas**: 76 de 101 criterios tienen un test automatizado. Los flujos IA se
 ejecutan en el chat de la plataforma IA: de ellos solo se comprueba la estructura de la
 documentación resultante (Arquetipos) ⚠️.
 
@@ -99,7 +99,7 @@ acceso al repositorio y a una plataforma IA puede usar todas las capacidades.
     | Capacidad «ZIP offline» y 14/15 tests | `docs/functional/build_docs_zip.md::§7` | ✅ |
     | Capacidad «Trazabilidad» y 27/27 tests | `docs/functional/doc_trace.md::§7` | ✅ |
     | Capacidad «Documentar un Proyecto» y 1/12 tests | `docs/functional/document_project.md::§7` | ✅ |
-    | Capacidad «Tipos de Origen» y 0/9 tests | `docs/functional/origin_types.md::§7` | ✅ |
+    | Capacidad «Tipos de Origen» y 1/9 tests | `docs/functional/origin_types.md::§7` | ✅ |
     | Capacidad «Arquetipos» y 14/14 tests | `docs/functional/archetypes.md::§7` | ✅ |
     | Capacidad «Bootstrap» y 1/5 tests | `docs/functional/bootstrap.md::§7` | ✅ |
     | Recorrido «documentos previos» | `docs/functional/convert_to_md.md::§1`, `docs/functional/document_project.md::§3` | ✅ |

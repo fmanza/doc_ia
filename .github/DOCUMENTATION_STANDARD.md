@@ -583,6 +583,8 @@ Cuando `/document-project` recibe más de un `Origen`, o cuando el único origen
 
 **Orden de evaluación**: las señales se evalúan en el orden de la tabla y se asigna el primer tipo que coincide. `REFERENCIA` va la última: es el tipo de lo ajeno al proyecto y el tipo por defecto si ninguna señal coincide. Un contrato o un manual de un tercero se reclasifica como `REFERENCIA` (la propiedad decide); el usuario confirma siempre la clasificación.
 
+**Requisitos frente a manual** (el momento decide): un documento propio que describe lo que **se va a construir** (PRD, requisitos, user stories, pliego) es `ESPECIFICACIÓN` aunque su nombre contenga `manual` o `guide`; uno que describe lo **ya construido** (uso, operación, ayuda) es `MANUAL`. El nombre del fichero solo propone el tipo: si el contenido contradice la señal, se propone el tipo por contenido y se indica en la columna «Señales encontradas».
+
 **Regla**: la autodetección propone el tipo; el usuario confirma antes de continuar al INVENTARIO. Nunca se asume el tipo sin confirmación.
 
 **Caso degenerado**: si no hay ningún origen de tipo `CÓDIGO`, `/document-project` no aplica. Usar directamente el prompt de arquetipo correspondiente (`normative_traceability.prompt.md`, `functional_doc.prompt.md`, etc.).
