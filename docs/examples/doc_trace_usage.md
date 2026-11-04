@@ -6,8 +6,9 @@ Tras modificar código o instrucciones conviene saber qué páginas de documenta
 quedado desactualizadas y si los criterios de aceptación citan tests reales. Este ejemplo
 muestra las dos formas de hacerlo con `doc_trace`: importar `check_drift` y `build_matrix`
 desde código propio (mismo patrón por ruta que `check_env_usage.py`), o usar los subcomandos
-de la CLI: `stamp`, `drift`, `matrix` y `llms`, y para relanzar `/document-project` solo sobre lo
-cambiado, `baseline` y `changes`.
+de la CLI: `stamp`, `drift`, `matrix` y `llms`, para relanzar `/document-project` solo sobre lo
+cambiado, `baseline` y `changes`, y para comprobar que las decisiones humanas de un registro de
+cobertura (Arquetipo 13) ya se reflejan en la documentación, `decisions`.
 
 ## 2. Implementación de Referencia
 
@@ -25,6 +26,8 @@ cambiado, `baseline` y `changes`.
   ejemplo es determinista y no tiene efectos secundarios.
 - `build_matrix` devuelve el Markdown de la matriz y la lista de tests citados que no
   existen; el ejemplo solo usa los recuentos.
+- `check_decisions` lee `docs/decisiones/`; doc_ia no tiene registros de decisiones, así que
+  el ejemplo informa de 0 fichas y 0 hallazgos.
 
 ## 4. Ejecución y Pruebas
 
@@ -115,6 +118,66 @@ python <doc_ia>/scripts/doc_trace.py --root . changes --origin ../mi_api   # có
 Sin cambios, `changes` termina con código `0`; sin baseline utilizable, con código `3` y el
 motivo (la sesión de `/document-project` se hace entonces completa).
 
+Decisiones de cobertura en un destino con Arquetipo 8 (`mi_api_docs`). Las personas han
+decidido sobre `COB-RGPD-001` en el registro; `COB-RGPD-002` sigue pendiente:
+
+```markdown
+<!-- docs/decisiones/rgpd_decisiones.md (extracto) -->
+### COB-RGPD-001 — Registro de actividades de tratamiento { #cob-rgpd-001 }
+
+| Campo | Valor |
+|---|---|
+| Página | [Trazabilidad RGPD](../normativa/rgpd_traceability.md) |
+| Estado detectado | 🔍 |
+| Evidencia | `src/rat.py::RegistroActividades` — el catálogo de tratamientos vive en la BD |
+| **Decisión** | Aportar evidencia |
+| **Contexto aportado** | Tabla `tratamientos` revisada en producción: 14 tratamientos con base jurídica |
+| **Responsable** | DPO |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ✅ |
+```
+
+Antes de aplicar la decisión, la fila de `docs/normativa/rgpd_traceability.md` aún muestra 🔍
+(código `1`):
+
+```bash
+python <doc_ia>/scripts/doc_trace.py --root . decisions
+# # Registro de Decisiones de Cobertura — estado
+#
+# | Registro | Fichas | Pendientes | Decididas |
+# |---|---|---|---|
+# | `docs/decisiones/rgpd_decisiones.md` | 2 | 1 | 1 |
+#
+# ## Pendientes de decisión (1)
+#
+# - `COB-RGPD-002` (⚠️) — `docs/decisiones/rgpd_decisiones.md:22`
+#
+# ## Hallazgos (1)
+#
+# | Tipo | ID | Ubicación | Detalle |
+# |---|---|---|---|
+# | unreflected | `COB-RGPD-001` | `docs/normativa/rgpd_traceability.md:7` | la fila muestra 🔍; la decisión fija ✅ |
+# [doc_trace] 1 hallazgo(s) en las decisiones de cobertura.
+```
+
+Al aplicar la decisión, la fila enlaza la ficha y termina en el estado resultante; la ficha
+pendiente no impide terminar con código `0`:
+
+```markdown
+| ID | Artículo | Obligación | Módulo/servicio | Doc de referencia | Cobertura |
+|---|---|---|---|---|---|
+| [COB-RGPD-001](../decisiones/rgpd_decisiones.md#cob-rgpd-001) | Art. 30 | Registro de actividades | `rat` | — | 🔍 → ✅ |
+| [COB-RGPD-002](../decisiones/rgpd_decisiones.md#cob-rgpd-002) | Art. 5.1.e | Limitación del plazo | `purga` | — | ⚠️ |
+```
+
+```bash
+python <doc_ia>/scripts/doc_trace.py --root . decisions
+# ...
+# ## Hallazgos (0)
+#
+# *Ninguno.*
+```
+
 Ejemplo desde código propio (los recuentos dependen del estado del repositorio):
 
 ```bash
@@ -122,6 +185,7 @@ python docs/examples/doc_trace_usage.py
 # Fuentes desactualizadas: 0
 # Criterios con test: 29/66
 # Tests citados inexistentes: 0
+# Fichas de decision: 0, hallazgos: 0
 
 python -m py_compile docs/examples/doc_trace_usage.py   # validación sintáctica
 ```

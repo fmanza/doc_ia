@@ -8,6 +8,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from doc_trace import (  # noqa: E402
     build_matrix,
+    check_decisions,
     check_drift,
     collect_criteria,
     collect_test_ids,
@@ -23,3 +24,6 @@ _, unknown = build_matrix(criteria, collect_test_ids(ROOT / "tests", ROOT), ROOT
 with_test = sum(1 for c in criteria if c.tests)
 print(f"Criterios con test: {with_test}/{len(criteria)}")
 print(f"Tests citados inexistentes: {len(unknown)}")
+
+decisions = check_decisions(ROOT / "docs", ROOT / "docs" / "decisiones")
+print(f"Fichas de decision: {len(decisions.entries)}, hallazgos: {len(decisions.findings)}")

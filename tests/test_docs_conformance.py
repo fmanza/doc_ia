@@ -378,3 +378,71 @@ def test_incremental_mode_rule_everywhere(path: str) -> None:
     text = (ROOT / path).read_text(encoding="utf-8")
     assert ".ai/doc_state.json" in text
     assert "baseline" in text
+
+
+# --- Arquetipo 13: Registro de Decisiones de Cobertura (§3.18) ---
+
+DECISIONS_RULE_FILES = [
+    ".github/DOCUMENTATION_STANDARD.md",
+    ".github/prompts/coverage_decisions.prompt.md",
+    ".github/prompts/normative_traceability.prompt.md",
+    ".github/prompts/document_project.prompt.md",
+    ".claude/commands/document-project.md",
+    ".github/agents/documentation-generator.agent.md",
+    ".github/agents/documentation-reviewer.agent.md",
+]
+DECISIONS_TEMPLATE = ".github/templates/DECISIONES_COBERTURA.template.md"
+CANONICAL_LEGEND = [
+    "módulo identificado y comportamiento verificado en el código",
+    "módulo identificado, pero con un hueco funcional o un defecto conocido",
+    "no hay módulo que lo implemente",
+    "configuración en base de datos, sistemas externos o",
+]
+
+
+@pytest.mark.parametrize("path", DECISIONS_RULE_FILES)
+def test_coverage_decisions_rule_everywhere(path: str) -> None:
+    """Arq. 13: registro en docs/decisiones/ y el agente no toca los campos de persona (AC-13)."""
+    text = (ROOT / path).read_text(encoding="utf-8")
+    assert "decisiones" in text
+    assert "coverage_decisions" in text or "§3.18" in text
+    assert re.search(r"campos? de persona", text)
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        ".github/DOCUMENTATION_STANDARD.md",
+        ".github/prompts/normative_traceability.prompt.md",
+        DECISIONS_TEMPLATE,
+    ],
+)
+def test_canonical_coverage_legend(path: str) -> None:
+    """La leyenda de cobertura canónica (§3.8) es la misma en estándar, prompt y plantilla."""
+    text = " ".join((ROOT / path).read_text(encoding="utf-8").split())
+    for meaning in CANONICAL_LEGEND:
+        assert meaning in text, meaning
+
+
+def test_decisions_template_cards_have_fixed_fields() -> None:
+    """La plantilla del registro trae las 8 filas de ficha que lee `doc_trace decisions`."""
+    text = (ROOT / DECISIONS_TEMPLATE).read_text(encoding="utf-8")
+    assert _sections(ROOT / DECISIONS_TEMPLATE) == [1, 2, 3, 4]
+    for field in (
+        "Página",
+        "Estado detectado",
+        "Evidencia",
+        "**Decisión**",
+        "**Contexto aportado**",
+        "**Responsable**",
+        "**Fecha**",
+        "**Estado resultante**",
+    ):
+        assert f"| {field} |" in text, field
+
+
+def test_doc_ia_coverage_decisions_are_consistent() -> None:
+    """doc_ia no adopta el registro: `decisions` sobre su docs/ termina sin hallazgos."""
+    from scripts.doc_trace import check_decisions  # noqa: PLC0415
+
+    assert check_decisions(DOCS, DOCS / "decisiones").findings == ()

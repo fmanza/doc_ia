@@ -21,6 +21,7 @@ Lee antes de generar:
 - `.github/prompts/functional_doc.prompt.md` — prompt para documentación funcional
 - `.github/prompts/technical_doc.prompt.md` — prompt para documentación técnica
 - `.github/prompts/reference_doc.prompt.md` — prompt para la referencia del sistema (Arquetipo 12)
+- `.github/prompts/coverage_decisions.prompt.md` — registro de decisiones de cobertura (Arquetipo 13)
 - `mkdocs.yml` — navegación, tema, extensiones y páginas publicadas
 - `README.md` y `docs/` — documentación existente que puede requerir actualización
 
@@ -344,6 +345,8 @@ librería Mermaid o su shim es de otra versión, indicarlo explícitamente en el
   "Evidencia" (`stamp`, fuentes = ficheros citados) y ejecuta `drift`, `matrix` y `llms`
   (DOCUMENTATION_STANDARD.md §3.16 › Frontmatter de trazabilidad). Sin el script, escribe el
   frontmatter con `fuentes` y deja las huellas como `pendiente`.
+- Si existe `docs/decisiones/`: ejecuta `decisions` (exit 0 esperado) y lista en la entrega las
+  decisiones aplicadas y las fichas pendientes de decisión humana.
 - Ejecuta o recomienda `mkdocs build` para detectar errores de navegación.
 - Entrega inventario final: páginas creadas, actualizadas, sin cambios y pendientes de verificación humana.
 
@@ -360,6 +363,18 @@ Genera o actualiza `docs/normativa/<codigo_norma>_traceability.md` con:
 - Próximas acciones priorizadas
 
 Actualiza `mkdocs.yml`: añade sección `Normativa` entre `Funcional` y `Arquitectura` si no existe.
+
+### 5. Registro de decisiones de cobertura (`docs/decisiones/`) — Condicional
+
+Siempre con el Arquetipo 8; con Arq. 1/2/12 si el destino ya tiene `docs/decisiones/` o el
+usuario lo pide. Aplica `.github/prompts/coverage_decisions.prompt.md` (regla:
+`DOCUMENTATION_STANDARD.md` §3.18):
+- **Modo aplicación primero**: si el registro existe, refleja sus decisiones en las páginas
+  (ID enlazado a la ficha + «Estado resultante» como último símbolo) antes de regenerarlas.
+- **Modo generación después**: fichas `Pendiente` para los ⚠️/❌/🔍 nuevos con IDs
+  `COB-<ÁMBITO>-<NNN>` estables.
+- **Nunca** rellenes ni modifiques los campos de persona (Decisión, Contexto aportado,
+  Responsable, Fecha, Estado resultante): decide una persona, no el agente.
 
 ## Restricciones
 

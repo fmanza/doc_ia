@@ -51,7 +51,14 @@ Lee antes de revisar:
     (`docs/functional/index.md`, Variante 1-I) y cada capacidad enlaza a una página real.
     Si existe `scripts/doc_trace.py`, ejecuta `drift` y `matrix`: cada fuente `stale` es hallazgo
     de Nivel 2 (página posiblemente obsoleta) y cada test citado inexistente, de Nivel 1.
-12. **Referencia del sistema (condicional)**: si el código expone configuración, CLI, códigos
+12. **Decisiones de cobertura (condicional)** (`DOCUMENTATION_STANDARD.md` §3.18): si existe
+    `docs/normativa/`, existe también `docs/decisiones/` con un registro por norma. Si existe
+    `docs/decisiones/`, ejecuta `doc_trace.py decisions` (o revisa a mano): `unreflected`,
+    `orphan_ref`, `duplicate` e `invalid` son Nivel 1 (la documentación contradice o pierde una
+    decisión humana); `incomplete`, `mismatch` y `orphan_entry`, Nivel 2. Las fichas `Pendiente`
+    no son hallazgo: lístalas como «pendiente de decisión humana». Comprueba además que ningún
+    campo de persona ha sido rellenado por el agente (`git log -p` del registro si hay dudas).
+13. **Referencia del sistema (condicional)**: si el código expone configuración, CLI, códigos
     de salida, eventos o interfaces publicadas, existe `docs/reference/` (Arquetipo 12) y el
     Arquetipo 2 la enlaza en lugar de duplicarla.
 

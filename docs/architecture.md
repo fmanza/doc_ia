@@ -45,7 +45,7 @@ del sitio (`--strict`), trazabilidad de sesiones (`.ai/sessions/`).
 | `mkdocs_hooks.py` | Hook MkDocs nativo: genera `doc_ia-docs-latest.zip` + SHA256 en `site/` en cada build |
 | `tests/` | Tests pytest del tooling (importan `scripts/` vía `sys.path`) |
 | `docs/` + `mkdocs.yml` | Sitio MkDocs Material (este sitio, 33 páginas); `mkdocs.yml` es fuente única de navegación |
-| `.github/` | Canónico (`SHARED_INSTRUCTIONS.md`), 12 agentes, 26 prompts, 3 instructions, 2 workflows CI |
+| `.github/` | Canónico (`SHARED_INSTRUCTIONS.md`), 12 agentes, 27 prompts, 3 instructions, 2 workflows CI |
 | `.claude/` | 9 slash commands, hooks PostToolUse (sync_root_docs, ruff, mypy, pytest), plantillas |
 | `.ai/` | Contexto persistente (product, architecture, glossary, runtime, standards) + sesiones trazadas |
 

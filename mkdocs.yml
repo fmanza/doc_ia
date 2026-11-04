@@ -145,6 +145,7 @@ nav:
       - ADR-001 — MkDocs Material por defecto: adr/ADR-001-mkdocs-material-por-defecto.md
       - ADR-002 — Arquetipos con evidencia verificable: adr/ADR-002-arquetipos-con-evidencia.md
       - ADR-003 — Zensical por defecto (propuesto): adr/ADR-003-zensical-por-defecto.md
+      - ADR-004 — Registro de decisiones de cobertura: adr/ADR-004-registro-decisiones-cobertura.md
 
   - Changelog: changelog.md
   - Contribuir: contributing.md

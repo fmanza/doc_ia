@@ -466,3 +466,163 @@ def test_write_baseline_keeps_other_origins(tmp_path: Path) -> None:
         "sucio": True,
         "fecha": "2026-10-30",
     }
+
+
+# --- decisions (Arquetipo 13) ---
+
+_LINK = "../decisiones/rgpd_decisiones.md#cob-rgpd-001"
+
+
+def _card(cid: str = "COB-RGPD-001", detected: str = "🔍", **human: str) -> str:
+    fields = {
+        "Página": "[Trazabilidad](../normativa/rgpd_traceability.md)",
+        "Estado detectado": detected,
+        "Evidencia": "`src/rat.py::Rat`",
+        "Decisión": human.get("decision", "Pendiente"),
+        "Contexto aportado": human.get("context", "—"),
+        "Responsable": human.get("owner", "—"),
+        "Fecha": human.get("date", "—"),
+        "Estado resultante": human.get("result", "—"),
+    }
+    rows = "\n".join(f"| {k} | {v} |" for k, v in fields.items())
+    heading = f"### {cid} — Registro de actividades {{ #{cid.lower()} }}"
+    return f"{heading}\n\n| Campo | Valor |\n|---|---|\n{rows}\n"
+
+
+def _decisions_repo(tmp_path: Path, cards: str, page_rows: str, register: str = "rgpd") -> Path:
+    docs = tmp_path / "docs"
+    (docs / "decisiones").mkdir(parents=True)
+    (docs / "normativa").mkdir()
+    (docs / "decisiones" / f"{register}_decisiones.md").write_text(
+        f"# Registro de Decisiones de Cobertura — RGPD\n\n## 3. Decisiones\n\n{cards}\n"
+        "## 4. Historial de revisiones\n\n| Fecha | Revisión |\n|---|---|\n",
+        encoding="utf-8",
+    )
+    (docs / "normativa" / "rgpd_traceability.md").write_text(
+        "# Trazabilidad\n\n| ID | Artículo | Cobertura |\n|---|---|---|\n" + page_rows,
+        encoding="utf-8",
+    )
+    return tmp_path
+
+
+def _kinds(root: Path) -> list[str]:
+    docs = root / "docs"
+    return [f.kind for f in doc_trace.check_decisions(docs, docs / "decisiones").findings]
+
+
+_DECIDED = {
+    "decision": "Aportar evidencia",
+    "context": "Configuración revisada en BD de producción",
+    "owner": "DPO",
+    "date": "2026-11-04",
+    "result": "✅",
+}
+
+
+def test_decisions_without_registers_is_clean(tmp_path: Path) -> None:
+    (tmp_path / "docs").mkdir()
+    (tmp_path / "docs" / "index.md").write_text("# Inicio\n", encoding="utf-8")
+    assert main(["--root", str(tmp_path), "decisions"]) == 0
+
+
+def test_pending_card_is_not_a_finding(tmp_path: Path) -> None:
+    root = _decisions_repo(tmp_path, _card(), f"| [COB-RGPD-001]({_LINK}) | Art. 30 | 🔍 |\n")
+    docs = root / "docs"
+    report = doc_trace.check_decisions(docs, docs / "decisiones")
+    assert report.findings == ()
+    assert [e.cid for e in report.entries if e.pending] == ["COB-RGPD-001"]
+
+
+def test_decided_and_reflected_is_clean(tmp_path: Path) -> None:
+    root = _decisions_repo(
+        tmp_path, _card(**_DECIDED), f"| [COB-RGPD-001]({_LINK}) | Art. 30 | 🔍 → ✅ |\n"
+    )
+    assert _kinds(root) == []
+
+
+def test_decided_but_page_keeps_old_symbol_is_unreflected(tmp_path: Path) -> None:
+    root = _decisions_repo(
+        tmp_path, _card(**_DECIDED), f"| [COB-RGPD-001]({_LINK}) | Art. 30 | 🔍 |\n"
+    )
+    assert _kinds(root) == ["unreflected"]
+
+
+def test_decided_without_link_to_card_is_unreflected(tmp_path: Path) -> None:
+    root = _decisions_repo(tmp_path, _card(**_DECIDED), "| COB-RGPD-001 | Art. 30 | ✅ |\n")
+    assert _kinds(root) == ["unreflected"]
+
+
+def test_decided_without_owner_or_date_is_incomplete(tmp_path: Path) -> None:
+    human = {**_DECIDED, "owner": "—", "date": "—"}
+    root = _decisions_repo(tmp_path, _card(**human), f"| [COB-RGPD-001]({_LINK}) | | 🔍 |\n")
+    assert _kinds(root) == ["incomplete"]
+
+
+def test_decision_not_allowed_for_state_is_invalid(tmp_path: Path) -> None:
+    human = {**_DECIDED, "decision": "Confirmar"}
+    root = _decisions_repo(tmp_path, _card(**human), f"| [COB-RGPD-001]({_LINK}) | | ✅ |\n")
+    assert _kinds(root) == ["invalid"]
+
+
+def test_bad_date_and_scope_are_invalid(tmp_path: Path) -> None:
+    human = {**_DECIDED, "date": "04/11/2026"}
+    root = _decisions_repo(
+        tmp_path,
+        _card(cid="COB-LEY39-001", **human),
+        "| [COB-LEY39-001](../decisiones/rgpd_decisiones.md#cob-ley39-001) | | ✅ |\n",
+    )
+    assert _kinds(root) == ["invalid", "invalid"]
+
+
+def test_not_applicable_must_match_and_be_written_in_page(tmp_path: Path) -> None:
+    human = {**_DECIDED, "decision": "No aplica", "result": "No aplica"}
+    clean = _decisions_repo(
+        tmp_path / "a", _card(**human), f"| [COB-RGPD-001]({_LINK}) | Art. 30 | No aplica |\n"
+    )
+    assert _kinds(clean) == []
+    wrong = _decisions_repo(
+        tmp_path / "b", _card(**{**human, "result": "✅"}), f"| [COB-RGPD-001]({_LINK}) | | ✅ |\n"
+    )
+    assert _kinds(wrong) == ["invalid"]
+
+
+def test_duplicate_orphan_entry_and_orphan_ref(tmp_path: Path) -> None:
+    cards = _card() + "\n" + _card() + "\n" + _card(cid="COB-RGPD-002")
+    root = _decisions_repo(
+        tmp_path, cards, f"| [COB-RGPD-001]({_LINK}) | | 🔍 |\n| COB-RGPD-003 | | ❌ |\n"
+    )
+    assert sorted(_kinds(root)) == ["duplicate", "orphan_entry", "orphan_ref"]
+
+
+def test_pending_card_with_different_page_symbol_is_mismatch(tmp_path: Path) -> None:
+    root = _decisions_repo(tmp_path, _card(detected="⚠️"), f"| [COB-RGPD-001]({_LINK}) | | ❌ |\n")
+    assert _kinds(root) == ["mismatch"]
+
+
+def test_ids_in_code_are_ignored_and_admonition_rows_are_read(tmp_path: Path) -> None:
+    root = _decisions_repo(tmp_path, _card(**_DECIDED), "")
+    page = root / "docs" / "functional.md"
+    page.write_text(
+        "# Página\n\nFormato: `COB-RGPD-999`.\n\n```markdown\n| COB-RGPD-998 | | ❌ |\n```\n\n"
+        '??? note "Evidencia"\n\n    | Elemento | Fuente | Confianza |\n    |---|---|---|\n'
+        "    | [COB-RGPD-001](decisiones/rgpd_decisiones.md#cob-rgpd-001) · AC-01 | `x` | ✅ |\n",
+        encoding="utf-8",
+    )
+    assert _kinds(root) == []
+
+
+def test_warning_symbol_without_variation_selector(tmp_path: Path) -> None:
+    human = {**_DECIDED, "decision": "Aceptar riesgo", "result": "⚠️"}
+    root = _decisions_repo(
+        tmp_path, _card(detected="⚠", **human), f"| [COB-RGPD-001]({_LINK}) | | ⚠ |\n"
+    )
+    assert _kinds(root) == []
+
+
+def test_main_decisions_exit_1_and_writes_report(tmp_path: Path) -> None:
+    root = _decisions_repo(tmp_path, _card(**_DECIDED), f"| [COB-RGPD-001]({_LINK}) | | 🔍 |\n")
+    output = tmp_path / "dist" / "decisions.md"
+    assert main(["--root", str(root), "decisions", "--output", str(output)]) == 1
+    report = output.read_text(encoding="utf-8")
+    assert "| unreflected | `COB-RGPD-001` |" in report
+    assert "## Pendientes de decisión (0)" in report

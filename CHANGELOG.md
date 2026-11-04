@@ -5,6 +5,33 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+### Added
+
+- **Producto — Arquetipo 13, Registro de Decisiones de Cobertura** (`docs/decisiones/<ámbito>_decisiones.md`,
+  `DOCUMENTATION_STANDARD.md` §3.18, ADR-004): cada apartado ⚠️ ❌ 🔍 recibe una ficha
+  `COB-<ÁMBITO>-<NNN>` que las personas completan con decisión (vocabulario cerrado por estado),
+  contexto aportado, responsable, fecha y estado resultante. En cada revisión el agente aplica
+  primero las decisiones tomadas (enlaza la ficha desde la fila y fija el estado resultante) y
+  nunca escribe en los campos de persona. Obligatorio con el Arquetipo 8; con los Arquetipos 1, 2
+  y 12, si el destino lo adopta. Prompt `coverage_decisions.prompt.md` y plantilla
+  `.github/templates/DECISIONES_COBERTURA.template.md`.
+- **`doc_trace.py decisions`**: cruza los registros con las páginas que citan sus identificadores
+  y informa de fichas duplicadas, huérfanas, inválidas o incompletas, de decisiones sin reflejar
+  y de estados detectados que ya no coinciden (código `1`). Las fichas `Pendiente` se listan,
+  pero no fallan. Ignora los identificadores escritos como código. Criterios AC-22 a AC-27 de la
+  trazabilidad y AC-14 de los arquetipos.
+
+### Changed
+
+- **Leyenda de cobertura canónica** (§3.8): ✅ módulo identificado y comportamiento verificado en
+  el código; ⚠️ hueco funcional o defecto conocido; ❌ no hay módulo que lo implemente; 🔍 la
+  evidencia no basta (configuración en base de datos, sistemas externos o documentación
+  organizativa no aportada). §3.16 remite a ella; antes daba otro significado a ❌.
+- **Arquetipo 8**: columna `ID` obligatoria en las tablas de cobertura y registro de decisiones
+  siempre junto a la trazabilidad normativa.
+- **Mapa funcional**: el total de cobertura de pruebas estaba desfasado (decía 63 de 89; las
+  filas sumaban 67 de 93); ahora 74 de 100.
+
 ## [0.4.1] — 2026-10-29
 
 ### Fixed

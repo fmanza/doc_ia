@@ -50,6 +50,7 @@ Estandarizar instrucciones de documentación para asegurar:
 | **Prompt: technical_doc** | `.github/prompts/technical_doc.prompt.md` | ✅ Existente |
 | **Prompt: landing_doc** | `.github/prompts/landing_doc.prompt.md` | ✅ Existente |
 | **Prompt: reference_doc** | `.github/prompts/reference_doc.prompt.md` | ✅ Existente (Arq. 12, 2026-10-28) |
+| **Prompt: coverage_decisions** | `.github/prompts/coverage_decisions.prompt.md` | ✅ Existente (Arq. 13, 2026-11-04) |
 | **Prompt: documentation_review** | `.github/prompts/documentation_review.prompt.md` | ✅ Existente |
 
 ### 2.4 Gaps Actuales
@@ -453,7 +454,7 @@ o `README.md`. Si no hay normativa de referencia → **este arquetipo no aplica*
 
 ## 1. <Norma A> — <Nombre corto>
   ### 1.1 <Grupo de artículos>
-  Tabla: | Artículo | Obligación | Módulo/servicio | Doc de referencia | Cobertura |
+  Tabla: | ID | Artículo | Obligación | Módulo/servicio | Doc de referencia | Cobertura |
   ### ...
 
 ## 2. <Norma B> — ...
@@ -470,14 +471,20 @@ Tabla: | Norma | Objeto | Cobertura en el sistema |
 ## N+2. Próximas acciones priorizadas
 ```
 
-**Leyenda de cobertura**:
+**Leyenda de cobertura** (canónica; §3.16 y §3.18 remiten a ella):
 
 | Símbolo | Significado |
 |---------|-------------|
-| ✅ | Cubierto — implementado y documentado |
-| ⚠️ | Parcial — implementado pero con gap documental o funcional conocido |
-| ❌ | Gap — no implementado o sin documentación verificable |
-| 🔍 | A verificar — evidencia insuficiente para determinar cobertura |
+| ✅ | Cubierto: módulo identificado y comportamiento verificado en el código |
+| ⚠️ | Parcial: módulo identificado, pero con un hueco funcional o un defecto conocido |
+| ❌ | Gap: no hay módulo que lo implemente |
+| 🔍 | A verificar: la evidencia no basta (configuración en base de datos, sistemas externos o documentación organizativa no aportada) |
+
+**Columna `ID`**: cada fila de cobertura lleva un identificador estable `COB-<NORMA>-<NNN>`
+(p. ej. `COB-RGPD-030`) que **nunca se reutiliza ni se renumera**. Es la clave que enlaza la fila
+con su ficha del **Registro de Decisiones de Cobertura** (Arquetipo 13, §3.18), que se genera
+siempre junto a este arquetipo. Una vez existe la ficha, el ID de la fila es un enlace a ella y
+la cobertura refleja la decisión humana tomada (§3.18 «Aplicar decisiones»).
 
 **Sección MkDocs** (solo si el arquetipo aplica):
 
@@ -490,6 +497,7 @@ Tabla: | Norma | Objeto | Cobertura en el sistema |
 primera auditoría de cumplimiento formal.
 
 **Cuándo actualizar**:
+- Cuando las personas toman decisiones en el registro del Arquetipo 13 (§3.18)
 - Cuando cambia la normativa de referencia (modificación legal, nuevo artículo)
 - Cuando se implementa un módulo que cubre un gap documentado
 - En cada revisión de versión mayor que afecte lógica de negocio regulada
@@ -912,14 +920,20 @@ distinga lo verificado de lo inferido. Generaliza la leyenda del Arquetipo 8 a t
 **Aplica a**: Arquetipos 1, 2 y 12 (obligatorio) y Variante 6C §3–§4 (escenarios y despliegue).
 El resto de arquetipos puede usarlo de forma opcional.
 
-**Leyenda de confianza** (la misma del Arquetipo 8):
+**Leyenda de confianza** (la canónica del Arquetipo 8, §3.8, leída sobre una afirmación
+documental en lugar de sobre una obligación normativa):
 
 | Símbolo | Significado | Cuándo se escribe |
 |---|---|---|
 | ✅ | Verificado en código, configuración o test | Implícito en el cuerpo; explícito solo en el bloque "Evidencia" |
 | ⚠️ | Parcial — verificado con gap conocido | Al final de la celda o frase afectada |
 | 🔍 | Inferido — evidencia insuficiente | Al final de la celda o frase afectada |
-| ❌ | Gap — documentado pero sin respaldo en el código | Al final de la celda o frase afectada |
+| ❌ | Gap — documentado pero sin módulo que lo implemente | Al final de la celda o frase afectada |
+
+**Decisiones humanas sobre ⚠️ / ❌ / 🔍**: cuando el destino adopta el Registro de Decisiones de
+Cobertura (Arquetipo 13, §3.18), cada fila no ✅ del bloque "Evidencia" empieza la celda
+«Elemento» con su ID `COB-<ÁMBITO>-<NNN>` enlazado a su ficha, y la confianza refleja la decisión
+tomada. Sin registro adoptado, las filas siguen sin ID (compatibilidad hacia atrás).
 
 **Bloque "Evidencia"** — al final de la página, plegable y **sin número de sección** (no altera
 la numeración de los arquetipos):
@@ -1079,6 +1093,140 @@ flowchart LR
 reglas deterministas (entidades, comillas, accesibilidad, tamaño) y un job de CI con
 `@mermaid-js/mermaid-cli` valida la sintaxis con el parser real. En doc_ia:
 `tests/test_docs_conformance.py::test_mermaid_*` y el job `mermaid` de `.github/workflows/ci.yml`.
+
+---
+
+### 3.18 Arquetipo 13 — Registro de Decisiones de Cobertura (`docs/decisiones/`) — **Condicional, transversal**
+
+**Propósito**: responder "¿Qué hemos decidido sobre cada apartado parcial, sin cubrir o sin
+verificar, quién lo decidió y con qué contexto?". El agente genera el registro a partir de la
+leyenda de cobertura (§3.8); **las personas lo revisan y lo editan a mano**; las revisiones
+posteriores lo leen y actualizan la documentación citándolo.
+
+**Condición de activación**:
+- **Siempre** que exista el Arquetipo 8 (`docs/normativa/`): un registro por norma.
+- Con Arquetipos 1, 2 y 12: si el destino ya tiene `docs/decisiones/` o el usuario lo pide.
+  Un registro por módulo (ámbito compartido por sus páginas funcional, técnica y de referencia).
+
+> **Este proyecto (doc_ia)**: sin Arquetipo 8 ni registro adoptado. El arquetipo no aplica
+> actualmente; `doc_trace decisions` termina con 0 al no haber registros ni IDs.
+
+**Audiencia**: responsables de producto, cumplimiento y arquitectura que deciden; equipo de
+documentación que aplica las decisiones.
+
+**Ubicación**: `docs/decisiones/<ámbito>_decisiones.md` — `<ámbito>` en minúsculas, igual al
+`<ÁMBITO>` de sus IDs (p. ej. `rgpd_decisiones.md` ↔ `COB-RGPD-030`).
+**Publicación**: se publica en el sitio y en el ZIP offline. No escribir en él datos personales,
+secretos ni URLs internas (§3.16 regla 3); si una decisión es confidencial, el registro cita la
+ubicación del acta, no su contenido.
+
+**Identificadores**: `COB-<ÁMBITO>-<NNN>`, con `<ÁMBITO>` en `[A-Z0-9]+` (abreviatura de la norma
+o del módulo) y `<NNN>` de tres dígitos. Un ID **nunca se reutiliza ni se renumera**; los
+apartados nuevos toman el siguiente número libre y los retirados conservan su ficha con la
+decisión «No aplica».
+
+**Estructura obligatoria** (secciones en este orden; plantilla en
+`.github/templates/DECISIONES_COBERTURA.template.md`):
+
+```
+---
+arquetipo: "13"
+ambito: RGPD
+---
+# Registro de Decisiones de Cobertura — <Ámbito>
+
+(versión del sistema analizado + fecha de la última generación)
+
+## 1. Cómo usar este registro
+  Leyenda canónica (§3.8), vocabulario de decisiones y quién edita cada campo
+
+## 2. Resumen
+  Tabla: | Estado detectado | Fichas | Pendientes | Decididas |   ← la mantiene el agente
+
+## 3. Decisiones
+  ### COB-<ÁMBITO>-001 — <apartado> { #cob-<ámbito>-001 }
+  Tabla: | Campo | Valor |   (una ficha por ID; ver abajo)
+
+## 4. Historial de revisiones
+  Tabla: | Fecha | Revisión | Decisiones aplicadas | Por |
+```
+
+**Ficha** — nombres de campo fijos (los lee `doc_trace decisions`):
+
+| Campo | Lo rellena | Contenido |
+|---|---|---|
+| Página | Agente | Enlace a la página y fila documentadas |
+| Estado detectado | Agente | Símbolo de la leyenda asignado al generar (✅ ⚠️ ❌ 🔍) |
+| Evidencia | Agente | `ruta::símbolo` en código inline y, si aplica, qué falta para verificar |
+| **Decisión** | Persona | Una del vocabulario cerrado; `Pendiente` al generar |
+| **Contexto aportado** | Persona | Información nueva: dónde está la configuración, qué sistema externo lo cubre, plan de remediación, justificación del riesgo… |
+| **Responsable** | Persona | Rol o persona que decide |
+| **Fecha** | Persona | `AAAA-MM-DD` de la decisión |
+| **Estado resultante** | Persona | Símbolo de la leyenda o `No aplica` tras la decisión |
+
+**Vocabulario de decisiones** (cerrado; depende del estado detectado):
+
+| Estado detectado | Decisiones admitidas | Contexto que debe aportar la persona |
+|---|---|---|
+| ✅ Cubierto | Confirmar · Reabrir | Al reabrir: el defecto o hueco observado |
+| ⚠️ Parcial | Remediar · Aceptar riesgo · Reclasificar | Plan y plazo del hueco; o justificación y alcance del riesgo aceptado |
+| ❌ Gap | Implementar · Medida compensatoria · Aceptar riesgo · No aplica | Dónde se implementará; qué control fuera del sistema lo cubre; o por qué no aplica |
+| 🔍 A verificar | Aportar evidencia · Reclasificar · No aplica | La evidencia que faltaba (configuración en BD, sistema externo, documentación organizativa) |
+
+`Pendiente` es válida en cualquier estado. «No aplica» exige `Estado resultante: No aplica`, y
+viceversa. Una decisión distinta de `Pendiente` exige Responsable, Fecha y Estado resultante.
+
+**Generar o actualizar el registro** (agente):
+1. Una ficha por cada apartado ⚠️ / ❌ / 🔍 de las páginas del ámbito (en el Arq. 8, también los
+   ✅, para poder reabrirlos).
+2. Los IDs existentes se conservan; solo se añaden fichas nuevas al final de §3.
+3. **Nunca** se modifican los campos de persona. Si el estado detectado cambia en una ficha
+   `Pendiente`, se actualiza «Estado detectado»; si la ficha ya tiene decisión, se informa en el
+   RESUMEN y no se toca.
+4. La página documentada declara su registro en `fuentes:` del frontmatter (§3.16): así, cuando
+   las personas editan el registro, `doc_trace drift` marca la página como `stale`.
+
+**Aplicar decisiones** (agente, en cada revisión):
+1. Ejecutar `python scripts/doc_trace.py decisions` (si el destino lo incorpora) o leer el registro.
+2. Por cada ficha con decisión: en todas las filas de cobertura que citan el ID, enlazar el ID a
+   la ficha (`[COB-RGPD-030](../decisiones/rgpd_decisiones.md#cob-rgpd-030)`) y dejar como
+   **último** símbolo de la fila el «Estado resultante» (se admite la transición `🔍 → ✅`) o
+   escribir `No aplica`. En el Arq. 8, si la decisión cierra un gap, retirarlo de §N y de §N+2.
+3. Añadir una fila a §4 «Historial de revisiones» con las decisiones aplicadas.
+4. Re-sellar la página (`stamp`) y volver a ejecutar `decisions` hasta que termine con 0.
+
+**`doc_trace decisions`** — hallazgos (código de salida 1 si hay alguno; las fichas `Pendiente`
+se listan, pero no son hallazgo):
+
+| Tipo | Significado |
+|---|---|
+| `duplicate` | El mismo ID tiene dos fichas |
+| `orphan_ref` | Una página cita un ID sin ficha |
+| `orphan_entry` | Una ficha cuyo ID no cita ninguna página |
+| `invalid` | Ámbito distinto del fichero, estado sin símbolo, decisión fuera del vocabulario o del estado, fecha mal formada, «No aplica» incoherente |
+| `incomplete` | Decisión tomada sin Responsable, Fecha o Estado resultante |
+| `unreflected` | Decisión tomada que alguna fila no refleja (sin enlace a la ficha o con otro símbolo) |
+| `mismatch` | Ficha `Pendiente` cuyo estado detectado no coincide con el de la página |
+
+Los IDs dentro de bloques de código o de código inline no cuentan (permite documentar el formato).
+
+**Sección MkDocs** (tras «Normativa» si existe; si no, tras «Funcional»):
+
+```yaml
+- Decisiones:
+    - Decisiones <Ámbito>: decisiones/<ámbito>_decisiones.md
+```
+
+**Relación con los ADR (Arquetipo 5)**: las decisiones de cobertura son muchas y de grano fino;
+viven en el registro. Si una decisión es arquitectónica, se redacta además un ADR y la ficha lo
+enlaza en «Contexto aportado».
+
+**Prompt**: `.github/prompts/coverage_decisions.prompt.md`
+
+**Restricciones estrictas**:
+- El agente nunca decide: no rellena ni modifica campos de persona.
+- No aplicar una decisión incompleta o inválida; informarla en el RESUMEN.
+- No borrar fichas ni reutilizar IDs.
 
 ---
 
@@ -1278,6 +1426,7 @@ para evitar copias desactualizadas). Sigue la estructura de §4.1 con estas conc
 | **Microservicios** | `docs/architecture/microservices.md` | — | Si el proyecto expone o consume múltiples servicios |
 | **Docker / Contenedores** | `docs/architecture/docker.md` | — | Si existe `Dockerfile` o `docker-compose.yml` en el repo |
 | **Normativa** | `docs/normativa/` | 8 (§3.8) | **Solo** si el proyecto referencia leyes, decretos o normativas de obligado cumplimiento |
+| **Decisiones** | `docs/decisiones/` | 13 (§3.18) | Siempre que exista el Arquetipo 8; con Arq. 1/2/12, si el destino adopta el registro de decisiones |
 
 ---
 
@@ -1410,6 +1559,7 @@ La estandarización se considera **completa** cuando:
 - [ ] Si el proyecto acepta contribuciones: `CONTRIBUTING.md` existe en raíz y enlaza desde README (Arquetipo 11)
 - [ ] Si el sistema expone configuración, CLI, códigos de salida o interfaces: existe `docs/reference/` (Arquetipo 12)
 - [ ] Las páginas de los Arquetipos 1, 2 y 12 terminan con el bloque plegable "Evidencia" y sus citas usan `ruta::símbolo` en código inline (§3.16)
+- [ ] Si existe `docs/normativa/` o `docs/decisiones/`: cada ID `COB-…` tiene ficha en su registro y `python scripts/doc_trace.py decisions` termina con 0 (§3.18)
 - [ ] Cada diagrama Mermaid declara `accTitle`/`accDescr`, no supera 12 nodos (8 en Arquetipo 6), no usa entidades HTML y no repite el diagrama de otro arquetipo (§3.17)
 
 ---

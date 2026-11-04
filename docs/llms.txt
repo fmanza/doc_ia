@@ -61,3 +61,4 @@
 - [ADR-001 — MkDocs Material por defecto](https://fmanza.github.io/doc_ia/adr/ADR-001-mkdocs-material-por-defecto.html)
 - [ADR-002 — Arquetipos con evidencia verificable](https://fmanza.github.io/doc_ia/adr/ADR-002-arquetipos-con-evidencia.html)
 - [ADR-003 — Zensical por defecto (propuesto)](https://fmanza.github.io/doc_ia/adr/ADR-003-zensical-por-defecto.html)
+- [ADR-004 — Registro de decisiones de cobertura](https://fmanza.github.io/doc_ia/adr/ADR-004-registro-decisiones-cobertura.html)

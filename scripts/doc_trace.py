@@ -9,6 +9,9 @@ Subcomandos (no invoca ningún servicio IA ni accede a la red):
   matrix  Cruza los criterios de aceptación (AC-xx, columna Test) de docs/functional/ con
           los tests reales de tests/ y lista tests citados inexistentes y tests sin citar.
   llms    Genera docs/llms.txt (formato llmstxt.org) a partir del nav de mkdocs.yml.
+  decisions  Cruza los registros docs/decisiones/<ámbito>_decisiones.md (Arquetipo 13) con las
+          páginas que citan sus IDs COB-<ÁMBITO>-<NNN>: fichas duplicadas, huérfanas, inválidas
+          o incompletas y decisiones tomadas que la documentación aún no refleja.
   baseline  Guarda en <destino>/.ai/doc_state.json el commit actual de un origen (CIERRE de
           /document-project).
   changes Lista los ficheros del origen cambiados desde su baseline (git local) y las páginas
@@ -28,6 +31,7 @@ Uso:
     python scripts/doc_trace.py stamp docs/api/check_env.md --source scripts/check_env.py
     python scripts/doc_trace.py matrix --output dist/traceability.md
     python scripts/doc_trace.py llms --check
+    python scripts/doc_trace.py decisions --output dist/decisions.md
     python scripts/doc_trace.py --root <destino> baseline --origin <origen>
     python scripts/doc_trace.py --root <destino> changes --origin <origen>
 """
@@ -630,6 +634,335 @@ def format_changes(report: ChangeReport, name: str, root: Path) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Registro de decisiones de cobertura (Arquetipo 13)
+# ---------------------------------------------------------------------------
+
+COVERAGE_ID_RE = re.compile(r"\bCOB-[A-Z0-9]+-\d{3}\b")
+REGISTER_HEADING_RE = re.compile(r"^#{2,4}\s+(COB-[A-Z0-9]+-\d{3})\b")
+HEADING_RE = re.compile(r"^#{1,6}\s")
+FENCE_RE = re.compile(r"^(```|~~~)")
+INLINE_CODE_RE = re.compile(r"`[^`]*`")
+HTML_COMMENT_RE = re.compile(r"<!--.*?-->")
+REGISTER_SUFFIX = "_decisiones.md"
+PENDING = "Pendiente"
+NOT_APPLICABLE = "No aplica"
+# ⚠ se guarda sin el selector de variación U+FE0F: se normaliza al leer.
+COVERAGE_SYMBOLS = ("✅", "⚠", "🔍", "❌")
+SYMBOL_LABELS = {"✅": "✅", "⚠": "⚠️", "🔍": "🔍", "❌": "❌"}
+DECISIONS_BY_STATE: dict[str, frozenset[str]] = {
+    "✅": frozenset({"Confirmar", "Reabrir"}),
+    "⚠": frozenset({"Remediar", "Aceptar riesgo", "Reclasificar"}),
+    "❌": frozenset({"Implementar", "Medida compensatoria", "Aceptar riesgo", NOT_APPLICABLE}),
+    "🔍": frozenset({"Aportar evidencia", "Reclasificar", NOT_APPLICABLE}),
+}
+KNOWN_DECISIONS = frozenset(d for group in DECISIONS_BY_STATE.values() for d in group)
+FIELD_DETECTED = "estado detectado"
+FIELD_DECISION = "decisión"
+FIELD_RESULT = "estado resultante"
+FIELD_DATE = "fecha"
+REQUIRED_WHEN_DECIDED = ("responsable", FIELD_DATE, FIELD_RESULT)
+
+DecisionIssue = Literal[
+    "duplicate", "orphan_ref", "orphan_entry", "invalid", "incomplete", "unreflected", "mismatch"
+]
+
+
+@dataclass(frozen=True)
+class DecisionEntry:
+    """Ficha ``COB-<ÁMBITO>-<NNN>`` de un registro ``docs/decisiones/<ámbito>_decisiones.md``."""
+
+    register: Path
+    cid: str
+    line: int
+    fields: dict[str, str]
+
+    @property
+    def decision(self) -> str:
+        """Decisión normalizada; una ficha sin decisión cuenta como ``Pendiente``."""
+        return _clean_value(self.fields.get(FIELD_DECISION, "")) or PENDING
+
+    @property
+    def pending(self) -> bool:
+        return self.decision == PENDING
+
+    @property
+    def detected(self) -> str | None:
+        return _last_symbol(self.fields.get(FIELD_DETECTED, ""))
+
+    @property
+    def result(self) -> str | None:
+        """Símbolo de «Estado resultante», ``NOT_APPLICABLE`` o ``None`` si está vacío o no vale."""
+        value = _clean_value(self.fields.get(FIELD_RESULT, ""))
+        if value.casefold().startswith(NOT_APPLICABLE.casefold()):
+            return NOT_APPLICABLE
+        return _last_symbol(value)
+
+
+@dataclass(frozen=True)
+class CoverageRow:
+    """Línea de una página documentada que cita un ID de cobertura (fuera de código)."""
+
+    page: Path
+    cid: str
+    line: int
+    text: str
+    symbol: str | None
+
+    @property
+    def is_coverage(self) -> bool:
+        """Fila de tabla que declara un estado (símbolo o «No aplica»), no una simple mención."""
+        return self.text.startswith("|") and (
+            self.symbol is not None or NOT_APPLICABLE.casefold() in self.text.casefold()
+        )
+
+
+@dataclass(frozen=True)
+class DecisionFinding:
+    """Incoherencia entre un registro de decisiones y la documentación."""
+
+    kind: DecisionIssue
+    cid: str
+    path: Path
+    line: int
+    detail: str
+
+
+@dataclass(frozen=True)
+class DecisionReport:
+    """Resultado de ``decisions``: fichas únicas (orden estable) y hallazgos."""
+
+    entries: tuple[DecisionEntry, ...]
+    findings: tuple[DecisionFinding, ...]
+
+
+def _clean_value(value: str) -> str:
+    """Quita comentarios HTML y negritas; ``—`` / ``-`` cuentan como vacío."""
+    text = HTML_COMMENT_RE.sub("", value).replace("*", "").strip()
+    return "" if text in {"—", "-", "–"} else text
+
+
+def _field_key(name: str) -> str:
+    return name.replace("*", "").strip().casefold()
+
+
+def _last_symbol(text: str) -> str | None:
+    """Último símbolo de la leyenda que aparece en ``text`` (``⚠`` normalizado)."""
+    clean = text.replace("️", "")
+    best, position = None, -1
+    for symbol in COVERAGE_SYMBOLS:
+        index = clean.rfind(symbol)
+        if index > position:
+            best, position = symbol, index
+    return best
+
+
+def _cells(row: str) -> list[str]:
+    return [cell.strip() for cell in row.strip().strip("|").split("|")]
+
+
+def _code_free_lines(path: Path) -> list[tuple[int, str]]:
+    """(nº de línea, texto sin sangría ni código en línea) fuera de bloques de código."""
+    result: list[tuple[int, str]] = []
+    in_fence = False
+    for number, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        stripped = raw.strip()
+        if FENCE_RE.match(stripped):
+            in_fence = not in_fence
+            continue
+        if not in_fence:
+            result.append((number, INLINE_CODE_RE.sub("", stripped)))
+    return result
+
+
+def parse_registers(decisions_dir: Path) -> list[DecisionEntry]:
+    """Fichas de todos los ``*_decisiones.md`` de ``decisions_dir``, en orden estable."""
+    entries: list[DecisionEntry] = []
+    if not decisions_dir.is_dir():
+        return entries
+    for register in sorted(decisions_dir.glob(f"*{REGISTER_SUFFIX}")):
+        current: tuple[str, int] | None = None
+        fields: dict[str, str] = {}
+        for number, text in _code_free_lines(register):
+            heading = REGISTER_HEADING_RE.match(text)
+            if heading or HEADING_RE.match(text):
+                if current is not None:
+                    entries.append(DecisionEntry(register, current[0], current[1], fields))
+                current = (heading.group(1), number) if heading else None
+                fields = {}
+            elif current is not None and text.startswith("|"):
+                cells = _cells(text)
+                key = _field_key(cells[0])
+                if len(cells) >= 2 and key not in {"", "campo"} and set(key) - set("-: "):
+                    fields[key] = cells[1]
+        if current is not None:
+            entries.append(DecisionEntry(register, current[0], current[1], fields))
+    return entries
+
+
+def collect_coverage_rows(docs_dir: Path, decisions_dir: Path) -> list[CoverageRow]:
+    """Líneas de ``docs_dir`` (sin el propio registro) que citan IDs ``COB-…`` fuera de código."""
+    rows: list[CoverageRow] = []
+    for page in sorted(docs_dir.rglob("*.md")):
+        if page.is_relative_to(decisions_dir):
+            continue
+        for number, text in _code_free_lines(page):
+            for cid in sorted(set(COVERAGE_ID_RE.findall(text))):
+                rows.append(CoverageRow(page, cid, number, text, _last_symbol(text)))
+    return rows
+
+
+def _validate_entry(entry: DecisionEntry) -> list[DecisionFinding]:
+    """Hallazgos ``invalid`` / ``incomplete`` de una ficha aislada."""
+
+    def _found(kind: DecisionIssue, detail: str) -> DecisionFinding:
+        return DecisionFinding(kind, entry.cid, entry.register, entry.line, detail)
+
+    findings: list[DecisionFinding] = []
+    scope = entry.cid.split("-")[1]
+    expected = entry.register.name.removesuffix(REGISTER_SUFFIX)
+    if scope.casefold() != expected.casefold():
+        findings.append(_found("invalid", f"el ámbito {scope} no corresponde al registro"))
+    detected, decision = entry.detected, entry.decision
+    if detected is None:
+        findings.append(_found("invalid", "«Estado detectado» sin símbolo de la leyenda"))
+    if entry.pending:
+        return findings
+    if decision not in KNOWN_DECISIONS:
+        findings.append(_found("invalid", f"decisión desconocida «{decision}»"))
+    elif detected is not None and decision not in DECISIONS_BY_STATE[detected]:
+        label = SYMBOL_LABELS[detected]
+        findings.append(_found("invalid", f"«{decision}» no se admite para el estado {label}"))
+    missing = [k for k in REQUIRED_WHEN_DECIDED if not _clean_value(entry.fields.get(k, ""))]
+    if missing:
+        findings.append(_found("incomplete", "faltan: " + ", ".join(missing)))
+    date_value = _clean_value(entry.fields.get(FIELD_DATE, ""))
+    if date_value:
+        try:
+            date.fromisoformat(date_value)
+        except ValueError:
+            findings.append(_found("invalid", f"fecha «{date_value}» no es AAAA-MM-DD"))
+    result_value = _clean_value(entry.fields.get(FIELD_RESULT, ""))
+    if result_value and entry.result is None:
+        findings.append(_found("invalid", f"«Estado resultante» no válido: «{result_value}»"))
+    if (decision == NOT_APPLICABLE) != (entry.result == NOT_APPLICABLE) and entry.result:
+        findings.append(_found("invalid", "«No aplica» debe figurar en decisión y resultado"))
+    return findings
+
+
+def _reflection_problem(entry: DecisionEntry, row: CoverageRow) -> str | None:
+    """Motivo por el que ``row`` no refleja la decisión de ``entry`` (``None`` si la refleja)."""
+    anchor = f"{entry.register.name}#{entry.cid}".casefold()
+    if anchor not in row.text.casefold():
+        return f"la fila no enlaza la ficha ({anchor})"
+    if entry.result == NOT_APPLICABLE:
+        if NOT_APPLICABLE.casefold() not in row.text.casefold():
+            return "la fila no indica «No aplica»"
+        return None
+    if row.symbol != entry.result:
+        shown = SYMBOL_LABELS.get(row.symbol or "", "sin símbolo")
+        return f"la fila muestra {shown}; la decisión fija {SYMBOL_LABELS[entry.result or '✅']}"
+    return None
+
+
+def check_decisions(docs_dir: Path, decisions_dir: Path) -> DecisionReport:
+    """Cruza los registros de decisiones con las páginas que citan sus IDs."""
+    rows = collect_coverage_rows(docs_dir, decisions_dir)
+    findings: list[DecisionFinding] = []
+    unique: dict[str, DecisionEntry] = {}
+    for entry in parse_registers(decisions_dir):
+        first = unique.get(entry.cid)
+        if first is not None:
+            where = f"{first.register.name}:{first.line}"
+            findings.append(
+                DecisionFinding("duplicate", entry.cid, entry.register, entry.line, where)
+            )
+            continue
+        unique[entry.cid] = entry
+        own = _validate_entry(entry)
+        findings += own
+        cited = [r for r in rows if r.cid == entry.cid]
+        if not cited:
+            findings.append(
+                DecisionFinding(
+                    "orphan_entry", entry.cid, entry.register, entry.line, "ninguna página lo cita"
+                )
+            )
+            continue
+        coverage = [r for r in cited if r.is_coverage]
+        if own:
+            continue
+        if entry.pending:
+            for row in coverage:
+                if row.symbol is not None and entry.detected and row.symbol != entry.detected:
+                    detail = (
+                        f"la página muestra {SYMBOL_LABELS[row.symbol]}; "
+                        f"la ficha {SYMBOL_LABELS[entry.detected]}"
+                    )
+                    findings.append(
+                        DecisionFinding("mismatch", entry.cid, row.page, row.line, detail)
+                    )
+            continue
+        if not coverage:
+            findings.append(
+                DecisionFinding(
+                    "unreflected", entry.cid, cited[0].page, cited[0].line, "sin fila de cobertura"
+                )
+            )
+        for row in coverage:
+            problem = _reflection_problem(entry, row)
+            if problem is not None:
+                findings.append(
+                    DecisionFinding("unreflected", entry.cid, row.page, row.line, problem)
+                )
+    reported: set[tuple[str, Path]] = set()
+    for row in rows:
+        if row.cid not in unique and (row.cid, row.page) not in reported:
+            reported.add((row.cid, row.page))
+            findings.append(
+                DecisionFinding(
+                    "orphan_ref", row.cid, row.page, row.line, "sin ficha en el registro"
+                )
+            )
+    findings.sort(key=lambda f: (f.path.as_posix(), f.line, f.kind, f.cid))
+    return DecisionReport(tuple(unique.values()), tuple(findings))
+
+
+def format_decisions(report: DecisionReport, root: Path) -> str:
+    """Informe Markdown de ``decisions``: resumen por registro, pendientes y hallazgos."""
+    lines = [
+        "# Registro de Decisiones de Cobertura — estado",
+        "",
+        "| Registro | Fichas | Pendientes | Decididas |",
+        "|---|---|---|---|",
+    ]
+    for register in sorted({e.register for e in report.entries}):
+        own = [e for e in report.entries if e.register == register]
+        pending = sum(1 for e in own if e.pending)
+        lines.append(
+            f"| `{_rel(register, root)}` | {len(own)} | {pending} | {len(own) - pending} |"
+        )
+    if not report.entries:
+        lines.append("| *Sin registros* | 0 | 0 | 0 |")
+    pending_entries = [e for e in report.entries if e.pending]
+    lines += ["", f"## Pendientes de decisión ({len(pending_entries)})", ""]
+    lines += [
+        f"- `{e.cid}` ({SYMBOL_LABELS.get(e.detected or '', '?')}) — "
+        f"`{_rel(e.register, root)}:{e.line}`"
+        for e in pending_entries
+    ] or ["*Ninguna.*"]
+    lines += ["", f"## Hallazgos ({len(report.findings)})", ""]
+    if report.findings:
+        lines += ["| Tipo | ID | Ubicación | Detalle |", "|---|---|---|---|"]
+        lines += [
+            f"| {f.kind} | `{f.cid}` | `{_rel(f.path, root)}:{f.line}` | {f.detail} |"
+            for f in report.findings
+        ]
+    else:
+        lines.append("*Ninguno.*")
+    return "\n".join(lines) + "\n"
+
+
+# ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
 
@@ -706,6 +1039,26 @@ def _cmd_llms(args: argparse.Namespace) -> int:
         return 0
     output.write_text(content, encoding="utf-8", newline="\n")
     print(f"[doc_trace] {output} generado ({content.count('- [')} páginas).")
+    return 0
+
+
+def _cmd_decisions(args: argparse.Namespace) -> int:
+    root: Path = args.root.resolve()
+    docs: Path = (args.docs or root / "docs").resolve()
+    report = check_decisions(docs, docs / "decisiones")
+    text = format_decisions(report, root)
+    if args.output:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(text, encoding="utf-8", newline="\n")
+        print(f"[doc_trace] Informe escrito en {args.output}")
+    else:
+        print(text, end="")
+    if report.findings:
+        print(
+            f"[doc_trace] {len(report.findings)} hallazgo(s) en las decisiones de cobertura.",
+            file=sys.stderr,
+        )
+        return 1
     return 0
 
 
@@ -799,6 +1152,13 @@ def _parser() -> argparse.ArgumentParser:
     llms.add_argument("--check", action="store_true", help="Solo comprueba que está al día.")
     llms.set_defaults(func=_cmd_llms)
 
+    decisions = sub.add_parser(
+        "decisions", help="Cruza los registros de decisiones de cobertura con la documentación."
+    )
+    decisions.add_argument("--docs", type=Path, help="Carpeta de docs (<root>/docs).")
+    decisions.add_argument("--output", type=Path, help="Fichero Markdown (por defecto, stdout).")
+    decisions.set_defaults(func=_cmd_decisions)
+
     baseline = sub.add_parser("baseline", help="Guarda el commit actual del origen (CIERRE).")
     _add_origin_args(baseline)
     baseline.set_defaults(func=_cmd_baseline)
@@ -811,7 +1171,8 @@ def _parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Punto de entrada: 0 sin problemas · 1 drift / cambios / tests inexistentes / error ·
+    """Punto de entrada: 0 sin problemas · 1 drift / cambios / tests inexistentes /
+    hallazgos de decisiones / error ·
     2 uso · 3 ``changes`` sin baseline utilizable (modo completo)."""
     args = _parser().parse_args(argv)
     result: int = args.func(args)

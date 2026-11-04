@@ -184,6 +184,9 @@ __pycache__/
 
 3. **INVENTARIO** (Fases 0-1)
    - Normativa de referencia (Arquetipo 8) si aplica
+   - Registro de decisiones de cobertura (Arquetipo 13, `docs/decisiones/`): siempre con el
+     Arquetipo 8; con Arq. 1/2/12 si ya existe o el usuario lo pide. Si existe, sus decisiones se
+     aplican antes de regenerar (`coverage_decisions.prompt.md`); los campos de persona no se tocan
    - Tabla con 4 columnas: | Módulo / Página | Estado | Acción | Arquetipos / Secciones |
      - Estado A — sin doc → CREAR
      - Estado B — desactualizado → ACTUALIZAR (indicar qué secciones)

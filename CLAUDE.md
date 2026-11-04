@@ -99,8 +99,8 @@ al sync, añadir su tupla a `PAIRS` en `hooks/sync_root_docs.py` y su entrada en
 
 Toda documentación sigue los **arquetipos formales** definidos en
 [`.github/DOCUMENTATION_STANDARD.md`](./.github/DOCUMENTATION_STANDARD.md).
-Los arquetipos 1–8 son la base; 3b y 9–11 son las adiciones 2024-2025; 12 y la regla transversal
-de evidencia (§3.16) son las adiciones 2026.
+Los arquetipos 1–8 son la base; 3b y 9–11 son las adiciones 2024-2025; 12, 13 y la regla
+transversal de evidencia (§3.16) son las adiciones 2026.
 
 | Arquetipo | Propósito | Ubicación | Prompt |
 |---|---|---|---|
@@ -117,12 +117,15 @@ de evidencia (§3.16) son las adiciones 2026.
 | **10. Config Agente IA** | ¿Cómo está configurado el agente IA? | `docs/ai-config/` | `ai_config_doc.prompt.md` |
 | **11. Guía de Contribución** *(opt-in)* | ¿Cómo contribuyo al proyecto? | `CONTRIBUTING.md` | `contributing_doc.prompt.md` |
 | **12. Referencia del Sistema** *(condicional)* | ¿Qué configuración, comandos y códigos expone? | `docs/reference/` | `reference_doc.prompt.md` |
+| **13. Registro de Decisiones de Cobertura** *(condicional, transversal)* | ¿Qué hemos decidido sobre cada ⚠️ ❌ 🔍? | `docs/decisiones/` | `coverage_decisions.prompt.md` |
 
 **Características clave**:
 - ✅ Secciones fijas: estructura inmutable (nunca omitir; escribir "No aplica" si vacío)
 - ✅ Enlaces bidireccionales: Arquetipo 2 (§5) ↔ Arquetipo 4 (§5) obligatorios
 - ✅ Evidencia verificable: Arq. 1, 2 y 12 cierran con bloque plegable "Evidencia" (`ruta::símbolo`
   en código inline + leyenda ✅ ⚠️ 🔍 ❌) — ver `DOCUMENTATION_STANDARD.md` §3.16
+- ✅ Decisiones humanas: los ⚠️ ❌ 🔍 tienen ficha `COB-<ÁMBITO>-<NNN>` en `docs/decisiones/`
+  (siempre con Arq. 8); las personas deciden, el agente aplica la decisión y la cita — §3.18
 - ✅ Parametrizables: en doc_ia los arquetipos son además **producto** — se aplican a proyectos
   origen externos pasando origen y destino como parámetros
 - ✅ Arquetipo 5 sigue MADR 4.0 (frontmatter YAML + título "Use X for Y")
@@ -242,6 +245,7 @@ python scripts/build_docs_zip.py     # ZIP offline con SHA256
 python scripts/doc_trace.py drift    # Páginas cuyas fuentes de código han cambiado
 python scripts/doc_trace.py matrix   # Criterios de aceptación ↔ tests reales
 python scripts/doc_trace.py llms     # Regenera docs/llms.txt desde el nav
+python scripts/doc_trace.py decisions  # Registros docs/decisiones/ ↔ páginas: decisiones sin reflejar
 python scripts/doc_trace.py stamp <página>  # Re-sella las fuentes actuales tras revisar una página
 python scripts/doc_trace.py stamp <página> --source <ruta>…  # Primer sellado: --source SUSTITUYE la lista entera
 python scripts/convert_to_md.py <ruta>                            # Convierte a Markdown con docling (default) en <ruta>/md/

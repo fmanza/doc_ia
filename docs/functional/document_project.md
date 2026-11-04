@@ -1,11 +1,11 @@
 ---
 arquetipo: "1"
 fuentes:
-  .claude/commands/document-project.md: 6972f09030fa
-  .github/DOCUMENTATION_STANDARD.md: 982112df33b0
-  .github/prompts/document_project.prompt.md: 85c36e26ec88
-  CLAUDE.md: 4e93b57b44ea
-revisado: 2026-10-29
+  .claude/commands/document-project.md: 275755329577
+  .github/DOCUMENTATION_STANDARD.md: 15b5b304d20d
+  .github/prompts/document_project.prompt.md: 65f89e26730c
+  CLAUDE.md: 47e90d7b61e5
+revisado: 2026-11-04
 ---
 # Documentar un Proyecto
 
@@ -84,6 +84,10 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
   conservando las secciones vigentes; las de estado C no se han modificado.
 - Las páginas con bloque "Evidencia" declaran sus fuentes en el frontmatter; si el destino
   dispone del tooling de trazabilidad, quedan selladas y sin desactualizaciones.
+- Si hay registro de decisiones de cobertura (siempre con normativa), las decisiones que las
+  personas han tomado ya se reflejan en las páginas, enlazadas a su ficha; los apartados nuevos
+  parciales, sin cubrir o por verificar tienen ficha pendiente, y el resumen lista las
+  preguntas concretas para quien decide.
 - La navegación del generador en el destino (`mkdocs.yml`) incluye todas las páginas nuevas
   y la configuración estándar verificada (tema, assets, Mermaid).
 - `docs/downloads.md` existe en el destino (variante A o B) y los huecos de distribución
@@ -167,7 +171,11 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
 - **Alcance restringido**: se puede indicar un subconjunto de módulos o un subconjunto de
   arquetipos; el resto queda fuera del plan de generación.
 - **Normativa detectada**: si el origen referencia normativa de obligado cumplimiento, el
-  flujo ofrece el Arquetipo 8; si no, lo omite.
+  flujo ofrece el Arquetipo 8 junto con su registro de decisiones (Arquetipo 13); si no, los
+  omite.
+- **Registro de decisiones ya editado**: las decisiones tomadas se aplican antes de regenerar
+  las páginas de su ámbito; las fichas incompletas o inválidas no se aplican y se informan en
+  el resumen. El flujo nunca escribe la decisión de una persona.
 - **Carpetas `md/` pre-convertidas**: se reutilizan como contexto sin volver a convertir.
 - **Destino con fuentes bajo otro nombre** (`.fuentes/` o `fuentes/` en su raíz): el
   inventario propone migrarlas a `_fuentes/` y actualizar las páginas que las citan; si una misma
@@ -236,6 +244,7 @@ automatizados.
     | Regla «Documentos pre-convertidos (`md/`)» | `.github/prompts/document_project.prompt.md::Fase 0c — Paso 0` | ✅ |
     | Regla «Fuentes convertidas en `_fuentes/`», AC-09 y AC-10 | `.github/prompts/document_project.prompt.md::Fase 0c — Paso 5`, `tests/test_docs_conformance.py::test_sources_folder_is_canonical` (coherencia de las instrucciones, no del resultado) | ⚠️ |
     | Regla «Contexto persistente `.ai/*.md`» | `.claude/commands/document-project.md::Devuelve en este orden` (tabla de ficheros `.ai/`) | ✅ |
+    | Postcondición y caso «registro de decisiones» | `.github/prompts/document_project.prompt.md::Fase 3` (Decisiones de cobertura), `::Devuelve en este orden` (punto 9), `.github/DOCUMENTATION_STANDARD.md::3.18` | ✅ |
     | Precondición «generador instalado para `--verify-build`» | `.github/prompts/document_project.prompt.md::Fase 7` | ✅ |
     | Postcondición «commit propuesto, no ejecutado» | `.github/prompts/document_project.prompt.md::Devuelve en este orden` (punto 10) | ✅ |
     | AC-01 | `.github/prompts/document_project.prompt.md::Devuelve en este orden` | 🔍 |

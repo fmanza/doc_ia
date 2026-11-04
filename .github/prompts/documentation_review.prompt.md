@@ -20,6 +20,8 @@
 - Separación clara entre documentación funcional, técnica, referencia del sistema y ejemplos
 - Evidencia (DOCUMENTATION_STANDARD.md §3.16): bloque "Evidencia" en Arq. 1, 2 y 12, citas `ruta::símbolo`
   en código inline y leyenda ✅ ⚠️ 🔍 ❌ coherente con el código
+- Decisiones de cobertura (DOCUMENTATION_STANDARD.md §3.18): registro `docs/decisiones/` con el
+  Arq. 8; `doc_trace decisions` sin hallazgos; ninguna decisión humana sin reflejar
 
 ## Criterios por severidad
 
@@ -28,6 +30,7 @@
 - Módulos públicos sin docstrings
 - APIs sin type hints o sin documentación de parámetros/return/excepciones
 - Ejemplos rotos u obsoletos
+- Decisión humana del registro de cobertura no reflejada o contradicha en la documentación (`unreflected`, `invalid`)
 - Instalación no documentada
 - `mkdocs.yml` referencia páginas inexistentes o excluye páginas necesarias para onboarding
 

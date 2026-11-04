@@ -352,12 +352,15 @@ Para generar o actualizar la documentación completa (de doc_ia o de un proyecto
    proyecto origen: su árbol de código) y clasifica qué arquetipo necesita cada documento
    (`docs/functional/` → Arquetipo 1, `docs/api/` → Arquetipo 2, `docs/guides/` → Arquetipos 3 y 7,
    `docs/examples/` → Arquetipo 4, `docs/adr/` → Arquetipo 5, páginas raíz → Arquetipo 6,
-   `docs/normativa/` → Arquetipo 8 si aplica, `docs/reference/` → Arquetipo 12 si aplica).
+   `docs/normativa/` → Arquetipo 8 si aplica, `docs/reference/` → Arquetipo 12 si aplica,
+   `docs/decisiones/` → Arquetipo 13 siempre que haya Arquetipo 8 o el destino lo adopte).
 2. **Orden de generación**: empieza por módulos base (contratos, utilidades) antes que
    servicios; los servicios antes que CLIs y capa web.
 3. **Generación por arquetipo**: aplica el prompt correspondiente
    (`functional_doc`, `technical_doc`, `reference_doc`, `howto_doc`, `tutorial_doc`, `example_doc`,
-   `architecture_doc`, `landing_doc`, `onboarding_dev` o `normative_traceability`) a cada archivo.
+   `architecture_doc`, `landing_doc`, `onboarding_dev`, `normative_traceability` o
+   `coverage_decisions`) a cada archivo. Si existe un registro de decisiones, aplica antes sus
+   decisiones y no toques sus campos de persona (DOCUMENTATION_STANDARD.md §3.18).
 4. **mkdocs.yml**: actualiza la sección `nav:` con todas las entradas nuevas o modificadas.
 5. **Consistencia**: usa el mismo tono, nivel de detalle y estructura en todos los archivos
    del mismo arquetipo.

@@ -276,6 +276,11 @@ Fase 3 — Documentación técnica con Mermaid (technical_doc.prompt.md) → [de
          SOLO si el INVENTARIO detecta señales (configuración, CLI, códigos de salida, eventos, CONTRATO).
          Evidencia (DOCUMENTATION_STANDARD.md §3.16): las páginas de Arq. 1, 2 y 12 terminan con el
          bloque plegable "Evidencia" (`ruta::símbolo` en código inline + leyenda ✅ ⚠️ 🔍 ❌).
+         Decisiones de cobertura (Arquetipo 13, §3.18; coverage_decisions.prompt.md): SIEMPRE con
+         Arquetipo 8; con Arq. 1/2/12 si el destino ya tiene `docs/decisiones/` o el usuario lo pide.
+         Si el registro existe, APLICAR sus decisiones ANTES de regenerar las páginas del ámbito
+         (modo aplicación) y nunca tocar sus campos de persona; después, generar fichas para los
+         ⚠️/❌/🔍 nuevos (modo generación) con IDs `COB-<ÁMBITO>-<NNN>`.
 Fase 4 — Ejemplos verificables (example_doc.prompt.md) → [destino]/examples/
          Guías y landing según inventario: howto_doc, tutorial_doc, landing_doc, onboarding_dev, architecture_doc.
 Fase 5 — Sincronizar navegación y verificar configuración estándar del generador (mkdocs.yml del destino):
@@ -304,7 +309,8 @@ Fase 5 — Sincronizar navegación y verificar configuración estándar del gene
 Fase 6 — Revisión final: Markdown, enlaces relativos, sintaxis y conformidad Mermaid (§3.17 del
           estándar), secciones de arquetipo completas.
          Trazabilidad (§3.16): frontmatter `fuentes` en páginas con Evidencia; si existe
-         scripts/doc_trace.py → `stamp` + `drift` + `matrix` + `llms` (todos con exit 0).
+         scripts/doc_trace.py → `stamp` + `drift` + `matrix` + `llms` (todos con exit 0)
+         + `decisions` si hay `docs/decisiones/` (exit 0; las fichas Pendiente no cuentan).
 Fase 7 — Verificación de build (solo con --verify-build): build --strict del generador + lectura del HTML.
          Generador = zensical: comando según § Reglas por generador: Zensical.
 Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
@@ -548,6 +554,8 @@ APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reg
 8b. **DOWNLOADS** (Fase 7b, siempre) — `downloads.md` creado/actualizado; indicar variante A o B; estado de las tres señales (TIENE_ZIP_SCRIPT, TIENE_MKDOCS_PLUGIN, TIENE_WORKFLOW_GITHUB) y, con Zensical, TIENE_PIPELINE_SIN_HOOKS; huecos (Gaps A1/A2/A3 y, con Zensical, A4) reportados si alguna falta; entrada añadida al nav.
 8c. **VISUALIZACIÓN** (Fase 7c, siempre) — `VER_DOCUMENTACION.md` (o `VIEW_DOCS.md`) creado/actualizado/vigente; tabla | Marcador | Valor | Fuente verificada |; Ruta A aplicada o "No aplica" con motivo; Gaps V1/V2 resueltos o pendientes.
 9. **RESUMEN** — archivos generados/actualizados, entradas de nav, pendientes de verificación humana.
+   Si hay registro de decisiones (Arq. 13): decisiones aplicadas en esta sesión (ID → páginas),
+   fichas `Pendiente` con la pregunta concreta para quien decide e inválidas/incompletas.
 10. **CIERRE DE SESIÓN** (siempre obligatorio) — crear artefacto `.ai/sessions/YYYY-MM-DD/` en el
     destino (`00_REQUEST.md`, `00_CONTEXT_SNAPSHOT.md`, `TRACEABILITY.md`) y proponer commit
     `docs(<scope>): <resumen>` con recuento de páginas creadas/actualizadas/omitidas; el commit

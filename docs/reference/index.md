@@ -3,16 +3,16 @@ arquetipo: "12"
 fuentes:
   .claude/settings.json.example: e1c10842aa20
   .github/workflows/docs-zip-release.yml: bd807d444ea2
-  CLAUDE.md: 4e93b57b44ea
+  CLAUDE.md: 47e90d7b61e5
   hooks/sync_root_docs.py: ef5e576436c6
-  mkdocs.yml: 5dd76a635c78
+  mkdocs.yml: 3cfcc736dd9a
   mkdocs_hooks.py: 31259b7911a3
   scripts/build_docs_zip.py: 5f972ee674c8
   scripts/check_env.py: 6202875214f7
   scripts/convert_to_md.py: e7e60518d96f
-  scripts/doc_trace.py: c87edf981515
+  scripts/doc_trace.py: 511f3e656b2f
   scripts/start-server.py: a12209ac8507
-revisado: 2026-10-29
+revisado: 2026-11-04
 ---
 # Referencia — doc_ia
 
@@ -94,7 +94,7 @@ python scripts/convert_to_md.py <source> [opciones]
 ### doc_trace.py
 
 ```bash
-python scripts/doc_trace.py [--root DIR] {drift,stamp,matrix,llms,baseline,changes} [opciones]
+python scripts/doc_trace.py [--root DIR] {drift,stamp,matrix,llms,decisions,baseline,changes} [opciones]
 ```
 
 | Opción / Argumento | Tipo | Por defecto | Descripción |
@@ -112,6 +112,8 @@ python scripts/doc_trace.py [--root DIR] {drift,stamp,matrix,llms,baseline,chang
 | `llms --output` | ruta | `<docs_dir>/llms.txt` junto a `--config` | Fichero generado (`docs_dir` por defecto: `docs`) |
 | `llms --site-url` | URL | `site_url` de `mkdocs.yml` | Base de los enlaces |
 | `llms --check` | flag | desactivado | Solo comprueba que el fichero está al día |
+| `decisions --docs` | ruta | `<--root>/docs` | Docs del destino; los registros se leen de `<docs>/decisiones/*_decisiones.md` |
+| `decisions --output` | ruta | stdout | Fichero Markdown del informe |
 | `baseline` / `changes --origin` | ruta (obligatorio) | — | Raíz del origen documentado (git); puede ser una subcarpeta de un repositorio |
 | `baseline` / `changes --name` | cadena | carpeta del origen | Clave del origen en el estado; con varios orígenes, la de `_fuentes/` |
 | `baseline` / `changes --docs` | ruta | `<--root>/docs` | Docs del destino (citas y artefactos a excluir) |
@@ -166,6 +168,8 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 | `1` | `doc_trace.py matrix` | La columna `Test` cita un test que no existe | Corregir el criterio o crear el test |
 | `1` | `doc_trace.py llms` | `mkdocs.yml` sin `nav` o ilegible; con `--check`, `llms.txt` no coincide con el `nav` actual | Revisar `--config`; ejecutar `llms` sin `--check` |
 | `2` | `doc_trace.py` | Sin subcomando u opción desconocida (argparse) | Revisar la sinopsis del §2 |
+| `0` | `doc_trace.py decisions` | Registros coherentes con la documentación (las fichas `Pendiente` no cuentan) o sin registros | — |
+| `1` | `doc_trace.py decisions` | Hallazgos `duplicate`, `orphan_ref`, `orphan_entry`, `invalid`, `incomplete`, `unreflected` o `mismatch` | Aplicar la decisión en la página o pedir a la persona responsable que complete la ficha (`DOCUMENTATION_STANDARD.md` §3.18) |
 | `0` | `doc_trace.py baseline` | Baseline guardado (también si el origen no usa git: `commit: null`) | — |
 | `0` | `doc_trace.py changes` | Sin cambios en el origen desde el baseline | Todas las páginas siguen vigentes (estado C) |
 | `1` | `doc_trace.py changes` | Hay ficheros cambiados | Inventariar solo el informe (modo incremental) |
@@ -194,6 +198,8 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 | `llms.txt` | Fichero de salida publicado en la raíz del sitio | `scripts/doc_trace.py::build_llms_txt` | Índice para agentes IA ([llmstxt.org](https://llmstxt.org/)): un `##` por sección del `nav` y un enlace por página |
 | Matriz de trazabilidad | Fichero de salida (Markdown) | `scripts/doc_trace.py::build_matrix` | Criterios y tests por página, tests citados inexistentes y tests sin criterio |
 | `.ai/doc_state.json` | Fichero de estado del destino (JSON, versionado) | `scripts/doc_trace.py::write_baseline` | `doc_ia` (versión) y `origenes.<nombre>`: `commit`, `rama`, `sucio`, `fecha` |
+| Registro de decisiones de cobertura | Fichero de entrada editado por personas (`docs/decisiones/<ámbito>_decisiones.md`) | `scripts/doc_trace.py::parse_registers` | Fichas bajo encabezados con el ID y tabla `Campo` / `Valor` (ver §6) |
+| Informe de decisiones | Fichero de salida (Markdown) | `scripts/doc_trace.py::format_decisions` | Resumen por registro, pendientes de decisión y tabla de hallazgos |
 
 ## 6. Datos
 
@@ -230,9 +236,16 @@ erDiagram
 | Frontmatter de trazabilidad | `arquetipo` | cadena | `1`, `1-I`, `2`, `12`… | pública |
 | Frontmatter de trazabilidad | `fuentes` | mapa ruta → huella | Rutas relativas dentro del repositorio; huella = 12 hex de SHA256 con saltos LF (en `.md`, sin su frontmatter) | pública |
 | Frontmatter de trazabilidad | `revisado` | fecha | `YYYY-MM-DD` | pública |
+| Ficha de decisión | identificador | cadena | `COB-<ÁMBITO>-<NNN>`; `<ÁMBITO>` en `[A-Z0-9]+` e igual al nombre del registro; nunca se reutiliza | pública |
+| Ficha de decisión | `Estado detectado` | símbolo | ✅ ⚠️ ❌ 🔍 (lo escribe el agente) | pública |
+| Ficha de decisión | `Decisión` | cadena | Vocabulario cerrado por estado o `Pendiente` (la escribe una persona) | interna |
+| Ficha de decisión | `Contexto aportado` | texto | Libre; sin datos personales, secretos ni URLs internas | interna |
+| Ficha de decisión | `Responsable` / `Fecha` | cadena / fecha | Obligatorios con decisión; fecha `YYYY-MM-DD` | interna |
+| Ficha de decisión | `Estado resultante` | símbolo o `No aplica` | Obligatorio con decisión; `No aplica` solo con la decisión «No aplica» | pública |
 
 La sensibilidad `interna` indica que el campo reproduce contenido o nombres del documento
-convertido: hereda la sensibilidad del origen.
+convertido, o una decisión de la organización: hereda la sensibilidad del origen. El registro de
+decisiones se publica con el sitio y el ZIP (`DOCUMENTATION_STANDARD.md` §3.18).
 
 ??? note "Evidencia"
 
@@ -265,7 +278,8 @@ convertido: hereda la sensibilidad del origen.
     | Manifiesto y chunks | `scripts/convert_to_md.py::_run_chunking` | ✅ |
     | Formato `.sha256` y `CHECKSUMS.txt` | `scripts/build_docs_zip.py::_create_checksum_files` | ✅ |
     | Opciones de `doc_trace.py` | `scripts/doc_trace.py::_parser` | ✅ |
-    | Códigos de `doc_trace.py` | `scripts/doc_trace.py::_cmd_drift`, `::_cmd_stamp`, `::_cmd_matrix`, `::_cmd_llms`, `::_cmd_baseline`, `::_cmd_changes` | ✅ |
+    | Códigos de `doc_trace.py` | `scripts/doc_trace.py::_cmd_drift`, `::_cmd_stamp`, `::_cmd_matrix`, `::_cmd_llms`, `::_cmd_decisions`, `::_cmd_baseline`, `::_cmd_changes` | ✅ |
+    | Registro e informe de decisiones; campos de la ficha | `scripts/doc_trace.py::parse_registers`, `::format_decisions`, `::DECISIONS_BY_STATE`, `::_validate_entry`, `::COVERAGE_ID_RE` | ✅ |
     | `.ai/doc_state.json` | `scripts/doc_trace.py::write_baseline`, `::read_state` | ✅ |
     | `llms.txt` | `scripts/doc_trace.py::build_llms_txt` | ✅ |
     | Matriz de trazabilidad | `scripts/doc_trace.py::build_matrix` | ✅ |

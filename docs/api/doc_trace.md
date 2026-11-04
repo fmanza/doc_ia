@@ -1,13 +1,13 @@
 ---
 arquetipo: "2"
 fuentes:
-  scripts/doc_trace.py: c87edf981515
-  tests/test_doc_trace.py: 4bd33cb88910
-revisado: 2026-10-29
+  scripts/doc_trace.py: 511f3e656b2f
+  tests/test_doc_trace.py: 1a72a18132d8
+revisado: 2026-11-04
 ---
 # doc_trace
 
-Trazabilidad determinista entre la documentación y el código: sella huellas SHA256 de las fuentes en el frontmatter de cada página, detecta páginas desactualizadas (drift), cruza criterios de aceptación con tests reales y genera `llms.txt` desde el `nav` de `mkdocs.yml`.
+Trazabilidad determinista entre la documentación y el código: sella huellas SHA256 de las fuentes en el frontmatter de cada página, detecta páginas desactualizadas (drift), cruza criterios de aceptación con tests reales, genera `llms.txt` desde el `nav` de `mkdocs.yml` y comprueba que las decisiones humanas de los registros de cobertura (Arquetipo 13) se reflejan en la documentación.
 
 ## 1. Arquitectura y Diseño
 
@@ -61,6 +61,24 @@ flowchart TD
 Las rutas de git y las citas se comparan en POSIX y relativas a la raíz del origen
 (`git diff --relative`), aunque el origen sea una subcarpeta de un repositorio.
 
+### Decisiones de cobertura (`decisions`)
+
+```mermaid
+flowchart TD
+    accTitle: Subcomando decisions de doc_trace
+    accDescr: decisions lee las fichas de los registros docs/decisiones y las líneas de las demás páginas que citan IDs COB fuera de código; valida cada ficha y cruza las decididas con sus filas para producir hallazgos y un informe con código 0 o 1.
+    D[_cmd_decisions] --> CD[check_decisions]
+    PR["parse_registers · *_decisiones.md"] --> CD
+    CR["collect_coverage_rows · IDs COB fuera de código"] --> CD
+    CD --> VE["_validate_entry · invalid / incomplete"]
+    CD --> RP["_reflection_problem · unreflected"]
+    CD --> FD[format_decisions · código 0 o 1]
+```
+
+`decisions` aplica la regla del Arquetipo 13 (`DOCUMENTATION_STANDARD.md` §3.18). Lee solo
+Markdown: ignora los bloques de código y el código en línea (`_code_free_lines`), así que la
+documentación puede mostrar el formato sin generar hallazgos. Nunca escribe en los registros.
+
 ## 2. Modelo de Datos / Contratos
 
 ### API pública
@@ -91,7 +109,15 @@ Las rutas de git y las citas se comparan en POSIX y relativas a la raíz del ori
 | `linked_examples` | `linked_examples(pages, docs_dir) -> tuple[Path, ...]` | Ejemplos enlazados desde las páginas de `api/` afectadas | Rutas de ejemplos |
 | `check_changes` | `check_changes(origin, docs_dir, state_path, name) -> ChangeReport` | Valida el baseline y compone el informe | `ChangeReport` |
 | `format_changes` | `format_changes(report, name, root) -> str` | Informe Markdown para el INVENTARIO | Markdown |
-| `main` | `main(argv=None) -> int` | CLI con subcomandos `drift`, `stamp`, `matrix`, `llms`, `baseline`, `changes` | Código de salida |
+| `DecisionEntry` | `dataclass(frozen)`: `register`, `cid`, `line`, `fields: dict[str, str]`; propiedades `decision`, `pending`, `detected`, `result` | Ficha `COB-<ÁMBITO>-<NNN>`; campos por nombre normalizado (minúsculas, sin `*`); sin decisión cuenta como `Pendiente` | — |
+| `CoverageRow` | `dataclass(frozen)`: `page`, `cid`, `line`, `text`, `symbol`; propiedad `is_coverage` | Línea que cita un ID fuera de código; `is_coverage` si es fila de tabla con símbolo o «No aplica» | — |
+| `DecisionFinding` | `dataclass(frozen)`: `kind`, `cid`, `path`, `line`, `detail` | `kind` ∈ `duplicate` \| `orphan_ref` \| `orphan_entry` \| `invalid` \| `incomplete` \| `unreflected` \| `mismatch` | — |
+| `DecisionReport` | `dataclass(frozen)`: `entries`, `findings` | Fichas únicas y hallazgos ordenados por ruta y línea | — |
+| `parse_registers` | `parse_registers(decisions_dir) -> list[DecisionEntry]` | Fichas de `*_decisiones.md` (encabezado `##`–`####` con el ID y tabla Campo/Valor) | Fichas; `[]` si no hay carpeta |
+| `collect_coverage_rows` | `collect_coverage_rows(docs_dir, decisions_dir) -> list[CoverageRow]` | Líneas de `docs_dir/**/*.md` (sin `decisions_dir`) con IDs `COB-…` | Filas en orden estable |
+| `check_decisions` | `check_decisions(docs_dir, decisions_dir) -> DecisionReport` | Valida fichas y cruza las decididas con sus filas | `DecisionReport` |
+| `format_decisions` | `format_decisions(report, root) -> str` | Resumen por registro, pendientes y tabla de hallazgos | Markdown |
+| `main` | `main(argv=None) -> int` | CLI con subcomandos `drift`, `stamp`, `matrix`, `llms`, `decisions`, `baseline`, `changes` | Código de salida |
 
 ### Contrato de entrada
 
@@ -108,6 +134,7 @@ Las rutas de git y las citas se comparan en POSIX y relativas a la raíz del ori
 | `baseline` / `changes --name` | `str` | Clave del origen en el estado | Por defecto, el nombre de la carpeta del origen (regla de `_fuentes/`) |
 | `baseline` / `changes --docs` / `--state` | `Path` | Docs y estado del destino | Por defecto `<--root>/docs` y `<--root>/.ai/doc_state.json` |
 | `changes --output` | `Path` | Fichero Markdown del informe | Por defecto, stdout |
+| `decisions --docs` / `--output` | `Path` | Docs del destino y fichero Markdown del informe | Por defecto `<--root>/docs` (registros en `<docs>/decisiones/`) y stdout |
 
 ### Contrato de salida
 
@@ -121,6 +148,9 @@ Las rutas de git y las citas se comparan en POSIX y relativas a la raíz del ori
 - `changes`: tabla `| Cambio | Fichero | Lo citan (Evidencia) | Lo mencionan |` y listas de
   páginas a revisar, páginas que solo lo mencionan, ejemplos enlazados y ficheros sin página;
   código `0` sin cambios, `1` con cambios, `3` sin baseline utilizable.
+- `decisions`: tabla `| Registro | Fichas | Pendientes | Decididas |`, lista de pendientes y
+  tabla `| Tipo | ID | Ubicación | Detalle |`; código `0` sin hallazgos (las pendientes no
+  cuentan) y `1` con hallazgos (resumen por stderr). Sin registros ni IDs, código `0`.
 - `llms`: URLs absolutas con `site_url`; con `use_directory_urls: true`, `x.md` → `x/` e
   `index.md` → raíz de su carpeta; sin `site_url`, rutas relativas. Las entradas del `nav`
   que no son `.md` se omiten y las páginas de primer nivel van a "Páginas principales".
@@ -140,6 +170,9 @@ Las rutas de git y las citas se comparan en POSIX y relativas a la raíz del ori
 | Destino dentro del origen | `docs/`, `.ai/`, `_fuentes/`, `mkdocs.yml`, `VER_DOCUMENTACION.md` y `VIEW_DOCS.md` no cuentan como cambios ni como cambios pendientes |
 | Rutas con caracteres no ASCII | `git … -z` evita el entrecomillado de `core.quotepath` |
 | git ausente o con error | `_git` devuelve `None` (sin excepción); `baseline` guarda `commit: null` |
+| `decisions`: ficha inválida o incompleta | Se informa y **no** se comprueba su reflejo (evita hallazgos encadenados) |
+| `decisions`: `⚠` sin U+FE0F | Se normaliza al leer (`_last_symbol`); en `🔍 → ✅` cuenta el último símbolo de la fila |
+| `decisions`: ID repetido en una página sin ficha | Un único `orphan_ref` por página e ID |
 
 ## 3. Componentes y Clases
 
@@ -152,6 +185,9 @@ Las rutas de git y las citas se comparan en POSIX y relativas a la raíz del ori
 | `_cmd_drift`, `_cmd_stamp`, `_cmd_matrix`, `_cmd_llms`, `_cmd_baseline`, `_cmd_changes`, `_parser` | Capa CLI: argumentos, mensajes `[doc_trace]` y códigos de salida |
 | `_git` | Único punto de llamada a git: lista de argumentos sin shell, `-C <origen>`, timeout `GIT_TIMEOUT` (60 s) |
 | `_split_citations`, `_citation_re` | Zona de citas (frontmatter + bloque «Evidencia») y regex de ruta completa (no sufijo), con o sin prefijo de origen |
+| `DecisionEntry`, `CoverageRow`, `DecisionFinding`, `DecisionReport` | Transporte inmutable del subcomando `decisions` |
+| `DECISIONS_BY_STATE`, `_validate_entry`, `_reflection_problem` | Vocabulario cerrado por estado, validación de una ficha y comprobación de su reflejo en una fila |
+| `_code_free_lines`, `_last_symbol`, `_clean_value` | Líneas sin código, último símbolo de la leyenda y valor vacío (`—`, comentarios HTML) |
 
 ## 4. Dependencias y Requisitos
 
@@ -164,7 +200,8 @@ Las rutas de git y las citas se comparan en POSIX y relativas a la raíz del ori
 ## 5. Ejemplos Relacionados
 
 - [Ejemplo: Auditar la Trazabilidad](../examples/doc_trace_usage.md) — uso de `check_drift`
-  y `build_matrix` desde código propio y de los cuatro subcomandos con su salida real.
+  y `build_matrix` desde código propio, de los subcomandos con su salida real y de un registro
+  de decisiones de cobertura comprobado con `decisions`.
 
 ## 6. Verificación y Tests
 
@@ -186,6 +223,11 @@ Las rutas de git y las citas se comparan en POSIX y relativas a la raíz del ori
 | `test_changes_*` (4 funciones, 7 casos) | Sin cambios (0), citas/menciones/renombrados/ñ/ejemplos (1), prefijo multiorigen y los cuatro motivos de modo completo (3) | integración (git local) |
 | `test_baseline_without_git_then_changes_is_full_mode` (1) | Origen sin git → `commit: null` y `changes` con código 3 | integración (CLI) |
 | `test_destination_inside_origin_ignores_its_own_artifacts`, `test_origin_in_subfolder_of_repository_uses_origin_relative_paths` (2) | Artefactos propios excluidos; origen en subcarpeta | integración (git local) |
+| `test_decisions_without_registers_is_clean`, `test_pending_card_is_not_a_finding`, `test_decided_*` (4) | Sin registros (0), pendientes sin hallazgo, decisión reflejada, sin reflejar (símbolo o enlace) e incompleta | unitario / integración (CLI) |
+| `test_decision_not_allowed_for_state_is_invalid`, `test_bad_date_and_scope_are_invalid`, `test_not_applicable_must_match_and_be_written_in_page` (3) | Hallazgos `invalid` y «No aplica» | unitario |
+| `test_duplicate_orphan_entry_and_orphan_ref`, `test_pending_card_with_different_page_symbol_is_mismatch` (2) | `duplicate`, `orphan_entry`, `orphan_ref`, `mismatch` | unitario |
+| `test_ids_in_code_are_ignored_and_admonition_rows_are_read`, `test_warning_symbol_without_variation_selector` (2) | Código ignorado, tablas sangradas de admonición y `⚠` sin U+FE0F | unitario |
+| `test_main_decisions_exit_1_and_writes_report` (1) | Código `1` e informe en `--output` | integración (CLI) |
 
 Sin cubrir: los mensajes de `drift` y `stamp` por la CLI, `llms` sin `site_url` y la
 reconfiguración UTF-8 de la consola.
@@ -218,4 +260,6 @@ python -m pytest tests/test_doc_trace.py -q
     | Exclusión de artefactos de la documentación | `scripts/doc_trace.py::documentation_paths`, `::DOC_ARTIFACTS` | ✅ |
     | Llamada a git sin shell y con timeout | `scripts/doc_trace.py::_git`, `::GIT_TIMEOUT` | ✅ |
     | Código 3 en `changes` | `scripts/doc_trace.py::_cmd_changes` | ✅ |
+    | Subcomando `decisions`: tipos, lectura, validación y reflejo | `scripts/doc_trace.py::DecisionEntry`, `::CoverageRow`, `::DecisionFinding`, `::DecisionReport`, `::parse_registers`, `::collect_coverage_rows`, `::check_decisions`, `::_validate_entry`, `::_reflection_problem` | ✅ |
+    | Informe y códigos de `decisions` | `scripts/doc_trace.py::format_decisions`, `::_cmd_decisions` | ✅ |
     | Tests del §6 | `tests/test_doc_trace.py` | ✅ |

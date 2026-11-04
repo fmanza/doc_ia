@@ -1,11 +1,11 @@
 ---
 arquetipo: "2"
 fuentes:
-  .claude/commands/document-project.md: 6972f09030fa
-  .github/agents/documentation-generator.agent.md: d321ae7f6268
-  .github/prompts/document_project.prompt.md: 85c36e26ec88
-  mkdocs.yml: 5dd76a635c78
-revisado: 2026-10-29
+  .claude/commands/document-project.md: 275755329577
+  .github/agents/documentation-generator.agent.md: a5ef890a52f0
+  .github/prompts/document_project.prompt.md: 65f89e26730c
+  mkdocs.yml: 3cfcc736dd9a
+revisado: 2026-11-04
 ---
 # document_project
 
@@ -89,7 +89,9 @@ Doce bloques en el chat, en este orden:
 8. `BUILD` — resultado de `--verify-build` (solo opt-in).
 9. `DOWNLOADS` — `docs/downloads.md` creado/actualizado (siempre obligatorio); indica variante A o B; reporta huecos de las señales ZIP que falten (Gaps A1-A3 y, con Zensical, A4: script de build sin pasos pre/post).
 10. `VISUALIZACIÓN` — `VER_DOCUMENTACION.md` (idioma `en`: `VIEW_DOCS.md`) creado/actualizado en la raíz del destino desde `.github/templates/VER_DOCUMENTACION.template.md` (siempre obligatorio); tabla marcador → valor → fuente verificada; Ruta A solo con publicación verificada; Gaps V1 (sin `requirements-docs.txt`), V2 (`EXTRA_FILES` en hook/script) y V3 (hook sin `on_post_build.mkdocs_priority = -200`: el ZIP latest sale sin búsqueda). La Ruta B es el doble clic en `index.html` del ZIP extraído, que la Fase 0b hace posible (`use_directory_urls: false`, plugin `offline`, shim iframe-worker local en `extra.polyfills`); `start-server.py`, la alternativa.
-11. `RESUMEN` — contadores de archivos creados/actualizados/omitidos y entradas de nav.
+11. `RESUMEN` — contadores de archivos creados/actualizados/omitidos y entradas de nav; con
+    registro de decisiones (Arquetipo 13), decisiones aplicadas (ID → páginas), fichas
+    `Pendiente` con la pregunta para quien decide e inválidas o incompletas.
 12. `CIERRE DE SESIÓN` — siempre obligatorio: artefactos `.ai/sessions/YYYY-MM-DD/` en el destino + propuesta de commit Conventional Commits.
 
 ### Errores y casos especiales
@@ -97,6 +99,7 @@ Doce bloques en el chat, en este orden:
 | Caso | Comportamiento |
 |---|---|
 | Parámetro obligatorio faltante o ambiguo | El flujo se detiene en VALIDACIÓN y pide completar el campo antes de continuar |
+| Destino con `docs/decisiones/` editado por personas | Fase 3: se aplican las decisiones antes de regenerar (`coverage_decisions.prompt.md`, modo aplicación); Fase 6: `doc_trace decisions` con código `0` |
 | Origen no legible o fuera del workspace | El flujo se detiene y pide confirmación de ruta |
 | Todos los orígenes son MATERIAL (sin CÓDIGO) | El flujo se detiene con mensaje orientativo hacia los prompts de arquetipo directo |
 | `--verify-build` falla | Se reportan errores del build MkDocs; el RESUMEN los lista como pendientes |
@@ -150,6 +153,7 @@ para prohibirlos o migrarlos.
     | Estrategia nunca autodetectada | `.github/prompts/document_project.prompt.md` (opcional "Estrategia") | ✅ |
     | Once bloques de salida (1–10 + 8b) | `.github/prompts/document_project.prompt.md` (sección "Devuelve en este orden") | ✅ |
     | Fase 2 con Mapa Funcional y Fase 3 con Arquetipo 12 | `.github/prompts/document_project.prompt.md` (Fases 2 y 3) | ✅ |
+    | Registro de decisiones: aplicar antes de regenerar, `decisions` en Fase 6 y RESUMEN | `.github/prompts/document_project.prompt.md` (Fases 3 y 6, punto 9), `.claude/commands/document-project.md` (Inputs requeridos) | ✅ |
     | Parada por parámetro faltante | `.github/prompts/document_project.prompt.md` (sección "VALIDACIÓN") | ✅ |
     | Origen no legible o fuera del workspace | `.claude/commands/document-project.md` (casos límite) | ✅ |
     | Caso degenerado sin origen CÓDIGO | `.github/prompts/document_project.prompt.md` (Fase 0a, paso 5) | ✅ |

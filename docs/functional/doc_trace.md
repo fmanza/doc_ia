@@ -1,8 +1,8 @@
 ---
 arquetipo: "1"
 fuentes:
-  scripts/doc_trace.py: c87edf981515
-revisado: 2026-10-29
+  scripts/doc_trace.py: 511f3e656b2f
+revisado: 2026-11-04
 ---
 # Trazabilidad entre Documentación y Código
 
@@ -24,6 +24,12 @@ cada sesión el punto exacto del historial del proyecto documentado (su *baselin
 sesión siguiente lista los ficheros cambiados desde ese punto y las páginas que los citan
 como evidencia, de modo que solo se revisa lo que ha cambiado.
 
+Cuando la documentación marca apartados como parciales, sin cubrir o por verificar, las
+personas responsables deciden qué hacer con cada uno en un registro de decisiones que revisan
+y editan a mano. La trazabilidad comprueba que ese registro está bien formado y que cada
+decisión tomada ya se ve en la documentación, enlazada a su ficha; las decisiones aún
+pendientes se listan, pero no se consideran un fallo.
+
 La usan los desarrolladores y revisores que mantienen la documentación, a mano o en
 integración continua. Todo el proceso es local y determinista: no consulta servicios IA ni
 la red, y el mismo repositorio produce siempre el mismo resultado.
@@ -36,6 +42,8 @@ la red, y el mismo repositorio produce siempre el mismo resultado.
 - Para el índice para agentes IA: configuración del sitio con su navegación.
 - Para el modo incremental: el proyecto documentado bajo control de versiones con Git y Git
   instalado; sin él, la sesión siguiente se hace completa.
+- Para las decisiones de cobertura: registros de decisiones en la carpeta `decisiones/` de la
+  documentación; sin ellos, la comprobación termina con éxito.
 - Entorno con las herramientas del tooling documental (la lectura de la configuración usa la
   misma librería que el generador del sitio).
 
@@ -86,6 +94,9 @@ criterios y el índice para agentes IA se ejecutan como operaciones independient
   páginas que los citan, las que solo los mencionan, los ejemplos enlazados y los ficheros
   sin página; termina con éxito si no hay cambios, con fallo si los hay y con código 3 si
   no hay baseline utilizable.
+- **Decisiones de cobertura**: no modifica nada; muestra por pantalla o escribe en el fichero
+  indicado un resumen por registro, las decisiones pendientes y los hallazgos; termina con
+  fallo si hay algún hallazgo.
 
 ## 5. Reglas de Negocio
 
@@ -99,6 +110,9 @@ criterios y el índice para agentes IA se ejecutan como operaciones independient
 | Determinismo | Sin servicios IA ni red; orden estable de páginas, fuentes y tests | Resultados distintos para el mismo repositorio; incompatible con CI |
 | Cita frente a mención | Una página que cita el fichero como evidencia (bloque «Evidencia» o fuentes declaradas) se revisa; una que solo lo nombra en el texto se avisa aparte | Revisar ADR, changelog y guías por cada cambio, o dejar de revisar las páginas que sí dependen del fichero |
 | Lo que genera la documentación no es un cambio | Si la documentación vive dentro del proyecto, su carpeta, el contexto de sesiones, las fuentes convertidas, la configuración del sitio y las instrucciones de visualización no cuentan como cambios | Cada cierre de sesión aparecería como cambio del proyecto en la siguiente |
+| Una decisión tomada se ve en la documentación | Cada apartado con una decisión tomada enlaza su ficha y muestra el estado que fija la decisión | La documentación contradice o pierde una decisión de las personas responsables |
+| Decidir no es tarea de la herramienta | Las decisiones pendientes se listan, pero no son fallo; la herramienta nunca escribe en el registro | Bloquear la integración continua mientras alguien decide, o decisiones tomadas por una máquina |
+| Vocabulario cerrado | Cada estado admite solo ciertas decisiones; una decisión tomada exige responsable, fecha y estado resultante | Decisiones ambiguas que no se pueden aplicar ni auditar |
 | Ante la duda, sesión completa | Sin baseline, sin Git, con el punto guardado fuera del historial o con otra versión menor de doc_ia, se pide la sesión completa (código 3) | Una sesión incremental que omite cambios reales o aplica reglas de arquetipos antiguas |
 
 ## 6. Límites, Flujos Alternativos y Casos Especiales
@@ -112,6 +126,8 @@ criterios y el índice para agentes IA se ejecutan como operaciones independient
 - No detecta cambios en fuentes que una página no declara.
 - En modo incremental no interpreta los cambios: dice qué ficheros cambiaron y qué páginas
   los citan; decidir si la página sigue vigente corresponde al flujo de documentación.
+- No toma decisiones de cobertura ni aplica las tomadas: comprueba que el registro y la
+  documentación coinciden; aplicarlas corresponde al flujo de documentación.
 
 ### Flujos alternativos
 
@@ -137,6 +153,9 @@ criterios y el índice para agentes IA se ejecutan como operaciones independient
   el estado actual de los ficheros, en la sesión siguiente se vuelven a revisar.
 - **Ficheros renombrados**: se informan con la ruta anterior y la nueva, y cuentan las
   páginas que citan cualquiera de las dos.
+- **Identificadores de ejemplo**: los identificadores de apartado escritos como código (en un
+  bloque o entre comillas invertidas) no cuentan, de modo que se puede documentar el formato.
+- **Símbolo de aviso con o sin variante gráfica**: ambos se reconocen como «parcial».
 
 ## 7. Criterios de Aceptación
 
@@ -163,6 +182,12 @@ criterios y el índice para agentes IA se ejecutan como operaciones independient
 | AC-19 | Sin baseline, proyecto sin Git, punto guardado fuera del historial u otra versión menor de doc_ia | Se piden los cambios | Se indica el motivo y termina con código 3 (sesión completa) | `tests/test_doc_trace.py::test_changes_falls_back_to_full_mode_exit_3`, `tests/test_doc_trace.py::test_baseline_without_git_then_changes_is_full_mode` |
 | AC-20 | La documentación vive dentro del proyecto documentado | Se cierra una sesión y se piden los cambios | Los ficheros que genera la documentación no cuentan como cambios ni como cambios pendientes; un cambio en el código sí | `tests/test_doc_trace.py::test_destination_inside_origin_ignores_its_own_artifacts` |
 | AC-21 | Un proyecto en una subcarpeta de un repositorio más grande | Se piden los cambios | Solo cuentan los ficheros de esa carpeta, con rutas relativas a ella | `tests/test_doc_trace.py::test_origin_in_subfolder_of_repository_uses_origin_relative_paths` |
+| AC-22 | Una documentación sin registros de decisiones | Se comprueban las decisiones | Termina con éxito | `tests/test_doc_trace.py::test_decisions_without_registers_is_clean` |
+| AC-23 | Un apartado con su decisión pendiente | Se comprueban las decisiones | No es hallazgo; aparece en la lista de pendientes | `tests/test_doc_trace.py::test_pending_card_is_not_a_finding` |
+| AC-24 | Una decisión tomada | Se comprueban las decisiones | Sin hallazgos si el apartado enlaza la ficha y muestra el estado resultante; si conserva el estado anterior o no enlaza la ficha, se informa como no reflejada y termina con fallo | `tests/test_doc_trace.py::test_decided_and_reflected_is_clean`, `tests/test_doc_trace.py::test_decided_but_page_keeps_old_symbol_is_unreflected`, `tests/test_doc_trace.py::test_decided_without_link_to_card_is_unreflected`, `tests/test_doc_trace.py::test_main_decisions_exit_1_and_writes_report` |
+| AC-25 | Una decisión sin responsable o sin fecha, fuera del vocabulario de su estado, con fecha mal escrita, de otro ámbito o con «No aplica» solo en uno de los dos campos | Se comprueban las decisiones | Se informa como incompleta o inválida y no se exige reflejarla | `tests/test_doc_trace.py::test_decided_without_owner_or_date_is_incomplete`, `tests/test_doc_trace.py::test_decision_not_allowed_for_state_is_invalid`, `tests/test_doc_trace.py::test_bad_date_and_scope_are_invalid`, `tests/test_doc_trace.py::test_not_applicable_must_match_and_be_written_in_page` |
+| AC-26 | Un apartado con dos fichas, una ficha que ninguna página cita, un apartado sin ficha o una ficha pendiente con otro estado en la página | Se comprueban las decisiones | Se informa cada caso | `tests/test_doc_trace.py::test_duplicate_orphan_entry_and_orphan_ref`, `tests/test_doc_trace.py::test_pending_card_with_different_page_symbol_is_mismatch` |
+| AC-27 | Identificadores escritos como código y apartados dentro del bloque plegable «Evidencia», con el símbolo de aviso en cualquiera de sus formas | Se comprueban las decisiones | Los de código se ignoran; los del bloque plegable se comprueban | `tests/test_doc_trace.py::test_ids_in_code_are_ignored_and_admonition_rows_are_read`, `tests/test_doc_trace.py::test_warning_symbol_without_variation_selector` |
 
 Verificación: `python -m pytest tests/test_doc_trace.py -q`.
 
@@ -177,6 +202,9 @@ Verificación: `python -m pytest tests/test_doc_trace.py -q`.
 | `llms.txt` | Índice de la documentación publicada en un formato pensado para agentes IA |
 | Baseline | Punto del historial del proyecto documentado que refleja la documentación al cerrar una sesión |
 | Cita / mención | Cita: el fichero aparece como evidencia de la página. Mención: solo se nombra en el texto |
+| Registro de decisiones de cobertura | Documento que las personas editan para decidir sobre cada apartado parcial, sin cubrir o por verificar |
+| Ficha | Entrada del registro para un apartado: estado detectado, decisión, contexto, responsable, fecha y estado resultante |
+| Decisión reflejada | La documentación enlaza la ficha y muestra el estado que fija la decisión |
 
 ??? note "Evidencia"
 
@@ -208,4 +236,9 @@ Verificación: `python -m pytest tests/test_doc_trace.py -q`.
     | Regla «Lo que genera la documentación no es un cambio» | `scripts/doc_trace.py::documentation_paths`, `::DOC_ARTIFACTS` | ✅ |
     | Regla «Ante la duda, sesión completa» | `scripts/doc_trace.py::check_changes`, `::_cmd_changes` (código 3) | ✅ |
     | AC-15 – AC-21 | `scripts/doc_trace.py::_cmd_baseline`, `::_cmd_changes`, `::format_changes`, `::linked_examples` | ✅ |
+    | Decisiones de cobertura: lectura del registro y de los apartados | `scripts/doc_trace.py::parse_registers`, `::collect_coverage_rows`, `::_code_free_lines` | ✅ |
+    | Regla «Una decisión tomada se ve en la documentación» | `scripts/doc_trace.py::check_decisions`, `::_reflection_problem` | ✅ |
+    | Regla «Decidir no es tarea de la herramienta» | `scripts/doc_trace.py::check_decisions` (fichas `Pendiente` sin hallazgo), `::_cmd_decisions` (solo lectura) | ✅ |
+    | Regla «Vocabulario cerrado» | `scripts/doc_trace.py::DECISIONS_BY_STATE`, `::_validate_entry` | ✅ |
+    | AC-22 – AC-27 | `scripts/doc_trace.py::check_decisions`, `::format_decisions`, `::_cmd_decisions` | ✅ |
     | AC-14 | `scripts/doc_trace.py::read_page_meta` | ⚠️ (los tests cubren la lectura; que la comprobación ignore la página se deduce de `check_drift`) |

@@ -73,7 +73,7 @@ doc_ia/
   .github/
     SHARED_INSTRUCTIONS.md   # Este fichero (canónico)
     agents/                  # 12 agentes del flujo de trabajo
-    prompts/                 # Prompts de método + arquetipos documentales (12 activos)
+    prompts/                 # Prompts de método + arquetipos documentales (13 activos)
     instructions/            # Reglas por tipo de archivo (python, sync, docs)
     workflows/               # CI: build y release del ZIP de docs
   .claude/              # Slash commands, hooks, plantillas Claude Code
@@ -212,7 +212,9 @@ Toda la documentación pública sigue los **arquetipos formales** de
 `.github/DOCUMENTATION_STANDARD.md`. Arquetipos activos: funcional, técnica, how-to (3a),
 tutorial (3b), ejemplos, ADR/MADR 4.0, navegación + quick start (6), onboarding, trazabilidad
 normativa (condicional), changelog (9), config agente IA (10), guía de contribución (11),
-referencia del sistema (12, condicional). Regla transversal de evidencia y confianza: §3.16.
+referencia del sistema (12, condicional), registro de decisiones de cobertura (13, condicional,
+transversal: las personas deciden sobre cada ⚠️ ❌ 🔍 y el agente refleja la decisión citándola,
+§3.18). Regla transversal de evidencia y confianza: §3.16.
 Los prompts están en `.github/prompts/*_doc.prompt.md`.
 
 ### 📦 Distribución de documentación offline
