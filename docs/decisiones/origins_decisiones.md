@@ -42,9 +42,9 @@ está el acta o la evidencia, no su contenido.
 | Estado detectado | Fichas | Pendientes | Decididas |
 |---|---|---|---|
 | ✅ | 0 | 0 | 0 |
-| ⚠️ | 1 | 1 | 0 |
+| ⚠️ | 1 | 0 | 1 |
 | ❌ | 0 | 0 | 0 |
-| 🔍 | 3 | 3 | 0 |
+| 🔍 | 3 | 0 | 3 |
 
 ## 3. Decisiones
 
@@ -55,11 +55,11 @@ está el acta o la evidencia, no su contenido.
 | Página | [functional/origin_types.md](../functional/origin_types.md) |
 | Estado detectado | ⚠️ |
 | Evidencia | `.github/DOCUMENTATION_STANDARD.md::3.10`. A 2026-11-04, la fila `ESPECIFICACIÓN` de §3.10 ya usa la numeración v2 (§3, §5, §6, §7); la marca puede estar desfasada |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Reclasificar |
+| **Contexto aportado** | Comprobado: la tabla de la página y la de §3.10 coinciden fila a fila con la numeración v2 del Arquetipo 1 (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ✅ |
 
 ### COB-ORIGINS-002 — Regla «`INFRAESTRUCTURA` sin inventario de código» { #cob-origins-002 }
 
@@ -68,11 +68,11 @@ está el acta o la evidencia, no su contenido.
 | Página | [functional/origin_types.md](../functional/origin_types.md) |
 | Estado detectado | 🔍 |
 | Evidencia | `.github/DOCUMENTATION_STANDARD.md::3.10` (fila `INFRAESTRUCTURA`) indica qué secciones enriquece (Arq. 2 §4, Arq. 6C §3 › Despliegue); no dice explícitamente que no se inventaríe como código |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Aportar evidencia |
+| **Contexto aportado** | Consecuencia de la regla «MATERIAL no genera páginas propias» (✅, §3.10): la infraestructura solo enriquece Arq. 2 §4 y Arq. 6C §3 › Despliegue (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ✅ |
 
 ### COB-ORIGINS-003 — AC-04 — `.py` + `openapi.yaml` del mismo proyecto { #cob-origins-003 }
 
@@ -81,11 +81,11 @@ está el acta o la evidencia, no su contenido.
 | Página | [functional/origin_types.md](../functional/origin_types.md) |
 | Estado detectado | 🔍 |
 | Evidencia | `.github/prompts/document_project.prompt.md::Fase 0a`; la clasificación ocurre en el chat y no tiene test |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Aportar evidencia |
+| **Contexto aportado** | Regla explícita en `.github/prompts/document_project.prompt.md::Fase 0a`: `.yaml` con clave `openapi:` del propio proyecto → `CONTRATO`; `.py` → `CÓDIGO`. Sin test posible: la clasificación ocurre en el chat (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ✅ |
 
 ### COB-ORIGINS-004 — AC-09 — PRD sin implementar como `ESPECIFICACIÓN` { #cob-origins-004 }
 
@@ -94,14 +94,15 @@ está el acta o la evidencia, no su contenido.
 | Página | [functional/origin_types.md](../functional/origin_types.md) |
 | Estado detectado | 🔍 |
 | Evidencia | `.github/DOCUMENTATION_STANDARD.md::3.10` define `ESPECIFICACIÓN` como requisitos; la distinción frente a `MANUAL` por ser pre-implementación se deduce. Sin test |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Reclasificar |
+| **Contexto aportado** | Hueco conocido: la Fase 0a clasifica por nombre o carpeta y no recoge el criterio «intención pre-implementación → `ESPECIFICACIÓN`»; un PRD llamado `manual_*.pdf` acabaría como `MANUAL`. Remediar en una sesión aparte (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ⚠️ |
 
 ## 4. Historial de revisiones
 
 | Fecha | Revisión | Decisiones aplicadas | Por |
 |---|---|---|---|
 | 2026-11-04 | Generación inicial | — | Agente |
+| 2026-11-04 | Aplicación de decisiones | COB-ORIGINS-001 ⚠️ → ✅, COB-ORIGINS-002 🔍 → ✅, COB-ORIGINS-003 🔍 → ✅, COB-ORIGINS-004 🔍 → ⚠️ en `functional/origin_types.md` | Agente |

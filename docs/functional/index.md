@@ -9,7 +9,7 @@ fuentes:
   docs/functional/convert_to_md.md: ae08de56054c
   docs/functional/doc_trace.md: 3def261d69a8
   docs/functional/document_project.md: 658df1cd30a5
-  docs/functional/origin_types.md: 497167b5cbd9
+  docs/functional/origin_types.md: 067e6238b75b
 revisado: 2026-11-04
 ---
 # Mapa Funcional — doc_ia
