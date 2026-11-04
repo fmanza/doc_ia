@@ -35,6 +35,10 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - **Clasificación de orígenes — requisitos frente a manual** (§3.10 y Fase 0a): lo que se va a
   construir (PRD, requisitos) es `ESPECIFICACIÓN` aunque se llame `manual`; lo ya construido es
   `MANUAL`. Remedia `COB-ORIGINS-004`; test de coherencia.
+- **Bootstrap, Capa D**: se excluye aunque el usuario pida copiarla (se informa del motivo);
+  decisión `COB-BOOTSTRAP-004`.
+- **Decisiones de cobertura de doc_ia aplicadas**: las 30 fichas decididas; 7 tests nuevos
+  (`check_env` ×4, `convert_to_md`, `doc_trace`, sesiones con `TRACEABILITY.md`).
 - **Arquetipo 8**: columna `ID` obligatoria en las tablas de cobertura y registro de decisiones
   siempre junto a la trazabilidad normativa.
 - **Mapa funcional**: el total de cobertura de pruebas estaba desfasado (decía 63 de 89; las
@@ -42,6 +46,10 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ### Fixed
 
+- **`check_env.py`**: con todas las herramientas instaladas decía «completo (Python).» y mostraba
+  «docling instalado» como aviso `⚠`; ahora es una nota `ℹ` y la línea de estado es «Entorno de
+  tooling documental completo.», como promete AC-01. Lo reveló el test de la decisión
+  `COB-CHECKENV-001`.
 - **Bootstrap**: la capa A no copiaba `.github/templates/`, así que en el destino quedaban rotas
   las referencias de los prompts y comandos copiados a `VER_DOCUMENTACION.template.md` y
   `DECISIONES_COBERTURA.template.md`. Ahora la carpeta viaja verbatim; test de coherencia y

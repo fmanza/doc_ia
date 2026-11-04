@@ -1,7 +1,7 @@
 ---
 arquetipo: "1"
 fuentes:
-  docs/decisiones/doctrace_decisiones.md: c787da424454
+  docs/decisiones/doctrace_decisiones.md: 1cc61611500e
   scripts/doc_trace.py: 511f3e656b2f
 revisado: 2026-11-04
 ---
@@ -175,7 +175,7 @@ criterios y el índice para agentes IA se ejecutan como operaciones independient
 | AC-11 | Una configuración del sitio con etiquetas especiales del generador y un enlace externo en la navegación | Se genera el índice para agentes IA | El índice incluye las páginas con su URL publicada y omite el enlace externo | `tests/test_doc_trace.py::test_build_llms_txt_tolerates_python_tags` |
 | AC-12 | Un índice para agentes IA ausente o desactualizado | Se comprueba en modo comprobación | Termina con fallo; tras regenerarlo, la comprobación termina con éxito | `tests/test_doc_trace.py::test_main_llms_check_detects_outdated` |
 | AC-13 | Ninguna operación indicada | Se invoca la trazabilidad | Termina con error de uso (código 2) | `tests/test_doc_trace.py::test_main_requires_subcommand` |
-| AC-14 | Una página sin bloque de trazabilidad o sin fuentes declaradas | Se leen sus datos de trazabilidad | Se considera no sellada | `tests/test_doc_trace.py::test_read_page_meta_without_frontmatter`, `tests/test_doc_trace.py::test_read_page_meta_without_sources` |
+| AC-14 | Una página sin bloque de trazabilidad o sin fuentes declaradas | Se leen sus datos de trazabilidad | Se considera no sellada | `tests/test_doc_trace.py::test_read_page_meta_without_frontmatter`, `tests/test_doc_trace.py::test_read_page_meta_without_sources`, `tests/test_doc_trace.py::test_drift_ignores_unsealed_page` |
 | AC-15 | Un proyecto documentado bajo Git sin cambios pendientes | Se guarda su baseline | El estado del destino registra el punto actual del historial, la rama, que no hay cambios pendientes y la versión de doc_ia | `tests/test_doc_trace.py::test_baseline_records_clean_head` |
 | AC-16 | Un baseline guardado y el proyecto sin cambios | Se piden los cambios | Se informa «sin cambios» y termina con éxito | `tests/test_doc_trace.py::test_changes_without_changes_exit_0` |
 | AC-17 | Un fichero modificado citado como evidencia y nombrado en una guía, uno renombrado y uno nuevo con «ñ» | Se piden los cambios | Cada fichero aparece con las páginas que lo citan; la guía, solo como mención; el renombrado con su ruta anterior; el nuevo, sin página; se añade el ejemplo enlazado y termina con fallo | `tests/test_doc_trace.py::test_changes_maps_files_to_citing_pages_and_examples` |
@@ -242,4 +242,4 @@ Verificación: `python -m pytest tests/test_doc_trace.py -q`.
     | Regla «Decidir no es tarea de la herramienta» | `scripts/doc_trace.py::check_decisions` (fichas `Pendiente` sin hallazgo), `::_cmd_decisions` (solo lectura) | ✅ |
     | Regla «Vocabulario cerrado» | `scripts/doc_trace.py::DECISIONS_BY_STATE`, `::_validate_entry` | ✅ |
     | AC-22 – AC-27 | `scripts/doc_trace.py::check_decisions`, `::format_decisions`, `::_cmd_decisions` | ✅ |
-    | [COB-DOCTRACE-001](../decisiones/doctrace_decisiones.md#cob-doctrace-001) · AC-14 | `scripts/doc_trace.py::read_page_meta` | ⚠️ (los tests cubren la lectura; que la comprobación ignore la página se deduce de `check_drift`) |
+    | [COB-DOCTRACE-001](../decisiones/doctrace_decisiones.md#cob-doctrace-001) · AC-14 | `scripts/doc_trace.py::read_page_meta` | ⚠️ → ✅ (decisión: Remediar) |

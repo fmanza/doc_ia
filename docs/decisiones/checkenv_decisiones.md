@@ -42,7 +42,7 @@ está el acta o la evidencia, no su contenido.
 | Estado detectado | Fichas | Pendientes | Decididas |
 |---|---|---|---|
 | ✅ | 0 | 0 | 0 |
-| ⚠️ | 4 | 4 | 0 |
+| ⚠️ | 3 | 0 | 3 |
 | ❌ | 0 | 0 | 0 |
 | 🔍 | 0 | 0 | 0 |
 
@@ -55,11 +55,11 @@ está el acta o la evidencia, no su contenido.
 | Página | [functional/check_env.md](../functional/check_env.md) |
 | Estado detectado | ⚠️ |
 | Evidencia | `scripts/check_env.py::main`; el test cubre la detección de herramientas, no el mensaje final |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Remediar |
+| **Contexto aportado** | Test `tests/test_check_env.py::test_main_reports_complete_when_everything_installed`; reveló que con docling instalado el mensaje era «completo (Python).» y se corrigió `scripts/check_env.py::main` (docling pasa a nota informativa ℹ) (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ✅ |
 
 ### COB-CHECKENV-002 — AC-02 — Código de salida 1 si falta una herramienta { #cob-checkenv-002 }
 
@@ -68,11 +68,11 @@ está el acta o la evidencia, no su contenido.
 | Página | [functional/check_env.md](../functional/check_env.md) |
 | Estado detectado | ⚠️ |
 | Evidencia | `scripts/check_env.py::main`, `::missing_tools`; el test no comprueba el código 1 |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Remediar |
+| **Contexto aportado** | Test `tests/test_check_env.py::test_main_exits_1_listing_missing_required` (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ✅ |
 
 ### COB-CHECKENV-003 — AC-03 — Orden de las herramientas que faltan { #cob-checkenv-003 }
 
@@ -81,11 +81,11 @@ está el acta o la evidencia, no su contenido.
 | Página | [functional/check_env.md](../functional/check_env.md) |
 | Estado detectado | ⚠️ |
 | Evidencia | `scripts/check_env.py::missing_tools`; el test usa una sola herramienta y no comprueba el orden |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Remediar |
+| **Contexto aportado** | Test `tests/test_check_env.py::test_missing_tools_preserves_input_order` (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ✅ |
 
 ### COB-CHECKENV-004 — AC-04 — Aviso de herramientas de sistema { #cob-checkenv-004 }
 
@@ -94,14 +94,15 @@ está el acta o la evidencia, no su contenido.
 | Página | [functional/check_env.md](../functional/check_env.md) |
 | Estado detectado | ⚠️ |
 | Evidencia | `scripts/check_env.py::main`, `::missing_system_tools`; el test cubre la detección, no el aviso |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Remediar |
+| **Contexto aportado** | Test `tests/test_check_env.py::test_main_warns_about_pandoc_but_succeeds` (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ✅ |
 
 ## 4. Historial de revisiones
 
 | Fecha | Revisión | Decisiones aplicadas | Por |
 |---|---|---|---|
 | 2026-11-04 | Generación inicial | — | Agente |
+| 2026-11-04 | Aplicación de decisiones | COB-CHECKENV-001, COB-CHECKENV-002, COB-CHECKENV-003, COB-CHECKENV-004 | Agente |

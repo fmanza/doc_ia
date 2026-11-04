@@ -42,7 +42,7 @@ está el acta o la evidencia, no su contenido.
 | Estado detectado | Fichas | Pendientes | Decididas |
 |---|---|---|---|
 | ✅ | 0 | 0 | 0 |
-| ⚠️ | 2 | 2 | 0 |
+| ⚠️ | 1 | 0 | 1 |
 | ❌ | 0 | 0 | 0 |
 | 🔍 | 0 | 0 | 0 |
 
@@ -55,11 +55,11 @@ está el acta o la evidencia, no su contenido.
 | Página | [functional/convert_to_md.md](../functional/convert_to_md.md) |
 | Estado detectado | ⚠️ |
 | Evidencia | `scripts/convert_to_md.py::convert_file`; el test combina `--force` con simulación |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Aceptar riesgo |
+| **Contexto aportado** | El test con motor simulado es el nivel adecuado; los motores reales (docling, markitdown, pandoc) son dependencias externas (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ⚠️ |
 
 ### COB-CONVERT-002 — AC-10 — Mensaje con alternativas de motor { #cob-convert-002 }
 
@@ -68,14 +68,15 @@ está el acta o la evidencia, no su contenido.
 | Página | [functional/convert_to_md.md](../functional/convert_to_md.md) |
 | Estado detectado | ⚠️ |
 | Evidencia | `scripts/convert_to_md.py::convert_file`; el mensaje con alternativas que emite `main` no está cubierto por tests |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Remediar |
+| **Contexto aportado** | Test `tests/test_convert_to_md.py::test_main_engine_unavailable_suggests_alternatives` (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ✅ |
 
 ## 4. Historial de revisiones
 
 | Fecha | Revisión | Decisiones aplicadas | Por |
 |---|---|---|---|
 | 2026-11-04 | Generación inicial | — | Agente |
+| 2026-11-04 | Aplicación de decisiones | COB-CONVERT-001, COB-CONVERT-002 | Agente |

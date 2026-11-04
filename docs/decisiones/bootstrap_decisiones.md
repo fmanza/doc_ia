@@ -44,7 +44,7 @@ está el acta o la evidencia, no su contenido.
 | ✅ | 0 | 0 | 0 |
 | ⚠️ | 0 | 0 | 0 |
 | ❌ | 0 | 0 | 0 |
-| 🔍 | 4 | 4 | 0 |
+| 🔍 | 3 | 0 | 3 |
 
 ## 3. Decisiones
 
@@ -55,11 +55,11 @@ está el acta o la evidencia, no su contenido.
 | Página | [functional/bootstrap.md](../functional/bootstrap.md) |
 | Estado detectado | 🔍 |
 | Evidencia | `.github/prompts/bootstrap_ai_config.prompt.md::Contexto a completar` pide «Plataformas IA activas — marca las que apliquen»; no describe qué se hace con los entry points de las plataformas no marcadas |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Aportar evidencia |
+| **Contexto aportado** | `.github/prompts/bootstrap_ai_config.prompt.md::Mínimo OBLIGATORIO`: «Un punto de entrada por cada plataforma activa»; las no marcadas no reciben entry point (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ✅ |
 
 ### COB-BOOTSTRAP-002 — Flujo «Fase parcial (solo PLAN + AUDIT_PLAN)» { #cob-bootstrap-002 }
 
@@ -68,11 +68,11 @@ está el acta o la evidencia, no su contenido.
 | Página | [functional/bootstrap.md](../functional/bootstrap.md) |
 | Estado detectado | 🔍 |
 | Evidencia | `.github/prompts/bootstrap_ai_config.prompt.md::Devuelve en este orden` enumera las fases; la parada tras AUDIT_PLAN solo aparece en el ejemplo de invocación (parámetro `Fase`), no como regla |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Aportar evidencia |
+| **Contexto aportado** | `.github/prompts/bootstrap_ai_config.prompt.md` (bloque de invocación): parámetro `Fase: PLAN y AUDIT_PLAN únicamente` o `completa` (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ✅ |
 
 ### COB-BOOTSTRAP-003 — AC-02 — Destino con un generador distinto de MkDocs { #cob-bootstrap-003 }
 
@@ -81,11 +81,11 @@ está el acta o la evidencia, no su contenido.
 | Página | [functional/bootstrap.md](../functional/bootstrap.md) |
 | Estado detectado | 🔍 |
 | Evidencia | `.github/prompts/bootstrap_ai_config.prompt.md::Contexto a completar` pide el generador del destino y la Capa B adapta el builder; no dice explícitamente que la configuración de MkDocs no se copie cuando el generador es otro. Sin test: el bootstrap se ejecuta en el chat |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Aportar evidencia |
+| **Contexto aportado** | `.github/prompts/bootstrap_ai_config.prompt.md::Adaptación de arquetipos al destino`: con Docusaurus, adaptar `mkdocs.yml` → `docusaurus.config.js` (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ✅ |
 
 ### COB-BOOTSTRAP-004 — Capa D excluida aunque el usuario lo pida { #cob-bootstrap-004 }
 
@@ -94,14 +94,15 @@ está el acta o la evidencia, no su contenido.
 | Página | [api/bootstrap.md](../api/bootstrap.md) |
 | Estado detectado | 🔍 |
 | Evidencia | `.github/prompts/bootstrap_ai_config.prompt.md::Capa D` dice «Excluir explícitamente», sin mencionar qué ocurre si el usuario pide copiar un fichero de esa capa |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Reclasificar |
+| **Contexto aportado** | Opción (a): se mantiene la regla y se escribe en `.github/prompts/bootstrap_ai_config.prompt.md::Capa D`: se excluye aunque el usuario pida copiarlo, informando del motivo (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ✅ |
 
 ## 4. Historial de revisiones
 
 | Fecha | Revisión | Decisiones aplicadas | Por |
 |---|---|---|---|
 | 2026-11-04 | Generación inicial | — | Agente |
+| 2026-11-04 | Aplicación de decisiones | COB-BOOTSTRAP-001, COB-BOOTSTRAP-002, COB-BOOTSTRAP-003, COB-BOOTSTRAP-004 | Agente |

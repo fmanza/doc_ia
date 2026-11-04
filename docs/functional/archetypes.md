@@ -3,9 +3,9 @@ arquetipo: "1"
 fuentes:
   .claude/commands/document-project.md: 275755329577
   .github/DOCUMENTATION_STANDARD.md: 1d52344cb93f
-  docs/decisiones/archetypes_decisiones.md: b7c212317804
+  docs/decisiones/archetypes_decisiones.md: 1a6976ff3ff3
   hooks/sync_root_docs.py: ef5e576436c6
-  tests/test_docs_conformance.py: 07c865fb291d
+  tests/test_docs_conformance.py: 121bd9ca6180
 revisado: 2026-11-04
 ---
 # Arquetipos Formales de Documentación
@@ -216,7 +216,7 @@ Los tests verifican el **resultado** sobre la documentación de doc_ia (dogfoodi
     | Postcondición «Mapa Funcional» | `.github/DOCUMENTATION_STANDARD.md::3.1` (Variante 1-I) | ✅ |
     | Caso «páginas en estructura anterior» | `.github/DOCUMENTATION_STANDARD.md::3.1` (Cambio respecto a v1) | ✅ |
     | Caso «ADR en dos formatos» | `.github/DOCUMENTATION_STANDARD.md::3.5` (Formatos disponibles) | ✅ |
-    | [COB-ARCHETYPES-001](../decisiones/archetypes_decisiones.md#cob-archetypes-001) · AC-01 | `.github/DOCUMENTATION_STANDARD.md::7. Cómo Proceder` (Criterio de Completitud) | 🔍 |
+    | [COB-ARCHETYPES-001](../decisiones/archetypes_decisiones.md#cob-archetypes-001) · AC-01 | `.github/DOCUMENTATION_STANDARD.md::7. Cómo Proceder` (Criterio de Completitud) | 🔍 → ⚠️ (decisión: Reclasificar) |
     | AC-02 | `.github/DOCUMENTATION_STANDARD.md::3.2` (§5 Ejemplos Relacionados) | ✅ |
     | AC-03 | `.github/DOCUMENTATION_STANDARD.md::3.8` (Condición de activación) | ✅ |
     | AC-04 | `.github/DOCUMENTATION_STANDARD.md::3.1` (Regla de sección vacía) | ✅ |

@@ -42,9 +42,9 @@ está el acta o la evidencia, no su contenido.
 | Estado detectado | Fichas | Pendientes | Decididas |
 |---|---|---|---|
 | ✅ | 0 | 0 | 0 |
-| ⚠️ | 4 | 4 | 0 |
+| ⚠️ | 3 | 0 | 3 |
 | ❌ | 0 | 0 | 0 |
-| 🔍 | 1 | 1 | 0 |
+| 🔍 | 1 | 0 | 1 |
 
 ## 3. Decisiones
 
@@ -55,11 +55,11 @@ está el acta o la evidencia, no su contenido.
 | Página | [functional/document_project.md](../functional/document_project.md) |
 | Estado detectado | ⚠️ |
 | Evidencia | La regla está en `.claude/commands/document-project.md` y en `.github/prompts/document_project.prompt.md::Fase 0b`, y su fila de Evidencia la marca ✅; el cuerpo la marca ⚠️ sin indicar qué parte no está verificada |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Reclasificar |
+| **Contexto aportado** | La Fase 0b del prompt y `.claude/commands/document-project.md` cubren recursos, `navigation.sections` y `.gitignore` (con `*.pdf`, `*.doc`, `*.docx`); su fila de Evidencia ya era ✅ (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ✅ |
 
 ### COB-DOCPROJ-002 — Regla «Instrucciones de visualización siempre» y AC-11 { #cob-docproj-002 }
 
@@ -68,11 +68,11 @@ está el acta o la evidencia, no su contenido.
 | Página | [functional/document_project.md](../functional/document_project.md) |
 | Estado detectado | ⚠️ |
 | Evidencia | `.github/prompts/document_project.prompt.md::Fase 7c` y `tests/test_docs_conformance.py::test_view_instructions_rule_everywhere`: el test comprueba la coherencia de las instrucciones; el resultado solo se comprueba sobre doc_ia |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Aceptar riesgo |
+| **Contexto aportado** | El flujo se ejecuta en el chat: los tests comprueban la coherencia de las instrucciones; no hay test de punta a punta posible (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ⚠️ |
 
 ### COB-DOCPROJ-003 — Regla «Relanzar solo sobre lo cambiado» y AC-12 { #cob-docproj-003 }
 
@@ -81,11 +81,11 @@ está el acta o la evidencia, no su contenido.
 | Página | [functional/document_project.md](../functional/document_project.md) |
 | Estado detectado | ⚠️ |
 | Evidencia | `scripts/doc_trace.py::check_changes` tiene tests; `tests/test_docs_conformance.py::test_incremental_mode_rule_everywhere` comprueba la coherencia de las instrucciones. El flujo incremental completo no tiene test |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Aceptar riesgo |
+| **Contexto aportado** | El flujo se ejecuta en el chat: los tests comprueban la coherencia de las instrucciones; no hay test de punta a punta posible (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ⚠️ |
 
 ### COB-DOCPROJ-004 — Regla «Fuentes convertidas en `_fuentes/`», AC-09 y AC-10 { #cob-docproj-004 }
 
@@ -94,11 +94,11 @@ está el acta o la evidencia, no su contenido.
 | Página | [functional/document_project.md](../functional/document_project.md) |
 | Estado detectado | ⚠️ |
 | Evidencia | `tests/test_docs_conformance.py::test_sources_folder_is_canonical` comprueba la coherencia de las instrucciones, no el resultado en un destino |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Aceptar riesgo |
+| **Contexto aportado** | El flujo se ejecuta en el chat: los tests comprueban la coherencia de las instrucciones; no hay test de punta a punta posible (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ⚠️ |
 
 ### COB-DOCPROJ-005 — AC-01 — Documentar un proyecto sin documentación previa { #cob-docproj-005 }
 
@@ -107,14 +107,15 @@ está el acta o la evidencia, no su contenido.
 | Página | [functional/document_project.md](../functional/document_project.md) |
 | Estado detectado | 🔍 |
 | Evidencia | `.github/prompts/document_project.prompt.md::Devuelve en este orden` describe la salida; el resultado de punta a punta no tiene test porque el flujo se ejecuta en el chat |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Reclasificar |
+| **Contexto aportado** | El flujo se ejecuta en el chat: los tests comprueban la coherencia de las instrucciones; no hay test de punta a punta posible (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ⚠️ |
 
 ## 4. Historial de revisiones
 
 | Fecha | Revisión | Decisiones aplicadas | Por |
 |---|---|---|---|
 | 2026-11-04 | Generación inicial | — | Agente |
+| 2026-11-04 | Aplicación de decisiones | COB-DOCPROJ-001, COB-DOCPROJ-002, COB-DOCPROJ-003, COB-DOCPROJ-004, COB-DOCPROJ-005 | Agente |

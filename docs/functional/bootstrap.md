@@ -1,8 +1,8 @@
 ---
 arquetipo: "1"
 fuentes:
-  .github/prompts/bootstrap_ai_config.prompt.md: 816386231dc9
-  docs/decisiones/bootstrap_decisiones.md: 947c4df75841
+  .github/prompts/bootstrap_ai_config.prompt.md: fd55edd86bb6
+  docs/decisiones/bootstrap_decisiones.md: 254ead9347ae
 revisado: 2026-11-04
 ---
 # Bootstrap de Configuración IA Multiplataforma
@@ -156,10 +156,10 @@ ejecuta en el chat y no tiene tests automatizados.
     | Regla «Sin modificar el origen» | `.github/prompts/bootstrap_ai_config.prompt.md::Contexto a completar` (origen solo lectura) | ✅ |
     | Caso «Codex sin fichero propio» (guía en `docs/guides/codex_guide.md`) | `.github/prompts/bootstrap_ai_config.prompt.md::Objetivo` (Nota sobre Codex) | ✅ |
     | Caso «destino sin documentación publicada» | `.github/prompts/bootstrap_ai_config.prompt.md::Capa B` | ✅ |
-    | [COB-BOOTSTRAP-001](../decisiones/bootstrap_decisiones.md#cob-bootstrap-001) · Flujo «Plataformas IA parciales» | `.github/prompts/bootstrap_ai_config.prompt.md::Contexto a completar` (Plataformas IA activas) | 🔍 |
-    | [COB-BOOTSTRAP-002](../decisiones/bootstrap_decisiones.md#cob-bootstrap-002) · Flujo «Fase parcial (solo PLAN + AUDIT_PLAN)» | `.github/prompts/bootstrap_ai_config.prompt.md::Devuelve en este orden` | 🔍 |
+    | [COB-BOOTSTRAP-001](../decisiones/bootstrap_decisiones.md#cob-bootstrap-001) · Flujo «Plataformas IA parciales» | `.github/prompts/bootstrap_ai_config.prompt.md::Contexto a completar` (Plataformas IA activas) | 🔍 → ✅ (decisión: Aportar evidencia) |
+    | [COB-BOOTSTRAP-002](../decisiones/bootstrap_decisiones.md#cob-bootstrap-002) · Flujo «Fase parcial (solo PLAN + AUDIT_PLAN)» | `.github/prompts/bootstrap_ai_config.prompt.md::Devuelve en este orden` | 🔍 → ✅ (decisión: Aportar evidencia) |
     | AC-01 | `.github/prompts/bootstrap_ai_config.prompt.md::Auditoría posterior` (cero referencias huérfanas) | ✅ |
-    | [COB-BOOTSTRAP-003](../decisiones/bootstrap_decisiones.md#cob-bootstrap-003) · AC-02 | `.github/prompts/bootstrap_ai_config.prompt.md::Contexto a completar` (generador del destino) | 🔍 |
+    | [COB-BOOTSTRAP-003](../decisiones/bootstrap_decisiones.md#cob-bootstrap-003) · AC-02 | `.github/prompts/bootstrap_ai_config.prompt.md::Contexto a completar` (generador del destino) | 🔍 → ✅ (decisión: Aportar evidencia) |
     | AC-03 | `.github/prompts/bootstrap_ai_config.prompt.md::Auditoría posterior` (DRY, rutas portables) | ✅ |
     | AC-04 | `.github/prompts/bootstrap_ai_config.prompt.md::Capa D` | ✅ |
     | AC-05 | `.github/prompts/bootstrap_ai_config.prompt.md::Capa A` (`.github/templates/`), `tests/test_docs_conformance.py::test_bootstrap_copies_every_referenced_template` | ✅ |

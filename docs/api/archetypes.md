@@ -4,9 +4,9 @@ fuentes:
   .github/DOCUMENTATION_STANDARD.md: 1d52344cb93f
   .github/agents/documentation-generator.agent.md: a5ef890a52f0
   .github/prompts/example_doc.prompt.md: 6041f616e0c3
-  docs/decisiones/archetypes_decisiones.md: b7c212317804
+  docs/decisiones/archetypes_decisiones.md: 1a6976ff3ff3
   mkdocs.yml: 5d3b9bd903d1
-  tests/test_docs_conformance.py: 07c865fb291d
+  tests/test_docs_conformance.py: 121bd9ca6180
 revisado: 2026-11-04
 ---
 # archetypes
@@ -142,5 +142,5 @@ norma y los prompts (como la corregida en ADR-002).
     | Arquetipos 9 y 11 opt-in | `.github/DOCUMENTATION_STANDARD.md` §3.9 (conjunto mínimo de guías) | ✅ |
     | Arquetipo 12 condicional | `.github/DOCUMENTATION_STANDARD.md` §3.15 | ✅ |
     | Citas como código inline | `.github/DOCUMENTATION_STANDARD.md` §3.16 (reglas de cita) | ✅ |
-    | [COB-ARCHETYPES-002](../decisiones/archetypes_decisiones.md#cob-archetypes-002) · Arquetipo 4 sin `.py` en flujos de chat | `.github/prompts/example_doc.prompt.md` | 🔍 |
+    | [COB-ARCHETYPES-002](../decisiones/archetypes_decisiones.md#cob-archetypes-002) · Arquetipo 4 sin `.py` en flujos de chat | `.github/prompts/example_doc.prompt.md` | 🔍 → ✅ (decisión: Aportar evidencia) |
     | Dependencias: norma, `docs.instructions.md`, `mkdocs.yml` | `.github/agents/documentation-generator.agent.md` (contexto obligatorio) | ✅ |

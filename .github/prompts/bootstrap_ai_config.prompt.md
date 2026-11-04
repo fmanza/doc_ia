@@ -155,6 +155,9 @@ Clasifica **cada** activo IA del origen en una de estas cuatro capas:
 
 ### Capa D — Excluir explícitamente
 
+Se excluye **aunque el usuario pida copiarlo**: es historial y estado del origen, no método.
+Si lo pide, se informa del motivo en el ANÁLISIS y no se copia.
+
 - `.ai/sessions/<fechas>/` (todo lo que no sea `TEMPLATE/`)
 - `CHANGELOG.md`, `COMPATIBILITY.md`, notas de migración específicas del origen
 - `.coverage`, `coverage.xml`, `.mypy_cache/`, `.ruff_cache/`, `.pytest_cache/`, `site/`, `build/`, `dist/`

@@ -42,9 +42,9 @@ está el acta o la evidencia, no su contenido.
 | Estado detectado | Fichas | Pendientes | Decididas |
 |---|---|---|---|
 | ✅ | 0 | 0 | 0 |
-| ⚠️ | 1 | 0 | 1 |
+| ⚠️ | 0 | 0 | 0 |
 | ❌ | 0 | 0 | 0 |
-| 🔍 | 4 | 1 | 3 |
+| 🔍 | 4 | 0 | 4 |
 
 ## 3. Decisiones
 
@@ -95,10 +95,10 @@ está el acta o la evidencia, no su contenido.
 | Estado detectado | 🔍 |
 | Evidencia | `.github/DOCUMENTATION_STANDARD.md::3.10` define `ESPECIFICACIÓN` como requisitos; la distinción frente a `MANUAL` por ser pre-implementación se deduce. Sin test |
 | **Decisión** | Reclasificar |
-| **Contexto aportado** | Hueco conocido: la Fase 0a clasifica por nombre o carpeta y no recoge el criterio «intención pre-implementación → `ESPECIFICACIÓN`»; un PRD llamado `manual_*.pdf` acabaría como `MANUAL`. Remediar en una sesión aparte (propuesta del agente aceptada en el chat) |
+| **Contexto aportado** | Hueco conocido: la Fase 0a clasifica por nombre o carpeta y no recoge el criterio «intención pre-implementación → `ESPECIFICACIÓN`»; un PRD llamado `manual_*.pdf` acabaría como `MANUAL`. Remediar en una sesión aparte; remediado en `f2ffdfe` (§3.10 y Fase 0a) con `tests/test_docs_conformance.py::test_specification_vs_manual_criterion` (propuesta del agente aceptada en el chat) |
 | **Responsable** | Paco Manzano |
 | **Fecha** | 2026-11-04 |
-| **Estado resultante** | ⚠️ |
+| **Estado resultante** | ✅ |
 
 ### COB-ORIGINS-005 — Flujo «Corrección del usuario» { #cob-origins-005 }
 
@@ -107,11 +107,11 @@ está el acta o la evidencia, no su contenido.
 | Página | [functional/origin_types.md](../functional/origin_types.md) |
 | Estado detectado | 🔍 |
 | Evidencia | `.github/DOCUMENTATION_STANDARD.md::3.10` (Regla) y `.github/prompts/document_project.prompt.md` (parámetro «Tipo de cada origen») exigen que el usuario confirme el tipo antes del INVENTARIO; que, si lo corrige, se use el tipo que indique se deduce de «confirma», no está escrito |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Aportar evidencia |
+| **Contexto aportado** | `.github/DOCUMENTATION_STANDARD.md::3.10`: «el usuario confirma antes del INVENTARIO; nunca se asume el tipo sin confirmación»: el tipo final es el que confirma el usuario (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ✅ |
 
 ## 4. Historial de revisiones
 
@@ -120,3 +120,4 @@ está el acta o la evidencia, no su contenido.
 | 2026-11-04 | Generación inicial | — | Agente |
 | 2026-11-04 | Aplicación de decisiones | COB-ORIGINS-001 ⚠️ → ✅, COB-ORIGINS-002 🔍 → ✅, COB-ORIGINS-003 🔍 → ✅, COB-ORIGINS-004 🔍 → ⚠️ en `functional/origin_types.md` | Agente |
 | 2026-11-04 | Ficha nueva y remediación | COB-ORIGINS-005 creada (🔍 del cuerpo sin fila); criterio «requisitos frente a manual» añadido a §3.10 y a la Fase 0a para COB-ORIGINS-004 (la ficha conserva su estado hasta que la persona responsable lo actualice) | Agente |
+| 2026-11-04 | Aplicación de decisiones | COB-ORIGINS-004, COB-ORIGINS-005 | Agente |

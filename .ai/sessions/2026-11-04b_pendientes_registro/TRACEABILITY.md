@@ -46,5 +46,23 @@ necesites». Recomendaciones aplicadas: 9 registros por módulo; P1 y P2 en comm
 - **[marcas en el cuerpo]**: las ⚠️ / 🔍 al final de frases no llevan ID; al aplicar una decisión
   hay que cambiarlas a mano (`decisions` no las ve).
 
+## Aplicación de decisiones (misma fecha)
+- La persona usuaria aceptó las propuestas del agente para las 30 fichas (BOOTSTRAP-004: opción a).
+  Responsable en cada ficha: Paco Manzano; el contexto indica que la propuesta fue del agente.
+- Commits: `00f9440` (ORIGINS-001..004), `f2ffdfe` (remediación ORIGINS-004 + ficha ORIGINS-005),
+  y el commit final con las 26 restantes.
+- Remediaciones: 7 tests (`check_env` ×4, `convert_to_md`, `doc_trace`, sesiones); regla de la
+  Capa D en el bootstrap. El test de CHECKENV-001 reveló un defecto real: con todo instalado,
+  `check_env` decía «completo (Python).» por la nota de docling; corregido (nota `ℹ`).
+- Resultado: 30 fichas decididas, 0 pendientes, 0 hallazgos; 19 ✅ y 11 ⚠️ aceptados conscientemente.
+- Verificación: ruff, mypy, pytest 310 passed, `mkdocs build --strict`, drift 0, matrix 76/101.
+
+## Directrices para Futuras IAs (aplicación)
+- **[⚠️ aceptados]**: BUILDZIP-001..004 se revisan al actualizar MkDocs o Zensical; DOCPROJ-002..005,
+  ARCHETYPES-001 y CONVERT-001 dependen del chat o de motores externos: no reabrir sin un cambio de
+  contexto.
+- **[Remediar]**: un test pedido por una decisión puede revelar un defecto (CHECKENV-001): corregir
+  el código antes de marcar ✅, nunca ajustar el criterio al defecto.
+
 ## Veredicto final
 CLOSED (P1 y P2 implementados; decisiones pendientes de la persona usuaria)

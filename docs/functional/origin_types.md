@@ -3,7 +3,7 @@ arquetipo: "1"
 fuentes:
   .github/DOCUMENTATION_STANDARD.md: 1d52344cb93f
   .github/prompts/document_project.prompt.md: 27bb482fa094
-  docs/decisiones/origins_decisiones.md: aba60d6faa90
+  docs/decisiones/origins_decisiones.md: 2aa59f9fc5e0
 revisado: 2026-11-04
 ---
 # Catálogo de Tipos de Origen
@@ -134,7 +134,7 @@ secciones concretas de los arquetipos del proyecto `CÓDIGO` principal.
 - **Sin origen `CÓDIGO`**: el flujo se detiene con mensaje orientativo hacia los prompts
   de arquetipo directo (`normative_traceability.prompt.md`, etc.).
 - **Corrección del usuario**: si el usuario no acepta el tipo propuesto, se usa el tipo que
-  indique antes de continuar al inventario. 🔍
+  indique antes de continuar al inventario.
 
 ### Casos especiales
 
@@ -196,7 +196,7 @@ el chat y no tiene tests automatizados.
     | [COB-ORIGINS-002](../decisiones/origins_decisiones.md#cob-origins-002) · Regla «`INFRAESTRUCTURA` sin inventario de código» | `.github/DOCUMENTATION_STANDARD.md::3.10` (fila `INFRAESTRUCTURA`) | 🔍 → ✅ (decisión: consecuencia de «MATERIAL no genera páginas propias») |
     | Regla «`MANUAL` propio del proyecto» | `.github/DOCUMENTATION_STANDARD.md::3.10` (fila `MANUAL`) | ✅ |
     | Regla «Requisitos frente a manual» | `.github/DOCUMENTATION_STANDARD.md::3.10` (Requisitos frente a manual), `.github/prompts/document_project.prompt.md::Fase 0a`, `tests/test_docs_conformance.py::test_specification_vs_manual_criterion` (coherencia de las instrucciones) | ✅ |
-    | [COB-ORIGINS-005](../decisiones/origins_decisiones.md#cob-origins-005) · Flujo «Corrección del usuario» | `.github/DOCUMENTATION_STANDARD.md::3.10` (Regla: el usuario confirma antes del INVENTARIO), `.github/prompts/document_project.prompt.md` (parámetro «Tipo de cada origen»: se confirma con el usuario) | 🔍 |
+    | [COB-ORIGINS-005](../decisiones/origins_decisiones.md#cob-origins-005) · Flujo «Corrección del usuario» | `.github/DOCUMENTATION_STANDARD.md::3.10` (Regla: el usuario confirma antes del INVENTARIO), `.github/prompts/document_project.prompt.md` (parámetro «Tipo de cada origen»: se confirma con el usuario) | 🔍 → ✅ (decisión: Aportar evidencia) |
     | AC-01 | `.github/DOCUMENTATION_STANDARD.md::3.10` (filas `CONTRATO`) | ✅ |
     | AC-02 | `.github/DOCUMENTATION_STANDARD.md::3.10` (filas `INFRAESTRUCTURA`) | ✅ |
     | AC-03 | `.github/DOCUMENTATION_STANDARD.md::3.10` (`REFERENCIA` = ajena al proyecto) | ✅ |
@@ -205,4 +205,4 @@ el chat y no tiene tests automatizados.
     | AC-06 | `.github/DOCUMENTATION_STANDARD.md::3.10` (`.sql` DDL en `db/`/`migrations/`) | ✅ |
     | AC-07 | `.github/DOCUMENTATION_STANDARD.md::3.10` (fila `MANUAL`) | ✅ |
     | AC-08 | `.github/DOCUMENTATION_STANDARD.md::3.10` (`REFERENCIA` = manuales de terceros) | ✅ |
-    | [COB-ORIGINS-004](../decisiones/origins_decisiones.md#cob-origins-004) · AC-09 | `.github/DOCUMENTATION_STANDARD.md::3.10` (`ESPECIFICACIÓN` = requisitos) | 🔍 → ⚠️ (decisión: falta el criterio pre-implementación en la Fase 0a) |
+    | [COB-ORIGINS-004](../decisiones/origins_decisiones.md#cob-origins-004) · AC-09 | `.github/DOCUMENTATION_STANDARD.md::3.10` (`ESPECIFICACIÓN` = requisitos) | 🔍 → ✅ (decisión: criterio añadido a §3.10 y a la Fase 0a) |

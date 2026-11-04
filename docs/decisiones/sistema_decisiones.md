@@ -42,9 +42,9 @@ está el acta o la evidencia, no su contenido.
 | Estado detectado | Fichas | Pendientes | Decididas |
 |---|---|---|---|
 | ✅ | 0 | 0 | 0 |
-| ⚠️ | 1 | 1 | 0 |
+| ⚠️ | 0 | 0 | 0 |
 | ❌ | 0 | 0 | 0 |
-| 🔍 | 1 | 1 | 0 |
+| 🔍 | 1 | 0 | 1 |
 
 ## 3. Decisiones
 
@@ -55,11 +55,11 @@ está el acta o la evidencia, no su contenido.
 | Página | [architecture.md](../architecture.md) |
 | Estado detectado | ⚠️ |
 | Evidencia | Instrucciones de cierre de sesión (`.ai/sessions/TEMPLATE/`, `INDEX.md`); ninguna verificación automática comprueba que exista `TRACEABILITY.md` ni la fila del índice |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Remediar |
+| **Contexto aportado** | Test `tests/test_docs_conformance.py::test_every_session_has_traceability_and_index_row` (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ✅ |
 
 ### COB-SISTEMA-002 — Recorrido «bootstrap → documentar» { #cob-sistema-002 }
 
@@ -68,14 +68,15 @@ está el acta o la evidencia, no su contenido.
 | Página | [functional/index.md](../functional/index.md) |
 | Estado detectado | 🔍 |
 | Evidencia | Se deduce de encadenar `docs/functional/bootstrap.md::§4` (postcondiciones) con `docs/functional/document_project.md::§2` (precondiciones); ninguna instrucción lo describe como recorrido |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Aportar evidencia |
+| **Contexto aportado** | `.github/prompts/bootstrap_ai_config.prompt.md::Capa A` copia `.github/prompts/*.prompt.md` y `.claude/commands/`, incluido `document_project`: el destino puede documentarse después (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ✅ |
 
 ## 4. Historial de revisiones
 
 | Fecha | Revisión | Decisiones aplicadas | Por |
 |---|---|---|---|
 | 2026-11-04 | Generación inicial | — | Agente |
+| 2026-11-04 | Aplicación de decisiones | COB-SISTEMA-001, COB-SISTEMA-002 | Agente |

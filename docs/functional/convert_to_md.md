@@ -1,9 +1,9 @@
 ---
 arquetipo: "1"
 fuentes:
-  docs/decisiones/convert_decisiones.md: b997fbe5a6db
+  docs/decisiones/convert_decisiones.md: 2567f135ba15
   scripts/convert_to_md.py: e7e60518d96f
-  tests/test_convert_to_md.py: 844463d311c9
+  tests/test_convert_to_md.py: 415626d46572
 revisado: 2026-11-04
 ---
 # Conversión de Documentos a Markdown (`convert_to_md`)
@@ -149,7 +149,7 @@ resultado global sea fallo; el resto de ficheros se convierte igualmente.
 | AC-07 | Una carpeta con ficheros válidos | Se ejecuta con `--validate-only` | Termina con éxito y no crea `md/` | `tests/test_convert_to_md.py::test_validate_only_does_not_create_output` |
 | AC-08 | Una carpeta con un fichero inválido | Se ejecuta con `--validate-only` | Termina con fallo (código 1) | `tests/test_convert_to_md.py::test_validate_only_report_invalid_file` |
 | AC-09 | Un fichero válido | Se ejecuta con `--dry-run` en cualquier motor | No se crea el `.md` y el resultado es éxito | `tests/test_convert_to_md.py::test_convert_file_dry_run_docling`, `tests/test_convert_to_md.py::test_convert_file_dry_run_markitdown`, `tests/test_convert_to_md.py::test_convert_file_dry_run_pandoc` |
-| AC-10 | El motor elegido no está instalado | Se convierte un fichero | La conversión de ese fichero falla | `tests/test_convert_to_md.py::test_convert_file_docling_not_installed`, `tests/test_convert_to_md.py::test_convert_file_markitdown_not_installed`, `tests/test_convert_to_md.py::test_convert_file_pandoc_not_installed` |
+| AC-10 | El motor elegido no está instalado | Se convierte un fichero | La conversión de ese fichero falla | `tests/test_convert_to_md.py::test_convert_file_docling_not_installed`, `tests/test_convert_to_md.py::test_convert_file_markitdown_not_installed`, `tests/test_convert_to_md.py::test_convert_file_pandoc_not_installed`, `tests/test_convert_to_md.py::test_main_engine_unavailable_suggests_alternatives` |
 | AC-11 | `--chunk`, `--batch-size >1` o `--workers >1` con un motor distinto de docling | Se lanzan las opciones | Se rechazan antes de convertir | `tests/test_convert_to_md.py::test_parse_args_chunk_requires_docling`, `tests/test_convert_to_md.py::test_parse_args_batch_requires_docling`, `tests/test_convert_to_md.py::test_parse_args_workers_requires_docling` |
 | AC-12 | Un origen que no existe | Se ejecuta la conversión | Se informa del error y termina con fallo (código 1) | Sin test |
 | AC-13 | Un origen con ficheros `.md` además de documentos convertibles | Se recogen los ficheros a convertir con cualquier motor | Los `.md` del origen no se incluyen | `tests/test_convert_to_md.py::test_collect_files_skips_existing_markdown` |
@@ -184,7 +184,7 @@ Verificación: `python -m pytest tests/test_convert_to_md.py -q`.
     | Solo validar con motor ausente = aviso | `scripts/convert_to_md.py::_validate_only_report` | ✅ |
     | GPU en modo automático: detecta GPU y respeta una ocultación explícita del usuario | `scripts/convert_to_md.py::_CUDA_ENV_INJECTED`, `::_detect_device`; `tests/test_convert_to_md.py::test_detect_device_auto_ignores_import_default` | ✅ |
     | AC-01 | `scripts/convert_to_md.py::convert_file` | ✅ |
-    | [COB-CONVERT-001](../decisiones/convert_decisiones.md#cob-convert-001) · AC-02 | `scripts/convert_to_md.py::convert_file` | ⚠️ (el test combina `--force` con simulación) |
+    | [COB-CONVERT-001](../decisiones/convert_decisiones.md#cob-convert-001) · AC-02 | `scripts/convert_to_md.py::convert_file` | ⚠️ (decisión: Aceptar riesgo; el test combina `--force` con simulación) |
     | AC-03 | `scripts/convert_to_md.py::validate_file` | ✅ |
     | AC-04 | `scripts/convert_to_md.py::output_path` | ✅ |
     | AC-05 | `scripts/convert_to_md.py::collect_files` | ✅ |
@@ -192,7 +192,7 @@ Verificación: `python -m pytest tests/test_convert_to_md.py -q`.
     | AC-07 | `scripts/convert_to_md.py::main` | ✅ |
     | AC-08 | `scripts/convert_to_md.py::_validate_only_report` | ✅ |
     | AC-09 | `scripts/convert_to_md.py::convert_file` | ✅ |
-    | [COB-CONVERT-002](../decisiones/convert_decisiones.md#cob-convert-002) · AC-10 | `scripts/convert_to_md.py::convert_file` | ⚠️ (el mensaje con alternativas de `main` no está cubierto) |
+    | [COB-CONVERT-002](../decisiones/convert_decisiones.md#cob-convert-002) · AC-10 | `scripts/convert_to_md.py::convert_file` | ⚠️ → ✅ (decisión: Remediar) |
     | AC-11 | `scripts/convert_to_md.py::_parse_args` | ✅ |
     | AC-12 | `scripts/convert_to_md.py::main` | ✅ |
     | AC-13 | `scripts/convert_to_md.py::DOCLING_EXTENSIONS`, `::collect_files` | ✅ |

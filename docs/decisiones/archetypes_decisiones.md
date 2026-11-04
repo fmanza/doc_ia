@@ -44,7 +44,7 @@ está el acta o la evidencia, no su contenido.
 | ✅ | 0 | 0 | 0 |
 | ⚠️ | 0 | 0 | 0 |
 | ❌ | 0 | 0 | 0 |
-| 🔍 | 2 | 2 | 0 |
+| 🔍 | 1 | 0 | 1 |
 
 ## 3. Decisiones
 
@@ -55,11 +55,11 @@ está el acta o la evidencia, no su contenido.
 | Página | [functional/archetypes.md](../functional/archetypes.md) |
 | Estado detectado | 🔍 |
 | Evidencia | `.github/DOCUMENTATION_STANDARD.md::7. Cómo Proceder` (Criterio de Completitud) enumera condiciones de completitud del estándar sobre doc_ia; no describe el resultado de aplicar el flujo a un proyecto nuevo. El test de §7 comprueba la conformidad de doc_ia, no la ejecución del flujo, que ocurre en el chat |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Reclasificar |
+| **Contexto aportado** | Los tests de conformidad comprueban el resultado sobre doc_ia; aplicar el flujo a un proyecto nuevo ocurre en el chat y no admite test de punta a punta (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ⚠️ |
 
 ### COB-ARCHETYPES-002 — Arquetipo 4 sin `.py` en flujos de chat { #cob-archetypes-002 }
 
@@ -68,14 +68,15 @@ está el acta o la evidencia, no su contenido.
 | Página | [api/archetypes.md](../api/archetypes.md) |
 | Estado detectado | 🔍 |
 | Evidencia | `.github/prompts/example_doc.prompt.md` solo dice «Nunca código inline si el .py existe»; la excepción para flujos de chat (bloques inline sin `.py`) se deduce, no está escrita |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Aportar evidencia |
+| **Contexto aportado** | `.github/prompts/example_doc.prompt.md`: «Nunca código inline si el .py existe»; sin `.py` (flujos de chat) el código va inline (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ✅ |
 
 ## 4. Historial de revisiones
 
 | Fecha | Revisión | Decisiones aplicadas | Por |
 |---|---|---|---|
 | 2026-11-04 | Generación inicial | — | Agente |
+| 2026-11-04 | Aplicación de decisiones | COB-ARCHETYPES-001, COB-ARCHETYPES-002 | Agente |

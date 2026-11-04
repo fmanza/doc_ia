@@ -1,9 +1,9 @@
 ---
 arquetipo: "2"
 fuentes:
-  scripts/check_env.py: 6202875214f7
-  tests/test_check_env.py: a9692d0a6061
-revisado: 2026-10-29
+  scripts/check_env.py: c9105c709663
+  tests/test_check_env.py: dc1ea9c7c8f6
+revisado: 2026-11-04
 ---
 # check_env
 
@@ -53,6 +53,9 @@ Script standalone sin dependencias entre módulos del proyecto: usa solo
 - `main` escribe en stdout una línea de estado seguida, si procede, de avisos `⚠` sobre
   herramientas opcionales, y devuelve el código de salida (`0`/`1`), apto para CI y hooks
   (`sys.exit(main())`). Los avisos de opcionales no cambian el código (`0`).
+- Las notas informativas `ℹ` (docling instalado, con o sin `nvidia-smi`) se imprimen al final y
+  no cambian la línea de estado: con todo instalado, la línea es «Entorno de tooling documental
+  completo.».
 - El primer aviso posible es el de `zensical` ausente, que remite a
   `pip install -r requirements-dev.txt` (la versión fijada vive solo en los ficheros de
   requisitos). Con `zensical` instalado no se imprime nada sobre él.
@@ -90,9 +93,13 @@ Script standalone sin dependencias entre módulos del proyecto: usa solo
 | `tests/test_check_env.py::test_missing_system_tools_empty_when_tool_exists` | Un binario presente (`python`, `python3` o `git`) no aparece como ausente | unitario |
 | `tests/test_check_env.py::test_main_warns_when_zensical_missing` | Sin `zensical`: aviso opcional y código 0 | unitario (`missing_tools` sustituido) |
 | `tests/test_check_env.py::test_main_no_zensical_warning_when_installed` | Con `zensical`: ningún mensaje sobre él | unitario (`missing_tools` sustituido) |
+| `tests/test_check_env.py::test_main_reports_complete_when_everything_installed` | Todo instalado: «completo.», sin `⚠` y docling como nota `ℹ` | unitario (entorno simulado) |
+| `tests/test_check_env.py::test_main_exits_1_listing_missing_required` | Requeridas ausentes: «Faltan herramientas: …» en orden y código 1 | unitario (`missing_tools` sustituido) |
+| `tests/test_check_env.py::test_missing_tools_preserves_input_order` | Solo las ausentes, en el orden de entrada | unitario |
+| `tests/test_check_env.py::test_main_warns_about_pandoc_but_succeeds` | Sin pandoc: «completo (Python).», aviso de pandoc y código 0 | unitario (entorno simulado) |
 | `tests/test_check_env.py::test_main_script_survives_non_utf8_console` | El script con `PYTHONIOENCODING=cp1252` muestra los avisos sin `UnicodeEncodeError` y termina con 0 o 1 | integración (subproceso) |
 
-Sin cubrir: `check_markitdown_plugins` y el contenido exacto de los avisos de `main`.
+Sin cubrir: `check_markitdown_plugins` y el texto de las instrucciones de instalación de cada aviso.
 
 ```bash
 python -m pytest tests/test_check_env.py -q

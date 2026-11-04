@@ -1,8 +1,8 @@
 ---
 arquetipo: "1"
 fuentes:
-  docs/decisiones/checkenv_decisiones.md: 1ed24b46b1c4
-  scripts/check_env.py: 6202875214f7
+  docs/decisiones/checkenv_decisiones.md: 899b79fee892
+  scripts/check_env.py: c9105c709663
 revisado: 2026-11-04
 ---
 # Verificación de Entorno
@@ -105,16 +105,16 @@ ausencia genera un aviso con la instrucción de instalación, pero el resultado 
 
 | ID | Dado | Cuando | Entonces | Test |
 |---|---|---|---|---|
-| AC-01 | Un entorno con las cuatro herramientas requeridas y todas las opcionales instaladas | Se ejecuta la verificación de entorno | Se informa "Entorno de tooling documental completo." y el proceso termina con éxito (código 0) | `tests/test_check_env.py::test_missing_tools_empty_when_tools_exist` |
-| AC-02 | Un entorno donde falta al menos una herramienta requerida | Se ejecuta la verificación de entorno | Se informa "Faltan herramientas: " con la lista exacta de ausentes y el proceso termina con fallo (código 1) | `tests/test_check_env.py::test_missing_tools_detects_absent_tool` |
-| AC-03 | Una lista alternativa de herramientas a comprobar | Se solicita la verificación de ese conjunto | El resultado incluye solo las ausentes, preservando el orden de la lista | `tests/test_check_env.py::test_missing_tools_detects_absent_tool` |
-| AC-04 | Requeridas completas pero sin pandoc en el sistema | Se ejecuta la verificación de entorno | Se informa el entorno como completo, con un aviso sobre pandoc, y el proceso termina con éxito (código 0) | `tests/test_check_env.py::test_missing_system_tools_detects_absent_tool`, `tests/test_check_env.py::test_missing_system_tools_empty_when_tool_exists` |
+| AC-01 | Un entorno con las cuatro herramientas requeridas y todas las opcionales instaladas | Se ejecuta la verificación de entorno | Se informa "Entorno de tooling documental completo." y el proceso termina con éxito (código 0) | `tests/test_check_env.py::test_missing_tools_empty_when_tools_exist`, `tests/test_check_env.py::test_main_reports_complete_when_everything_installed` |
+| AC-02 | Un entorno donde falta al menos una herramienta requerida | Se ejecuta la verificación de entorno | Se informa "Faltan herramientas: " con la lista exacta de ausentes y el proceso termina con fallo (código 1) | `tests/test_check_env.py::test_missing_tools_detects_absent_tool`, `tests/test_check_env.py::test_main_exits_1_listing_missing_required` |
+| AC-03 | Una lista alternativa de herramientas a comprobar | Se solicita la verificación de ese conjunto | El resultado incluye solo las ausentes, preservando el orden de la lista | `tests/test_check_env.py::test_missing_tools_detects_absent_tool`, `tests/test_check_env.py::test_missing_tools_preserves_input_order` |
+| AC-04 | Requeridas completas pero sin pandoc en el sistema | Se ejecuta la verificación de entorno | Se informa el entorno como completo, con un aviso sobre pandoc, y el proceso termina con éxito (código 0) | `tests/test_check_env.py::test_missing_system_tools_detects_absent_tool`, `tests/test_check_env.py::test_missing_system_tools_empty_when_tool_exists`, `tests/test_check_env.py::test_main_warns_about_pandoc_but_succeeds` |
 | AC-05 | Una consola que no usa UTF-8 y avisos pendientes | Se ejecuta la verificación | Se muestran los avisos y el resultado es el habitual (código 0 o 1), sin error de codificación | `tests/test_check_env.py::test_main_script_survives_non_utf8_console` |
 | AC-06 | Requeridas completas y Zensical no instalado | Se ejecuta la verificación | Se informa el entorno como completo, con un aviso sobre Zensical que remite a los ficheros de requisitos, y el proceso termina con éxito (código 0); con Zensical instalado no hay aviso | `tests/test_check_env.py::test_main_warns_when_zensical_missing`, `tests/test_check_env.py::test_main_no_zensical_warning_when_installed` |
 
 Verificación: `python scripts/check_env.py` (AC-01/AC-02/AC-04) y
-`python -m pytest tests/test_check_env.py -q` (detección de ausentes). Los tests cubren la
-detección de herramientas, no el mensaje ni el código de salida final ⚠️.
+`python -m pytest tests/test_check_env.py -q`. Los tests cubren la detección de herramientas,
+el mensaje de estado y el código de salida, con el entorno simulado.
 
 ## 8. Glosario de Dominio
 
@@ -135,9 +135,9 @@ detección de herramientas, no el mensaje ni el código de salida final ⚠️.
     | Regla «Sin servicios externos» | `scripts/check_env.py` (solo `importlib.util.find_spec` y `shutil.which`) | ✅ |
     | Presencia sin comprobar versión | `scripts/check_env.py::missing_tools` | ✅ |
     | Aviso de GPU con docling | `scripts/check_env.py::main` (`nvidia-smi`) | ✅ |
-    | [COB-CHECKENV-001](../decisiones/checkenv_decisiones.md#cob-checkenv-001) · AC-01 | `scripts/check_env.py::main` | ⚠️ (el test cubre la detección, no el mensaje final) |
-    | [COB-CHECKENV-002](../decisiones/checkenv_decisiones.md#cob-checkenv-002) · AC-02 | `scripts/check_env.py::main`, `::missing_tools` | ⚠️ (el test no comprueba el código 1) |
-    | [COB-CHECKENV-003](../decisiones/checkenv_decisiones.md#cob-checkenv-003) · AC-03 | `scripts/check_env.py::missing_tools` | ⚠️ (el test usa una sola herramienta; el orden no se comprueba) |
-    | [COB-CHECKENV-004](../decisiones/checkenv_decisiones.md#cob-checkenv-004) · AC-04 | `scripts/check_env.py::main`, `::missing_system_tools` | ⚠️ (el test cubre la detección, no el aviso) |
+    | [COB-CHECKENV-001](../decisiones/checkenv_decisiones.md#cob-checkenv-001) · AC-01 | `scripts/check_env.py::main` | ⚠️ → ✅ (decisión: Remediar) |
+    | [COB-CHECKENV-002](../decisiones/checkenv_decisiones.md#cob-checkenv-002) · AC-02 | `scripts/check_env.py::main`, `::missing_tools` | ⚠️ → ✅ (decisión: Remediar) |
+    | [COB-CHECKENV-003](../decisiones/checkenv_decisiones.md#cob-checkenv-003) · AC-03 | `scripts/check_env.py::missing_tools` | ⚠️ → ✅ (decisión: Remediar) |
+    | [COB-CHECKENV-004](../decisiones/checkenv_decisiones.md#cob-checkenv-004) · AC-04 | `scripts/check_env.py::main`, `::missing_system_tools` | ⚠️ → ✅ (decisión: Remediar) |
     | AC-05 | `scripts/check_env.py` (bloque `__main__`: salida reconfigurada a UTF-8) | ✅ |
     | AC-06 | `scripts/check_env.py::main` (aviso de `OPTIONAL_DOC_BUILDERS`, retorno 0) | ✅ |

@@ -42,7 +42,7 @@ está el acta o la evidencia, no su contenido.
 | Estado detectado | Fichas | Pendientes | Decididas |
 |---|---|---|---|
 | ✅ | 0 | 0 | 0 |
-| ⚠️ | 4 | 4 | 0 |
+| ⚠️ | 3 | 0 | 3 |
 | ❌ | 0 | 0 | 0 |
 | 🔍 | 0 | 0 | 0 |
 
@@ -55,11 +55,11 @@ está el acta o la evidencia, no su contenido.
 | Página | [api/build_docs_zip.md](../api/build_docs_zip.md) |
 | Estado detectado | ⚠️ |
 | Evidencia | Comportamiento de una dependencia externa: `mkdocs.commands.build::build` de MkDocs 1.6.1. Verificado en esa versión; sin test en doc_ia y puede cambiar con otra versión de MkDocs |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Aceptar riesgo |
+| **Contexto aportado** | Comportamiento de MkDocs 1.6.1, versión fijada en `requirements-docs.txt`; revisar al actualizar MkDocs (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ⚠️ |
 
 ### COB-BUILDZIP-002 — Zensical no ejecuta `hooks:` de `mkdocs.yml` y no avisa { #cob-buildzip-002 }
 
@@ -68,11 +68,11 @@ está el acta o la evidencia, no su contenido.
 | Página | [functional/build_docs_zip.md](../functional/build_docs_zip.md), [api/build_docs_zip.md](../api/build_docs_zip.md) |
 | Estado detectado | ⚠️ |
 | Evidencia | Fuente externa: zensical.org/compatibility/configuration (Zensical 0.0.73, en alfa). Sin test en doc_ia; puede cambiar en versiones posteriores |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Aceptar riesgo |
+| **Contexto aportado** | Zensical está en alfa (0.0.73); revisar al actualizar Zensical (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ⚠️ |
 
 ### COB-BUILDZIP-003 — Índice de búsqueda JS de Zensical en `search.js` { #cob-buildzip-003 }
 
@@ -81,11 +81,11 @@ está el acta o la evidencia, no su contenido.
 | Página | [api/build_docs_zip.md](../api/build_docs_zip.md) |
 | Estado detectado | ⚠️ |
 | Evidencia | Verificado con un build real de Zensical 0.0.73 (sesión 2026-10-29d); depende de detalles internos de Zensical y no tiene test |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Aceptar riesgo |
+| **Contexto aportado** | Detalle interno de Zensical 0.0.73 (alfa); revisar al actualizar Zensical (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ⚠️ |
 
 ### COB-BUILDZIP-004 — Búsqueda por `file://` en Firefox { #cob-buildzip-004 }
 
@@ -94,14 +94,15 @@ está el acta o la evidencia, no su contenido.
 | Página | [functional/build_docs_zip.md](../functional/build_docs_zip.md) |
 | Estado detectado | ⚠️ |
 | Evidencia | Prueba de humo de la sesión 2026-10-29d: sin ventana, Firefox no abre la búsqueda al enfocar el campo y la prueba la abre con el icono; no se ha comprobado con ventana |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Aceptar riesgo |
+| **Contexto aportado** | Prueba de humo solo sin ventana; con ventana no se ha probado y no bloquea el uso (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ⚠️ |
 
 ## 4. Historial de revisiones
 
 | Fecha | Revisión | Decisiones aplicadas | Por |
 |---|---|---|---|
 | 2026-11-04 | Generación inicial | — | Agente |
+| 2026-11-04 | Aplicación de decisiones | COB-BUILDZIP-001, COB-BUILDZIP-002, COB-BUILDZIP-003, COB-BUILDZIP-004 | Agente |

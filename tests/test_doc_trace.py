@@ -626,3 +626,13 @@ def test_main_decisions_exit_1_and_writes_report(tmp_path: Path) -> None:
     report = output.read_text(encoding="utf-8")
     assert "| unreflected | `COB-RGPD-001` |" in report
     assert "## Pendientes de decisión (0)" in report
+
+
+def test_drift_ignores_unsealed_page(tmp_path: Path) -> None:
+    """AC-14: una página sin frontmatter de trazabilidad no produce hallazgos de drift."""
+    repo = _repo(tmp_path)
+    (repo / "docs" / "libre.md").write_text(
+        "# Sin sellar\n\nCita `src/mod.py`.\n", encoding="utf-8"
+    )
+    _page(repo, 'arquetipo: "2"\nrevisado: 2026-10-28', name="sin_fuentes.md")
+    assert check_drift(repo / "docs", repo) == []

@@ -495,3 +495,16 @@ def test_specification_vs_manual_criterion(path: str) -> None:
     assert re.search(r"[Rr]equisitos frente a manual", text)
     assert re.search(r"(?i)se va a construir", text)
     assert re.search(r"(?i)ya construido", text)
+
+
+def test_every_session_has_traceability_and_index_row() -> None:
+    """Cada sesión de .ai/sessions/ tiene TRACEABILITY.md y fila en INDEX.md (calidad)."""
+    sessions = ROOT / ".ai" / "sessions"
+    index = (sessions / "INDEX.md").read_text(encoding="utf-8")
+    problems = []
+    for folder in sorted(p for p in sessions.iterdir() if p.is_dir() and p.name != "TEMPLATE"):
+        if not (folder / "TRACEABILITY.md").is_file():
+            problems.append(f"{folder.name}: sin TRACEABILITY.md")
+        if folder.name not in index:
+            problems.append(f"{folder.name}: sin fila en INDEX.md")
+    assert not problems, problems

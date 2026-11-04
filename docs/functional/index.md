@@ -1,15 +1,15 @@
 ---
 arquetipo: "1-I"
 fuentes:
-  docs/decisiones/sistema_decisiones.md: 10002f86c9c1
-  docs/functional/archetypes.md: f3f74fa25610
-  docs/functional/bootstrap.md: 2eab17244b01
-  docs/functional/build_docs_zip.md: f6c11b328584
-  docs/functional/check_env.md: 8f77b3becbce
-  docs/functional/convert_to_md.md: ae08de56054c
-  docs/functional/doc_trace.md: 3def261d69a8
-  docs/functional/document_project.md: 658df1cd30a5
-  docs/functional/origin_types.md: 59c50ab082a4
+  docs/decisiones/sistema_decisiones.md: d03d67f5fae5
+  docs/functional/archetypes.md: 9ce10b65baee
+  docs/functional/bootstrap.md: 7fa94d2d8cdf
+  docs/functional/build_docs_zip.md: 6ceab8a1e98d
+  docs/functional/check_env.md: e6c1d275492a
+  docs/functional/convert_to_md.md: 7328fd37ca63
+  docs/functional/doc_trace.md: 114804bcbc7c
+  docs/functional/document_project.md: 0d24f8a2694a
+  docs/functional/origin_types.md: 357dbfe3ec28
 revisado: 2026-11-04
 ---
 # Mapa Funcional — doc_ia
@@ -103,6 +103,6 @@ acceso al repositorio y a una plataforma IA puede usar todas las capacidades.
     | Capacidad «Arquetipos» y 14/14 tests | `docs/functional/archetypes.md::§7` | ✅ |
     | Capacidad «Bootstrap» y 1/5 tests | `docs/functional/bootstrap.md::§7` | ✅ |
     | Recorrido «documentos previos» | `docs/functional/convert_to_md.md::§1`, `docs/functional/document_project.md::§3` | ✅ |
-    | [COB-SISTEMA-002](../decisiones/sistema_decisiones.md#cob-sistema-002) · Recorrido «bootstrap → documentar» | `docs/functional/bootstrap.md::§4`, `docs/functional/document_project.md::§2` | 🔍 |
+    | [COB-SISTEMA-002](../decisiones/sistema_decisiones.md#cob-sistema-002) · Recorrido «bootstrap → documentar» | `docs/functional/bootstrap.md::§4`, `docs/functional/document_project.md::§2` | 🔍 → ✅ (decisión: Aportar evidencia) |
     | Sin roles ni permisos | Ninguna página funcional define «Actores y permisos» | ✅ |
     | Doble sentido de «Origen» | `docs/functional/bootstrap.md::§8`, `docs/functional/document_project.md::§8` | ✅ |

@@ -42,7 +42,7 @@ está el acta o la evidencia, no su contenido.
 | Estado detectado | Fichas | Pendientes | Decididas |
 |---|---|---|---|
 | ✅ | 0 | 0 | 0 |
-| ⚠️ | 1 | 1 | 0 |
+| ⚠️ | 0 | 0 | 0 |
 | ❌ | 0 | 0 | 0 |
 | 🔍 | 0 | 0 | 0 |
 
@@ -55,14 +55,15 @@ está el acta o la evidencia, no su contenido.
 | Página | [functional/doc_trace.md](../functional/doc_trace.md) |
 | Estado detectado | ⚠️ |
 | Evidencia | `scripts/doc_trace.py::read_page_meta`; los tests cubren la lectura, y que `drift` ignore la página se deduce de `check_drift` sin test propio |
-| **Decisión** | Pendiente |
-| **Contexto aportado** | — |
-| **Responsable** | — |
-| **Fecha** | — |
-| **Estado resultante** | — |
+| **Decisión** | Remediar |
+| **Contexto aportado** | Test `tests/test_doc_trace.py::test_drift_ignores_unsealed_page` (propuesta del agente aceptada en el chat) |
+| **Responsable** | Paco Manzano |
+| **Fecha** | 2026-11-04 |
+| **Estado resultante** | ✅ |
 
 ## 4. Historial de revisiones
 
 | Fecha | Revisión | Decisiones aplicadas | Por |
 |---|---|---|---|
 | 2026-11-04 | Generación inicial | — | Agente |
+| 2026-11-04 | Aplicación de decisiones | COB-DOCTRACE-001 | Agente |
