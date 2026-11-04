@@ -1,8 +1,8 @@
 ---
 arquetipo: "1"
 fuentes:
-  .github/DOCUMENTATION_STANDARD.md: e15a38462f23
-  .github/prompts/document_project.prompt.md: 27bb482fa094
+  .github/DOCUMENTATION_STANDARD.md: d42bac6b22cb
+  .github/prompts/document_project.prompt.md: 4dba1b469bc1
 decisiones:
   ../decisiones/origins_decisiones.md: 2aa59f9fc5e0
 revisado: 2026-11-04

@@ -508,3 +508,62 @@ def test_every_session_has_traceability_and_index_row() -> None:
         if folder.name not in index:
             problems.append(f"{folder.name}: sin fila en INDEX.md")
     assert not problems, problems
+
+
+# Barra superior: las pestañas no tienen desplegables y con más de 9 la última queda cortada.
+MAX_TABS = 9
+HOME_PAGES = {"index.md", "quickstart.md", "installation.md", "downloads.md"}
+PROJECT_PAGES = {"ai-config/claude.md", "changelog.md", "contributing.md"}
+NAV_RULE_FILES = [
+    ".github/DOCUMENTATION_STANDARD.md",
+    ".github/prompts/document_project.prompt.md",
+    ".claude/commands/document-project.md",
+    ".github/agents/documentation-generator.agent.md",
+]
+
+
+def _nav_pages(value: object) -> set[str]:
+    """Rutas .md bajo un valor del nav (página suelta o sección anidada)."""
+    if isinstance(value, str):
+        return {value}
+    pages: set[str] = set()
+    if isinstance(value, list):
+        for item in value:
+            if isinstance(item, dict):
+                for sub in item.values():
+                    pages |= _nav_pages(sub)
+            else:
+                pages |= _nav_pages(item)
+    return pages
+
+
+def test_top_navigation_fits_in_nine_tabs() -> None:
+    """mkdocs.yml: ≤ 9 pestañas, entrada en «Inicio» y mantenimiento en «Proyecto» (§4.1)."""
+    from scripts.doc_trace import _load_yaml  # noqa: PLC0415
+
+    config = _load_yaml((ROOT / "mkdocs.yml").read_text(encoding="utf-8"))
+    tabs = {title: value for item in config["nav"] for title, value in item.items()}
+    assert len(tabs) <= MAX_TABS, list(tabs)
+    assert _nav_pages(tabs["Inicio"]) == HOME_PAGES
+    assert _nav_pages(tabs["Proyecto"]) == PROJECT_PAGES
+    assert "navigation.indexes" in config["theme"]["features"]
+    assert "navigation.sections" not in config["theme"]["features"]
+
+
+def test_standard_nav_template_groups_home_and_project() -> None:
+    """La plantilla de nav del estándar (producto) cabe en 9 pestañas y agrupa Inicio/Proyecto."""
+    text = (ROOT / ".github" / "DOCUMENTATION_STANDARD.md").read_text(encoding="utf-8")
+    block = text.split("\nnav:\n", 1)[1].split("\nextra:\n", 1)[0]
+    tabs = re.findall(r"^  - ([^:\n]+):", block, re.M)
+    assert len(tabs) <= MAX_TABS, tabs
+    assert tabs[0] == "Inicio" and tabs[-1] == "Proyecto", tabs
+    assert re.search(r"^ {6}- Descargas: downloads\.md", block, re.M)
+    assert "    - navigation.indexes" in text
+
+
+@pytest.mark.parametrize("path", NAV_RULE_FILES)
+def test_nine_tabs_rule_everywhere(path: str) -> None:
+    """La regla de pestañas está en el estándar, el prompt, el comando y el agente."""
+    text = (ROOT / path).read_text(encoding="utf-8")
+    assert re.search(r"(?i)9 (pestañas|entradas de primer nivel)", text), path
+    assert "«Inicio»" in text, path

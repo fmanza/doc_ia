@@ -5,6 +5,16 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+### Changed
+
+- **Barra superior en 9 pestañas como máximo**: con 14, la última quedaba cortada. Material y
+  Zensical no despliegan submenús en las pestañas, así que se agrupa: «Inicio» (Inicio, Quick
+  Start, Instalación, 📥 Descargas; con `navigation.indexes` la pestaña abre `index.md`) y
+  «Proyecto» (Configuración IA, Changelog, Contribuir). Las URL no cambian. La regla pasa al
+  producto: plantilla y notas de §4.1 del estándar, Fase 5 y Paso B3 del prompt, agente y
+  checklist de Fase 0b (en destinos existentes se mueve, nunca se duplica); con Arquetipo 8,
+  «Decisiones» va dentro de «Normativa». AC-15 de los arquetipos y 3 tests de conformidad.
+
 ## [0.6.0] — 2026-11-04
 
 ### Added

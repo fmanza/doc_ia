@@ -31,6 +31,9 @@ theme:
   features:
     - navigation.tabs
     - navigation.tabs.sticky
+    # La pestaña de una sección abre su index.md (sección «Inicio»). Las pestañas no tienen
+    # desplegables: los hijos de una sección se muestran en la barra lateral.
+    - navigation.indexes
     - navigation.top
     - navigation.footer
     - content.code.copy
@@ -78,11 +81,15 @@ markdown_extensions:
   - attr_list
   - md_in_html
 
+# Máximo 9 entradas de primer nivel (pestañas): con más, la barra superior se corta
+# (DOCUMENTATION_STANDARD.md § Plantilla mkdocs.yml). Entrada → «Inicio»; mantenimiento → «Proyecto».
 nav:
-  - Inicio: index.md
-  - Quick Start: quickstart.md
-  - Instalación: installation.md
-  - 📥 Descargas: downloads.md
+  # ── Entrada: presentación, arranque, instalación y descargas ───────────────
+  - Inicio:
+      - Inicio: index.md   # con título: llms.txt no muestra «index.md»
+      - Quick Start: quickstart.md
+      - Instalación: installation.md
+      - 📥 Descargas: downloads.md
 
   # ── Audiencia: Product Owner, responsables de documentación ────────────────
   - Documentación Funcional:
@@ -147,10 +154,6 @@ nav:
           - Guía de Claude Code: guides/claude_code_guide.md
           - Guía de Codex (OpenAI): guides/codex_guide.md
 
-  # ── Configuración de agentes IA ───────────────────────────────────────────
-  - Configuración IA:
-      - Claude Code: ai-config/claude.md
-
   # ── Contexto del proyecto ──────────────────────────────────────────────────
   - Arquitectura:
       - Visión del Sistema: architecture.md
@@ -159,8 +162,12 @@ nav:
       - ADR-003 — Zensical por defecto (propuesto): adr/ADR-003-zensical-por-defecto.md
       - ADR-004 — Registro de decisiones de cobertura: adr/ADR-004-registro-decisiones-cobertura.md
 
-  - Changelog: changelog.md
-  - Contribuir: contributing.md
+  # ── Mantenimiento: configuración de agentes IA, cambios y contribución ─────
+  - Proyecto:
+      - Configuración IA:
+          - Claude Code: ai-config/claude.md
+      - Changelog: changelog.md
+      - Contribuir: contributing.md
 
 extra:
   # Búsqueda por file://: con una ruta que contenga «iframe-worker», Material y Zensical no

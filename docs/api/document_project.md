@@ -1,10 +1,10 @@
 ---
 arquetipo: "2"
 fuentes:
-  .claude/commands/document-project.md: 275755329577
-  .github/agents/documentation-generator.agent.md: a5ef890a52f0
-  .github/prompts/document_project.prompt.md: 27bb482fa094
-  mkdocs.yml: 5d3b9bd903d1
+  .claude/commands/document-project.md: 95f53ec0e433
+  .github/agents/documentation-generator.agent.md: 27f825be33fb
+  .github/prompts/document_project.prompt.md: 4dba1b469bc1
+  mkdocs.yml: c1dbfb514add
 revisado: 2026-11-04
 ---
 # document_project
@@ -84,7 +84,7 @@ Doce bloques en el chat, en este orden:
 3. `INVENTARIO` — tabla módulo × estado (A/B/C) × acción × arquetipos afectados; incluye estado de las tres señales ZIP offline (`TIENE_ZIP_SCRIPT`, `TIENE_MKDOCS_PLUGIN`, `TIENE_WORKFLOW_GITHUB`) y, con Zensical, `TIENE_PIPELINE_SIN_HOOKS`; con documentos convertidos, la sub-sección "Fuentes convertidas (`_fuentes/`)" (copiados, sin cambios, huérfanos y migración pendiente).
 4. `PLAN_DOC` — orden de ejecución con secciones afectadas por módulo.
 5. `GENERACIÓN` — contenido de cada página, fase a fase.
-6. `SYNC NAV` — diff de `mkdocs.yml`.
+6. `SYNC NAV` — diff de `mkdocs.yml`; como máximo 9 entradas de primer nivel, con Inicio, Quick Start, Instalación y Descargas en «Inicio» y Configuración IA, Changelog y Contribuir en «Proyecto».
 7. `REVISIÓN` — checklist de validación.
 8. `BUILD` — resultado de `--verify-build` (solo opt-in).
 9. `DOWNLOADS` — `docs/downloads.md` creado/actualizado (siempre obligatorio); indica variante A o B; reporta huecos de las señales ZIP que falten (Gaps A1-A3 y, con Zensical, A4: script de build sin pasos pre/post).

@@ -1,7 +1,7 @@
 ---
 arquetipo: "2"
 fuentes:
-  mkdocs.yml: 5d3b9bd903d1
+  mkdocs.yml: c1dbfb514add
   mkdocs_hooks.py: 31259b7911a3
   pyproject.toml: 74445ca8d807
   scripts/build_docs_zip.py: 5f972ee674c8

@@ -1,9 +1,9 @@
 ---
 arquetipo: "1"
 fuentes:
-  .claude/commands/document-project.md: 275755329577
-  .github/DOCUMENTATION_STANDARD.md: e15a38462f23
-  .github/prompts/document_project.prompt.md: 27bb482fa094
+  .claude/commands/document-project.md: 95f53ec0e433
+  .github/DOCUMENTATION_STANDARD.md: d42bac6b22cb
+  .github/prompts/document_project.prompt.md: 4dba1b469bc1
   CLAUDE.md: bdce5f7fec35
 decisiones:
   ../decisiones/docproj_decisiones.md: ace9e2e187df
@@ -91,7 +91,8 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
   parciales, sin cubrir o por verificar tienen ficha pendiente, y el resumen lista las
   preguntas concretas para quien decide.
 - La navegación del generador en el destino (`mkdocs.yml`) incluye todas las páginas nuevas
-  y la configuración estándar verificada (tema, assets, Mermaid).
+  en 9 pestañas como máximo (descargas dentro de «Inicio») y la configuración estándar
+  verificada (tema, assets, Mermaid).
 - `docs/downloads.md` existe en el destino (variante A o B) y los huecos de distribución
   offline quedan reportados en el resumen.
 - `VER_DOCUMENTACION.md` existe en la raíz del destino, fuera de `docs/`, con los requisitos y

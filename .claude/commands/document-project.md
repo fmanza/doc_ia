@@ -75,7 +75,8 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 **Checklist obligatorio** (ejecutar al inicio de CADA sesión, antes de cualquier otra fase):
 
 - [ ] `.gitignore` presente en la raíz del destino con los patrones estándar (primera sesión: crear si no existe; ver tabla abajo), sin ignorar `_fuentes/`
-- [ ] `theme.features` verificado — sin `navigation.sections` si `nav.css` presente
+- [ ] `theme.features` verificado — sin `navigation.sections` si `nav.css` presente; con `navigation.indexes`
+- [ ] `nav` con **≤ 9 entradas de primer nivel**: Inicio/Quick Start/Instalación/Descargas en la sección «Inicio», Configuración IA/Changelog/Contribuir en «Proyecto» (las pestañas no tienen desplegables; con más se corta la barra)
 - [ ] `extra_css` incluye `assets/css/nav.css` y `assets/css/mermaid.css`
 - [ ] `extra_javascript` incluye, en este orden, `assets/js/sidebar-toggle.js`, `assets/vendor/mermaid/mermaid-12.2.0.min.js` y `assets/js/mermaid-theme.js`, y **no** incluye el CDN de Mermaid ni `assets/js/mermaid.js` (si están, retirarlos: duplican el render — ver `.claude/EDGE_CASES.md § Mermaid`)
 - [ ] Los archivos `docs/assets/css/nav.css`, `docs/assets/css/mermaid.css`, `docs/assets/js/sidebar-toggle.js`, `docs/assets/js/mermaid-theme.js` y `docs/assets/vendor/mermaid/` (librería de la misma versión que doc_ia, `LICENSE`, `SOURCE.txt`) existen en disco; una librería de otra versión se sustituye
@@ -95,6 +96,7 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 | Feature | Acción | Razón |
 |---|---|---|
 | `navigation.tabs`, `navigation.tabs.sticky` | ✅ Copiar | Universal |
+| `navigation.indexes` | ✅ Copiar | La pestaña «Inicio» abre `index.md` (sección «Inicio» de §4.1) |
 | `navigation.top`, `navigation.footer` | ✅ Copiar | Universal |
 | `search.suggest`, `search.highlight` | ✅ Copiar | Universal |
 | `content.code.copy`, `content.code.annotate`, `content.tabs.link` | ✅ Copiar | Universal |

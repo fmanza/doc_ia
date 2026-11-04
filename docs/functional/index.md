@@ -1,13 +1,13 @@
 ---
 arquetipo: "1-I"
 fuentes:
-  docs/functional/archetypes.md: 9ce10b65baee
+  docs/functional/archetypes.md: fca331f690ef
   docs/functional/bootstrap.md: 7fa94d2d8cdf
   docs/functional/build_docs_zip.md: 6ceab8a1e98d
   docs/functional/check_env.md: e6c1d275492a
   docs/functional/convert_to_md.md: 7328fd37ca63
   docs/functional/doc_trace.md: f22063a18eea
-  docs/functional/document_project.md: 0d24f8a2694a
+  docs/functional/document_project.md: a19a61092bbc
   docs/functional/origin_types.md: 357dbfe3ec28
 decisiones:
   ../decisiones/sistema_decisiones.md: d03d67f5fae5
