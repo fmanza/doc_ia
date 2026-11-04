@@ -295,7 +295,9 @@ Cuando el usuario pida documentar o actualizar todo el proyecto, usa este flujo 
 - Visualizar el ZIP: extraerlo completo y doble clic en `index.html` (sin Python ni servidor:
   plugin `offline` + shim iframe-worker local); alternativa, `python start-server.py`. Nunca
   flags del navegador como `--allow-file-access-from-files`: no hacen falta.
-- Añadir `- Descargas: downloads.md` al nav tras "Inicio rápido" (o tras "Instalación" si no existe quickstart).
+- Añadir `- Descargas: downloads.md` al nav **dentro de la sección «Inicio»**, tras "Instalación"
+  (DOCUMENTATION_STANDARD.md §4.1: máximo 9 pestañas; las pestañas no tienen desplegables). Si ya
+  está en el primer nivel, moverla allí; nunca duplicarla.
 
 **`VER_DOCUMENTACION.md` — SIEMPRE obligatorio** (Fase 7c; idioma `en`: `VIEW_DOCS.md`):
 - En la raíz del destino (fuera de `docs/`), desde `.github/templates/VER_DOCUMENTACION.template.md`:

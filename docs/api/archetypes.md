@@ -1,11 +1,11 @@
 ---
 arquetipo: "2"
 fuentes:
-  .github/DOCUMENTATION_STANDARD.md: e15a38462f23
-  .github/agents/documentation-generator.agent.md: a5ef890a52f0
+  .github/DOCUMENTATION_STANDARD.md: d42bac6b22cb
+  .github/agents/documentation-generator.agent.md: 27f825be33fb
   .github/prompts/example_doc.prompt.md: 6041f616e0c3
-  mkdocs.yml: 5d3b9bd903d1
-  tests/test_docs_conformance.py: 121bd9ca6180
+  mkdocs.yml: c1dbfb514add
+  tests/test_docs_conformance.py: eecff9593caf
 decisiones:
   ../decisiones/archetypes_decisiones.md: 1a6976ff3ff3
 revisado: 2026-11-04

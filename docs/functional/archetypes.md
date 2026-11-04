@@ -1,10 +1,10 @@
 ---
 arquetipo: "1"
 fuentes:
-  .claude/commands/document-project.md: 275755329577
-  .github/DOCUMENTATION_STANDARD.md: e15a38462f23
+  .claude/commands/document-project.md: 95f53ec0e433
+  .github/DOCUMENTATION_STANDARD.md: d42bac6b22cb
   hooks/sync_root_docs.py: ef5e576436c6
-  tests/test_docs_conformance.py: 121bd9ca6180
+  tests/test_docs_conformance.py: eecff9593caf
 decisiones:
   ../decisiones/archetypes_decisiones.md: 1a6976ff3ff3
 revisado: 2026-11-04
@@ -127,6 +127,7 @@ condición, y los opt-in (9 y 11) solo cuando el usuario los pide. La condición
 | Diagramas conformes | Cada diagrama declara título y descripción accesibles, no supera 12 nodos (8 en las páginas de navegación), muestra la perspectiva de su arquetipo sin repetir el de otra página y se sustituye por una tabla cuando no hay flujo | Diagramas ilegibles, inaccesibles para lectores de pantalla o duplicados que divergen al mantenerlos |
 | Decide una persona, no el agente | En el registro de decisiones el agente prepara cada ficha y aplica lo decidido, pero nunca escribe la decisión, el contexto, el responsable, la fecha ni el estado resultante | Decisiones de cumplimiento o de producto tomadas sin responsable humano |
 | Decisión citada | Una decisión tomada se refleja en todas las filas que citan su identificador, enlazando la ficha; los identificadores no se reutilizan ni se renumeran | La documentación contradice o pierde una decisión, o un enlace apunta a otra ficha |
+| Barra superior legible | El menú superior tiene como máximo 9 pestañas. Las pestañas no despliegan submenús, así que las páginas de entrada (inicio, arranque rápido, instalación y descargas) se agrupan en «Inicio» y las de mantenimiento (configuración IA, cambios y contribución) en «Proyecto»; las páginas de cada grupo aparecen en el menú lateral. Si una página ya estaba en el primer nivel, se mueve al grupo, nunca se duplica | La última pestaña queda cortada y su contenido no se encuentra |
 | Arquetipos 9 y 11 opt-in | Changelog (9) y Guía de Contribución (11) **no se generan por defecto** en `/document-project`; deben solicitarse explícitamente con el parámetro `Arquetipos: changelog` o `Arquetipos: contribución` | Generación de CHANGELOG.md y CONTRIBUTING.md sin que el usuario los haya pedido |
 
 ## 6. Límites, Flujos Alternativos y Casos Especiales
@@ -177,6 +178,7 @@ condición, y los opt-in (9 y 11) solo cuando el usuario los pide. La condición
 | AC-12 | Diagrama Mermaid en cualquier página | Se genera o rediseña | Tiene como máximo 12 nodos, y 8 en las páginas del Arquetipo 6; si no hay flujo, se usa una tabla | `tests/test_docs_conformance.py::test_mermaid_max_nodes` |
 | AC-13 | Diagrama Mermaid en cualquier página | Se genera el bloque | Declara `accTitle` y `accDescr` justo después del tipo, para que el SVG tenga título y descripción accesibles | `tests/test_docs_conformance.py::test_mermaid_has_accessibility` |
 | AC-14 | Un proyecto con Arquetipo 8, o un destino que adopta el registro de decisiones | Se aplica el flujo de documentación | Las instrucciones exigen el registro en `docs/decisiones/` con la leyenda canónica y las fichas de campos fijos, y prohíben al agente tocar los campos de persona; sobre doc_ia, que adopta el registro, toda fila parcial, sin cubrir o por verificar de un bloque «Evidencia» tiene ficha y la comprobación de decisiones no tiene hallazgos | `tests/test_docs_conformance.py::test_coverage_decisions_rule_everywhere`, `tests/test_docs_conformance.py::test_canonical_coverage_legend`, `tests/test_docs_conformance.py::test_decisions_template_cards_have_fixed_fields`, `tests/test_docs_conformance.py::test_doc_ia_coverage_decisions_are_consistent`, `tests/test_docs_conformance.py::test_unverified_evidence_rows_have_coverage_id` |
+| AC-15 | Un sitio con páginas de entrada, de contenido y de mantenimiento | Se sincroniza la navegación | El menú superior tiene como máximo 9 pestañas; «Inicio» agrupa inicio, arranque rápido, instalación y descargas y abre la página de inicio; «Proyecto» agrupa configuración IA, cambios y contribución; las instrucciones del flujo y la plantilla del estándar aplican la misma regla | `tests/test_docs_conformance.py::test_top_navigation_fits_in_nine_tabs`, `tests/test_docs_conformance.py::test_standard_nav_template_groups_home_and_project`, `tests/test_docs_conformance.py::test_nine_tabs_rule_everywhere` |
 
 Verificación: `python -m mkdocs build --strict` sin warnings tras generar cualquier arquetipo.
 Los arquetipos se aplican en el chat y no tienen tests automatizados.
@@ -212,6 +214,7 @@ Los tests verifican el **resultado** sobre la documentación de doc_ia (dogfoodi
     | AC-14 | `.github/DOCUMENTATION_STANDARD.md::3.18`, `.github/prompts/coverage_decisions.prompt.md`, `scripts/doc_trace.py::check_decisions` | ✅ |
     | Regla «Evidencia verificable» | `.github/DOCUMENTATION_STANDARD.md::3.16` | ✅ |
     | Regla «Diagramas conformes» | `.github/DOCUMENTATION_STANDARD.md::3.17` | ✅ |
+    | Regla «Barra superior legible» y AC-15 | `.github/DOCUMENTATION_STANDARD.md::4.1` (Plantilla `mkdocs.yml`, notas críticas), `.github/prompts/document_project.prompt.md::Fase 5`, `mkdocs.yml::nav` | ✅ |
     | Regla «Arquetipos 9 y 11 opt-in» | `.claude/commands/document-project.md::Inputs requeridos` (Arquetipos) | ✅ |
     | Postcondición «copia sincronizada en `docs/`» | `hooks/sync_root_docs.py::PAIRS` | ✅ |
     | Postcondición «Mapa Funcional» | `.github/DOCUMENTATION_STANDARD.md::3.1` (Variante 1-I) | ✅ |

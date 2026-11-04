@@ -538,7 +538,7 @@ Esta sección define el contrato mínimo y las reglas de nomenclatura para **tod
 
 | Tipo de proyecto | Guías recomendadas |
 |---|---|
-| Tooling de documentación (doc_ia) | guías de plataformas IA (`claude_code_guide.md`, `codex_guide.md`, …) — `downloads.md` es página estándar top-level, no una guía |
+| Tooling de documentación (doc_ia) | guías de plataformas IA (`claude_code_guide.md`, `codex_guide.md`, …) — `downloads.md` es página estándar de la sección «Inicio», no una guía |
 | Aplicación con servidor (dpss) | `despliegue_docker.md` o `deployment_guide.md` |
 | Cualquier proyecto con herramientas IA | Subsección "Herramientas IA" en Guías: claude_code_guide.md, codex_guide.md, etc. |
 
@@ -720,7 +720,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 **Sección MkDocs** (siempre presente si el proyecto tiene CHANGELOG.md):
 
 ```yaml
-- Changelog: changelog.md   # Entrada directa en nav raíz o bajo "Proyecto"
+- Proyecto:                     # Sección de mantenimiento al final del nav (§4.1)
+    - Changelog: changelog.md
 ```
 
 ---
@@ -778,9 +779,10 @@ Si no hay: "No aplica para esta configuración."
 **Sección MkDocs** (solo si el proyecto tiene ≥1 plataforma IA configurada):
 
 ```yaml
-- Configuración IA:
-    - Claude Code: ai-config/claude.md
-    - GitHub Copilot: ai-config/copilot.md
+- Proyecto:                     # Sección de mantenimiento al final del nav (§4.1)
+    - Configuración IA:
+        - Claude Code: ai-config/claude.md
+        - GitHub Copilot: ai-config/copilot.md
 ```
 
 ---
@@ -843,7 +845,8 @@ Referencia a SemVer. Quién tiene permisos de release. Enlace a CHANGELOG.md.
 **Sección MkDocs**:
 
 ```yaml
-- Contribuir: contributing.md   # Entrada directa en nav raíz o bajo "Proyecto"
+- Proyecto:                     # Sección de mantenimiento al final del nav (§4.1)
+    - Contribuir: contributing.md
 ```
 
 ---
@@ -1234,11 +1237,18 @@ se listan, pero no son hallazgo):
 
 Los IDs dentro de bloques de código o de código inline no cuentan (permite documentar el formato).
 
-**Sección MkDocs** (tras «Normativa» si existe; si no, tras «Funcional»):
+**Sección MkDocs** (tras «Funcional»; si existe «Normativa», como subsección **dentro** de ella para
+no superar el máximo de 9 pestañas de §4.1):
 
 ```yaml
 - Decisiones:
     - Decisiones <Ámbito>: decisiones/<ámbito>_decisiones.md
+
+# Con Arquetipo 8:
+- Normativa:
+    - Trazabilidad <Nombre norma>: normativa/<codigo>_traceability.md
+    - Decisiones:
+        - Decisiones <Ámbito>: decisiones/<ámbito>_decisiones.md
 ```
 
 **Relación con los ADR (Arquetipo 5)**: las decisiones de cobertura son muchas y de grano fino;
@@ -1296,6 +1306,7 @@ theme:
   features:
     - navigation.tabs           # Pestañas principales en la barra superior
     - navigation.tabs.sticky    # Pestañas visibles al hacer scroll
+    - navigation.indexes        # La pestaña «Inicio» abre su index.md
     - navigation.top            # Botón "volver arriba"
     - navigation.footer         # Anterior / Siguiente en el footer
     - content.code.copy         # Botón copiar en bloques de código
@@ -1353,10 +1364,15 @@ markdown_extensions:
   - attr_list
   - md_in_html
 
+# Máximo 9 entradas de primer nivel (pestañas): las pestañas no tienen desplegables y, con más,
+# la barra superior se corta. Las páginas de entrada van en «Inicio»; las de mantenimiento, en «Proyecto».
 nav:
-  - Inicio: index.md
-  - Instalación: installation.md
-  - Descargas: downloads.md   # SIEMPRE obligatorio — Variante A (con build_docs_zip.py) o Variante B (sin script, build local + placeholder)
+  # ── Entrada ─────────────────────────────────────────────────────────────────
+  - Inicio:
+      - Inicio: index.md          # con título: llms.txt no muestra «index.md»
+      - Quick Start: quickstart.md   # Opcional (§4.3)
+      - Instalación: installation.md
+      - Descargas: downloads.md   # SIEMPRE obligatorio — Variante A (con build_docs_zip.py) o Variante B (sin script, build local + placeholder)
 
   # ── Audiencia: Product Owner, QA, responsables de negocio ──────────────────
   - Documentación Funcional:
@@ -1390,6 +1406,13 @@ nav:
       - [Visión del Sistema]: architecture.md
       - [ADR-NNN — Título]: adr/ADR-NNN-titulo.md
 
+  # ── Mantenimiento (solo si existe alguna; si no, se omite la sección) ───────
+  - Proyecto:
+      - Configuración IA:         # Arquetipo 10, si hay plataforma IA configurada
+          - [Plataforma]: ai-config/[plataforma].md
+      - Changelog: changelog.md   # Arquetipo 9, opt-in
+      - Contribuir: contributing.md   # Arquetipo 11, opt-in
+
 extra:
   polyfills:
     - assets/vendor/iframe-worker/iframe-worker-shim-1.0.4.min.js  # ← copia desde doc_ia/docs/assets/; evita unpkg
@@ -1417,6 +1440,9 @@ extra_css:
 - `navigation.sections` y `navigation.tabs` son compatibles técnicamente, pero con tabs activados los grupos de área se muestran en la sidebar del tab activo; `navigation.sections` no aporta valor adicional. No incluir ambos.
 - Los seis recursos (`assets/js/sidebar-toggle.js`, `assets/css/mermaid.css`, `assets/css/nav.css`, `assets/vendor/mermaid/`, `assets/js/mermaid-theme.js` y `assets/vendor/iframe-worker/`) deben copiarse desde `doc_ia/docs/assets/` sin modificación; una librería Mermaid o un shim de otra versión se sustituye.
 - `use_directory_urls: false` + plugin `offline` + shim iframe-worker en `extra.polyfills`: el ZIP se abre con doble clic en `index.html`, con búsqueda, sin servidor ni red. Sin el shim local, Material y Zensical lo descargan de unpkg (`.claude/EDGE_CASES.md § offline`).
+- **Máximo 9 pestañas** (entradas de primer nivel del `nav`). Material y Zensical no tienen menús desplegables en las pestañas: una sección se muestra como pestaña y sus páginas en la barra lateral; con más de 9 la barra superior se corta y la última pestaña queda oculta. Orden: Inicio, Funcional, Normativa (con Decisiones dentro) o Decisiones, Referencia Técnica, Referencia del Sistema, Ejemplos, Guías, Arquitectura, Proyecto.
+- **Sección «Inicio»**: `index.md` (con título), Quick Start, Instalación y Descargas. Con `navigation.indexes`, la pestaña abre `index.md`. Mover a ella una entrada `Inicio`, `Quick Start`, `Instalación` o `Descargas` de primer nivel ya existente (modo incremental): mover, nunca duplicar. Las URL no cambian (`downloads.html` sigue igual).
+- **Sección «Proyecto»**: Configuración IA, Changelog y Contribuir. Si no existe ninguna de las tres, no se crea.
 - La indentación de `nav:` usa **4 espacios extra por nivel**: secciones a 2 espacios, ítems de primer nivel a 6, segundo nivel a 10.
 
 ---
@@ -1428,6 +1454,8 @@ para evitar copias desactualizadas). Sigue la estructura de §4.1 con estas conc
 
 - "Documentación Funcional" empieza por el **Mapa Funcional** (`functional/index.md`, Variante 1-I).
 - "Referencia del Sistema" (`reference/index.md`, Arquetipo 12) va tras "Referencia Técnica".
+- 9 pestañas: «Inicio» agrupa Inicio, Quick Start, Instalación y 📥 Descargas; «Proyecto» agrupa
+  Configuración IA, Changelog y Contribuir (`tests/test_docs_conformance.py` lo comprueba).
 - Dentro de Funcional, Técnica y Ejemplos se agrupa por área: *Tooling Determinista* y *Flujos IA*.
 - `docs/llms.txt` se regenera desde el `nav` con `python scripts/doc_trace.py llms`.
 

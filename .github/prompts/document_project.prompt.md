@@ -289,6 +289,11 @@ Fase 4 — Ejemplos verificables (example_doc.prompt.md) → [destino]/examples/
          Guías y landing según inventario: howto_doc, tutorial_doc, landing_doc, onboarding_dev, architecture_doc.
 Fase 5 — Sincronizar navegación y verificar configuración estándar del generador (mkdocs.yml del destino):
          a. Navegación: añadir/mover/retirar entradas de nav; indentación de 4 espacios extra por nivel.
+            Máximo 9 entradas de primer nivel (pestañas; no hay desplegables y con más se corta la
+            barra): Inicio, Quick Start, Instalación y Descargas dentro de la sección «Inicio»;
+            Configuración IA, Changelog y Contribuir dentro de «Proyecto» (solo si existe alguna).
+            Si ya están en el primer nivel (modo incremental) → moverlas, nunca duplicar.
+            theme.features con navigation.indexes (la pestaña «Inicio» abre index.md).
          b. Configuración estándar (DOCUMENTATION_STANDARD.md §4.1) — verificar y corregir si falta:
             · palette: dos entradas (light con media+toggle, dark con scheme:slate+media+toggle)
             · extra_javascript, en este orden: assets/js/sidebar-toggle.js,
@@ -432,8 +437,8 @@ Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
              5. **"Información de versión"** — generador, fecha.
              Eliminar nota "*Pendiente*". Si B2 falló, usar `—` en tamaño/fecha con nota de error.
              · Sección "Enlaces relacionados": quick start, instalación, onboarding.
-             Añadir entrada `- Descargas: downloads.md` en el nav de mkdocs.yml (tras "Inicio rápido"
-             si existe, o tras "Instalación").
+             Añadir entrada `- Descargas: downloads.md` en el nav de mkdocs.yml dentro de la sección
+             «Inicio», tras "Instalación" (§4.1); si ya está en el primer nivel, moverla allí.
 
            **Paso B4 — CREAR plugin MkDocs** (ejecutar pasos A2-1 a A2-4 del Gap A2).
              El plugin genera `{nombre}-docs-latest.zip` automáticamente en `site/`
@@ -555,7 +560,7 @@ APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reg
 6. **SYNC NAV** (Fase 5) — diff de `mkdocs.yml` (o config del generador) del destino.
 7. **REVISIÓN** (Fase 6) — checklist de validación + hallazgos.
 8. **BUILD** (Fase 7, solo opt-in) — resultado de `--verify-build`.
-8b. **DOWNLOADS** (Fase 7b, siempre) — `downloads.md` creado/actualizado; indicar variante A o B; estado de las tres señales (TIENE_ZIP_SCRIPT, TIENE_MKDOCS_PLUGIN, TIENE_WORKFLOW_GITHUB) y, con Zensical, TIENE_PIPELINE_SIN_HOOKS; huecos (Gaps A1/A2/A3 y, con Zensical, A4) reportados si alguna falta; entrada añadida al nav.
+8b. **DOWNLOADS** (Fase 7b, siempre) — `downloads.md` creado/actualizado; indicar variante A o B; estado de las tres señales (TIENE_ZIP_SCRIPT, TIENE_MKDOCS_PLUGIN, TIENE_WORKFLOW_GITHUB) y, con Zensical, TIENE_PIPELINE_SIN_HOOKS; huecos (Gaps A1/A2/A3 y, con Zensical, A4) reportados si alguna falta; entrada en la sección «Inicio» del nav; número de pestañas (≤ 9).
 8c. **VISUALIZACIÓN** (Fase 7c, siempre) — `VER_DOCUMENTACION.md` (o `VIEW_DOCS.md`) creado/actualizado/vigente; tabla | Marcador | Valor | Fuente verificada |; Ruta A aplicada o "No aplica" con motivo; Gaps V1/V2 resueltos o pendientes.
 9. **RESUMEN** — archivos generados/actualizados, entradas de nav, pendientes de verificación humana.
    Si hay registro de decisiones (Arq. 13): decisiones aplicadas en esta sesión (ID → páginas),

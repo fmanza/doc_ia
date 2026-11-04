@@ -211,9 +211,11 @@ subsecciones** (no listas planas) cuando tienen más de un puñado de entradas.
   por área; ver `DOCUMENTATION_STANDARD.md` §6 "Decisiones Críticas".
 
 ```yaml
-nav:
-  - Inicio: index.md
-  - Instalación: installation.md
+nav:   # máximo 9 entradas de primer nivel (DOCUMENTATION_STANDARD.md §4.1)
+  - Inicio:
+      - Inicio: index.md
+      - Instalación: installation.md
+      - Descargas: downloads.md
   - Documentación Funcional:
       - [Área]:
           - [Nombre módulo]: functional/[nombre-modulo].md
