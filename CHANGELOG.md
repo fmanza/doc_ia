@@ -5,6 +5,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-11-04
+
 ### Added
 
 - **Producto — Arquetipo 13, Registro de Decisiones de Cobertura** (`docs/decisiones/<ámbito>_decisiones.md`,
@@ -20,6 +22,11 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
   y de estados detectados que ya no coinciden (código `1`). Las fichas `Pendiente` se listan,
   pero no fallan. Ignora los identificadores escritos como código. Criterios AC-22 a AC-27 de la
   trazabilidad y AC-14 de los arquetipos.
+- **Dogfooding del Arquetipo 13**: doc_ia adopta su propio registro de decisiones — 9 registros
+  por módulo en `docs/decisiones/` (sección de nav «Decisiones de Cobertura») con 28 fichas
+  `Pendiente` para las 30 filas ⚠️ / 🔍 de su documentación; cada fila enlaza su ficha y cada
+  página declara su registro en `fuentes:`. Test `test_unverified_evidence_rows_have_coverage_id`:
+  ninguna fila no verificada de un bloque «Evidencia» queda sin ficha.
 
 ### Changed
 
@@ -27,10 +34,28 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
   el código; ⚠️ hueco funcional o defecto conocido; ❌ no hay módulo que lo implemente; 🔍 la
   evidencia no basta (configuración en base de datos, sistemas externos o documentación
   organizativa no aportada). §3.16 remite a ella; antes daba otro significado a ❌.
+- **Clasificación de orígenes — requisitos frente a manual** (§3.10 y Fase 0a): lo que se va a
+  construir (PRD, requisitos) es `ESPECIFICACIÓN` aunque se llame `manual`; lo ya construido es
+  `MANUAL`. Remedia `COB-ORIGINS-004`; test de coherencia.
+- **Bootstrap, Capa D**: se excluye aunque el usuario pida copiarla (se informa del motivo);
+  decisión `COB-BOOTSTRAP-004`.
+- **Decisiones de cobertura de doc_ia aplicadas**: las 29 fichas decididas (19 ✅, 10 ⚠️ aceptados); 7 tests nuevos
+  (`check_env` ×4, `convert_to_md`, `doc_trace`, sesiones con `TRACEABILITY.md`).
 - **Arquetipo 8**: columna `ID` obligatoria en las tablas de cobertura y registro de decisiones
   siempre junto a la trazabilidad normativa.
 - **Mapa funcional**: el total de cobertura de pruebas estaba desfasado (decía 63 de 89; las
-  filas sumaban 67 de 93); ahora 74 de 100.
+  filas sumaban 67 de 93); ahora 75 de 101.
+
+### Fixed
+
+- **`check_env.py`**: con todas las herramientas instaladas decía «completo (Python).» y mostraba
+  «docling instalado» como aviso `⚠`; ahora es una nota `ℹ` y la línea de estado es «Entorno de
+  tooling documental completo.», como promete AC-01. Lo reveló el test de la decisión
+  `COB-CHECKENV-001`.
+- **Bootstrap**: la capa A no copiaba `.github/templates/`, así que en el destino quedaban rotas
+  las referencias de los prompts y comandos copiados a `VER_DOCUMENTACION.template.md` y
+  `DECISIONES_COBERTURA.template.md`. Ahora la carpeta viaja verbatim; test de coherencia y
+  AC-05 del bootstrap.
 
 ## [0.4.1] — 2026-10-29
 
@@ -283,7 +308,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - Restauración de `config-reviewer.agent.md` y creación de `docs.instructions.md`
   tras corrupción del bootstrap.
 
-[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/fmanza/doc_ia/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/fmanza/doc_ia/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/fmanza/doc_ia/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/fmanza/doc_ia/compare/v0.2.0...v0.3.0

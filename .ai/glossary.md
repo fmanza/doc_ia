@@ -33,7 +33,7 @@
 | **Hook MkDocs** | `mkdocs_hooks.py` en la raíz del proyecto: genera `{nombre}-docs-latest.zip` en `site/` en cada build. Sin instalación (no requiere pip install). |
 | **sync_root_docs** | `hooks/sync_root_docs.py`: copia CHANGELOG.md y CONTRIBUTING.md de la raíz a `docs/`. Funciona como hook MkDocs y PostToolUse. |
 | **Enlace bidireccional** | Obligación de los arquetipos 2 (Técnica §5) y 4 (Ejemplos §5) de enlazarse mutuamente. |
-| **Dogfooding** | El sitio `docs/` de doc_ia se genera aplicando sus propios 12 arquetipos (33 páginas). |
+| **Dogfooding** | El sitio `docs/` de doc_ia se genera aplicando sus propios arquetipos, incluido el 13 (registros de decisiones en `docs/decisiones/`); solo el 8 no aplica (sin normativa). |
 | **Sesión** | Unidad de trabajo registrada en `.ai/sessions/<fecha>/` con REQUEST, CONTEXT_SNAPSHOT y TRACEABILITY (plantilla en `.ai/sessions/TEMPLATE/`). |
 | **Cierre de sesión** | Paso final obligatorio de `/document-project`: crea artefactos `.ai/sessions/YYYY-MM-DD/` en el destino y propone commit Conventional Commits `docs(<scope>):`. |
 | **Directrices para Futuras IAs** | Sección obligatoria del TRACEABILITY.md al cerrar sesión: hechos verificables que evitan repetir análisis. |

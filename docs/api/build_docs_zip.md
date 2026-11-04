@@ -1,9 +1,10 @@
 ---
 arquetipo: "2"
 fuentes:
-  mkdocs.yml: 3cfcc736dd9a
+  docs/decisiones/buildzip_decisiones.md: e610c12daad7
+  mkdocs.yml: 5d3b9bd903d1
   mkdocs_hooks.py: 31259b7911a3
-  pyproject.toml: 4e601ef8c03e
+  pyproject.toml: 25b00265b409
   scripts/build_docs_zip.py: 5f972ee674c8
   tests/test_build_docs_zip.py: 82a1d595e6f4
   tests/test_offline_assets.py: 7e632c37987d
@@ -211,14 +212,14 @@ ejecuta el build real y `build_docs_zip.py --no-build` sobre él (paso «ZIP nav
     | Hook: `site_dir` desde la configuración, WARN si no existe | `mkdocs_hooks.py::on_post_build` | ✅ |
     | Hook: excluye `.zip`/`.sha256` e incluye `EXTRA_FILES` | `mkdocs_hooks.py::on_post_build`, `::EXTRA_FILES` | ✅ |
     | Script: mismo contenido que el ZIP "latest" (sin anidados + `EXTRA_FILES`) | `scripts/build_docs_zip.py::_zip`, `::EXTRA_FILES` | ✅ |
-    | Hook ejecutado antes del aborto por `--strict` | `mkdocs.commands.build::build` (MkDocs 1.6.1) | ⚠️ |
+    | [COB-BUILDZIP-001](../decisiones/buildzip_decisiones.md#cob-buildzip-001) · Hook ejecutado antes del aborto por `--strict` | `mkdocs.commands.build::build` (MkDocs 1.6.1) | ⚠️ (decisión: Aceptar riesgo) |
     | `_sha256` | `mkdocs_hooks.py::_sha256` | ✅ |
     | Dependencias stdlib del script y del hook | `scripts/build_docs_zip.py`, `mkdocs_hooks.py` (imports) | ✅ |
     | `zensical` como builder alternativo, invocado con `python -m` | `scripts/build_docs_zip.py::_build` | ✅ |
     | Pre/post-build para generadores sin hooks; post solo con build OK | `scripts/build_docs_zip.py::HOOKLESS_BUILDERS`, `::_build`, `::_pre_build`, `::_post_build` | ✅ |
     | Carga de hooks por ruta desde la raíz | `scripts/build_docs_zip.py::_load_hook` | ✅ |
-    | Zensical ignora `hooks:` de `mkdocs.yml` | zensical.org/compatibility/configuration (Zensical 0.0.73) | ⚠️ |
+    | [COB-BUILDZIP-002](../decisiones/buildzip_decisiones.md#cob-buildzip-002) · Zensical ignora `hooks:` de `mkdocs.yml` | zensical.org/compatibility/configuration (Zensical 0.0.73) | ⚠️ (decisión: Aceptar riesgo) |
     | Comprobación «se abre sin servidor», sus cuatro motivos y el límite de 20 | `scripts/build_docs_zip.py::_offline_problems`, `::_check_offline`, `::_is_remote`, `::OFFLINE_SEARCH_INDEXES`, `::MAX_REPORTED_PROBLEMS` | ✅ |
     | Hook después del plugin `offline` (prioridad -200 frente a -100) | `mkdocs_hooks.py::on_post_build`, `material/plugins/offline/plugin.py::OfflinePlugin.on_post_build` (Material 9.8.0) | ✅ |
-    | Índice JS de Zensical en `search.js` | Build real con Zensical 0.0.73 (sesión 2026-10-29d) | ⚠️ |
+    | [COB-BUILDZIP-003](../decisiones/buildzip_decisiones.md#cob-buildzip-003) · Índice JS de Zensical en `search.js` | Build real con Zensical 0.0.73 (sesión 2026-10-29d) | ⚠️ (decisión: Aceptar riesgo) |
     | `EXTRA_FILES` opcionales en el ZIP | `mkdocs_hooks.py::on_post_build` (`if extra_path.exists()`), `scripts/build_docs_zip.py::_zip` (`if extra_path.is_file()`) | ✅ |

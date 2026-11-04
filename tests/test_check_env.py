@@ -70,3 +70,53 @@ def test_main_script_survives_non_utf8_console() -> None:
     )
     assert b"UnicodeEncodeError" not in result.stderr
     assert result.returncode in (0, 1)
+
+
+def _all_installed(monkeypatch: pytest.MonkeyPatch, *system_absent: str) -> None:
+    """Entorno simulado con todas las herramientas; ``system_absent`` falta en el PATH."""
+    real_find_spec = check_env.importlib.util.find_spec
+
+    def fake_find_spec(name: str, *args: object) -> object:
+        return object() if name in check_env.OPTIONAL_PYTHON_TOOLS else real_find_spec(name)
+
+    monkeypatch.setattr(check_env, "missing_tools", _only_missing())
+    monkeypatch.setattr(check_env, "missing_system_tools", lambda tools=(): list(system_absent))
+    monkeypatch.setattr(check_env, "check_markitdown_plugins", lambda: ([], []))
+    monkeypatch.setattr(check_env.importlib.util, "find_spec", fake_find_spec)
+
+
+def test_main_reports_complete_when_everything_installed(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """AC-01: todo instalado → «completo.» sin avisos; docling solo como nota informativa."""
+    _all_installed(monkeypatch)
+    assert check_env.main() == 0
+    out = capsys.readouterr().out
+    assert out.splitlines()[0] == "Entorno de tooling documental completo."
+    assert "⚠" not in out
+
+
+def test_main_exits_1_listing_missing_required(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """AC-02: falta alguna requerida → lista exacta y código 1."""
+    monkeypatch.setattr(check_env, "missing_tools", _only_missing("ruff", "pytest"))
+    assert check_env.main() == 1
+    assert capsys.readouterr().out.strip() == "Faltan herramientas: ruff, pytest"
+
+
+def test_missing_tools_preserves_input_order() -> None:
+    """AC-03: solo las ausentes, en el orden de la lista."""
+    tools = ("zz_inexistente_xyz", "sys", "aa_inexistente_xyz")
+    assert missing_tools(tools) == ["zz_inexistente_xyz", "aa_inexistente_xyz"]
+
+
+def test_main_warns_about_pandoc_but_succeeds(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """AC-04: requeridas completas sin pandoc → completo con aviso y código 0."""
+    _all_installed(monkeypatch, "pandoc")
+    assert check_env.main() == 0
+    out = capsys.readouterr().out
+    assert out.splitlines()[0] == "Entorno de tooling documental completo (Python)."
+    assert "⚠  pandoc no encontrado" in out

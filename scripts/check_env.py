@@ -81,6 +81,7 @@ def main() -> int:
         return 1
 
     warnings: list[str] = []
+    notes: list[str] = []  # informativas: no degradan el mensaje de entorno completo
 
     if missing_tools(OPTIONAL_DOC_BUILDERS):
         warnings.append(
@@ -99,7 +100,7 @@ def main() -> int:
     else:
         has_nvidia_smi = shutil.which("nvidia-smi") is not None
         gpu_note = " (nvidia-smi detectado)" if has_nvidia_smi else " (solo CPU, sin nvidia-smi)"
-        warnings.append(f"docling instalado{gpu_note}.")
+        notes.append(f"docling instalado{gpu_note}.")
 
     has_markitdown = importlib.util.find_spec("markitdown") is not None
     if not has_markitdown:
@@ -128,9 +129,10 @@ def main() -> int:
         print("Entorno de tooling documental completo (Python).")
         for w in warnings:
             print(f"⚠  {w}")
-        return 0
-
-    print("Entorno de tooling documental completo.")
+    else:
+        print("Entorno de tooling documental completo.")
+    for n in notes:
+        print(f"ℹ  {n}")
     return 0
 
 

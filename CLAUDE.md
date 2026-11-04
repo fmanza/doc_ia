@@ -60,7 +60,7 @@ solo lectura. El lenguaje y la arquitectura del destino son **parámetros de ent
 
 | Capa | Acción | Ejemplos |
 |---|---|---|
-| **A — Metodología** | Copiar verbatim (revisar comandos embebidos) | `.github/agents/`, `.github/prompts/`, `.claude/commands/`, `.ai/sessions/TEMPLATE/` |
+| **A — Metodología** | Copiar verbatim (revisar comandos embebidos) | `.github/agents/`, `.github/prompts/`, `.github/templates/`, `.claude/commands/`, `.ai/sessions/TEMPLATE/` |
 | **B — Especialización** | Copiar + reescribir dominio | `SHARED_INSTRUCTIONS.md`, `CLAUDE.md`, `GEMINI.md`, `copilot-instructions.md`, `.cursorrules` |
 | **C — Contexto** | Regenerar analizando el destino | `.ai/{product,architecture,runtime,glossary,standards}.md` |
 | **D — No copiar** | Excluir | `.ai/sessions/<fechas>/`, `CHANGELOG.md`, caches, `settings.local.json` |

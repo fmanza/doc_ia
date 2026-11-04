@@ -2,8 +2,8 @@
 arquetipo: "2"
 fuentes:
   scripts/convert_to_md.py: e7e60518d96f
-  tests/test_convert_to_md.py: 844463d311c9
-revisado: 2026-10-28
+  tests/test_convert_to_md.py: 415626d46572
+revisado: 2026-11-04
 ---
 # convert_to_md
 
@@ -184,13 +184,14 @@ Verificar entorno: `python scripts/check_env.py` (reporta disponibilidad de docl
 
 ## 6. Verificación y Tests
 
-76 tests en `tests/test_convert_to_md.py`, agrupados por prefijo:
+77 tests en `tests/test_convert_to_md.py`, agrupados por prefijo:
 
 | Test | Qué verifica | Tipo |
 |---|---|---|
 | `test_validate_*` (14, excluye `test_validate_only_*`) | `validate_file`: fichero vacío o inexistente, cabeceras PDF/PNG/JPEG, ZIP de DOCX/XLSX, audio < 1 KB, texto plano | unitario |
 | `test_validate_only_*` (4) | `_validate_only_report`: todo válido, fichero inválido, motor no instalado, sin crear `md/` | unitario |
 | `test_main_validate_only_no_files` (1) | `main` con `--validate-only` y sin ficheros convertibles devuelve `0` | integración |
+| `test_main_engine_unavailable_suggests_alternatives` (1) | `main` con el motor no instalado: código `1` y «Alternativas: --engine …» con los otros motores | integración |
 | `test_collect_files_*` (7) | `collect_files`: fichero único, no convertible, directorio, anidado, exclusión de `md/`, filtro por motor, `.md` del origen nunca se recoge | unitario |
 | `test_output_path_*` (2) | `output_path`: estructura plana y anidada | unitario |
 | `test_convert_file_*` (10) | `convert_file`: omisión si existe, inválido, `--dry-run` por motor, motor no instalado, formato no soportado, `--force` | unitario |

@@ -442,7 +442,69 @@ def test_decisions_template_cards_have_fixed_fields() -> None:
 
 
 def test_doc_ia_coverage_decisions_are_consistent() -> None:
-    """doc_ia no adopta el registro: `decisions` sobre su docs/ termina sin hallazgos."""
+    """doc_ia adopta el registro: `decisions` sobre su docs/ termina sin hallazgos (AC-14)."""
     from scripts.doc_trace import check_decisions  # noqa: PLC0415
 
     assert check_decisions(DOCS, DOCS / "decisiones").findings == ()
+
+
+# --- Bootstrap: la capa A lleva las plantillas que citan sus prompts ---
+
+TEMPLATE_REF_RE = re.compile(r"\.github/templates/([A-Za-z0-9_.-]+)")
+
+
+def test_bootstrap_copies_every_referenced_template() -> None:
+    """Las plantillas citadas en prompts, agentes y comandos existen y van en la capa A (AC-05)."""
+    sources = [
+        *sorted((ROOT / ".github" / "prompts").glob("*.md")),
+        *sorted((ROOT / ".github" / "agents").glob("*.md")),
+        *sorted((ROOT / ".claude" / "commands").glob("*.md")),
+    ]
+    cited = {m for s in sources for m in TEMPLATE_REF_RE.findall(s.read_text(encoding="utf-8"))}
+    assert cited, "ningún prompt cita plantillas: revisar el patrón"
+    for name in sorted(cited):
+        assert (ROOT / ".github" / "templates" / name).is_file(), name
+    bootstrap = (ROOT / ".github/prompts/bootstrap_ai_config.prompt.md").read_text(encoding="utf-8")
+    layer_a = bootstrap.split("### Capa A", 1)[1].split("### Capa B", 1)[0]
+    assert "`.github/templates/`" in layer_a
+
+
+def test_unverified_evidence_rows_have_coverage_id() -> None:
+    """Toda fila ⚠️ / ❌ / 🔍 de un bloque «Evidencia» de doc_ia tiene ficha `COB-…` (AC-14)."""
+    from scripts.doc_trace import COVERAGE_ID_RE, _last_symbol  # noqa: PLC0415
+
+    missing = []
+    for page in sorted(DOCS.rglob("*.md")):
+        text = page.read_text(encoding="utf-8")
+        if EVIDENCE not in text:
+            continue
+        for row in text.split(EVIDENCE, 1)[1].splitlines():
+            row = row.strip()
+            if row.startswith("|") and _last_symbol(row) not in (None, "✅"):
+                if not COVERAGE_ID_RE.search(row):
+                    missing.append(f"{page.relative_to(ROOT).as_posix()}: {row[:80]}")
+    assert not missing, missing
+
+
+@pytest.mark.parametrize(
+    "path", [".github/DOCUMENTATION_STANDARD.md", ".github/prompts/document_project.prompt.md"]
+)
+def test_specification_vs_manual_criterion(path: str) -> None:
+    """Un PRD sin implementar es ESPECIFICACIÓN aunque se llame manual (AC-09, tipos de origen)."""
+    text = (ROOT / path).read_text(encoding="utf-8")
+    assert re.search(r"[Rr]equisitos frente a manual", text)
+    assert re.search(r"(?i)se va a construir", text)
+    assert re.search(r"(?i)ya construido", text)
+
+
+def test_every_session_has_traceability_and_index_row() -> None:
+    """Cada sesión de .ai/sessions/ tiene TRACEABILITY.md y fila en INDEX.md (calidad)."""
+    sessions = ROOT / ".ai" / "sessions"
+    index = (sessions / "INDEX.md").read_text(encoding="utf-8")
+    problems = []
+    for folder in sorted(p for p in sessions.iterdir() if p.is_dir() and p.name != "TEMPLATE"):
+        if not (folder / "TRACEABILITY.md").is_file():
+            problems.append(f"{folder.name}: sin TRACEABILITY.md")
+        if folder.name not in index:
+            problems.append(f"{folder.name}: sin fila en INDEX.md")
+    assert not problems, problems

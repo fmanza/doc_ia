@@ -648,3 +648,15 @@ def test_main_validate_only_no_files(tmp_path: Path) -> None:
     empty.mkdir()
     result = main(["--validate-only", "--engine", "markitdown", str(empty)])
     assert result == 0
+
+
+def test_main_engine_unavailable_suggests_alternatives(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """AC-10: motor no instalado → código 1 y alternativas con los otros motores."""
+    (tmp_path / "doc.pdf").write_bytes(b"%PDF-1.4 content")
+    with patch("scripts.convert_to_md.engine_available", return_value=False):
+        assert main(["--engine", "markitdown", str(tmp_path)]) == 1
+    out = capsys.readouterr().out
+    assert "Motor 'markitdown' no disponible" in out
+    assert "Alternativas: --engine docling | --engine pandoc" in out

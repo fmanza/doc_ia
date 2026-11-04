@@ -26,8 +26,8 @@ cobertura (Arquetipo 13) ya se reflejan en la documentación, `decisions`.
   ejemplo es determinista y no tiene efectos secundarios.
 - `build_matrix` devuelve el Markdown de la matriz y la lista de tests citados que no
   existen; el ejemplo solo usa los recuentos.
-- `check_decisions` lee `docs/decisiones/`; doc_ia no tiene registros de decisiones, así que
-  el ejemplo informa de 0 fichas y 0 hallazgos.
+- `check_decisions` lee `docs/decisiones/`; doc_ia tiene sus propios registros de decisiones,
+  así que el ejemplo informa de sus fichas (pendientes o decididas) y de 0 hallazgos.
 
 ## 4. Ejecución y Pruebas
 
@@ -185,7 +185,7 @@ python docs/examples/doc_trace_usage.py
 # Fuentes desactualizadas: 0
 # Criterios con test: 29/66
 # Tests citados inexistentes: 0
-# Fichas de decision: 0, hallazgos: 0
+# Fichas de decision: 28, hallazgos: 0
 
 python -m py_compile docs/examples/doc_trace_usage.py   # validación sintáctica
 ```

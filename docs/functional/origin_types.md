@@ -1,8 +1,9 @@
 ---
 arquetipo: "1"
 fuentes:
-  .github/DOCUMENTATION_STANDARD.md: 15b5b304d20d
-  .github/prompts/document_project.prompt.md: 65f89e26730c
+  .github/DOCUMENTATION_STANDARD.md: 1d52344cb93f
+  .github/prompts/document_project.prompt.md: 27bb482fa094
+  docs/decisiones/origins_decisiones.md: 2aa59f9fc5e0
 revisado: 2026-11-04
 ---
 # Catálogo de Tipos de Origen
@@ -116,6 +117,7 @@ secciones concretas de los arquetipos del proyecto `CÓDIGO` principal.
 | `CONTRATO` propio del proyecto | El tipo `CONTRATO` aplica a especificaciones de la API/datos del **propio proyecto**, no a contratos externos; los externos son `REFERENCIA` | Un contrato de terceros procesado como `CONTRATO` del proyecto inventaría una API que no pertenece al proyecto |
 | `INFRAESTRUCTURA` sin inventario de código | Los artefactos IaC no tienen módulos Python/JS inventariables; solo enriquecen las secciones de despliegue y dependencias | Intentar un inventario A/B/C sobre `.tf` o K8s YAML produce resultados vacíos |
 | `MANUAL` propio del proyecto | El tipo `MANUAL` aplica a documentación narrativa escrita **por/para el propio proyecto**; la documentación de terceros es `REFERENCIA` | Documentación de un tercero procesada como `MANUAL` generaría guías de operación que no corresponden al proyecto |
+| Requisitos frente a manual | Un documento propio que describe lo que se va a construir (PRD, requisitos, user stories) es `ESPECIFICACIÓN` aunque su nombre diga `manual`; lo que describe lo ya construido es `MANUAL`. El nombre solo propone el tipo | Un PRD llamado `manual_producto.pdf` enriquecería guías de uso en lugar de los criterios de aceptación |
 
 ## 6. Límites, Flujos Alternativos y Casos Especiales
 
@@ -132,7 +134,7 @@ secciones concretas de los arquetipos del proyecto `CÓDIGO` principal.
 - **Sin origen `CÓDIGO`**: el flujo se detiene con mensaje orientativo hacia los prompts
   de arquetipo directo (`normative_traceability.prompt.md`, etc.).
 - **Corrección del usuario**: si el usuario no acepta el tipo propuesto, se usa el tipo que
-  indique antes de continuar al inventario. 🔍
+  indique antes de continuar al inventario.
 
 ### Casos especiales
 
@@ -162,7 +164,7 @@ secciones concretas de los arquetipos del proyecto `CÓDIGO` principal.
 | AC-06 | Un proyecto con `schema.sql` de migraciones de base de datos propia | Se ejecuta la clasificación | El tipo es `CONTRATO` (modelo de datos propio), no `CÓDIGO` ni `REFERENCIA` | Sin test |
 | AC-07 | Un fichero `manual-usuario-v3.pdf` del propio proyecto | Se ejecuta la clasificación | El tipo detectado es `MANUAL` y el agente propone enriquecer Arquetipos 3a, 3b, 6 y 7 | Sin test |
 | AC-08 | El manual de un producto de tercero (ej. `manual-sap-fi.pdf`) | Se ejecuta la clasificación | El tipo detectado es `REFERENCIA` (no `MANUAL`), porque no describe la aplicación propia | Sin test |
-| AC-09 | Un PRD (Product Requirements Document) sin implementar aún | Se ejecuta la clasificación | El tipo es `ESPECIFICACIÓN` (no `MANUAL`), porque es intención pre-implementación | Sin test |
+| AC-09 | Un PRD (Product Requirements Document) sin implementar aún | Se ejecuta la clasificación | El tipo es `ESPECIFICACIÓN` (no `MANUAL`), porque es intención pre-implementación | `tests/test_docs_conformance.py::test_specification_vs_manual_criterion` |
 
 Verificación: invocar `/document-project` con cada tipo de origen de la tabla y confirmar
 que la clasificación propuesta coincide con el tipo esperado. La clasificación se ejecuta en
@@ -185,20 +187,22 @@ el chat y no tiene tests automatizados.
     |---|---|---|
     | Precondición «≥2 orígenes o único no CÓDIGO» | `.github/prompts/document_project.prompt.md::Fase 0a` | ✅ |
     | Tabla de señales y orden de evaluación | `.github/DOCUMENTATION_STANDARD.md::3.10 Documentación con Múltiples Orígenes` (Tipos de origen, Orden de evaluación), `.github/prompts/document_project.prompt.md::Fase 0a` (paso 1) | ✅ |
-    | Mapeo MATERIAL → arquetipos (numeración v2 del Arq. 1) | `.github/DOCUMENTATION_STANDARD.md::3.10` (Mapeo MATERIAL → arquetipos), renumerado según `::3.1` | ⚠️ |
+    | [COB-ORIGINS-001](../decisiones/origins_decisiones.md#cob-origins-001) · Mapeo MATERIAL → arquetipos (numeración v2 del Arq. 1) | `.github/DOCUMENTATION_STANDARD.md::3.10` (Mapeo MATERIAL → arquetipos), renumerado según `::3.1` | ⚠️ → ✅ (decisión: tabla coincidente con §3.10) |
     | Postcondición «tabla Origen · Tipo · Señales · Rol» | `.github/prompts/document_project.prompt.md::Fase 0a` (paso 2) | ✅ |
     | Regla «Un origen `CÓDIGO` obligatorio» | `.github/DOCUMENTATION_STANDARD.md::3.10` (Caso degenerado) | ✅ |
     | Regla «Autodetección + confirmación» | `.github/DOCUMENTATION_STANDARD.md::3.10` (Regla) | ✅ |
     | Regla «MATERIAL no genera páginas propias» | `.github/DOCUMENTATION_STANDARD.md::3.10` (Mapeo MATERIAL) | ✅ |
     | Regla «`CONTRATO` propio del proyecto» | `.github/DOCUMENTATION_STANDARD.md::3.10` (tabla de tipos, fila `CONTRATO`) | ✅ |
-    | Regla «`INFRAESTRUCTURA` sin inventario de código» | `.github/DOCUMENTATION_STANDARD.md::3.10` (fila `INFRAESTRUCTURA`) | 🔍 |
+    | [COB-ORIGINS-002](../decisiones/origins_decisiones.md#cob-origins-002) · Regla «`INFRAESTRUCTURA` sin inventario de código» | `.github/DOCUMENTATION_STANDARD.md::3.10` (fila `INFRAESTRUCTURA`) | 🔍 → ✅ (decisión: consecuencia de «MATERIAL no genera páginas propias») |
     | Regla «`MANUAL` propio del proyecto» | `.github/DOCUMENTATION_STANDARD.md::3.10` (fila `MANUAL`) | ✅ |
+    | Regla «Requisitos frente a manual» | `.github/DOCUMENTATION_STANDARD.md::3.10` (Requisitos frente a manual), `.github/prompts/document_project.prompt.md::Fase 0a`, `tests/test_docs_conformance.py::test_specification_vs_manual_criterion` (coherencia de las instrucciones) | ✅ |
+    | [COB-ORIGINS-005](../decisiones/origins_decisiones.md#cob-origins-005) · Flujo «Corrección del usuario» | `.github/DOCUMENTATION_STANDARD.md::3.10` (Regla: el usuario confirma antes del INVENTARIO), `.github/prompts/document_project.prompt.md` (parámetro «Tipo de cada origen»: se confirma con el usuario) | 🔍 → ✅ (decisión: Aportar evidencia) |
     | AC-01 | `.github/DOCUMENTATION_STANDARD.md::3.10` (filas `CONTRATO`) | ✅ |
     | AC-02 | `.github/DOCUMENTATION_STANDARD.md::3.10` (filas `INFRAESTRUCTURA`) | ✅ |
     | AC-03 | `.github/DOCUMENTATION_STANDARD.md::3.10` (`REFERENCIA` = ajena al proyecto) | ✅ |
-    | AC-04 | `.github/prompts/document_project.prompt.md::Fase 0a` | 🔍 |
+    | [COB-ORIGINS-003](../decisiones/origins_decisiones.md#cob-origins-003) · AC-04 | `.github/prompts/document_project.prompt.md::Fase 0a` | 🔍 → ✅ (decisión: regla explícita en la Fase 0a; sin test posible) |
     | AC-05 | `.github/DOCUMENTATION_STANDARD.md::3.10` (Caso degenerado) | ✅ |
     | AC-06 | `.github/DOCUMENTATION_STANDARD.md::3.10` (`.sql` DDL en `db/`/`migrations/`) | ✅ |
     | AC-07 | `.github/DOCUMENTATION_STANDARD.md::3.10` (fila `MANUAL`) | ✅ |
     | AC-08 | `.github/DOCUMENTATION_STANDARD.md::3.10` (`REFERENCIA` = manuales de terceros) | ✅ |
-    | AC-09 | `.github/DOCUMENTATION_STANDARD.md::3.10` (`ESPECIFICACIÓN` = requisitos) | 🔍 |
+    | [COB-ORIGINS-004](../decisiones/origins_decisiones.md#cob-origins-004) · AC-09 | `.github/DOCUMENTATION_STANDARD.md::3.10` (`ESPECIFICACIÓN` = requisitos) | 🔍 → ✅ (decisión: criterio añadido a §3.10 y a la Fase 0a) |

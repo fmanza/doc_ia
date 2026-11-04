@@ -51,6 +51,8 @@ No decides: preparas cada apartado para que alguien decida con la información s
 3. Para cada ficha con decisión válida y completa, en todas las filas que citan el ID:
    - el ID es un enlace a la ficha;
    - el último símbolo de la fila es el «Estado resultante» (admite `🔍 → ✅`) o `No aplica`;
+   - las marcas del cuerpo de la página que repiten esa fila (⚠️ / 🔍 / ❌ al final de una frase
+     o celda, sin ID) cambian igual: `decisions` no las comprueba;
    - en el Arq. 8, si la decisión cierra un gap, retíralo de «Resumen de gaps» y de
      «Próximas acciones»; si lo abre o lo mantiene, actualiza la acción con el contexto aportado.
    - Si la decisión aporta contexto verificable en el código, añádelo al bloque "Evidencia".

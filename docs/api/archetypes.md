@@ -1,11 +1,12 @@
 ---
 arquetipo: "2"
 fuentes:
-  .github/DOCUMENTATION_STANDARD.md: 15b5b304d20d
+  .github/DOCUMENTATION_STANDARD.md: 1d52344cb93f
   .github/agents/documentation-generator.agent.md: a5ef890a52f0
   .github/prompts/example_doc.prompt.md: 6041f616e0c3
-  mkdocs.yml: 3cfcc736dd9a
-  tests/test_docs_conformance.py: bf78fb3af542
+  docs/decisiones/archetypes_decisiones.md: 1a6976ff3ff3
+  mkdocs.yml: 5d3b9bd903d1
+  tests/test_docs_conformance.py: 121bd9ca6180
 revisado: 2026-11-04
 ---
 # archetypes
@@ -117,7 +118,7 @@ con `tests/test_docs_conformance.py`:
 | `test_api_and_example_link_both_ways` | Enlace bidireccional §5 ↔ §5 | conformidad |
 | `test_numbered_sections_are_never_empty` | Ninguna sección numerada vacía | conformidad |
 | `test_no_normative_archetype_without_normative`, `test_changelog_follows_keep_a_changelog`, `test_ai_config_has_seven_sections`, `test_contributing_has_six_sections`, `test_guides_naming_convention` | Arquetipos 8, 9, 10, 11 y nombres de guías | conformidad |
-| `test_coverage_decisions_rule_everywhere`, `test_canonical_coverage_legend`, `test_decisions_template_cards_have_fixed_fields`, `test_doc_ia_coverage_decisions_are_consistent` | Arquetipo 13: regla en estándar, prompts, comando y agentes; leyenda canónica; plantilla; `decisions` sin hallazgos en doc_ia | conformidad |
+| `test_coverage_decisions_rule_everywhere`, `test_canonical_coverage_legend`, `test_decisions_template_cards_have_fixed_fields`, `test_doc_ia_coverage_decisions_are_consistent`, `test_unverified_evidence_rows_have_coverage_id` | Arquetipo 13: regla en estándar, prompts, comando y agentes; leyenda canónica; plantilla; `decisions` sin hallazgos en doc_ia y ID en toda fila no verificada de «Evidencia» | conformidad |
 
 ```bash
 python -m pytest tests/test_docs_conformance.py -q
@@ -141,5 +142,5 @@ norma y los prompts (como la corregida en ADR-002).
     | Arquetipos 9 y 11 opt-in | `.github/DOCUMENTATION_STANDARD.md` §3.9 (conjunto mínimo de guías) | ✅ |
     | Arquetipo 12 condicional | `.github/DOCUMENTATION_STANDARD.md` §3.15 | ✅ |
     | Citas como código inline | `.github/DOCUMENTATION_STANDARD.md` §3.16 (reglas de cita) | ✅ |
-    | Arquetipo 4 sin `.py` en flujos de chat | `.github/prompts/example_doc.prompt.md` | 🔍 |
+    | [COB-ARCHETYPES-002](../decisiones/archetypes_decisiones.md#cob-archetypes-002) · Arquetipo 4 sin `.py` en flujos de chat | `.github/prompts/example_doc.prompt.md` | 🔍 → ✅ (decisión: Aportar evidencia) |
     | Dependencias: norma, `docs.instructions.md`, `mkdocs.yml` | `.github/agents/documentation-generator.agent.md` (contexto obligatorio) | ✅ |

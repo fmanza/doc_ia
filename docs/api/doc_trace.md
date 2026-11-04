@@ -2,7 +2,7 @@
 arquetipo: "2"
 fuentes:
   scripts/doc_trace.py: 511f3e656b2f
-  tests/test_doc_trace.py: 1a72a18132d8
+  tests/test_doc_trace.py: cf265ccb655b
 revisado: 2026-11-04
 ---
 # doc_trace
@@ -210,7 +210,7 @@ documentación puede mostrar el formato sin generar hallazgos. Nunca escribe en 
 | `test_fingerprint_*` (2) | Huella independiente de CRLF/LF y del frontmatter en `.md` | unitario |
 | `test_read_page_meta_*` (3) | Sin frontmatter, sin `fuentes` y lectura de los tres campos | unitario |
 | `test_stamp_then_no_drift`, `test_stamp_preserves_existing_sources_and_archetype` (2) | Sellado, conservación del cuerpo y reutilización de fuentes/arquetipo | unitario |
-| `test_drift_*` (3) | Hallazgos `stale`, `missing` y `outside_repo` | unitario |
+| `test_drift_*` (4) | Hallazgos `stale`, `missing` y `outside_repo`; páginas sin sellar ignoradas | unitario |
 | `test_stamp_rejects_source_outside_repo`, `test_stamp_requires_sources` (2) | Errores de `stamp_page` | unitario |
 | `test_collect_test_ids_includes_class_methods`, `test_matrix_reports_unknown_and_uncited` (2) | Ids de tests (incluidos métodos de clase), inexistentes y sin citar | unitario |
 | `test_main_matrix_exit_code_on_unknown_test` (1) | `matrix` devuelve `1` con un test inexistente | integración (CLI) |

@@ -2,9 +2,10 @@
 arquetipo: "1"
 fuentes:
   .claude/commands/document-project.md: 275755329577
-  .github/DOCUMENTATION_STANDARD.md: 15b5b304d20d
+  .github/DOCUMENTATION_STANDARD.md: 1d52344cb93f
+  docs/decisiones/archetypes_decisiones.md: 1a6976ff3ff3
   hooks/sync_root_docs.py: ef5e576436c6
-  tests/test_docs_conformance.py: bf78fb3af542
+  tests/test_docs_conformance.py: 121bd9ca6180
 revisado: 2026-11-04
 ---
 # Arquetipos Formales de Documentación
@@ -174,7 +175,7 @@ condición, y los opt-in (9 y 11) solo cuando el usuario los pide. La condición
 | AC-11 | Diagrama Mermaid con `@`, `(`, `)`, `{` o `}` en una etiqueta | Se genera el bloque | La etiqueta va entre comillas dobles y no contiene entidades HTML (`&#40;`), que Mermaid pintaría con un `&` sobrante | `tests/test_docs_conformance.py::test_mermaid_no_html_entities`, `tests/test_docs_conformance.py::test_mermaid_special_chars_quoted` |
 | AC-12 | Diagrama Mermaid en cualquier página | Se genera o rediseña | Tiene como máximo 12 nodos, y 8 en las páginas del Arquetipo 6; si no hay flujo, se usa una tabla | `tests/test_docs_conformance.py::test_mermaid_max_nodes` |
 | AC-13 | Diagrama Mermaid en cualquier página | Se genera el bloque | Declara `accTitle` y `accDescr` justo después del tipo, para que el SVG tenga título y descripción accesibles | `tests/test_docs_conformance.py::test_mermaid_has_accessibility` |
-| AC-14 | Un proyecto con Arquetipo 8, o un destino que adopta el registro de decisiones | Se aplica el flujo de documentación | Las instrucciones exigen el registro en `docs/decisiones/` con la leyenda canónica y las fichas de campos fijos, y prohíben al agente tocar los campos de persona; sobre doc_ia, que no adopta el registro, la comprobación de decisiones no tiene hallazgos | `tests/test_docs_conformance.py::test_coverage_decisions_rule_everywhere`, `tests/test_docs_conformance.py::test_canonical_coverage_legend`, `tests/test_docs_conformance.py::test_decisions_template_cards_have_fixed_fields`, `tests/test_docs_conformance.py::test_doc_ia_coverage_decisions_are_consistent` |
+| AC-14 | Un proyecto con Arquetipo 8, o un destino que adopta el registro de decisiones | Se aplica el flujo de documentación | Las instrucciones exigen el registro en `docs/decisiones/` con la leyenda canónica y las fichas de campos fijos, y prohíben al agente tocar los campos de persona; sobre doc_ia, que adopta el registro, toda fila parcial, sin cubrir o por verificar de un bloque «Evidencia» tiene ficha y la comprobación de decisiones no tiene hallazgos | `tests/test_docs_conformance.py::test_coverage_decisions_rule_everywhere`, `tests/test_docs_conformance.py::test_canonical_coverage_legend`, `tests/test_docs_conformance.py::test_decisions_template_cards_have_fixed_fields`, `tests/test_docs_conformance.py::test_doc_ia_coverage_decisions_are_consistent`, `tests/test_docs_conformance.py::test_unverified_evidence_rows_have_coverage_id` |
 
 Verificación: `python -m mkdocs build --strict` sin warnings tras generar cualquier arquetipo.
 Los arquetipos se aplican en el chat y no tienen tests automatizados.
@@ -215,7 +216,7 @@ Los tests verifican el **resultado** sobre la documentación de doc_ia (dogfoodi
     | Postcondición «Mapa Funcional» | `.github/DOCUMENTATION_STANDARD.md::3.1` (Variante 1-I) | ✅ |
     | Caso «páginas en estructura anterior» | `.github/DOCUMENTATION_STANDARD.md::3.1` (Cambio respecto a v1) | ✅ |
     | Caso «ADR en dos formatos» | `.github/DOCUMENTATION_STANDARD.md::3.5` (Formatos disponibles) | ✅ |
-    | AC-01 | `.github/DOCUMENTATION_STANDARD.md::7. Cómo Proceder` (Criterio de Completitud) | 🔍 |
+    | [COB-ARCHETYPES-001](../decisiones/archetypes_decisiones.md#cob-archetypes-001) · AC-01 | `.github/DOCUMENTATION_STANDARD.md::7. Cómo Proceder` (Criterio de Completitud) | 🔍 → ⚠️ (decisión: Reclasificar) |
     | AC-02 | `.github/DOCUMENTATION_STANDARD.md::3.2` (§5 Ejemplos Relacionados) | ✅ |
     | AC-03 | `.github/DOCUMENTATION_STANDARD.md::3.8` (Condición de activación) | ✅ |
     | AC-04 | `.github/DOCUMENTATION_STANDARD.md::3.1` (Regla de sección vacía) | ✅ |

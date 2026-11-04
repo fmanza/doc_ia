@@ -1,14 +1,15 @@
 ---
 arquetipo: "1-I"
 fuentes:
-  docs/functional/archetypes.md: a70486e55baf
-  docs/functional/bootstrap.md: d53936a473e4
-  docs/functional/build_docs_zip.md: 79aa5c840b2d
-  docs/functional/check_env.md: f9e9d9c5e13d
-  docs/functional/convert_to_md.md: 52a46b57a810
-  docs/functional/doc_trace.md: 9562c3b7e769
-  docs/functional/document_project.md: 045f5095dc9c
-  docs/functional/origin_types.md: 8d51f61b1bac
+  docs/decisiones/sistema_decisiones.md: d03d67f5fae5
+  docs/functional/archetypes.md: 9ce10b65baee
+  docs/functional/bootstrap.md: 7fa94d2d8cdf
+  docs/functional/build_docs_zip.md: 6ceab8a1e98d
+  docs/functional/check_env.md: e6c1d275492a
+  docs/functional/convert_to_md.md: 7328fd37ca63
+  docs/functional/doc_trace.md: 114804bcbc7c
+  docs/functional/document_project.md: 0d24f8a2694a
+  docs/functional/origin_types.md: 357dbfe3ec28
 revisado: 2026-11-04
 ---
 # Mapa Funcional — doc_ia
@@ -25,11 +26,11 @@ y qué términos comparten. Cada capacidad enlaza a su página funcional detalla
 | Empaquetar la documentación para consulta offline con verificación de integridad | Tooling determinista | [ZIP de Documentación Offline](build_docs_zip.md) | AC-01 – AC-15 | 14/15 |
 | Detectar documentación desactualizada respecto al código, cruzar criterios con tests y comprobar que las decisiones de cobertura se reflejan | Tooling determinista | [Trazabilidad Docs ↔ Código](doc_trace.md) | AC-01 – AC-27 | 27/27 |
 | Documentar un proyecto completo desde una única operación de entrada | Flujos IA | [Documentar un Proyecto](document_project.md) | AC-01 – AC-12 | 1/12 |
-| Clasificar cada origen (código, normativa, especificación, contrato…) y decidir su tratamiento | Flujos IA | [Catálogo de Tipos de Origen](origin_types.md) | AC-01 – AC-09 | 0/9 |
+| Clasificar cada origen (código, normativa, especificación, contrato…) y decidir su tratamiento | Flujos IA | [Catálogo de Tipos de Origen](origin_types.md) | AC-01 – AC-09 | 1/9 |
 | Producir documentación con estructura fija, evidencia verificable y decisiones humanas citadas | Flujos IA | [Arquetipos Formales](archetypes.md) | AC-01 – AC-14 | 14/14 |
-| Trasladar el sistema de instrucciones IA a otro proyecto | Flujos IA | [Bootstrap de Configuración IA](bootstrap.md) | AC-01 – AC-04 | 0/4 |
+| Trasladar el sistema de instrucciones IA a otro proyecto | Flujos IA | [Bootstrap de Configuración IA](bootstrap.md) | AC-01 – AC-05 | 1/5 |
 
-**Cobertura de pruebas**: 74 de 100 criterios tienen un test automatizado. Los flujos IA se
+**Cobertura de pruebas**: 76 de 101 criterios tienen un test automatizado. Los flujos IA se
 ejecutan en el chat de la plataforma IA: de ellos solo se comprueba la estructura de la
 documentación resultante (Arquetipos) ⚠️.
 
@@ -98,10 +99,10 @@ acceso al repositorio y a una plataforma IA puede usar todas las capacidades.
     | Capacidad «ZIP offline» y 14/15 tests | `docs/functional/build_docs_zip.md::§7` | ✅ |
     | Capacidad «Trazabilidad» y 27/27 tests | `docs/functional/doc_trace.md::§7` | ✅ |
     | Capacidad «Documentar un Proyecto» y 1/12 tests | `docs/functional/document_project.md::§7` | ✅ |
-    | Capacidad «Tipos de Origen» y 0/9 tests | `docs/functional/origin_types.md::§7` | ✅ |
+    | Capacidad «Tipos de Origen» y 1/9 tests | `docs/functional/origin_types.md::§7` | ✅ |
     | Capacidad «Arquetipos» y 14/14 tests | `docs/functional/archetypes.md::§7` | ✅ |
-    | Capacidad «Bootstrap» y 0/4 tests | `docs/functional/bootstrap.md::§7` | ✅ |
+    | Capacidad «Bootstrap» y 1/5 tests | `docs/functional/bootstrap.md::§7` | ✅ |
     | Recorrido «documentos previos» | `docs/functional/convert_to_md.md::§1`, `docs/functional/document_project.md::§3` | ✅ |
-    | Recorrido «bootstrap → documentar» | `docs/functional/bootstrap.md::§4`, `docs/functional/document_project.md::§2` | 🔍 |
+    | [COB-SISTEMA-002](../decisiones/sistema_decisiones.md#cob-sistema-002) · Recorrido «bootstrap → documentar» | `docs/functional/bootstrap.md::§4`, `docs/functional/document_project.md::§2` | 🔍 → ✅ (decisión: Aportar evidencia) |
     | Sin roles ni permisos | Ninguna página funcional define «Actores y permisos» | ✅ |
     | Doble sentido de «Origen» | `docs/functional/bootstrap.md::§8`, `docs/functional/document_project.md::§8` | ✅ |

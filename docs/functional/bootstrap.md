@@ -1,8 +1,9 @@
 ---
 arquetipo: "1"
 fuentes:
-  .github/prompts/bootstrap_ai_config.prompt.md: e7ef8b2fb106
-revisado: 2026-10-28
+  .github/prompts/bootstrap_ai_config.prompt.md: fd55edd86bb6
+  docs/decisiones/bootstrap_decisiones.md: 254ead9347ae
+revisado: 2026-11-04
 ---
 # Bootstrap de Configuración IA Multiplataforma
 
@@ -61,7 +62,7 @@ configuración comprueba la coherencia del resultado.
 
 | Capa | Acción | Ejemplos |
 |---|---|---|
-| **A — Metodología** | Copiar verbatim (revisar comandos embebidos) | `.github/agents/`, `.github/prompts/`, `.claude/commands/`, `.ai/sessions/TEMPLATE/` |
+| **A — Metodología** | Copiar verbatim (revisar comandos embebidos) | `.github/agents/`, `.github/prompts/`, `.github/templates/`, `.claude/commands/`, `.ai/sessions/TEMPLATE/` |
 | **B — Especialización** | Copiar + reescribir dominio | `SHARED_INSTRUCTIONS.md`, `CLAUDE.md`, `GEMINI.md`, `copilot-instructions.md`, `.cursorrules` |
 | **C — Contexto** | Regenerar analizando el destino desde cero | `.ai/{product,architecture,runtime,glossary,standards}.md` |
 | **D — No copiar** | Excluir | `.ai/sessions/<fechas>/`, `CHANGELOG.md`, caches, `settings.local.json` |
@@ -123,6 +124,7 @@ configuración comprueba la coherencia del resultado.
 | AC-02 | Un proyecto destino con generador Docusaurus | Se invoca el bootstrap indicando el generador | La plantilla `mkdocs.yml` no se copia; en su lugar se crea o adapta la configuración del generador del destino | Sin test |
 | AC-03 | El bootstrap completado | Se ejecuta Config Reviewer sobre el destino | No hay reglas duplicadas entre `SHARED_INSTRUCTIONS.md` y las especializaciones, y todas las rutas son relativas y portables | Sin test |
 | AC-04 | Ficheros de la capa D presente en el origen | Se ejecuta el bootstrap | Ningún fichero de la capa D se copia al destino | Sin test |
+| AC-05 | Prompts o comandos de la capa A que usan una plantilla (por ejemplo, la del registro de decisiones o la de visualización) | Se ejecuta el bootstrap | Las plantillas citadas viajan al destino con la capa A, de modo que ninguna referencia queda rota | `tests/test_docs_conformance.py::test_bootstrap_copies_every_referenced_template` |
 
 Verificación: invocar `bootstrap_ai_config.prompt.md` desde el proyecto destino y auditar
 con el agente Config Reviewer (`.github/agents/config-reviewer.agent.md`). El bootstrap se
@@ -154,9 +156,10 @@ ejecuta en el chat y no tiene tests automatizados.
     | Regla «Sin modificar el origen» | `.github/prompts/bootstrap_ai_config.prompt.md::Contexto a completar` (origen solo lectura) | ✅ |
     | Caso «Codex sin fichero propio» (guía en `docs/guides/codex_guide.md`) | `.github/prompts/bootstrap_ai_config.prompt.md::Objetivo` (Nota sobre Codex) | ✅ |
     | Caso «destino sin documentación publicada» | `.github/prompts/bootstrap_ai_config.prompt.md::Capa B` | ✅ |
-    | Flujo «Plataformas IA parciales» | `.github/prompts/bootstrap_ai_config.prompt.md::Contexto a completar` (Plataformas IA activas) | 🔍 |
-    | Flujo «Fase parcial (solo PLAN + AUDIT_PLAN)» | `.github/prompts/bootstrap_ai_config.prompt.md::Devuelve en este orden` | 🔍 |
+    | [COB-BOOTSTRAP-001](../decisiones/bootstrap_decisiones.md#cob-bootstrap-001) · Flujo «Plataformas IA parciales» | `.github/prompts/bootstrap_ai_config.prompt.md::Contexto a completar` (Plataformas IA activas) | 🔍 → ✅ (decisión: Aportar evidencia) |
+    | [COB-BOOTSTRAP-002](../decisiones/bootstrap_decisiones.md#cob-bootstrap-002) · Flujo «Fase parcial (solo PLAN + AUDIT_PLAN)» | `.github/prompts/bootstrap_ai_config.prompt.md::Devuelve en este orden` | 🔍 → ✅ (decisión: Aportar evidencia) |
     | AC-01 | `.github/prompts/bootstrap_ai_config.prompt.md::Auditoría posterior` (cero referencias huérfanas) | ✅ |
-    | AC-02 | `.github/prompts/bootstrap_ai_config.prompt.md::Contexto a completar` (generador del destino) | 🔍 |
+    | [COB-BOOTSTRAP-003](../decisiones/bootstrap_decisiones.md#cob-bootstrap-003) · AC-02 | `.github/prompts/bootstrap_ai_config.prompt.md::Contexto a completar` (generador del destino) | 🔍 → ✅ (decisión: Aportar evidencia) |
     | AC-03 | `.github/prompts/bootstrap_ai_config.prompt.md::Auditoría posterior` (DRY, rutas portables) | ✅ |
     | AC-04 | `.github/prompts/bootstrap_ai_config.prompt.md::Capa D` | ✅ |
+    | AC-05 | `.github/prompts/bootstrap_ai_config.prompt.md::Capa A` (`.github/templates/`), `tests/test_docs_conformance.py::test_bootstrap_copies_every_referenced_template` | ✅ |

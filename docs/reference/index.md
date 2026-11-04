@@ -3,12 +3,12 @@ arquetipo: "12"
 fuentes:
   .claude/settings.json.example: e1c10842aa20
   .github/workflows/docs-zip-release.yml: bd807d444ea2
-  CLAUDE.md: 47e90d7b61e5
+  CLAUDE.md: bdce5f7fec35
   hooks/sync_root_docs.py: ef5e576436c6
-  mkdocs.yml: 3cfcc736dd9a
+  mkdocs.yml: 5d3b9bd903d1
   mkdocs_hooks.py: 31259b7911a3
   scripts/build_docs_zip.py: 5f972ee674c8
-  scripts/check_env.py: 6202875214f7
+  scripts/check_env.py: c9105c709663
   scripts/convert_to_md.py: e7e60518d96f
   scripts/doc_trace.py: 511f3e656b2f
   scripts/start-server.py: a12209ac8507
@@ -25,7 +25,7 @@ línea de comandos, códigos de salida y eventos de build. La API interna de cad
 | Clave | Origen | Tipo | Por defecto | Descripción |
 |---|---|---|---|---|
 | `CUDA_VISIBLE_DEVICES` | `env` | cadena | `""` (lo fija `convert_to_md.py` al importarse si no existe) | Visibilidad de GPU para docling. `--device cpu` la fija a `""`; `--device cuda` la elimina; `--device auto` respeta un valor exportado por el usuario e ignora el que fija el propio módulo |
-| `project.version` | fichero `pyproject.toml` | cadena SemVer | `0.4.1` (valor actual) | Versión usada en el nombre del ZIP (`doc_ia-docs-{versión}.zip`) y en la release `docs-v{versión}` |
+| `project.version` | fichero `pyproject.toml` | cadena SemVer | `0.5.0` (valor actual) | Versión usada en el nombre del ZIP (`doc_ia-docs-{versión}.zip`) y en la release `docs-v{versión}` |
 | `site_dir` | fichero `mkdocs.yml` | ruta | `site` | Directorio de salida del build; `mkdocs_hooks.py` lo lee de la configuración. `build_docs_zip.py` usa `site/` fijo |
 | `use_directory_urls` | fichero `mkdocs.yml` | booleano | `false` | URLs `*.html`: el sitio y el ZIP se abren con doble clic en `index.html` (el plugin `offline` lo fuerza igualmente) |
 | `plugins: offline` | fichero `mkdocs.yml` | plugin | activo | Escribe el índice de búsqueda como JS (`search/search_index.js`; Zensical: `search.js`) para buscar desde `file://` |
