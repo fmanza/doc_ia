@@ -5,6 +5,19 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+### Added
+
+- **`drift` vigila los registros de decisiones**: `stamp` guarda en la clave nueva `decisiones:`
+  del frontmatter la huella de cada registro que la página enlaza desde sus IDs `COB-…` (ruta
+  relativa a la página), y `drift` marca la página como `stale` cuando alguien edita el registro,
+  también si la documentación vive en otro repositorio que el código (como APDI). Estado nuevo
+  `unsealed`: la página enlaza un registro que no ha sellado. AC-29 y AC-30 de la trazabilidad.
+
+### Changed
+
+- **Arquetipo 13**: los registros ya no se declaran a mano en `fuentes:`; las páginas de doc_ia
+  migradas a `decisiones:` (§3.16, §3.18, `coverage_decisions`, prompt normativo, ADR-004).
+
 ## [0.5.1] — 2026-11-04
 
 ### Fixed

@@ -1,8 +1,8 @@
 ---
 arquetipo: "2"
 fuentes:
-  scripts/doc_trace.py: cce8cb952a67
-  tests/test_doc_trace.py: c3842a648e86
+  scripts/doc_trace.py: bf53744f0627
+  tests/test_doc_trace.py: b08e25e66a70
 revisado: 2026-11-04
 ---
 # doc_trace
@@ -85,14 +85,15 @@ documentación puede mostrar el formato sin generar hallazgos. Nunca escribe en 
 
 | Función/Clase | Firma simplificada | Descripción | Retorna |
 |---|---|---|---|
-| `PageMeta` | `dataclass(frozen)`: `page`, `archetype`, `sources: dict[str, str]`, `reviewed` | Frontmatter de trazabilidad de una página | — |
-| `DriftFinding` | `dataclass(frozen)`: `page`, `source`, `status` | Fuente desactualizada; `status` ∈ `stale` \| `missing` \| `outside_repo` | — |
+| `PageMeta` | `dataclass(frozen)`: `page`, `archetype`, `sources: dict[str, str]`, `reviewed`, `registers: dict[str, str]` | Frontmatter de trazabilidad; `registers` = registros de decisiones enlazados (ruta relativa a la página → huella) | — |
+| `DriftFinding` | `dataclass(frozen)`: `page`, `source`, `status` | Fuente o registro desactualizado; `status` ∈ `stale` \| `missing` \| `outside_repo` \| `unsealed` (registro enlazado sin sellar) | — |
 | `CriterionRow` | `dataclass(frozen)`: `page`, `criterion`, `tests: tuple[str, ...]` | Fila `AC-xx` de una página funcional | — |
 | `fingerprint` | `fingerprint(path) -> str` | SHA256 truncado a `HASH_LENGTH` (12) con CRLF→LF; en `.md` excluye el frontmatter | Huella hex |
-| `read_page_meta` | `read_page_meta(page) -> PageMeta \| None` | Lee el frontmatter; `None` si no hay o no declara `fuentes` | `PageMeta` o `None` |
-| `format_frontmatter` | `format_frontmatter(meta) -> str` | Serializa el frontmatter con fuentes ordenadas | Bloque `---…---\n` |
-| `stamp_page` | `stamp_page(page, repo_root, *, sources=None, archetype=None, reviewed=None) -> PageMeta` | Recalcula huellas y reescribe el frontmatter conservando el cuerpo | `PageMeta` escrito |
-| `check_drift` | `check_drift(docs_dir, repo_root) -> list[DriftFinding]` | Recorre `docs_dir/**/*.md` sellados y compara huellas | Hallazgos en orden estable |
+| `read_page_meta` | `read_page_meta(page) -> PageMeta \| None` | Lee el frontmatter; `None` si no hay o no declara `fuentes` ni `decisiones` | `PageMeta` o `None` |
+| `linked_registers` | `linked_registers(page) -> list[str]` | Registros que la página enlaza desde IDs `COB-…` fuera de código, con la ruta del enlace normalizada | Rutas relativas a la página |
+| `format_frontmatter` | `format_frontmatter(meta) -> str` | Serializa el frontmatter con fuentes y registros ordenados (omite la clave vacía) | Bloque `---…---\n` |
+| `stamp_page` | `stamp_page(page, repo_root, *, sources=None, archetype=None, reviewed=None) -> PageMeta` | Recalcula huellas de fuentes y de registros enlazados y reescribe el frontmatter conservando el cuerpo; sin `--source` basta con que enlace un registro | `PageMeta` escrito |
+| `check_drift` | `check_drift(docs_dir, repo_root) -> list[DriftFinding]` | Recorre `docs_dir/**/*.md`: compara huellas de fuentes (desde `repo_root`) y de registros (desde la página) y detecta registros enlazados sin sellar | Hallazgos en orden estable |
 | `collect_test_ids` | `collect_test_ids(tests_dir, repo_root) -> set[str]` | Ids `tests/x.py::test_y` y `::Clase::test_y` vía `ast` (sin importar los tests) | Conjunto de ids |
 | `collect_criteria` | `collect_criteria(functional_dir) -> list[CriterionRow]` | Filas `\| AC-xx \|` de `functional_dir/*.md`; tests de la última celda si la fila tiene ≥5 celdas | Filas |
 | `build_matrix` | `build_matrix(criteria, test_ids, repo_root) -> tuple[str, list[str]]` | Matriz Markdown por página, totales, tests inexistentes y tests sin criterio | `(markdown, inexistentes)` |
@@ -211,6 +212,7 @@ documentación puede mostrar el formato sin generar hallazgos. Nunca escribe en 
 | `test_read_page_meta_*` (3) | Sin frontmatter, sin `fuentes` y lectura de los tres campos | unitario |
 | `test_stamp_then_no_drift`, `test_stamp_preserves_existing_sources_and_archetype` (2) | Sellado, conservación del cuerpo y reutilización de fuentes/arquetipo | unitario |
 | `test_drift_*` (4) | Hallazgos `stale`, `missing` y `outside_repo`; páginas sin sellar ignoradas | unitario |
+| `test_stamp_seals_linked_register_and_drift_detects_its_edit`, `test_drift_reports_unsealed_register_link`, `test_stamp_page_that_only_links_registers`, `test_drift_seals_registers_of_external_destination`, `test_register_links_inside_code_are_not_sealed` (5) | Sellado de registros en `decisiones:`, `stale` al editar un registro, `unsealed`, página solo con registros, destino en otro repositorio y enlaces en código ignorados | unitario |
 | `test_stamp_rejects_source_outside_repo`, `test_stamp_requires_sources` (2) | Errores de `stamp_page` | unitario |
 | `test_collect_test_ids_includes_class_methods`, `test_matrix_reports_unknown_and_uncited` (2) | Ids de tests (incluidos métodos de clase), inexistentes y sin citar | unitario |
 | `test_main_matrix_exit_code_on_unknown_test` (1) | `matrix` devuelve `1` con un test inexistente | integración (CLI) |

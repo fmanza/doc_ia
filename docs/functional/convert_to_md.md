@@ -1,9 +1,10 @@
 ---
 arquetipo: "1"
 fuentes:
-  docs/decisiones/convert_decisiones.md: 2567f135ba15
   scripts/convert_to_md.py: e7e60518d96f
   tests/test_convert_to_md.py: 415626d46572
+decisiones:
+  ../decisiones/convert_decisiones.md: 2567f135ba15
 revisado: 2026-11-04
 ---
 # Conversión de Documentos a Markdown (`convert_to_md`)

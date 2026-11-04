@@ -2,10 +2,11 @@
 arquetipo: "1"
 fuentes:
   .claude/commands/document-project.md: 275755329577
-  .github/DOCUMENTATION_STANDARD.md: 1d52344cb93f
+  .github/DOCUMENTATION_STANDARD.md: e15a38462f23
   .github/prompts/document_project.prompt.md: 27bb482fa094
   CLAUDE.md: bdce5f7fec35
-  docs/decisiones/docproj_decisiones.md: ace9e2e187df
+decisiones:
+  ../decisiones/docproj_decisiones.md: ace9e2e187df
 revisado: 2026-11-04
 ---
 # Documentar un Proyecto

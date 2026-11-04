@@ -984,12 +984,28 @@ revisado: 2026-10-28
 ```
 
 `fuentes` = ficheros del repositorio citados en el bloque "Evidencia" (nunca rutas fuera del
-repositorio). El tooling determinista `scripts/doc_trace.py` (si el destino lo incorpora):
+repositorio).
+
+`decisiones` = registros del Arquetipo 13 (§3.18) que la página enlaza desde sus IDs `COB-…`, con
+la ruta **tal como la escribe el enlace** (relativa a la página) y su huella. `stamp` la rellena
+solo; no se escribe a mano. Al resolverse desde la página, funciona igual cuando la documentación
+vive en otro repositorio que el código (`--root <origen> drift --docs <destino>/docs`):
+
+```yaml
+---
+arquetipo: "8"
+decisiones:
+  ../decisiones/rgpd_decisiones.md: 9c0e4b7a21f3
+revisado: 2026-11-04
+---
+```
+
+El tooling determinista `scripts/doc_trace.py` (si el destino lo incorpora):
 
 | Subcomando | Qué hace | Código de salida |
 |---|---|---|
 | `stamp <página> [--source <ruta>…]` | Calcula y escribe las huellas. Sin `--source` re-sella las fuentes del frontmatter; con `--source` la lista **se sustituye** entera (no se añade) | `0` / `1` si una fuente falta o sale del repo |
-| `drift` | Lista páginas cuyas fuentes cambiaron (`stale`, `missing`, `outside_repo`) | `0` sin drift / `1` con drift |
+| `drift` | Lista páginas cuyas fuentes o registros cambiaron (`stale`, `missing`, `outside_repo`) y páginas que enlazan un registro sin sellarlo (`unsealed`) | `0` sin drift / `1` con drift |
 | `matrix` | Cruza los `AC-xx` del Arq. 1 §7 con los tests reales; lista citados inexistentes y tests sin criterio | `0` / `1` si hay tests citados inexistentes |
 | `llms` | Genera `docs/llms.txt` ([llmstxt.org](https://llmstxt.org/)) desde el `nav` | `0` / `1` con `--check` si está desactualizado |
 
@@ -1187,8 +1203,10 @@ viceversa. Una decisión distinta de `Pendiente` exige Responsable, Fecha y Esta
 3. **Nunca** se modifican los campos de persona. Si el estado detectado cambia en una ficha
    `Pendiente`, se actualiza «Estado detectado»; si la ficha ya tiene decisión, se informa en el
    RESUMEN y no se toca.
-4. La página documentada declara su registro en `fuentes:` del frontmatter (§3.16): así, cuando
-   las personas editan el registro, `doc_trace drift` marca la página como `stale`.
+4. Sellar la página (`stamp`): sus registros enlazados quedan en `decisiones:` del frontmatter
+   (§3.16) sin indicarlos a mano. Cuando las personas editan un registro, `doc_trace drift` marca
+   como `stale` cada página que lo enlaza, también si la documentación vive en otro repositorio
+   que el código; una página que enlaza un registro sin sellarlo sale como `unsealed`.
 
 **Aplicar decisiones** (agente, en cada revisión):
 1. Ejecutar `python scripts/doc_trace.py decisions` (si el destino lo incorpora) o leer el registro.

@@ -74,7 +74,7 @@ Estructura del Arquetipo 8 del DOCUMENTATION_STANDARD:
 
 Generar o actualizar `docs/decisiones/<norma>_decisiones.md` con
 `.github/prompts/coverage_decisions.prompt.md` § Modo generación: una ficha por ID, campos de
-persona intactos, registro declarado en `fuentes:` de la página de trazabilidad.
+persona intactos, página de trazabilidad sellada con `stamp` (el registro queda en `decisiones:`).
 
 ### Paso 5 — Actualizar mkdocs.yml
 

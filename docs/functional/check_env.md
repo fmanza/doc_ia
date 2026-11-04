@@ -1,8 +1,9 @@
 ---
 arquetipo: "1"
 fuentes:
-  docs/decisiones/checkenv_decisiones.md: 899b79fee892
   scripts/check_env.py: c9105c709663
+decisiones:
+  ../decisiones/checkenv_decisiones.md: 899b79fee892
 revisado: 2026-11-04
 ---
 # Verificación de Entorno
