@@ -5,6 +5,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+## [0.5.1] — 2026-11-04
+
 ### Fixed
 
 - **`doc_trace.py drift` y `matrix` con `--root`**: `--docs` y `--tests` tomaban por defecto las
@@ -315,7 +317,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - Restauración de `config-reviewer.agent.md` y creación de `docs.instructions.md`
   tras corrupción del bootstrap.
 
-[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/fmanza/doc_ia/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/fmanza/doc_ia/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/fmanza/doc_ia/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/fmanza/doc_ia/compare/v0.3.0...v0.4.0
