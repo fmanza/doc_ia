@@ -660,3 +660,75 @@ def test_main_matrix_defaults_follow_root(
     assert main(["--root", str(dest), "matrix"]) == 1  # AC-03 cita un test inexistente
     out = capsys.readouterr().out
     assert "`docs/functional/a.md` | 3 | 2 | 2 |" in out
+
+
+# --- Registros de decisiones sellados en el frontmatter (``decisiones:``) ---
+
+_REG_LINK = "[COB-RGPD-001](../decisiones/rgpd_decisiones.md#cob-rgpd-001)"
+
+
+def _register_repo(tmp_path: Path, frontmatter: str = "") -> tuple[Path, Path, Path]:
+    """(raíz, página que enlaza el registro, registro)."""
+    root = _repo(tmp_path)
+    (root / "docs" / "decisiones").mkdir()
+    (root / "docs" / "normativa").mkdir()
+    register = root / "docs" / "decisiones" / "rgpd_decisiones.md"
+    register.write_text(_card(), encoding="utf-8")
+    page = root / "docs" / "normativa" / "rgpd.md"
+    head = f"---\n{frontmatter}\n---\n" if frontmatter else ""
+    page.write_text(
+        f"{head}# RGPD\n\n| ID | Art. | Cobertura |\n|---|---|---|\n| {_REG_LINK} | 30 | 🔍 |\n",
+        encoding="utf-8",
+    )
+    return root, page, register
+
+
+def test_stamp_seals_linked_register_and_drift_detects_its_edit(tmp_path: Path) -> None:
+    root, page, register = _register_repo(
+        tmp_path, 'arquetipo: "8"\nfuentes:\n  src/mod.py: x\nrevisado: 2026-11-04'
+    )
+    meta = stamp_page(page, root)
+    assert list(meta.registers) == ["../decisiones/rgpd_decisiones.md"]
+    assert list(meta.sources) == ["src/mod.py"]
+    assert check_drift(root / "docs", root) == []
+    register.write_text(_card(**_DECIDED), encoding="utf-8")
+    findings = check_drift(root / "docs", root)
+    assert [(f.source, f.status) for f in findings] == [
+        ("../decisiones/rgpd_decisiones.md", "stale")
+    ]
+
+
+def test_drift_reports_unsealed_register_link(tmp_path: Path) -> None:
+    root, page, _ = _register_repo(tmp_path)
+    findings = check_drift(root / "docs", root)
+    assert [(f.page, f.status) for f in findings] == [(page, "unsealed")]
+
+
+def test_stamp_page_that_only_links_registers(tmp_path: Path) -> None:
+    root, page, _ = _register_repo(tmp_path)
+    meta = stamp_page(page, root, archetype="8")
+    assert meta.sources == {} and len(meta.registers) == 1
+    assert "fuentes:" not in page.read_text(encoding="utf-8")
+    assert read_page_meta(page) is not None
+    assert check_drift(root / "docs", root) == []
+
+
+def test_drift_seals_registers_of_external_destination(tmp_path: Path) -> None:
+    """Destino en otro repositorio: el registro se resuelve desde la página, no desde --root."""
+    origin = _repo(tmp_path / "origen")
+    _, page, register = _register_repo(
+        tmp_path / "destino", 'arquetipo: "8"\nfuentes:\n  src/mod.py: x\nrevisado: 2026-11-04'
+    )
+    stamp_page(page, origin)
+    docs = tmp_path / "destino" / "docs"
+    assert check_drift(docs, origin) == []
+    register.write_text("cambio\n", encoding="utf-8")
+    assert [f.status for f in check_drift(docs, origin)] == ["stale"]
+
+
+def test_register_links_inside_code_are_not_sealed(tmp_path: Path) -> None:
+    root = _repo(tmp_path)
+    page = root / "docs" / "ejemplo.md"
+    page.write_text(f"# Ejemplo\n\n```markdown\n| {_REG_LINK} | 🔍 |\n```\n", encoding="utf-8")
+    assert doc_trace.linked_registers(page) == []
+    assert check_drift(root / "docs", root) == []

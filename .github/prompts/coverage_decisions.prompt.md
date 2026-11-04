@@ -36,8 +36,9 @@ No decides: preparas cada apartado para que alguien decida con la información s
    - NO modifiques ningún campo de persona de las fichas existentes.
    - Si cambia el estado de una ficha `Pendiente`, actualiza «Estado detectado».
    - Recalcula §2 Resumen.
-5. Declara el registro en `fuentes:` de cada página del ámbito y séllala:
-   python scripts/doc_trace.py stamp <página> --source <fuentes actuales…> --source docs/decisiones/<ámbito>_decisiones.md
+5. Sella cada página del ámbito: `stamp` detecta los registros que enlaza y los guarda en
+   `decisiones:` del frontmatter (no los añadas a `fuentes:`):
+   python scripts/doc_trace.py [--root <origen>] stamp <página> [--archetype <n> si no tiene frontmatter]
 6. Añade el registro al nav (sección «Decisiones», §3.18).
 ```
 

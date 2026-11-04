@@ -42,11 +42,12 @@ import argparse
 import ast
 import hashlib
 import json
+import posixpath
 import re
 import subprocess
 import sys
 import tomllib
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
 from typing import Any, Literal
@@ -58,7 +59,7 @@ FRONTMATTER_RE = re.compile(r"\A---\r?\n(.*?)\r?\n---\r?\n", re.S)
 AC_ROW_RE = re.compile(r"^\|\s*(AC-\d+)\s*\|")
 TEST_ID_RE = re.compile(r"tests/[\w/]+\.py::[\w:]+")
 
-DriftStatus = Literal["stale", "missing", "outside_repo"]
+DriftStatus = Literal["stale", "missing", "outside_repo", "unsealed"]
 
 
 @dataclass(frozen=True)
@@ -69,6 +70,8 @@ class PageMeta:
     archetype: str
     sources: dict[str, str]
     reviewed: str
+    # Registros de decisiones enlazados (Arquetipo 13): ruta relativa a la página → huella.
+    registers: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -128,20 +131,38 @@ def fingerprint(path: Path) -> str:
 
 
 def read_page_meta(page: Path) -> PageMeta | None:
-    """Lee el frontmatter de trazabilidad; ``None`` si la página no declara ``fuentes``."""
+    """Lee el frontmatter de trazabilidad; ``None`` si no declara ``fuentes`` ni ``decisiones``."""
     match = FRONTMATTER_RE.match(page.read_text(encoding="utf-8"))
     if match is None:
         return None
     data = _load_yaml(match.group(1))
-    if not isinstance(data, dict) or not isinstance(data.get("fuentes"), dict):
+    if not isinstance(data, dict):
         return None
-    sources = {str(k): str(v) for k, v in data["fuentes"].items()}
+    raw_sources, raw_registers = data.get("fuentes"), data.get("decisiones")
+    if not isinstance(raw_sources, dict) and not isinstance(raw_registers, dict):
+        return None
+    sources = {str(k): str(v) for k, v in (raw_sources or {}).items()}
+    registers = {str(k): str(v) for k, v in (raw_registers or {}).items()}
     return PageMeta(
         page=page,
         archetype=str(data.get("arquetipo", "")),
         sources=sources,
         reviewed=str(data.get("revisado", "")),
+        registers=registers,
     )
+
+
+def linked_registers(page: Path) -> list[str]:
+    """Registros de decisiones que la página enlaza desde un ID ``COB-…`` (fuera de código).
+
+    Cada ruta se devuelve tal como la escribe el enlace, normalizada y relativa a la página:
+    sirve igual si la documentación vive en otro repositorio que el código.
+    """
+    found: set[str] = set()
+    for _, text in _code_free_lines(page):
+        for href in REGISTER_LINK_RE.findall(text):
+            found.add(posixpath.normpath(href))
+    return sorted(found)
 
 
 def _resolve_source(source: str, repo_root: Path) -> Path | None:
@@ -151,9 +172,14 @@ def _resolve_source(source: str, repo_root: Path) -> Path | None:
 
 
 def format_frontmatter(meta: PageMeta) -> str:
-    """Serializa el frontmatter de trazabilidad con orden estable de fuentes."""
-    lines = ["---", f'arquetipo: "{meta.archetype}"', "fuentes:"]
-    lines += [f"  {src}: {digest}" for src, digest in sorted(meta.sources.items())]
+    """Serializa el frontmatter de trazabilidad con orden estable de fuentes y registros."""
+    lines = ["---", f'arquetipo: "{meta.archetype}"']
+    if meta.sources:
+        lines.append("fuentes:")
+        lines += [f"  {src}: {digest}" for src, digest in sorted(meta.sources.items())]
+    if meta.registers:
+        lines.append("decisiones:")
+        lines += [f"  {reg}: {digest}" for reg, digest in sorted(meta.registers.items())]
     lines += [f"revisado: {meta.reviewed}", "---", ""]
     return "\n".join(lines)
 
@@ -166,10 +192,20 @@ def stamp_page(
     archetype: str | None = None,
     reviewed: str | None = None,
 ) -> PageMeta:
-    """Recalcula las huellas de las fuentes de ``page`` y reescribe su frontmatter."""
+    """Recalcula las huellas de las fuentes y de los registros enlazados de ``page``.
+
+    Los registros de decisiones (Arquetipo 13) se detectan a partir de los enlaces de sus IDs
+    ``COB-…``; una página que solo enlaza registros puede sellarse sin ``--source``.
+    """
     current = read_page_meta(page)
     names = sources if sources else sorted(current.sources) if current else []
-    if not names:
+    registers: dict[str, str] = {}
+    for href in linked_registers(page):
+        target = (page.parent / href).resolve()
+        if not target.is_file():
+            raise ValueError(f"{page}: el registro enlazado {href} no existe")
+        registers[href] = fingerprint(target)
+    if not names and not registers:
         raise ValueError(f"{page}: sin fuentes (usa --source)")
     digests: dict[str, str] = {}
     for name in names:
@@ -184,6 +220,7 @@ def stamp_page(
         archetype=archetype or (current.archetype if current else ""),
         sources=digests,
         reviewed=reviewed or date.today().isoformat(),
+        registers=registers,
     )
     text = page.read_text(encoding="utf-8")
     body = FRONTMATTER_RE.sub("", text, count=1)
@@ -196,6 +233,16 @@ def check_drift(docs_dir: Path, repo_root: Path) -> list[DriftFinding]:
     findings: list[DriftFinding] = []
     for page in sorted(docs_dir.rglob("*.md")):
         meta = read_page_meta(page)
+        sealed = meta.registers if meta else {}
+        for href in linked_registers(page):
+            if href not in sealed:
+                findings.append(DriftFinding(page, href, "unsealed"))
+        for href, stored in sorted(sealed.items()):
+            target = (page.parent / href).resolve()
+            if not target.is_file():
+                findings.append(DriftFinding(page, href, "missing"))
+            elif fingerprint(target) != stored:
+                findings.append(DriftFinding(page, href, "stale"))
         if meta is None:
             continue
         for source, stored in sorted(meta.sources.items()):
@@ -638,6 +685,7 @@ def format_changes(report: ChangeReport, name: str, root: Path) -> str:
 # ---------------------------------------------------------------------------
 
 COVERAGE_ID_RE = re.compile(r"\bCOB-[A-Z0-9]+-\d{3}\b")
+REGISTER_LINK_RE = re.compile(r"\]\(([^)\s#]*_decisiones\.md)#cob-[a-z0-9]+-\d{3}\)")
 REGISTER_HEADING_RE = re.compile(r"^#{2,4}\s+(COB-[A-Z0-9]+-\d{3})\b")
 HEADING_RE = re.compile(r"^#{1,6}\s")
 FENCE_RE = re.compile(r"^(```|~~~)")

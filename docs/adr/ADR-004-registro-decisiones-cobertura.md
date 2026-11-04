@@ -47,7 +47,7 @@ aplicara lo decidido. Además, la leyenda tenía dos redacciones distintas: la d
 |---|---|
 | Ventaja | Cada ⚠️ ❌ 🔍 tiene un responsable, una fecha y un contexto auditables |
 | Ventaja | La documentación cita la decisión que justifica cada estado, y la CI detecta si la contradice |
-| Ventaja | Editar el registro marca como `stale` la página que lo declara en `fuentes:`, de modo que `drift` avisa de que hay decisiones nuevas |
+| Ventaja | Editar el registro marca como `stale` las páginas que lo enlazan (frontmatter `decisiones:`, sellado por `stamp`), también con la documentación en otro repositorio, de modo que `drift` avisa de que hay decisiones nuevas |
 | Compromiso | Las filas de cobertura ganan una columna o un prefijo de identificador y un enlace |
 | Compromiso | Un registro publicado expone decisiones de la organización; las confidenciales se citan por la ubicación del acta |
 | Riesgo aceptado | Una decisión que mantiene el estado ("Aceptar riesgo" sobre ⚠️) cuenta como reflejada en cuanto la fila enlaza la ficha |

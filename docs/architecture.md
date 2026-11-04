@@ -1,7 +1,7 @@
 ---
 arquetipo: "6C"
-fuentes:
-  docs/decisiones/sistema_decisiones.md: d03d67f5fae5
+decisiones:
+  decisiones/sistema_decisiones.md: d03d67f5fae5
 revisado: 2026-11-04
 ---
 # Arquitectura del Sistema

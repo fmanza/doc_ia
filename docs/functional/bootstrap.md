@@ -2,7 +2,8 @@
 arquetipo: "1"
 fuentes:
   .github/prompts/bootstrap_ai_config.prompt.md: fd55edd86bb6
-  docs/decisiones/bootstrap_decisiones.md: 254ead9347ae
+decisiones:
+  ../decisiones/bootstrap_decisiones.md: 254ead9347ae
 revisado: 2026-11-04
 ---
 # Bootstrap de Configuración IA Multiplataforma

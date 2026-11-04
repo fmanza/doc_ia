@@ -1,8 +1,9 @@
 ---
 arquetipo: "1"
 fuentes:
-  docs/decisiones/doctrace_decisiones.md: 1cc61611500e
-  scripts/doc_trace.py: cce8cb952a67
+  scripts/doc_trace.py: bf53744f0627
+decisiones:
+  ../decisiones/doctrace_decisiones.md: 1cc61611500e
 revisado: 2026-11-04
 ---
 # Trazabilidad entre Documentación y Código
@@ -112,6 +113,7 @@ criterios y el índice para agentes IA se ejecutan como operaciones independient
 | Cita frente a mención | Una página que cita el fichero como evidencia (bloque «Evidencia» o fuentes declaradas) se revisa; una que solo lo nombra en el texto se avisa aparte | Revisar ADR, changelog y guías por cada cambio, o dejar de revisar las páginas que sí dependen del fichero |
 | Lo que genera la documentación no es un cambio | Si la documentación vive dentro del proyecto, su carpeta, el contexto de sesiones, las fuentes convertidas, la configuración del sitio y las instrucciones de visualización no cuentan como cambios | Cada cierre de sesión aparecería como cambio del proyecto en la siguiente |
 | Una decisión tomada se ve en la documentación | Cada apartado con una decisión tomada enlaza su ficha y muestra el estado que fija la decisión | La documentación contradice o pierde una decisión de las personas responsables |
+| Una decisión editada avisa | Al sellar una página se guarda también la huella de cada registro de decisiones que enlaza; si alguien edita el registro, la comprobación de desactualizaciones marca la página, aunque la documentación viva en otro repositorio que el código. Una página que enlaza un registro sin haberlo sellado también se informa | Decisiones nuevas que nadie aplica a la documentación |
 | Decidir no es tarea de la herramienta | Las decisiones pendientes se listan, pero no son fallo; la herramienta nunca escribe en el registro | Bloquear la integración continua mientras alguien decide, o decisiones tomadas por una máquina |
 | Vocabulario cerrado | Cada estado admite solo ciertas decisiones; una decisión tomada exige responsable, fecha y estado resultante | Decisiones ambiguas que no se pueden aplicar ni auditar |
 | Ante la duda, sesión completa | Sin baseline, sin Git, con el punto guardado fuera del historial o con otra versión menor de doc_ia, se pide la sesión completa (código 3) | Una sesión incremental que omite cambios reales o aplica reglas de arquetipos antiguas |
@@ -190,6 +192,8 @@ criterios y el índice para agentes IA se ejecutan como operaciones independient
 | AC-26 | Un apartado con dos fichas, una ficha que ninguna página cita, un apartado sin ficha o una ficha pendiente con otro estado en la página | Se comprueban las decisiones | Se informa cada caso | `tests/test_doc_trace.py::test_duplicate_orphan_entry_and_orphan_ref`, `tests/test_doc_trace.py::test_pending_card_with_different_page_symbol_is_mismatch` |
 | AC-27 | Identificadores escritos como código y apartados dentro del bloque plegable «Evidencia», con el símbolo de aviso en cualquiera de sus formas | Se comprueban las decisiones | Los de código se ignoran; los del bloque plegable se comprueban | `tests/test_doc_trace.py::test_ids_in_code_are_ignored_and_admonition_rows_are_read`, `tests/test_doc_trace.py::test_warning_symbol_without_variation_selector` |
 | AC-28 | Un proyecto documentado en otra carpeta, indicada como raíz | Se comprueban desactualizaciones o se genera la matriz sin indicar las carpetas de documentación y de tests | Se usan las del proyecto indicado, no las de doc_ia | `tests/test_doc_trace.py::test_main_drift_defaults_follow_root`, `tests/test_doc_trace.py::test_main_matrix_defaults_follow_root` |
+| AC-29 | Una página que enlaza un registro de decisiones | Se sella y después se edita el registro | La página aparece como desactualizada, también si la documentación vive en otro repositorio | `tests/test_doc_trace.py::test_stamp_seals_linked_register_and_drift_detects_its_edit`, `tests/test_doc_trace.py::test_drift_seals_registers_of_external_destination` |
+| AC-30 | Una página que enlaza un registro sin haberlo sellado, o que solo enlaza registros | Se comprueban desactualizaciones o se sella | Se informa como no sellada; se puede sellar sin indicar fuentes; los enlaces escritos como código no cuentan | `tests/test_doc_trace.py::test_drift_reports_unsealed_register_link`, `tests/test_doc_trace.py::test_stamp_page_that_only_links_registers`, `tests/test_doc_trace.py::test_register_links_inside_code_are_not_sealed` |
 
 Verificación: `python -m pytest tests/test_doc_trace.py -q`.
 
@@ -244,4 +248,5 @@ Verificación: `python -m pytest tests/test_doc_trace.py -q`.
     | Regla «Vocabulario cerrado» | `scripts/doc_trace.py::DECISIONS_BY_STATE`, `::_validate_entry` | ✅ |
     | AC-22 – AC-27 | `scripts/doc_trace.py::check_decisions`, `::format_decisions`, `::_cmd_decisions` | ✅ |
     | AC-28 | `scripts/doc_trace.py::_cmd_drift`, `::_cmd_matrix` (valores por defecto desde `--root`) | ✅ |
+    | Regla «Una decisión editada avisa», AC-29 y AC-30 | `scripts/doc_trace.py::linked_registers`, `::stamp_page`, `::check_drift` (`unsealed`) | ✅ |
     | [COB-DOCTRACE-001](../decisiones/doctrace_decisiones.md#cob-doctrace-001) · AC-14 | `scripts/doc_trace.py::read_page_meta` | ⚠️ → ✅ (decisión: Remediar) |
