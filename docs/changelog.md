@@ -5,6 +5,15 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+## [0.5.1] — 2026-11-04
+
+### Fixed
+
+- **`doc_trace.py drift` y `matrix` con `--root`**: `--docs` y `--tests` tomaban por defecto las
+  carpetas de doc_ia, así que sobre un destino externo `drift` revisaba el `docs/` de doc_ia y
+  `matrix` cruzaba sus criterios con los tests del destino. Ahora, por defecto, `<root>/docs` y
+  `<root>/tests` (como `llms`, `decisions` y `changes`). AC-28 de la trazabilidad.
+
 ## [0.5.0] — 2026-11-04
 
 ### Added
@@ -308,7 +317,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - Restauración de `config-reviewer.agent.md` y creación de `docs.instructions.md`
   tras corrupción del bootstrap.
 
-[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/fmanza/doc_ia/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/fmanza/doc_ia/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/fmanza/doc_ia/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/fmanza/doc_ia/compare/v0.3.0...v0.4.0

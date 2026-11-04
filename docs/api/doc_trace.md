@@ -1,8 +1,8 @@
 ---
 arquetipo: "2"
 fuentes:
-  scripts/doc_trace.py: 511f3e656b2f
-  tests/test_doc_trace.py: cf265ccb655b
+  scripts/doc_trace.py: cce8cb952a67
+  tests/test_doc_trace.py: c3842a648e86
 revisado: 2026-11-04
 ---
 # doc_trace
@@ -124,11 +124,11 @@ documentación puede mostrar el formato sin generar hallazgos. Nunca escribe en 
 | Parámetro | Tipo | Descripción | Restricciones |
 |---|---|---|---|
 | `--root` | `Path` | Raíz del repositorio (opción global, antes del subcomando) | Por defecto, el padre de `scripts/` |
-| `drift --docs` | `Path` | Carpeta de documentación | Por defecto `docs/` |
+| `drift --docs` | `Path` | Carpeta de documentación | Por defecto `<--root>/docs` |
 | `stamp pages` | `Path` (1..n) | Páginas a sellar | Deben existir |
 | `stamp --source` | `str` (repetible) | Fuente relativa a `--root` | Dentro del repositorio y existente; si se omite, se reutilizan las del frontmatter; si se indica, sustituye la lista completa (no añade) |
 | `stamp --archetype` / `--date` | `str` | Arquetipo y fecha `YYYY-MM-DD` | Por defecto, el arquetipo actual y la fecha del día |
-| `matrix --docs` / `--tests` / `--output` | `Path` | Carpetas de docs y tests; fichero de salida opcional | Lee `--docs/functional/*.md` (no recursivo) |
+| `matrix --docs` / `--tests` / `--output` | `Path` | Carpetas de docs y tests; fichero de salida opcional | Por defecto `<--root>/docs` y `<--root>/tests`; lee `--docs/functional/*.md` (no recursivo) |
 | `llms --config` / `--output` / `--site-url` / `--check` | `Path` / `str` / flag | Configuración MkDocs, destino, URL base, modo comprobación | Por defecto `<root>/mkdocs.yml`, `<docs_dir>/llms.txt` de ese config y `site_url` del config |
 | `baseline` / `changes --origin` | `Path` | Raíz del origen documentado | Obligatorio; puede ser una subcarpeta de un repositorio |
 | `baseline` / `changes --name` | `str` | Clave del origen en el estado | Por defecto, el nombre de la carpeta del origen (regla de `_fuentes/`) |
@@ -216,6 +216,7 @@ documentación puede mostrar el formato sin generar hallazgos. Nunca escribe en 
 | `test_main_matrix_exit_code_on_unknown_test` (1) | `matrix` devuelve `1` con un test inexistente | integración (CLI) |
 | `test_build_llms_txt_tolerates_python_tags` (1) | Etiquetas `!!python/name:`, URLs con `site_url` y omisión de enlaces externos | unitario |
 | `test_main_llms_check_detects_outdated` (1) | `llms --check` antes y después de generar | integración (CLI) |
+| `test_main_drift_defaults_follow_root`, `test_main_matrix_defaults_follow_root` (2) | Sin `--docs` ni `--tests`: `drift` y `matrix` usan las carpetas de `--root` | integración (CLI) |
 | `test_main_llms_defaults_follow_root` (1) | Sin `--config` ni `--output`: lee `<root>/mkdocs.yml` y escribe en su `docs_dir` | integración (CLI) |
 | `test_main_llms_without_nav_returns_error`, `test_main_stamp_missing_page_returns_error` (2) | Errores controlados de la CLI con código `1` | integración (CLI) |
 | `test_main_requires_subcommand` (1) | Sin subcomando → `SystemExit(2)` | integración (CLI) |

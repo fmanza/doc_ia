@@ -636,3 +636,27 @@ def test_drift_ignores_unsealed_page(tmp_path: Path) -> None:
     )
     _page(repo, 'arquetipo: "2"\nrevisado: 2026-10-28', name="sin_fuentes.md")
     assert check_drift(repo / "docs", repo) == []
+
+
+# --- Valores por defecto relativos a --root (destino externo) ---
+
+
+def test_main_drift_defaults_follow_root(tmp_path: Path) -> None:
+    """Sin --docs, `drift` lee <root>/docs del destino, no el docs/ de doc_ia."""
+    dest = _repo(tmp_path / "dest")
+    page = _page(dest, 'arquetipo: "2"\nfuentes:\n  src/mod.py: x\nrevisado: 2026-11-04')
+    stamp_page(page, dest)
+    assert main(["--root", str(dest), "drift"]) == 0
+    (dest / "src" / "mod.py").write_text("x = 2\n", encoding="utf-8")
+    assert main(["--root", str(dest), "drift"]) == 1
+
+
+def test_main_matrix_defaults_follow_root(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Sin --docs ni --tests, `matrix` cruza <root>/docs/functional con <root>/tests."""
+    dest = tmp_path / "dest"
+    _functional(dest)
+    assert main(["--root", str(dest), "matrix"]) == 1  # AC-03 cita un test inexistente
+    out = capsys.readouterr().out
+    assert "`docs/functional/a.md` | 3 | 2 | 2 |" in out

@@ -7,7 +7,7 @@ fuentes:
   docs/functional/build_docs_zip.md: 6ceab8a1e98d
   docs/functional/check_env.md: e6c1d275492a
   docs/functional/convert_to_md.md: 7328fd37ca63
-  docs/functional/doc_trace.md: 114804bcbc7c
+  docs/functional/doc_trace.md: 80ce772f4f83
   docs/functional/document_project.md: 0d24f8a2694a
   docs/functional/origin_types.md: 357dbfe3ec28
 revisado: 2026-11-04
@@ -24,13 +24,13 @@ y qué términos comparten. Cada capacidad enlaza a su página funcional detalla
 | Comprobar que el entorno tiene las herramientas necesarias | Tooling determinista | [Verificación de Entorno](check_env.md) | AC-01 – AC-06 | 6/6 |
 | Convertir documentos previos a Markdown para usarlos como contexto | Tooling determinista | [Conversión de Documentos a Markdown](convert_to_md.md) | AC-01 – AC-13 | 12/13 |
 | Empaquetar la documentación para consulta offline con verificación de integridad | Tooling determinista | [ZIP de Documentación Offline](build_docs_zip.md) | AC-01 – AC-15 | 14/15 |
-| Detectar documentación desactualizada respecto al código, cruzar criterios con tests y comprobar que las decisiones de cobertura se reflejan | Tooling determinista | [Trazabilidad Docs ↔ Código](doc_trace.md) | AC-01 – AC-27 | 27/27 |
+| Detectar documentación desactualizada respecto al código, cruzar criterios con tests y comprobar que las decisiones de cobertura se reflejan | Tooling determinista | [Trazabilidad Docs ↔ Código](doc_trace.md) | AC-01 – AC-28 | 28/28 |
 | Documentar un proyecto completo desde una única operación de entrada | Flujos IA | [Documentar un Proyecto](document_project.md) | AC-01 – AC-12 | 1/12 |
 | Clasificar cada origen (código, normativa, especificación, contrato…) y decidir su tratamiento | Flujos IA | [Catálogo de Tipos de Origen](origin_types.md) | AC-01 – AC-09 | 1/9 |
 | Producir documentación con estructura fija, evidencia verificable y decisiones humanas citadas | Flujos IA | [Arquetipos Formales](archetypes.md) | AC-01 – AC-14 | 14/14 |
 | Trasladar el sistema de instrucciones IA a otro proyecto | Flujos IA | [Bootstrap de Configuración IA](bootstrap.md) | AC-01 – AC-05 | 1/5 |
 
-**Cobertura de pruebas**: 76 de 101 criterios tienen un test automatizado. Los flujos IA se
+**Cobertura de pruebas**: 77 de 102 criterios tienen un test automatizado. Los flujos IA se
 ejecutan en el chat de la plataforma IA: de ellos solo se comprueba la estructura de la
 documentación resultante (Arquetipos) ⚠️.
 
@@ -97,7 +97,7 @@ acceso al repositorio y a una plataforma IA puede usar todas las capacidades.
     | Capacidad «Verificación de Entorno» y 6/6 tests | `docs/functional/check_env.md::§7` | ✅ |
     | Capacidad «Conversión a Markdown» y 12/13 tests | `docs/functional/convert_to_md.md::§7` | ✅ |
     | Capacidad «ZIP offline» y 14/15 tests | `docs/functional/build_docs_zip.md::§7` | ✅ |
-    | Capacidad «Trazabilidad» y 27/27 tests | `docs/functional/doc_trace.md::§7` | ✅ |
+    | Capacidad «Trazabilidad» y 28/28 tests | `docs/functional/doc_trace.md::§7` | ✅ |
     | Capacidad «Documentar un Proyecto» y 1/12 tests | `docs/functional/document_project.md::§7` | ✅ |
     | Capacidad «Tipos de Origen» y 1/9 tests | `docs/functional/origin_types.md::§7` | ✅ |
     | Capacidad «Arquetipos» y 14/14 tests | `docs/functional/archetypes.md::§7` | ✅ |

@@ -10,7 +10,7 @@ fuentes:
   scripts/build_docs_zip.py: 5f972ee674c8
   scripts/check_env.py: c9105c709663
   scripts/convert_to_md.py: e7e60518d96f
-  scripts/doc_trace.py: 511f3e656b2f
+  scripts/doc_trace.py: cce8cb952a67
   scripts/start-server.py: a12209ac8507
 revisado: 2026-11-04
 ---
@@ -25,7 +25,7 @@ línea de comandos, códigos de salida y eventos de build. La API interna de cad
 | Clave | Origen | Tipo | Por defecto | Descripción |
 |---|---|---|---|---|
 | `CUDA_VISIBLE_DEVICES` | `env` | cadena | `""` (lo fija `convert_to_md.py` al importarse si no existe) | Visibilidad de GPU para docling. `--device cpu` la fija a `""`; `--device cuda` la elimina; `--device auto` respeta un valor exportado por el usuario e ignora el que fija el propio módulo |
-| `project.version` | fichero `pyproject.toml` | cadena SemVer | `0.5.0` (valor actual) | Versión usada en el nombre del ZIP (`doc_ia-docs-{versión}.zip`) y en la release `docs-v{versión}` |
+| `project.version` | fichero `pyproject.toml` | cadena SemVer | `0.5.1` (valor actual) | Versión usada en el nombre del ZIP (`doc_ia-docs-{versión}.zip`) y en la release `docs-v{versión}` |
 | `site_dir` | fichero `mkdocs.yml` | ruta | `site` | Directorio de salida del build; `mkdocs_hooks.py` lo lee de la configuración. `build_docs_zip.py` usa `site/` fijo |
 | `use_directory_urls` | fichero `mkdocs.yml` | booleano | `false` | URLs `*.html`: el sitio y el ZIP se abren con doble clic en `index.html` (el plugin `offline` lo fuerza igualmente) |
 | `plugins: offline` | fichero `mkdocs.yml` | plugin | activo | Escribe el índice de búsqueda como JS (`search/search_index.js`; Zensical: `search.js`) para buscar desde `file://` |
@@ -100,13 +100,13 @@ python scripts/doc_trace.py [--root DIR] {drift,stamp,matrix,llms,decisions,base
 | Opción / Argumento | Tipo | Por defecto | Descripción |
 |---|---|---|---|
 | `--root` | ruta | raíz del repositorio | Base para resolver las fuentes del frontmatter (global, antes del subcomando) |
-| `drift --docs` | ruta | `docs` | Carpeta donde buscar páginas con frontmatter `fuentes` |
+| `drift --docs` | ruta | `<--root>/docs` | Carpeta donde buscar páginas con frontmatter `fuentes` |
 | `stamp <páginas…>` | rutas (obligatorio) | — | Páginas a sellar |
 | `stamp --source` | ruta (repetible) | fuentes actuales del frontmatter | Ficheros de los que deriva la página; si se indica, **sustituye** la lista entera |
 | `stamp --archetype` | cadena | el actual del frontmatter | Arquetipo de la página (`1`, `1-I`, `2`, `12`…) |
 | `stamp --date` | `YYYY-MM-DD` | hoy | Fecha `revisado` |
-| `matrix --docs` | ruta | `docs` | Se leen los `AC-xx` de `<docs>/functional/*.md` |
-| `matrix --tests` | ruta | `tests` | Carpeta con `test_*.py` |
+| `matrix --docs` | ruta | `<--root>/docs` | Se leen los `AC-xx` de `<docs>/functional/*.md` |
+| `matrix --tests` | ruta | `<--root>/tests` | Carpeta con `test_*.py` |
 | `matrix --output` | ruta | stdout | Fichero Markdown de la matriz |
 | `llms --config` | ruta | `<root>/mkdocs.yml` | Configuración con `site_name`, `site_url` y `nav` |
 | `llms --output` | ruta | `<docs_dir>/llms.txt` junto a `--config` | Fichero generado (`docs_dir` por defecto: `docs`) |

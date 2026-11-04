@@ -976,7 +976,9 @@ def _rel(path: Path, root: Path) -> str:
 
 def _cmd_drift(args: argparse.Namespace) -> int:
     root: Path = args.root.resolve()
-    findings = check_drift(args.docs.resolve(), root)
+    # Por defecto, relativo a --root (destino externo), no a la raíz de doc_ia.
+    docs: Path = (args.docs or root / "docs").resolve()
+    findings = check_drift(docs, root)
     for f in findings:
         print(f"[doc_trace] {f.status:<12} {_rel(f.page, root)} ← {f.source}")
     if findings:
@@ -1006,8 +1008,10 @@ def _cmd_stamp(args: argparse.Namespace) -> int:
 
 def _cmd_matrix(args: argparse.Namespace) -> int:
     root: Path = args.root.resolve()
-    criteria = collect_criteria(args.docs.resolve() / "functional")
-    test_ids = collect_test_ids(args.tests.resolve(), root)
+    docs: Path = (args.docs or root / "docs").resolve()
+    tests: Path = (args.tests or root / "tests").resolve()
+    criteria = collect_criteria(docs / "functional")
+    test_ids = collect_test_ids(tests, root)
     report, unknown = build_matrix(criteria, test_ids, root)
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -1125,7 +1129,7 @@ def _parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", required=True)
 
     drift = sub.add_parser("drift", help="Detecta páginas con fuentes cambiadas.")
-    drift.add_argument("--docs", type=Path, default=ROOT / "docs", help="Carpeta de docs.")
+    drift.add_argument("--docs", type=Path, help="Carpeta de docs (<root>/docs).")
     drift.set_defaults(func=_cmd_drift)
 
     stamp = sub.add_parser("stamp", help="Sella las huellas de las fuentes de una página.")
@@ -1138,8 +1142,8 @@ def _parser() -> argparse.ArgumentParser:
     stamp.set_defaults(func=_cmd_stamp)
 
     matrix = sub.add_parser("matrix", help="Cruza criterios de aceptación con tests.")
-    matrix.add_argument("--docs", type=Path, default=ROOT / "docs", help="Carpeta de docs.")
-    matrix.add_argument("--tests", type=Path, default=ROOT / "tests", help="Carpeta de tests.")
+    matrix.add_argument("--docs", type=Path, help="Carpeta de docs (<root>/docs).")
+    matrix.add_argument("--tests", type=Path, help="Carpeta de tests (<root>/tests).")
     matrix.add_argument(
         "--output", type=Path, help="Fichero Markdown de salida (por defecto, stdout)."
     )
