@@ -29,8 +29,8 @@ Opcionales:
 - **Alcance**: módulos o subconjunto a documentar (por defecto: proyecto completo). Si lo
   documentado es un **módulo funcional transversal** dentro de un repositorio mayor (repartido
   entre varios módulos de build), el alcance se expresa como **rutas o pathspecs de git**
-  relativos al origen (`--path` de `doc_trace`); se proponen en el INVENTARIO y se confirman
-  con el usuario antes de generar
+  relativos al origen (`--path` de `doc_trace`); se proponen y aplican en el INVENTARIO
+  (se informan con su justificación; el usuario puede corregirlas, pero el flujo no se detiene)
 - **Ref** (solo orígenes CÓDIGO remotos): rama, etiqueta o commit a documentar — preguntar,
   nunca asumir `main`
 - **Arquetipos**: subconjunto a aplicar (por defecto: todos los aplicables según inventario)
@@ -181,6 +181,8 @@ Fase 0b — Sincronización visual del destino (OBLIGATORIO en toda sesión, cre
              .venv/, *.pdf, *.doc, *.docx, _staging/ (crear si no existe; añadir los que falten).
              Destino que no es repositorio git → `git init` (con confirmación del usuario) antes
              de la primera escritura; el remoto es opcional y solo lo decide el usuario.
+           · .gitattributes en la raíz del destino: `* text=auto eol=lf`, `*.zip`/`*.png`/`*.jpg`
+             binary y `docs/assets/vendor/** -text` (huella estable de los ficheros de terceros)
              Nunca ignorar `_fuentes/`: el texto convertido se versiona (Fase 0c, Paso 5)
            · theme.features SIN navigation.sections si nav.css está en extra_css
            · los 6 recursos de docs/assets/ existen y están en extra_css / extra_javascript /
@@ -476,6 +478,10 @@ Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
                · `pom.xml` presente (Java/Maven)      → `xml.etree.ElementTree` + strip `-SNAPSHOT`
                   Ejemplo: `re.sub(r"-(SNAPSHOT|RC\d*|BETA\d*)$", "", ver.text, flags=re.IGNORECASE)`
                · `package.json` presente (Node.js)    → `json.load(f)["version"]`
+               · Repositorio de documentación separado del origen (sin pyproject/pom/package.json
+                 propios) → `extra.version` de `mkdocs.yml` = versión del ORIGEN documentado
+                 (sin -SNAPSHOT/RC), escrita por el agente desde el pom/pyproject/package.json del
+                 origen en cada sesión; `--version` la sobrescribe
                · Ninguno                              → argumento `--version` requerido en CLI
              Crear el script adaptando `doc_ia/scripts/build_docs_zip.py`:
                · Cambiar `ZIP_PREFIX = "{nombre_proyecto}-docs"`
@@ -610,6 +616,18 @@ Reglas transversales: idioma indicado en todo el contenido generado; no inventar
 APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reglas operativas de
 `.github/instructions/docs.instructions.md`.
 
+**Origen de plantillas y decisiones** (independencia entre proyectos):
+- Todo artefacto del destino se deriva de **doc_ia** (`scripts/`, `mkdocs_hooks.py`,
+  `requirements-docs.txt`, `.github/templates/`, `docs/assets/`) y de los **orígenes de este
+  proyecto**. Otros destinos documentados con doc_ia (proyectos hermanos) **no son plantilla**:
+  no se copian sus scripts, páginas, `.ai/*.md`, `downloads.md` ni `VER_DOCUMENTACION.md`.
+- Las **decisiones** las toma este proyecto: clasificación de orígenes, alcance `--path`, estados
+  de cobertura, fichas `COB-…` y ADR se justifican solo con evidencia de sus orígenes. Una
+  decisión tomada en otro proyecto (una ficha decidida, un ADR aceptado) no se aplica aquí aunque
+  el stack coincida: si el mismo problema aparece, se abre su propia ficha o ADR.
+- Si otro destino resolvió algo que el estándar no cubre, la solución se incorpora primero a
+  doc_ia (prompt, plantilla o script) y desde ahí se aplica; nunca se copia de destino a destino.
+
 **Prioridad entre fuentes** (cuando varias describen lo mismo y discrepan):
 1. **CÓDIGO** — lo construido manda sobre el comportamiento actual.
 2. **ESPECIFICACIÓN** — lo previsto: lo que el código aún no hace se documenta como
@@ -663,7 +681,9 @@ anonimiza o se excluye. `_staging/` no se versiona nunca.
 9. **RESUMEN** — archivos generados/actualizados, entradas de nav, pendientes de verificación humana.
    Si hay registro de decisiones (Arq. 13): decisiones aplicadas en esta sesión (ID → páginas),
    fichas `Pendiente` con la pregunta concreta para quien decide e inválidas/incompletas.
-10. **CIERRE DE SESIÓN** (siempre obligatorio) — crear artefacto `.ai/sessions/YYYY-MM-DD/` en el
+10. **CIERRE DE SESIÓN** (siempre obligatorio) — contexto `.ai/{product,architecture,glossary,runtime,standards}.md`
+    (primera sesión o si faltan) desde `.github/templates/ai_context/*.template.md`, con sus secciones
+    fijas y solo con datos de los orígenes de este proyecto; crear artefacto `.ai/sessions/YYYY-MM-DD/` en el
     destino (`00_REQUEST.md`, `00_CONTEXT_SNAPSHOT.md`, `TRACEABILITY.md`) y proponer commit
     `docs(<scope>): <resumen>` con recuento de páginas creadas/actualizadas/omitidas; el commit
     incluye `_fuentes/` si la Fase 0c la creó o cambió.

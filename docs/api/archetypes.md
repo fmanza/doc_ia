@@ -2,10 +2,10 @@
 arquetipo: "2"
 fuentes:
   .github/DOCUMENTATION_STANDARD.md: d42bac6b22cb
-  .github/agents/documentation-generator.agent.md: ccdfdc6d2019
+  .github/agents/documentation-generator.agent.md: 54578294e0a8
   .github/prompts/example_doc.prompt.md: 6041f616e0c3
   mkdocs.yml: 9d6912b83c82
-  tests/test_docs_conformance.py: eecff9593caf
+  tests/test_docs_conformance.py: 1b8b53960310
 decisiones:
   ../decisiones/archetypes_decisiones.md: 1a6976ff3ff3
 revisado: 2026-11-05

@@ -2,7 +2,7 @@
 arquetipo: "1"
 fuentes:
   .github/DOCUMENTATION_STANDARD.md: d42bac6b22cb
-  .github/prompts/document_project.prompt.md: 11cbfbf62af3
+  .github/prompts/document_project.prompt.md: 2ba557bc9a37
   scripts/snapshot_sources.py: d350c174f962
 decisiones:
   ../decisiones/origins_decisiones.md: 2aa59f9fc5e0

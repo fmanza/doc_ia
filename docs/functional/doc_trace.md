@@ -1,7 +1,7 @@
 ---
 arquetipo: "1"
 fuentes:
-  scripts/doc_trace.py: 7fbd066dfa3a
+  scripts/doc_trace.py: 3631c07d7fc3
 decisiones:
   ../decisiones/doctrace_decisiones.md: 1cc61611500e
 revisado: 2026-11-05
@@ -206,6 +206,7 @@ criterios y el índice para agentes IA se ejecutan como operaciones independient
 | AC-30 | Una página que enlaza un registro sin haberlo sellado, o que solo enlaza registros | Se comprueban desactualizaciones o se sella | Se informa como no sellada; se puede sellar sin indicar fuentes; los enlaces escritos como código no cuentan | `tests/test_doc_trace.py::test_drift_reports_unsealed_register_link`, `tests/test_doc_trace.py::test_stamp_page_that_only_links_registers`, `tests/test_doc_trace.py::test_register_links_inside_code_are_not_sealed` |
 | AC-31 | Un módulo funcional repartido entre dos carpetas de un repositorio, con el baseline guardado para esas rutas | Cambia un fichero fuera de ellas y después uno dentro, y se piden los cambios sin repetir las rutas | Solo cuentan los cambios dentro del alcance: primero «sin cambios» (código 0), después el fichero cambiado (código 1); las rutas quedan guardadas en el estado | `tests/test_doc_trace.py::test_changed_files_limited_to_paths`, `tests/test_doc_trace.py::test_baseline_with_paths_is_reused_by_changes` |
 | AC-32 | Un baseline guardado con un alcance de rutas, o sin él | Se piden los cambios con otras rutas, o se guarda el baseline sin rutas | Con otras rutas se indica el motivo y termina con código 3; sin rutas, el estado guardado no incluye alcance | `tests/test_doc_trace.py::test_changes_with_different_paths_falls_back`, `tests/test_doc_trace.py::test_baseline_without_paths_keeps_legacy_format` |
+| AC-33 | Un origen en un worktree con HEAD desacoplado en una rama | Se guarda el baseline, con o sin `--ref` | Sin `--ref` se registra la rama que apunta a ese commit; con `--ref` se registra la indicada | `tests/test_doc_trace.py::test_baseline_detached_head_records_the_ref_pointing_at_it`, `tests/test_doc_trace.py::test_baseline_ref_overrides_branch` |
 
 Verificación: `python -m pytest tests/test_doc_trace.py -q`.
 
@@ -254,6 +255,7 @@ Verificación: `python -m pytest tests/test_doc_trace.py -q`.
     | Regla «Lo que genera la documentación no es un cambio» | `scripts/doc_trace.py::documentation_paths`, `::DOC_ARTIFACTS` | ✅ |
     | Regla «Ante la duda, sesión completa» | `scripts/doc_trace.py::check_changes`, `::_cmd_changes` (código 3) | ✅ |
     | Regla «El alcance se guarda con el baseline», AC-31 y AC-32 | `scripts/doc_trace.py::take_baseline`, `::write_baseline` (`rutas` solo si no es `.`), `::check_changes` (alcance distinto → modo completo), `::changed_files` (`paths`), `::DEFAULT_PATHS` | ✅ |
+    | AC-33 · rama de un HEAD desacoplado y `--ref` | `scripts/doc_trace.py::_detached_ref`, `::take_baseline`, `::_cmd_baseline` (`--ref`) | ✅ |
     | AC-15 – AC-21 | `scripts/doc_trace.py::_cmd_baseline`, `::_cmd_changes`, `::format_changes`, `::linked_examples` | ✅ |
     | Decisiones de cobertura: lectura del registro y de los apartados | `scripts/doc_trace.py::parse_registers`, `::collect_coverage_rows`, `::_code_free_lines` | ✅ |
     | Regla «Una decisión tomada se ve en la documentación» | `scripts/doc_trace.py::check_decisions`, `::_reflection_problem` | ✅ |

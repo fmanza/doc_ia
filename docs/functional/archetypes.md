@@ -1,10 +1,10 @@
 ---
 arquetipo: "1"
 fuentes:
-  .claude/commands/document-project.md: 3321b9303a7b
+  .claude/commands/document-project.md: b709f8bc0b4f
   .github/DOCUMENTATION_STANDARD.md: d42bac6b22cb
   hooks/sync_root_docs.py: ef5e576436c6
-  tests/test_docs_conformance.py: eecff9593caf
+  tests/test_docs_conformance.py: 1b8b53960310
 decisiones:
   ../decisiones/archetypes_decisiones.md: 1a6976ff3ff3
 revisado: 2026-11-05

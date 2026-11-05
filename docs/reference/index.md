@@ -10,7 +10,7 @@ fuentes:
   scripts/build_docs_zip.py: 5f972ee674c8
   scripts/check_env.py: c9105c709663
   scripts/convert_to_md.py: e7e60518d96f
-  scripts/doc_trace.py: 7fbd066dfa3a
+  scripts/doc_trace.py: 3631c07d7fc3
   scripts/snapshot_sources.py: d350c174f962
   scripts/start-server.py: a12209ac8507
 revisado: 2026-11-05
@@ -120,6 +120,7 @@ python scripts/doc_trace.py [--root DIR] {drift,stamp,matrix,llms,decisions,base
 | `baseline` / `changes --docs` | ruta | `<--root>/docs` | Docs del destino (citas y artefactos a excluir) |
 | `baseline` / `changes --state` | ruta | `<--root>/.ai/doc_state.json` | Estado del modo incremental |
 | `baseline` / `changes --path` | pathspec de git (repetible) | `.` en `baseline`; las `rutas` guardadas en `changes` | Alcance transversal relativo al origen (p. ej. un módulo funcional repartido entre varios módulos de build); en `changes` debe coincidir con el del baseline |
+| `baseline --ref` | cadena | rama actual; con HEAD desacoplado, la única ref que apunta a él | Rama o ref documentada que se guarda en `rama` (p. ej. `origin/dev` en un worktree desacoplado) |
 | `changes --output` | ruta | stdout | Fichero Markdown del informe |
 
 ### snapshot_sources.py

@@ -1,9 +1,9 @@
 ---
 arquetipo: "1"
 fuentes:
-  .claude/commands/document-project.md: 3321b9303a7b
+  .claude/commands/document-project.md: b709f8bc0b4f
   .github/DOCUMENTATION_STANDARD.md: d42bac6b22cb
-  .github/prompts/document_project.prompt.md: 11cbfbf62af3
+  .github/prompts/document_project.prompt.md: 2ba557bc9a37
   CLAUDE.md: f4ee79d0d791
   scripts/snapshot_sources.py: d350c174f962
 decisiones:
@@ -111,7 +111,8 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
   `_fuentes/`, fuera de `docs/` y versionada, y ninguna carpeta con otro nombre para ellos.
 - Existe `.ai/sessions/YYYY-MM-DD/` en el destino con `00_REQUEST.md`,
   `00_CONTEXT_SNAPSHOT.md` y `TRACEABILITY.md`; en la primera sesión se crean además los
-  cinco ficheros de contexto `.ai/*.md`.
+  cinco ficheros de contexto `.ai/*.md`, con las secciones fijas de las plantillas de doc_ia
+  (`.github/templates/ai_context/`) y solo con datos de los orígenes del proyecto.
 - Se **propone** un commit `docs(<scope>): …`; el flujo no lo ejecuta por sí mismo.
 - Con `--verify-build`: el sitio se ha construido en modo estricto y el resultado figura en
   el informe.
@@ -134,6 +135,7 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
 | Zensical sin pérdidas silenciosas | Con generador Zensical, que no ejecuta `hooks:` ni los plugins que no soporta, el flujo detecta si el script de build del destino ejecuta él mismo esos pasos (`TIENE_PIPELINE_SIN_HOOKS`), reporta el Gap A4 si no lo hace y señala los plugins no soportados; nunca crea `zensical.toml` | El destino perdería sin aviso la sincronización de ficheros raíz, el ZIP "latest" o la función de un plugin |
 | Documentos pre-convertidos (`md/`) | Si el origen contiene carpetas `md/` (generadas por `convert_to_md.py`), se usan como contexto de primera clase en Fases 2-4 sin re-conversión; no generan páginas propias ni reciben estado A/B/C | Se perdería contexto valioso de documentos binarios o se intentaría re-convertir innecesariamente |
 | Fuentes convertidas en `_fuentes/` | El destino recibe siempre una copia de los documentos convertidos en `_fuentes/<origen>/…`, con la misma ruta que en el origen, aunque origen y destino sean el mismo repositorio. Es el único nombre válido: otro nombre existente se migra a `_fuentes/` con confirmación, y nada se borra sin confirmar. Su texto se versiona en el destino; los binarios, no | Cada sesión elegiría un nombre distinto (`.fuentes/`, `_fuentes/`), la evidencia apuntaría a rutas fuera del repositorio y la trazabilidad no detectaría cambios en esos documentos |
+| Independencia entre proyectos | Todo lo que se escribe en el destino se deriva de doc_ia (scripts, plantillas, recursos) y de los orígenes del propio proyecto. Otro proyecto documentado con doc_ia no es plantilla ni fuente de decisiones: su clasificación de orígenes, su alcance, sus fichas de cobertura o sus ADR no se aplican aquí, aunque el stack coincida. Lo que otro proyecto resolvió y el estándar no cubría se incorpora primero a doc_ia | Un proyecto heredaría decisiones que nadie tomó para él, y cada destino copiado de otro acumularía sus errores y versiones antiguas de los scripts |
 | Contexto persistente `.ai/*.md` | En la primera sesión de un destino nuevo (o si faltan), se crean los 5 ficheros de contexto raíz: `product.md`, `architecture.md`, `glossary.md`, `runtime.md`, `standards.md`; en sesiones posteriores se actualizan si el inventario detecta cambios relevantes | Una IA futura no tendría el snapshot del proyecto para su `00_CONTEXT_SNAPSHOT` |
 
 ## 6. Límites, Flujos Alternativos y Casos Especiales

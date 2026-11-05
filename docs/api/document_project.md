@@ -1,9 +1,9 @@
 ---
 arquetipo: "2"
 fuentes:
-  .claude/commands/document-project.md: 3321b9303a7b
-  .github/agents/documentation-generator.agent.md: ccdfdc6d2019
-  .github/prompts/document_project.prompt.md: 11cbfbf62af3
+  .claude/commands/document-project.md: b709f8bc0b4f
+  .github/agents/documentation-generator.agent.md: 54578294e0a8
+  .github/prompts/document_project.prompt.md: 2ba557bc9a37
   mkdocs.yml: 9d6912b83c82
   scripts/snapshot_sources.py: d350c174f962
 revisado: 2026-11-05
@@ -72,7 +72,7 @@ La vista del mismo flujo desde el usuario (qué pide, qué confirma y qué recib
 | `Idioma` | string | `es`, `en` u otro código ISO 639-1 | Obligatorio; aplica a todo el contenido generado |
 | `Tipo de cada origen` | string | `CÓDIGO` · `NORMATIVA` · `ESPECIFICACIÓN` · `UI/PANTALLAS` · `REFERENCIA` · `CONTRATO` · `INFRAESTRUCTURA` · `MANUAL` | Opcional; autodetectado si se omite; se confirma antes de continuar. Catálogo completo en [Tipos de Origen](../functional/origin_types.md) |
 | `Estrategia` | string | `federado` · `hub+satélite` · `monorepo` | Solo con ≥2 orígenes CÓDIGO; nunca autodetectado |
-| `Alcance` | string | Módulos o subconjunto | Opcional; por defecto proyecto completo. Un módulo funcional transversal dentro de un repositorio mayor se expresa como pathspecs de git (`doc_trace.py --path`), propuestos en el INVENTARIO y confirmados por el usuario |
+| `Alcance` | string | Módulos o subconjunto | Opcional; por defecto proyecto completo. Un módulo funcional transversal dentro de un repositorio mayor se expresa como pathspecs de git (`doc_trace.py --path`), propuestos y aplicados en el INVENTARIO (se informan; el usuario puede corregirlos sin que el flujo se detenga) |
 | `Ref` | string | Rama, etiqueta o commit de un origen CÓDIGO remoto | Solo con repositorio remoto; se pregunta, nunca se asume `main` |
 | `Arquetipos` | string | Subconjunto de arquetipos a aplicar | Opcional; por defecto todos los aplicables |
 | `Verificación` | flags | `--verify-tools` y/o `--verify-build [--serve]` | Opcional; nunca automático |

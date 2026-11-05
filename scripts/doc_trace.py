@@ -52,7 +52,7 @@ import re
 import subprocess
 import sys
 import tomllib
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import date
 from pathlib import Path
 from typing import Any, Literal
@@ -526,6 +526,23 @@ def changed_files(
     return sorted(kept, key=lambda c: (c.path, c.kind))
 
 
+def _detached_ref(origin: Path) -> str | None:
+    """Rama local o remota que apunta al HEAD desacoplado, si es única (sin ``*/HEAD``)."""
+    out = _git(
+        origin,
+        "for-each-ref",
+        "--points-at",
+        "HEAD",
+        "--format=%(refname:short)",
+        "refs/heads",
+        "refs/remotes",
+    )
+    if out is None:
+        return None
+    refs = [r for r in out.decode().split() if r and not r.endswith("/HEAD")]
+    return refs[0] if len(refs) == 1 else None
+
+
 def take_baseline(
     origin: Path,
     excluded: tuple[str, ...] = (),
@@ -541,6 +558,10 @@ def take_baseline(
     commit = head.decode().strip()
     branch_out = _git(origin, "rev-parse", "--abbrev-ref", "HEAD")
     branch = branch_out.decode().strip() if branch_out else None
+    if (
+        branch == "HEAD"
+    ):  # desacoplado (p. ej. worktree en origin/<ref>): la única ref que apunta aquí
+        branch = _detached_ref(origin) or branch
     pending = changed_files(origin, "HEAD", excluded, spec)
     return OriginBaseline(commit, branch, bool(pending), day, spec)
 
@@ -1178,6 +1199,8 @@ def _cmd_baseline(args: argparse.Namespace) -> int:
     origin, docs, state, name = _origin_args(args)
     paths = _paths_arg(args) or DEFAULT_PATHS
     baseline = take_baseline(origin, documentation_paths(origin, docs), paths=paths)
+    if args.ref and baseline.commit is not None:  # ref documentada explícita (worktree desacoplado)
+        baseline = replace(baseline, branch=args.ref)
     write_baseline(state, name, baseline)
     if baseline.commit is None:
         print(f"[doc_trace] {name}: el origen no está bajo git; la próxima sesión será completa.")
@@ -1265,6 +1288,9 @@ def _parser() -> argparse.ArgumentParser:
 
     baseline = sub.add_parser("baseline", help="Guarda el commit actual del origen (CIERRE).")
     _add_origin_args(baseline)
+    baseline.add_argument(
+        "--ref", help="Rama/ref documentada (por defecto, la actual o la única que apunta al HEAD)."
+    )
     baseline.set_defaults(func=_cmd_baseline)
 
     changes = sub.add_parser("changes", help="Cambios del origen desde su baseline (Fase 1).")

@@ -5,6 +5,31 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+### Added
+
+- **Plantillas del contexto `.ai/` del CIERRE** (`.github/templates/ai_context/`: `product`,
+  `architecture`, `glossary`, `runtime`, `standards`) con secciones fijas. El CIERRE de
+  `/document-project` las usa; hasta ahora solo había una tabla de contenidos y cada destino
+  improvisaba (o copiaba de otro) el formato. Tests de conformidad de secciones y de referencias.
+- **Regla «Origen de plantillas y decisiones»** en prompt, comando y agente: todo artefacto del
+  destino sale de doc_ia y de los orígenes del propio proyecto; otro destino documentado con
+  doc_ia no es plantilla ni fuente de decisiones (fichas `COB-…`, ADR, alcance, clasificación).
+  Lo que un destino resolvió y el estándar no cubría se incorpora antes a doc_ia.
+- **`doc_trace.py baseline --ref`** y rama deducida con HEAD desacoplado (worktree en
+  `origin/<ref>`): se guarda la única rama local o remota que apunta al commit, no `HEAD`.
+- **Paso B1**: la versión de un repositorio de documentación separado del origen se lee de
+  `extra.version` de `mkdocs.yml` (versión del origen documentado). Fase 0b: `.gitattributes`
+  estándar en el destino.
+
+### Changed
+
+- **`--path` ya no detiene el flujo**: las rutas del alcance transversal se proponen y aplican en
+  el INVENTARIO (el usuario puede corregirlas), en línea con el resto de `/document-project`.
+
+### Fixed
+
+- Mapa funcional: recuentos de criterios con test (arquetipos 15/15; total 96 de 121).
+
 ## [0.8.0] — 2026-11-05
 
 ### Added
