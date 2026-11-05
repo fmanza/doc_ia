@@ -2,10 +2,11 @@
 arquetipo: "1"
 fuentes:
   .github/DOCUMENTATION_STANDARD.md: d42bac6b22cb
-  .github/prompts/document_project.prompt.md: 4dba1b469bc1
+  .github/prompts/document_project.prompt.md: 11cbfbf62af3
+  scripts/snapshot_sources.py: d350c174f962
 decisiones:
   ../decisiones/origins_decisiones.md: 2aa59f9fc5e0
-revisado: 2026-11-04
+revisado: 2026-11-05
 ---
 # Catálogo de Tipos de Origen
 
@@ -75,7 +76,7 @@ Presenta el resultado en una tabla y espera la confirmación del usuario antes d
 | Tipo | Naturaleza | Señales en el sistema de ficheros | Ejemplos de artefactos |
 |---|---|---|---|
 | `CÓDIGO` | Archivos fuente ejecutables que implementan la lógica del sistema | `.py`, `.js`, `.ts`, `.cs`, `.java`, `.go`, `.rs`, `.rb`, `.php`, …; `pyproject.toml`, `package.json`, `pom.xml`, `Cargo.toml`, `go.mod`; directorios `src/` o `tests/` presentes | `scripts/check_env.py`, `src/main.ts`, `lib/core.go` |
-| `NORMATIVA` | Documentos legales o regulatorios de obligado cumplimiento | PDFs/docs cuyo nombre o carpeta contenga: `ley`, `decreto`, `directiva`, `rgpd`, `gdpr`, `une`, `iso`, `reglamento`, `compliance` | `RGPD-2016-679.pdf`, `ley-39-2015.pdf`, `ISO-27001.pdf` |
+| `NORMATIVA` | Documentos legales o regulatorios de obligado cumplimiento | PDFs/docs cuyo nombre o carpeta contenga: `ley`, `decreto`, `directiva`, `rgpd`, `gdpr`, `une`, `iso`, `reglamento`, `compliance`, `normativa`, `legislación`, `boe`, `doue` | `RGPD-2016-679.pdf`, `ley-39-2015.pdf`, `ISO-27001.pdf`, `BOE-A-2004-21760.pdf` |
 | `ESPECIFICACIÓN` | Requisitos, user stories, casos de uso o pliegos del proyecto | Word/PDF de requisitos; ficheros `.feature` (BDD/Gherkin); carpetas `specs/`, `requirements/`, `ux/`, `user-stories/` | `PRD-v2.docx`, `requirements.pdf`, `login.feature` |
 | `UI/PANTALLAS` | Wireframes, mockups, capturas de pantalla o prototipos de interfaz | `.png`, `.jpg`, `.pdf` de diseño; carpetas `mockups/`, `screens/`, `wireframes/`, `figma-exports/`, `designs/` | `mockup-login.png`, `flujo-checkout.pdf`, `screens/` |
 | `CONTRATO` | Especificaciones machine-readable de las APIs y modelos de datos **propios del proyecto** | `.yaml`/`.json` con clave `openapi:` o `asyncapi:`; `.graphql`/`.gql`; `.proto`; `.avsc`; `.sql` DDL en `db/`/`migrations/`; `.dbml`; carpetas `api/`, `contracts/`, `schemas/`, `proto/`, `graphql/` | `openapi.yaml`, `schema.graphql`, `service.proto`, `asyncapi.yml`, `schema.sql`, `models.dbml` |
@@ -128,6 +129,10 @@ secciones concretas de los arquetipos del proyecto `CÓDIGO` principal.
 - No genera páginas para los orígenes MATERIAL.
 - No convierte documentos binarios a Markdown (eso lo cubre la conversión previa con
   carpetas `md/`, que el destino recibe copiadas en `_fuentes/`).
+- No adquiere los orígenes: si un origen no es una carpeta local de trabajo (un fichero con la
+  versión en el nombre, una carpeta de red, una biblioteca de SharePoint sincronizada o un
+  repositorio remoto), la Fase 0-pre lo copia antes a `_staging/` del destino y la
+  clasificación se hace sobre esa copia (ver [Adquisición de Orígenes](snapshot_sources.md)).
 - No decide la estrategia entre varios proyectos de código.
 
 ### Flujos alternativos
@@ -142,6 +147,11 @@ secciones concretas de los arquetipos del proyecto `CÓDIGO` principal.
 - **Señales mixtas**: un directorio puede contener `.tf` Y `.py`; en ese caso prevalece
   `CÓDIGO` si hay archivos fuente ejecutables acompañados de tests o manifiesto de build.
   Los `.tf` dentro del mismo repo se tratan como `INFRAESTRUCTURA` acompañante.
+- **Normativa sin fuerza obligatoria**: solo lo de obligado cumplimiento (leyes, decretos,
+  órdenes) es `NORMATIVA` y activa el Arquetipo 8; planes, estrategias, guías o protocolos sin
+  fuerza normativa son `REFERENCIA` aunque estén en la carpeta de normativa. En la duda, se
+  pregunta en la confirmación. El nombre de cada norma se toma de su texto, no del nombre del
+  fichero.
 - **Contrato externo (tercero)**: si el `.yaml` openapi describe una API de un proveedor
   externo (ej. la API de Stripe), es `REFERENCIA`, no `CONTRATO`. La distinción es la
   propiedad: si es la API del proyecto, es `CONTRATO`; si es la de un tercero, es `REFERENCIA`.
@@ -198,6 +208,8 @@ el chat y no tiene tests automatizados.
     | Regla «`MANUAL` propio del proyecto» | `.github/DOCUMENTATION_STANDARD.md::3.10` (fila `MANUAL`) | ✅ |
     | Regla «Requisitos frente a manual» | `.github/DOCUMENTATION_STANDARD.md::3.10` (Requisitos frente a manual), `.github/prompts/document_project.prompt.md::Fase 0a`, `tests/test_docs_conformance.py::test_specification_vs_manual_criterion` (coherencia de las instrucciones) | ✅ |
     | [COB-ORIGINS-005](../decisiones/origins_decisiones.md#cob-origins-005) · Flujo «Corrección del usuario» | `.github/DOCUMENTATION_STANDARD.md::3.10` (Regla: el usuario confirma antes del INVENTARIO), `.github/prompts/document_project.prompt.md` (parámetro «Tipo de cada origen»: se confirma con el usuario) | 🔍 → ✅ (decisión: Aportar evidencia) |
+    | Señales `normativa`, `legislación`, `boe`, `doue` y caso «Normativa sin fuerza obligatoria» | `.github/prompts/document_project.prompt.md::Fase 0a` (paso 1, `NORMATIVA`) | ✅ |
+    | Límite «No adquiere los orígenes» | `.github/prompts/document_project.prompt.md::Fase 0-pre`, `scripts/snapshot_sources.py` (docstring del módulo) | ✅ |
     | AC-01 | `.github/DOCUMENTATION_STANDARD.md::3.10` (filas `CONTRATO`) | ✅ |
     | AC-02 | `.github/DOCUMENTATION_STANDARD.md::3.10` (filas `INFRAESTRUCTURA`) | ✅ |
     | AC-03 | `.github/DOCUMENTATION_STANDARD.md::3.10` (`REFERENCIA` = ajena al proyecto) | ✅ |

@@ -256,6 +256,7 @@ Cuando el usuario pida documentar o actualizar todo el proyecto, usa este flujo 
 - Clasifica: (A) sin documentación, (B) documentación desactualizada, (C) documentación vigente.
 - Prioriza: entry points > CLI > API pública > configuración > ejemplos reproducibles.
 - Con múltiples orígenes CÓDIGO: generar un sub-inventario por proyecto; indicar el hub si la estrategia es `hub+satélite`.
+- Orígenes no locales (fichero con versión `…_v{ver}.docx`, carpeta de red, SharePoint, repositorio remoto): **antes** de inventariar, adquirirlos en `<raíz del destino>/_staging/<nombre>/` (Fase 0-pre): MATERIAL con `scripts/snapshot_sources.py add` + `sync` (nombre estable sin versión, historial en `.ai/sources.json`); SharePoint desde la biblioteca sincronizada con OneDrive; CÓDIGO remoto con `git fetch` + `git worktree add --detach … origin/<ref>`. El origen nunca se escribe. Módulo funcional transversal → rutas `--path` de `doc_trace` confirmadas con el usuario. Regla completa: `document_project.prompt.md` § Fase 0-pre.
 - Documentos convertidos (carpetas `md/` del origen): copiarlos **siempre** a `_fuentes/<nombre_origen>/<ruta relativa al origen>` en la raíz del destino, fuera de `docs/`, y leerlos desde ahí. Ningún otro nombre (`.fuentes/`, `fuentes/`); si existe, proponer migrarlo a `_fuentes/`. Regla completa: `document_project.prompt.md` § Fase 0c, Paso 5.
 
 ### Fase 2 — Mapeo funcional (Senior Product Owner)

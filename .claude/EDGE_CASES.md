@@ -199,6 +199,27 @@
   instrucciones.
 - **Sesión**: `.ai/sessions/2026-10-29_fuentes_destino/`
 
+## [document-project] — Orígenes remotos, de red y con versión en el nombre
+
+- **Síntoma** (análisis previo a documentar el módulo MVG de SocyalPRO, 2026-11-05):
+  1. El manual se publica como `…_Manual_<Módulo>_v1.2.50.docx` junto a su `.pdf`; con la
+     v1.2.51 la ruta en `_fuentes/` cambiaría y se perderían evidencia y `fuentes:`.
+  2. `convert_to_md.py` sobre una carpeta UNC compartida crea `md/` dentro de ella.
+  3. La documentación funcional/técnica vive en SharePoint; el conector Microsoft 365 del chat
+     devuelve texto convertido, no el `.docx`, y solo existe en Claude.
+  4. El clon local del repositorio estaba en `dev` con 20 meses de retraso.
+  5. El módulo funcional está repartido en 7 módulos Maven: `doc_trace` con `--origin` en la
+     raíz contaría como cambio cualquier commit del producto.
+- **Tratamiento**: Fase 0-pre en `document_project.prompt.md`: todo origen no local se copia a
+  `<raíz del destino>/_staging/<nombre>/` (git-ignorado) y se trabaja sobre la copia.
+  `scripts/snapshot_sources.py` resuelve `{ver}` (versión más alta, nombre estable), copia por
+  hash, invalida el `md/` del fichero cambiado y registra el historial en `.ai/sources.json`.
+  SharePoint: vía la biblioteca sincronizada con OneDrive (binario original, multiplataforma);
+  el conector solo resuelve y contrasta. Repositorio: `git fetch` + `git worktree add --detach`
+  en `_staging/`, sin tocar el clon del usuario. Alcance transversal: `doc_trace --path`
+  (guardado en el baseline como `rutas`).
+- **Sesión**: análisis PLAN/AUDIT_PLAN de 2026-11-05 (feature 0.8.0).
+
 ## [ZIP offline] — Abrir `index.html` sin servidor muestra listados de carpetas (RESUELTO)
 
 - **Síntoma**: tras extraer el ZIP, abrir `index.html` con doble clic carga la portada, pero el

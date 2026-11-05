@@ -12,8 +12,13 @@ sueltos para documentar un proyecto completo: invoca este flujo y deja que orque
 
 ## Contexto a completar (OBLIGATORIO — validar antes de empezar)
 
-- [ ] **Origen(es) a documentar**: ruta(s) raíz del/los proyecto(s) (ej. `c:\repos\mi_api`)
-- [ ] **Destino de la documentación**: ruta donde se escribe (ej. `c:\repos\mi_api\docs` o repo aparte)
+- [ ] **Origen(es) a documentar**: ruta(s) raíz del/los proyecto(s) (ej. `c:\repos\mi_api`), o
+  cualquiera de las **formas de origen** de la Fase 0-pre (fichero con `{ver}`, carpeta de red,
+  biblioteca de SharePoint, repositorio remoto con `ref`)
+- [ ] **Destino de la documentación**: ruta donde se escribe (ej. `c:\repos\mi_api\docs` o repo aparte).
+  **Raíz del destino** = la carpeta que contiene (o contendrá) `mkdocs.yml`: si el usuario da
+  `…\docs`, la raíz es su padre; si da una carpeta vacía o sin `docs/`, la raíz es esa carpeta.
+  `.ai/`, `_fuentes/`, `_staging/` y `mkdocs.yml` viven siempre en la raíz del destino
 - [ ] **Generador**: `mkdocs-material` (por defecto en doc_ia) | `zensical`
 - [ ] **Idioma**: `es` | `en` | otro
 
@@ -21,7 +26,13 @@ Opcionales:
 
 - **Tipo de cada origen**: `CÓDIGO` | `NORMATIVA` | `ESPECIFICACIÓN` | `UI/PANTALLAS` | `CONTRATO` | `INFRAESTRUCTURA` | `MANUAL` | `REFERENCIA` — autodetectado si se omite; se confirma con el usuario antes de continuar
 - **Estrategia** (solo con ≥2 orígenes CÓDIGO): `federado` | `hub+satélite` | `monorepo` — siempre preguntar al usuario, nunca autodetectar
-- **Alcance**: módulos o subconjunto a documentar (por defecto: proyecto completo)
+- **Alcance**: módulos o subconjunto a documentar (por defecto: proyecto completo). Si lo
+  documentado es un **módulo funcional transversal** dentro de un repositorio mayor (repartido
+  entre varios módulos de build), el alcance se expresa como **rutas o pathspecs de git**
+  relativos al origen (`--path` de `doc_trace`); se proponen en el INVENTARIO y se confirman
+  con el usuario antes de generar
+- **Ref** (solo orígenes CÓDIGO remotos): rama, etiqueta o commit a documentar — preguntar,
+  nunca asumir `main`
 - **Arquetipos**: subconjunto a aplicar (por defecto: todos los aplicables según inventario)
 - **Verificación**: `--verify-tools` y/o `--verify-build [--serve]` (opt-in, nunca automáticos)
 - **Modo**: `incremental` | `completo` — por defecto `incremental` si el destino tiene
@@ -58,6 +69,56 @@ Aplica el flujo por fases de `.github/agents/documentation-generator.agent.md` s
 **origen** indicado, escribiendo en el **destino** indicado:
 
 ```
+Fase 0-pre — Adquisición de orígenes (si algún origen no es una carpeta local de trabajo):
+         Regla: el ORIGEN NUNCA SE ESCRIBE. Todo lo que no sea un repositorio local propio se
+         trae a la zona de trabajo `<raíz del destino>/_staging/<nombre>/` (ignorada por git)
+         y las fases siguientes (0a-7) trabajan solo sobre esa copia. Los scripts no acceden
+         a la red: la adquisición remota ocurre en el chat (git/glab/cliente de OneDrive).
+         Formas de origen:
+           · Fichero con versión en el nombre — patrón con el token {ver}:
+               <carpeta>\Manual_Modulo_v{ver}.docx
+             Se elige la versión más alta (orden numérico: 1.2.50 > 1.2.9) y se copia con
+             NOMBRE ESTABLE sin versión (Manual_Modulo.docx): `_fuentes/`, la evidencia y el
+             frontmatter `fuentes:` no cambian de ruta al publicarse otra versión. La versión
+             no decide QUÉ se coge; sí queda registrada para seguir su EVOLUCIÓN.
+             Si junto al fichero hay copias en otros formatos (.pdf del mismo .docx), solo se
+             usa el formato indicado en el patrón.
+           · Fichero o carpeta en red (UNC `\\servidor\recurso\…`) o de solo lectura: se
+             copia; nunca se ejecuta `convert_to_md.py` sobre el origen (crearía `md/` en la
+             carpeta compartida).
+           · Biblioteca de SharePoint / OneDrive: vía principal = la biblioteca SINCRONIZADA
+             en local con el cliente de OneDrive (da el binario original, igual en todas las
+             plataformas IA); se trata como una carpeta local más. Resolver la URL a la ruta
+             sincronizada: `https://<tenant>.sharepoint.com/sites/<sitio>/<biblioteca>/<ruta>`
+             → `%USERPROFILE%\<Organización>\<sitio> - <biblioteca>\<ruta>` o
+             `%USERPROFILE%\OneDrive - <Organización>\<acceso directo>\<ruta>`.
+             Si no está sincronizada → pedir al usuario que la sincronice («Sincronizar» o
+             «Agregar acceso directo a Mis archivos»); no inventar rutas.
+             Conector Microsoft 365 del chat (si la plataforma lo tiene): SOLO para resolver
+             la carpeta y contrastar nombre/tamaño/fecha con la copia local; su lectura
+             devuelve texto convertido, no el binario, así que no sustituye a la copia local.
+             Formatos no convertibles (vídeo .mp4/.mkv, etc.) → se excluyen con --include.
+           · Repositorio remoto (GitLab con `glab`, GitHub con `gh`) + Ref:
+               1. Si ya hay clon local: `git -C <clon> fetch origin` (sin tocar su rama ni su
+                  árbol de trabajo). Si no: `glab repo clone <grupo/proyecto> <ruta>`.
+               2. Worktree desacoplado en la ref pedida, dentro de la zona de trabajo:
+                    git -C <clon> worktree add --detach <raíz destino>/_staging/<nombre> origin/<ref>
+                  Sesiones siguientes: `git -C <worktree> fetch` + `git -C <worktree> checkout
+                  --detach origin/<ref>`. Ese worktree es el ORIGEN de doc_trace (baseline/changes).
+               3. Avisar si el clon del usuario está desfasado (`git -C <clon> rev-list --count
+                  HEAD..origin/<ref>`); nunca hacer pull/checkout en él sin confirmación.
+               Autenticación: la de `glab auth` / `gh auth` / git del usuario (llavero). Prohibido
+               pedir, escribir o versionar tokens.
+         Registro (orígenes MATERIAL: fichero, carpeta, red, SharePoint sincronizado):
+           python <doc_ia>/scripts/snapshot_sources.py --root <raíz destino> add <nombre> "<ruta o patrón {ver}>" [--include "*.pdf"]
+           python <doc_ia>/scripts/snapshot_sources.py --root <raíz destino> sync
+             → copia a _staging/<nombre>/ solo lo nuevo o cambiado, retira lo eliminado e
+               invalida su md/ para que la Fase 0c lo reconvierta; escribe
+               <raíz destino>/.ai/sources.json (sha256, versión, historial; lo escribe la
+               herramienta, nunca a mano). Exit 0 sin cambios · 1 con cambios · 2 error.
+           En sesiones posteriores: `sync` sin argumentos repite las declaraciones guardadas.
+           Un cambio de versión (`v1.2.50 → v1.2.51`) se cita en RESUMEN y en el commit.
+         Salida: tabla | Origen | Forma | Ruta de trabajo (_staging/…) | Versión / Ref | Estado |
 Fase 0a — Clasificación de orígenes (solo con ≥2 orígenes, o si el único origen no es CÓDIGO):
          1. Para cada origen, detectar tipo por señales del sistema de ficheros, en este orden
             (se asigna el primer tipo que coincide; REFERENCIA, la última, es el tipo por defecto):
@@ -65,7 +126,14 @@ Fase 0a — Clasificación de orígenes (solo con ≥2 orígenes, o si el único
                                pyproject.toml, package.json, pom.xml, Cargo.toml, go.mod,
                                src/, tests/ presentes
             - NORMATIVA      : PDFs/docs con palabras clave en nombre o carpeta:
-                               ley, decreto, directiva, rgpd, gdpr, une, iso, reglamento, compliance
+                               ley, decreto, directiva, rgpd, gdpr, une, iso, reglamento, compliance,
+                               normativa, legislación, boe, doue (p. ej. `BOE-A-2004-21760.pdf`)
+                               Solo lo de OBLIGADO CUMPLIMIENTO activa el Arquetipo 8 (leyes,
+                               decretos, órdenes). Planes, estrategias, guías o protocolos sin
+                               fuerza normativa → REFERENCIA aunque estén en la carpeta de
+                               normativa; en la duda, preguntar al usuario en la confirmación.
+                               El nombre de cada norma se toma del texto convertido, nunca del
+                               identificador del fichero
             - ESPECIFICACIÓN : Word/PDF de requisitos, user stories, pliego, ficheros .feature (BDD);
                                carpetas specs/, requirements/, ux/, user-stories/
             - UI/PANTALLAS   : wireframes, mockups, capturas (.png, .jpg, .pdf de diseño);
@@ -110,7 +178,9 @@ Fase 0b — Sincronización visual del destino (OBLIGATORIO en toda sesión, cre
          Checklist completo y tabla de theme.features: .claude/commands/document-project.md
          § Sincronización de Configuración Visual. Como mínimo:
            · .gitignore en la raíz del destino con site/, __pycache__/, *.pyc, *.egg-info/,
-             .venv/, *.pdf, *.doc, *.docx (crear si no existe; añadir los que falten).
+             .venv/, *.pdf, *.doc, *.docx, _staging/ (crear si no existe; añadir los que falten).
+             Destino que no es repositorio git → `git init` (con confirmación del usuario) antes
+             de la primera escritura; el remoto es opcional y solo lo decide el usuario.
              Nunca ignorar `_fuentes/`: el texto convertido se versiona (Fase 0c, Paso 5)
            · theme.features SIN navigation.sections si nav.css está en extra_css
            · los 6 recursos de docs/assets/ existen y están en extra_css / extra_javascript /
@@ -123,6 +193,9 @@ Fase 0b — Sincronización visual del destino (OBLIGATORIO en toda sesión, cre
            · custom_fences mermaid presente; sin CDN de Mermaid ni assets/js/mermaid.js
          (La Fase 5 vuelve a verificar la configuración estándar al final.)
 Fase 0c — Conversión de documentos no legibles y uso de documentos pre-convertidos:
+         Orígenes adquiridos en la Fase 0-pre: todos los pasos se ejecutan sobre
+         `_staging/<nombre>/` (su `md/` queda dentro de la zona de trabajo) y `<nombre_origen>`
+         del Paso 5 es el `<nombre>` declarado: `_fuentes/<nombre>/md/…`.
          Paso 0 — Detectar carpeta md/ pre-existente (ejecutar SIEMPRE, antes del Paso 1):
            · Buscar en todo el árbol del origen subcarpetas llamadas `md/` que contengan
              ficheros `.md`. Criterio de carpeta válida de pre-convertidos: la carpeta `md/`
@@ -228,6 +301,8 @@ Fase 1 — Inventariar y clasificar:
          Modo incremental (por defecto si hay baseline) — antes de leer el origen, por cada
          origen CÓDIGO, desde la raíz del destino (carpeta con mkdocs.yml):
            python <doc_ia>/scripts/doc_trace.py --root <raíz destino> changes --origin <origen> [--name <nombre_origen>]
+           (con alcance transversal, el baseline ya guarda las rutas: `changes` las reutiliza;
+            un `--path` distinto del baseline → exit 3, modo completo)
            · exit 0 → sin cambios: todas sus páginas quedan en ESTADO C sin leerlas.
            · exit 1 → leer SOLO el informe: por cada fichero cambiado,
              `git -C <origen> diff <base> -- <fichero>` (o el fichero entero si es alta A).
@@ -241,7 +316,8 @@ Fase 1 — Inventariar y clasificar:
              El resto de páginas → ESTADO C ("sin cambios desde <base>") sin leerlas.
            · exit 3 → modo completo para ese origen; anotar el motivo en INVENTARIO.
            Con `Alcance`, aplicar ambos filtros (intersección). Orígenes MATERIAL: su
-           incremental es la Fase 0c (copia por hash a `_fuentes/`) + `doc_trace drift`.
+           incremental es `snapshot_sources.py sync` (Fase 0-pre, si se adquirieron) + la
+           Fase 0c (copia por hash a `_fuentes/`) + `doc_trace drift`.
            Las fases 0b, 0c, 5, 6, 7b, 7c y el CIERRE se ejecutan igual en ambos modos.
          Modo completo (o fallback): leer árbol real del origen (README, código, docs/,
          mkdocs.yml del destino, y `_fuentes/` del destino con los documentos convertidos si existe).
@@ -262,6 +338,8 @@ Fase 1 — Inventariar y clasificar:
              (señales alternativas: plugin `*_documentation_zip` en mkdocs.yml,
               o directorio `{nombre}_docs/` con `docs_build_plugin.py`)
            · Si existe `.github/workflows/docs-zip-release.yml` (o equivalente)   → TIENE_WORKFLOW_GITHUB = true
+             Equivalente en GitLab: `.gitlab-ci.yml` con un job que ejecute `build_docs_zip.py`.
+             Destino sin remoto (decisión del usuario) → Gap A3 se reporta como "No aplica".
            · Solo con Generador = zensical: TIENE_PIPELINE_SIN_HOOKS y Gap A4 (ver § Reglas por generador: Zensical)
            Variante aplicable en Fase 7b:
              Al menos TIENE_ZIP_SCRIPT=true o TIENE_MKDOCS_PLUGIN=true            → Variante A
@@ -531,6 +609,23 @@ ADR-003).
 Reglas transversales: idioma indicado en todo el contenido generado; no inventar módulos,
 APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reglas operativas de
 `.github/instructions/docs.instructions.md`.
+
+**Prioridad entre fuentes** (cuando varias describen lo mismo y discrepan):
+1. **CÓDIGO** — lo construido manda sobre el comportamiento actual.
+2. **ESPECIFICACIÓN** — lo previsto: lo que el código aún no hace se documenta como
+   pendiente/futuro, nunca como capacidad actual.
+3. **MANUAL** — lo publicado al usuario: sus pantallas y pasos enriquecen guías y flujos, pero
+   no corrigen al código.
+4. **NORMATIVA** — obliga, no describe: su incumplimiento es hallazgo, no se "corrige" el texto.
+Cada discrepancia relevante se registra (no se resuelve en silencio): ficha `COB-<ÁMBITO>-<NNN>`
+del Arquetipo 13 con las dos fuentes citadas; la decisión es humana.
+
+**Datos personales y dominios sensibles** (salud, menores, violencia de género, servicios
+sociales…): prohibido copiar datos personales reales de manuales, capturas o especificaciones a
+la documentación, a `_fuentes/` resumidos ni a los ejemplos del Arquetipo 4 — usar datos
+ficticios evidentes. Si un documento fuente contiene datos reales (capturas con nombres, DNI,
+expedientes), avisar en INVENTARIO antes de versionar su texto en `_fuentes/` y preguntar si se
+anonimiza o se excluye. `_staging/` no se versiona nunca.
 **Mermaid — reglas completas en `DOCUMENTATION_STANDARD.md` §3.17; las que rompen el render:**
 - `accTitle:` y `accDescr:` en todo bloque; máximo 12 nodos (8 en el Arquetipo 6).
 - Labels de nodo con `@`, `#`, `(`, `)`, `{`, `}`: escribir la label **entre comillas dobles**
@@ -546,6 +641,9 @@ APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reg
 ## Devuelve en este orden
 
 1. **VALIDACIÓN DE INPUTS** — tabla: | Parámetro | Valor | Estado (✅/❌) | — si hay ❌, detenerse aquí.
+1b. **ADQUISICIÓN** (Fase 0-pre, si hay orígenes no locales) — tabla | Origen | Forma | Ruta de
+   trabajo | Versión / Ref | Estado |; salida de `snapshot_sources.py sync`; avisos de clon
+   desfasado o biblioteca no sincronizada.
 2. **CLASIFICACIÓN DE ORÍGENES** (Fase 0a) — solo con ≥2 orígenes o si el único no es CÓDIGO:
    - Tabla: | Origen | Tipo detectado | Señales | Rol |
    - Si hay ≥2 orígenes CÓDIGO: indicar estrategia elegida por el usuario.
@@ -570,9 +668,12 @@ APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reg
     `docs(<scope>): <resumen>` con recuento de páginas creadas/actualizadas/omitidas; el commit
     incluye `_fuentes/` si la Fase 0c la creó o cambió.
     **Baseline** (siempre, en ambos modos, antes del commit): por cada origen CÓDIGO,
-    `python <doc_ia>/scripts/doc_trace.py --root <raíz destino> baseline --origin <origen> [--name <nombre_origen>]`
+    `python <doc_ia>/scripts/doc_trace.py --root <raíz destino> baseline --origin <origen> [--name <nombre_origen>] [--path <ruta> …]`
     → `<raíz destino>/.ai/doc_state.json` (lo escribe la herramienta; nunca a mano) entra en el
-    commit. Si avisa de cambios sin confirmar en el origen, indicarlo en RESUMEN: se volverán a
+    commit (`--path` con alcance transversal; queda guardado para el próximo `changes`).
+    Con Fase 0-pre, `<raíz destino>/.ai/sources.json` también entra en el commit (nunca
+    `_staging/`); si `sync` registró un cambio de versión, citarlo en el cuerpo del commit
+    (`Fuentes: manual v1.2.50 → v1.2.51`). Si avisa de cambios sin confirmar en el origen, indicarlo en RESUMEN: se volverán a
     revisar en la próxima sesión. Registrar el commit de cada origen en `00_CONTEXT_SNAPSHOT.md`.
 
 ## Ejemplo de entrada

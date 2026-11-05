@@ -2,13 +2,13 @@
 arquetipo: "2"
 fuentes:
   .github/DOCUMENTATION_STANDARD.md: d42bac6b22cb
-  .github/agents/documentation-generator.agent.md: 27f825be33fb
+  .github/agents/documentation-generator.agent.md: ccdfdc6d2019
   .github/prompts/example_doc.prompt.md: 6041f616e0c3
-  mkdocs.yml: c1dbfb514add
+  mkdocs.yml: 9d6912b83c82
   tests/test_docs_conformance.py: eecff9593caf
 decisiones:
   ../decisiones/archetypes_decisiones.md: 1a6976ff3ff3
-revisado: 2026-11-04
+revisado: 2026-11-05
 ---
 # archetypes
 
