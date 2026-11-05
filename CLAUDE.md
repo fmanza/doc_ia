@@ -248,6 +248,9 @@ python scripts/doc_trace.py llms     # Regenera docs/llms.txt desde el nav
 python scripts/doc_trace.py decisions  # Registros docs/decisiones/ ↔ páginas: decisiones sin reflejar
 python scripts/doc_trace.py stamp <página>  # Re-sella las fuentes actuales tras revisar una página
 python scripts/doc_trace.py stamp <página> --source <ruta>…  # Primer sellado: --source SUSTITUYE la lista entera
+python scripts/snapshot_sources.py --root <destino> add <nombre> "<ruta|…_v{ver}.docx>"  # Fase 0-pre: declara origen
+python scripts/snapshot_sources.py --root <destino> sync [--dry-run]  # Copia a _staging/ + historial en .ai/sources.json
+python scripts/doc_trace.py --root <destino> baseline --origin <repo> --path <ruta>…  # Alcance transversal
 python scripts/convert_to_md.py <ruta>                            # Convierte a Markdown con docling (default) en <ruta>/md/
 python scripts/convert_to_md.py <ruta> --engine markitdown        # Convierte con markitdown (sin docling)
 python scripts/convert_to_md.py <ruta> --engine pandoc            # Convierte con pandoc (DOC/ODT/RST/TEX)

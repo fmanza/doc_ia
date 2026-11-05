@@ -1,10 +1,10 @@
 ---
 arquetipo: "1"
 fuentes:
-  scripts/doc_trace.py: bf53744f0627
+  scripts/doc_trace.py: 7fbd066dfa3a
 decisiones:
   ../decisiones/doctrace_decisiones.md: 1cc61611500e
-revisado: 2026-11-04
+revisado: 2026-11-05
 ---
 # Trazabilidad entre Documentación y Código
 
@@ -24,7 +24,10 @@ para que los agentes IA encuentren las páginas publicadas (formato `llms.txt`).
 Para volver a documentar un proyecto sin releerlo entero, la trazabilidad guarda al cerrar
 cada sesión el punto exacto del historial del proyecto documentado (su *baseline*). En la
 sesión siguiente lista los ficheros cambiados desde ese punto y las páginas que los citan
-como evidencia, de modo que solo se revisa lo que ha cambiado.
+como evidencia, de modo que solo se revisa lo que ha cambiado. Cuando lo documentado es solo
+una parte de un repositorio mayor —por ejemplo, un módulo funcional repartido entre varios
+módulos de construcción—, ese punto se guarda junto con las rutas que forman el alcance, y
+solo cuentan los cambios dentro de ellas.
 
 Cuando la documentación marca apartados como parciales, sin cubrir o por verificar, las
 personas responsables deciden qué hacer con cada uno en un registro de decisiones que revisan
@@ -91,7 +94,8 @@ criterios y el índice para agentes IA se ejecutan como operaciones independient
 - **Índice para agentes IA**: escribe `llms.txt` en la carpeta de documentación del proyecto
   indicado como raíz (el sitio lo publica en su raíz); en modo comprobación no escribe nada.
 - **Baseline**: escribe o actualiza la entrada del proyecto en `.ai/doc_state.json` del
-  destino, conservando la de los demás proyectos.
+  destino, conservando la de los demás proyectos; si se indicó un alcance de rutas, lo guarda
+  con ella.
 - **Cambios desde el baseline**: no modifica nada; informa de los ficheros cambiados, las
   páginas que los citan, las que solo los mencionan, los ejemplos enlazados y los ficheros
   sin página; termina con éxito si no hay cambios, con fallo si los hay y con código 3 si
@@ -116,7 +120,8 @@ criterios y el índice para agentes IA se ejecutan como operaciones independient
 | Una decisión editada avisa | Al sellar una página se guarda también la huella de cada registro de decisiones que enlaza; si alguien edita el registro, la comprobación de desactualizaciones marca la página, aunque la documentación viva en otro repositorio que el código. Una página que enlaza un registro sin haberlo sellado también se informa | Decisiones nuevas que nadie aplica a la documentación |
 | Decidir no es tarea de la herramienta | Las decisiones pendientes se listan, pero no son fallo; la herramienta nunca escribe en el registro | Bloquear la integración continua mientras alguien decide, o decisiones tomadas por una máquina |
 | Vocabulario cerrado | Cada estado admite solo ciertas decisiones; una decisión tomada exige responsable, fecha y estado resultante | Decisiones ambiguas que no se pueden aplicar ni auditar |
-| Ante la duda, sesión completa | Sin baseline, sin Git, con el punto guardado fuera del historial o con otra versión menor de doc_ia, se pide la sesión completa (código 3) | Una sesión incremental que omite cambios reales o aplica reglas de arquetipos antiguas |
+| Ante la duda, sesión completa | Sin baseline, sin Git, con el punto guardado fuera del historial, con otra versión menor de doc_ia o con un alcance de rutas distinto del guardado, se pide la sesión completa (código 3) | Una sesión incremental que omite cambios reales o aplica reglas de arquetipos antiguas |
+| El alcance se guarda con el baseline | Las rutas indicadas al guardar el baseline se reutilizan al pedir los cambios; sin rutas, el alcance es el proyecto entero y el estado guardado no cambia de formato | Cambios de otros módulos del repositorio presentados como cambios de lo documentado, o estados antiguos ilegibles |
 
 ## 6. Límites, Flujos Alternativos y Casos Especiales
 
@@ -139,8 +144,9 @@ criterios y el índice para agentes IA se ejecutan como operaciones independient
 - **Índice desactualizado en modo comprobación**: se informa y termina con fallo, sin escribir.
 - **Invocación sin operación**: error de uso.
 - **Cambios sin baseline utilizable** (no hay entrada para el proyecto, el proyecto no usaba
-  Git, el punto guardado ya no está en el historial o la versión menor de doc_ia cambió):
-  se indica el motivo y se termina con código 3 para que la sesión sea completa.
+  Git, el punto guardado ya no está en el historial, la versión menor de doc_ia cambió o se
+  piden los cambios con un alcance de rutas distinto del guardado): se indica el motivo y se
+  termina con código 3 para que la sesión sea completa.
 
 ### Casos especiales
 
@@ -152,6 +158,10 @@ criterios y el índice para agentes IA se ejecutan como operaciones independient
   sin navegación definida, termina con un mensaje de error claro (código 1), sin traza técnica.
 - **Proyecto en una subcarpeta de un repositorio**: los cambios se calculan solo dentro de
   esa carpeta y con rutas relativas a ella, las mismas que usan las citas.
+- **Módulo funcional transversal**: si lo documentado se reparte entre varias carpetas de un
+  repositorio, se indican esas rutas (relativas al proyecto) al guardar el baseline; también
+  los cambios pendientes al guardarlo se miran solo dentro de ellas. Las rutas se comparan tal
+  como se escriben: la misma carpeta con y sin barra final cuenta como un alcance distinto.
 - **Cambios sin confirmar al tomar el baseline**: se avisa; como los cambios se comparan con
   el estado actual de los ficheros, en la sesión siguiente se vuelven a revisar.
 - **Ficheros renombrados**: se informan con la ruta anterior y la nueva, y cuentan las
@@ -194,6 +204,8 @@ criterios y el índice para agentes IA se ejecutan como operaciones independient
 | AC-28 | Un proyecto documentado en otra carpeta, indicada como raíz | Se comprueban desactualizaciones o se genera la matriz sin indicar las carpetas de documentación y de tests | Se usan las del proyecto indicado, no las de doc_ia | `tests/test_doc_trace.py::test_main_drift_defaults_follow_root`, `tests/test_doc_trace.py::test_main_matrix_defaults_follow_root` |
 | AC-29 | Una página que enlaza un registro de decisiones | Se sella y después se edita el registro | La página aparece como desactualizada, también si la documentación vive en otro repositorio | `tests/test_doc_trace.py::test_stamp_seals_linked_register_and_drift_detects_its_edit`, `tests/test_doc_trace.py::test_drift_seals_registers_of_external_destination` |
 | AC-30 | Una página que enlaza un registro sin haberlo sellado, o que solo enlaza registros | Se comprueban desactualizaciones o se sella | Se informa como no sellada; se puede sellar sin indicar fuentes; los enlaces escritos como código no cuentan | `tests/test_doc_trace.py::test_drift_reports_unsealed_register_link`, `tests/test_doc_trace.py::test_stamp_page_that_only_links_registers`, `tests/test_doc_trace.py::test_register_links_inside_code_are_not_sealed` |
+| AC-31 | Un módulo funcional repartido entre dos carpetas de un repositorio, con el baseline guardado para esas rutas | Cambia un fichero fuera de ellas y después uno dentro, y se piden los cambios sin repetir las rutas | Solo cuentan los cambios dentro del alcance: primero «sin cambios» (código 0), después el fichero cambiado (código 1); las rutas quedan guardadas en el estado | `tests/test_doc_trace.py::test_changed_files_limited_to_paths`, `tests/test_doc_trace.py::test_baseline_with_paths_is_reused_by_changes` |
+| AC-32 | Un baseline guardado con un alcance de rutas, o sin él | Se piden los cambios con otras rutas, o se guarda el baseline sin rutas | Con otras rutas se indica el motivo y termina con código 3; sin rutas, el estado guardado no incluye alcance | `tests/test_doc_trace.py::test_changes_with_different_paths_falls_back`, `tests/test_doc_trace.py::test_baseline_without_paths_keeps_legacy_format` |
 
 Verificación: `python -m pytest tests/test_doc_trace.py -q`.
 
@@ -241,6 +253,7 @@ Verificación: `python -m pytest tests/test_doc_trace.py -q`.
     | Regla «Cita frente a mención» | `scripts/doc_trace.py::pages_citing`, `::_split_citations` | ✅ |
     | Regla «Lo que genera la documentación no es un cambio» | `scripts/doc_trace.py::documentation_paths`, `::DOC_ARTIFACTS` | ✅ |
     | Regla «Ante la duda, sesión completa» | `scripts/doc_trace.py::check_changes`, `::_cmd_changes` (código 3) | ✅ |
+    | Regla «El alcance se guarda con el baseline», AC-31 y AC-32 | `scripts/doc_trace.py::take_baseline`, `::write_baseline` (`rutas` solo si no es `.`), `::check_changes` (alcance distinto → modo completo), `::changed_files` (`paths`), `::DEFAULT_PATHS` | ✅ |
     | AC-15 – AC-21 | `scripts/doc_trace.py::_cmd_baseline`, `::_cmd_changes`, `::format_changes`, `::linked_examples` | ✅ |
     | Decisiones de cobertura: lectura del registro y de los apartados | `scripts/doc_trace.py::parse_registers`, `::collect_coverage_rows`, `::_code_free_lines` | ✅ |
     | Regla «Una decisión tomada se ve en la documentación» | `scripts/doc_trace.py::check_decisions`, `::_reflection_problem` | ✅ |

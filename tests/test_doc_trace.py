@@ -732,3 +732,62 @@ def test_register_links_inside_code_are_not_sealed(tmp_path: Path) -> None:
     page.write_text(f"# Ejemplo\n\n```markdown\n| {_REG_LINK} | 🔍 |\n```\n", encoding="utf-8")
     assert doc_trace.linked_registers(page) == []
     assert check_drift(root / "docs", root) == []
+
+
+# --- alcance transversal (--path) ---
+
+
+def _transversal_repo(tmp_path: Path) -> Path:
+    """Repositorio con un módulo funcional (vg) repartido entre dos módulos de build."""
+    repo = tmp_path / "producto"
+    for rel in ("gui/vg/Pantalla.java", "service/vg/Servicio.java", "service/otro/X.java"):
+        (repo / rel).parent.mkdir(parents=True, exist_ok=True)
+        (repo / rel).write_text("a\n", encoding="utf-8")
+    _git(repo, "init", "-q", "-b", "main")
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-q", "-m", "init")
+    return repo
+
+
+def test_changed_files_limited_to_paths(tmp_path: Path) -> None:
+    repo = _transversal_repo(tmp_path)
+    for rel in ("gui/vg/Pantalla.java", "service/otro/X.java"):
+        (repo / rel).write_text("b\n", encoding="utf-8")
+    (repo / "service" / "vg" / "Nuevo.java").write_text("c\n", encoding="utf-8")
+    changes = changed_files(repo, "HEAD", paths=("gui/vg", "service/vg"))
+    assert [(c.kind, c.path) for c in changes or []] == [
+        ("M", "gui/vg/Pantalla.java"),
+        ("A", "service/vg/Nuevo.java"),
+    ]
+
+
+def test_baseline_with_paths_is_reused_by_changes(tmp_path: Path) -> None:
+    repo, dest = _transversal_repo(tmp_path), _dest(tmp_path)
+    assert _baseline(dest, repo, "--path", "service/vg", "--path", "gui/vg") == 0
+    assert _origins_state(dest)["producto"]["rutas"] == ["gui/vg", "service/vg"]
+    (repo / "service" / "otro" / "X.java").write_text("b\n", encoding="utf-8")
+    assert _changes(dest, repo) == 0  # fuera del alcance guardado
+    (repo / "gui" / "vg" / "Pantalla.java").write_text("b\n", encoding="utf-8")
+    assert _changes(dest, repo) == 1
+
+
+def test_changes_with_different_paths_falls_back(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    repo, dest = _transversal_repo(tmp_path), _dest(tmp_path)
+    _baseline(dest, repo, "--path", "gui/vg")
+    assert _changes(dest, repo, "--path", "service/vg") == 3
+    assert "alcance --path distinto" in capsys.readouterr().err
+
+
+def test_baseline_without_paths_keeps_legacy_format(tmp_path: Path) -> None:
+    repo, dest = _transversal_repo(tmp_path), _dest(tmp_path)
+    _baseline(dest, repo)
+    assert "rutas" not in _origins_state(dest)["producto"]
+
+
+def test_paths_are_normalized_before_comparing_with_baseline(tmp_path: Path) -> None:
+    repo, dest = _transversal_repo(tmp_path), _dest(tmp_path)
+    _baseline(dest, repo, "--path", "gui/vg/")
+    assert _origins_state(dest)["producto"]["rutas"] == ["gui/vg"]
+    assert _changes(dest, repo, "--path", "./gui/vg") == 0

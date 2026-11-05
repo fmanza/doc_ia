@@ -12,15 +12,23 @@ Documentar un proyecto (origen → destino) orquestando los arquetipos formales.
 
 ## Inputs requeridos (OBLIGATORIO completar TODOS)
 
-- [ ] **Origen(es) a documentar**: Ruta(s) raíz del/los proyecto(s) (ej. `c:\repos\mi_api`)
-- [ ] **Destino de la documentación**: Ruta donde se escribe (ej. `c:\repos\mi_api\docs`)
+- [ ] **Origen(es) a documentar**: Ruta(s) raíz del/los proyecto(s) (ej. `c:\repos\mi_api`) o una
+  forma de origen de la **Fase 0-pre**: fichero con versión (`…\Manual_v{ver}.docx`), carpeta de
+  red (UNC), biblioteca de SharePoint (URL → copia sincronizada con OneDrive) o repositorio remoto
+  (GitLab con `glab` / GitHub con `gh`) + **Ref**
+- [ ] **Destino de la documentación**: Ruta donde se escribe (ej. `c:\repos\mi_api\docs`). La
+  **raíz del destino** es la carpeta con (o que tendrá) `mkdocs.yml`: el padre de `docs/` si se da
+  `…\docs`, o la propia carpeta si está vacía. `.ai/`, `_fuentes/` y `_staging/` van en la raíz
 - [ ] **Generador**: `mkdocs-material` (por defecto) | `zensical` — con `zensical` aplicar
   `.github/prompts/document_project.prompt.md` § *Reglas por generador: Zensical* (no ejecuta
   `hooks:`; señal `TIENE_PIPELINE_SIN_HOOKS`, Gap A4, plugins soportados, build vía script)
 - [ ] **Idioma**: `es` | `en` | otro
 - [ ] **Tipo de cada origen** (opcional): `CÓDIGO` | `NORMATIVA` | `ESPECIFICACIÓN` | `UI/PANTALLAS` | `CONTRATO` | `INFRAESTRUCTURA` | `MANUAL` | `REFERENCIA` — autodetectado si se omite; el usuario confirma antes de continuar
 - [ ] **Estrategia** (solo con ≥2 orígenes CÓDIGO): `federado` | `hub+satélite` | `monorepo` — preguntar al usuario, nunca autodetectar
-- [ ] **Alcance** (opcional): módulos o subconjunto; por defecto proyecto completo
+- [ ] **Alcance** (opcional): módulos o subconjunto; por defecto proyecto completo. Módulo funcional
+  transversal dentro de un repo mayor → rutas/pathspecs de git (`doc_trace.py --path`), propuestas
+  en el INVENTARIO y confirmadas por el usuario
+- [ ] **Ref** (orígenes CÓDIGO remotos): rama, etiqueta o commit — preguntar, nunca asumir
 - [ ] **Arquetipos** (opcional): subconjunto; por defecto todos los aplicables **excepto 9 (Changelog) y 11 (Contribución)**, que son opt-in explícito
 - [ ] **Verificación** (opcional): `--verify-tools` y/o `--verify-build [--serve]`
 - [ ] **Modo** (opcional): `incremental` | `completo` — por defecto `incremental` si el destino
@@ -42,6 +50,12 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 
 **Obligatorio**:
 - Ejecutar el flujo por fases del Documentation Generator (Fases 0-6; Fase 7 solo opt-in)
+- **Fase 0-pre** si algún origen no es una carpeta local de trabajo: traerlo a
+  `<raíz destino>/_staging/<nombre>/` (MATERIAL con `scripts/snapshot_sources.py add` + `sync`;
+  CÓDIGO remoto con `git fetch` + `git worktree add --detach … origin/<ref>`) y trabajar solo
+  sobre esa copia — ver `document_project.prompt.md` § Fase 0-pre
+- Prioridad entre fuentes CÓDIGO > ESPECIFICACIÓN > MANUAL (NORMATIVA obliga); cada
+  discrepancia → ficha `COB-…` del Arquetipo 13 (`document_project.prompt.md` § Reglas transversales)
 - Actualizar la navegación del generador (`mkdocs.yml`) por cada página creada, movida o retirada
 - Fase 7c: crear o actualizar `VER_DOCUMENTACION.md` (idioma `en`: `VIEW_DOCS.md`) en la raíz
   del destino desde `.github/templates/VER_DOCUMENTACION.template.md`, con valores verificados
@@ -54,6 +68,10 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 - Incrustar API keys o invocar servicios IA desde código (la generación ocurre en este chat)
 - Inventar módulos, APIs, salidas, errores o dependencias no presentes en el origen
 - Modificar código fuente del origen (solo se escribe documentación y navegación)
+- Escribir en el origen de cualquier forma: ni `md/` en una carpeta de red, ni `pull`/`checkout`
+  en el clon del usuario sin su confirmación
+- Pedir, escribir o versionar tokens (la autenticación es la de `glab auth`/`gh auth`/OneDrive)
+- Copiar datos personales reales de manuales o capturas a la documentación o a los ejemplos
 
 **Recomendado**:
 - Iterar módulo a módulo dentro de cada fase; nunca un único prompt masivo
@@ -143,7 +161,15 @@ __pycache__/
 *.pdf
 *.doc
 *.docx
+_staging/
 ```
+
+> **Por qué `_staging/`**: es la copia de trabajo de los orígenes adquiridos en la Fase 0-pre
+> (binarios de red/SharePoint, worktree del repositorio remoto). Lo que se versiona es
+> `.ai/sources.json` (qué se copió, con qué hash y versión) y el texto en `_fuentes/`.
+>
+> **Destino sin git**: proponer `git init` antes de la primera escritura; el remoto lo decide el
+> usuario (sin remoto, Gap A3 = "No aplica").
 
 > **Por qué `*.pdf` / `*.doc` / `*.docx`**: los proyectos origen pueden incluir binarios de
 > documentación fuente (especificaciones, manuales). Los binarios nunca entran en el repositorio
@@ -166,11 +192,16 @@ __pycache__/
    - Tabla: | Parámetro | Valor | Estado (✅/❌) |
    - Si hay ❌ → detenerse y preguntar
 
+1b. **ADQUISICIÓN** (Fase 0-pre, solo si hay orígenes no locales)
+   - Tabla: | Origen | Forma | Ruta de trabajo (`_staging/…`) | Versión / Ref | Estado |
+   - Salida de `snapshot_sources.py sync` (altas, modificados, bajas, `vX → vY`)
+   - Avisos: clon del usuario desfasado, biblioteca de SharePoint no sincronizada
+
 2. **CLASIFICACIÓN DE ORÍGENES** (solo con ≥2 orígenes, o si el único origen no es CÓDIGO)
    - Tabla: | Origen | Tipo detectado | Señales | Rol |
    - Tipos posibles:
      - `CÓDIGO` — archivos fuente (`.py`, `.js`, `.ts`, `.cs`, `.java`, `.go`, `.rs`, …), `pyproject.toml`, `package.json`, `pom.xml`, `src/`, `tests/` presentes → documentar como proyecto (arquetipos 1–7, y 12 si hay señales de configuración/CLI/códigos de salida)
-     - `NORMATIVA` — PDFs/docs con nombres que contienen `ley`, `decreto`, `directiva`, `rgpd`, `gdpr`, `une`, `iso`, `reglamento` → activar Arquetipo 8; enriquece §2 Arquetipo 1 del proyecto principal
+     - `NORMATIVA` — PDFs/docs con nombres o carpeta que contienen `ley`, `decreto`, `directiva`, `rgpd`, `gdpr`, `une`, `iso`, `reglamento`, `normativa`, `legislación`, `boe`, `doue` → activar Arquetipo 8 **solo para lo de obligado cumplimiento**; planes, estrategias o guías sin fuerza normativa → `REFERENCIA` (en la duda, preguntar); enriquece §2 Arquetipo 1 del proyecto principal
      - `ESPECIFICACIÓN` — Word/PDF de requisitos, user stories, pliego, ficheros `.feature`; carpetas `specs/`, `requirements/`, `ux/` → enriquece Arquetipo 1 §3+§5+§6+§7 del proyecto principal
      - `UI/PANTALLAS` — wireframes, mockups, capturas (`.png`, `.jpg`, `.pdf` de diseño); carpetas `mockups/`, `figma-exports/` → enriquece Arquetipo 1 §3 y Arquetipo 3
      - `REFERENCIA` — manuales de **terceros**, RFCs, especificaciones de protocolo **ajenas al proyecto** → enriquece Arquetipo 2 §4 o Arquetipo 5
@@ -261,7 +292,8 @@ __pycache__/
     En sesiones posteriores: actualizar solo si el INVENTARIO detecta cambios relevantes en el origen.
 
     **b) Artefacto `.ai/sessions/`** — crear en el **destino** (no en doc_ia), en la ruta
-    `{destino}/../.ai/sessions/YYYY-MM-DD/` con tres ficheros:
+    `<raíz del destino>/.ai/sessions/YYYY-MM-DD/` (la carpeta con `mkdocs.yml`; nunca por
+    encima de ella) con tres ficheros:
 
     - `00_REQUEST.md` — inputs recibidos (origen, destino, generador, idioma, alcance,
       arquetipos, verificación) + objetivo operativo de la sesión
@@ -291,7 +323,10 @@ __pycache__/
     Fuentes: _fuentes/ <N> copiadas · <M> sin cambios     ← solo si hubo Fase 0c
     ```
 
-    - `git add` incluye `_fuentes/` cuando la Fase 0c la creó o cambió
+    - `git add` incluye `_fuentes/` cuando la Fase 0c la creó o cambió, y `.ai/sources.json`
+      con Fase 0-pre (nunca `_staging/`); un cambio de versión de una fuente va en el cuerpo:
+      `Fuentes: manual v1.2.50 → v1.2.51`
+    - Alcance transversal: `baseline` con los mismos `--path` confirmados en el INVENTARIO
     - Antes del commit, `doc_trace.py --root <raíz destino> baseline --origin <origen>` por cada
       origen CÓDIGO; `git add` incluye `.ai/doc_state.json` (base del próximo modo incremental)
 
@@ -338,6 +373,20 @@ Idioma: es
 Estrategia: hub+satélite  (mi_api es el hub)
 ```
 
+## Ejemplo de entrada — orígenes remotos, versionados y alcance transversal
+
+```
+Origen(es):
+  - CÓDIGO          gitlab: grupo/producto  Ref: dev   (clon local: c:\git\producto)
+                    Alcance: módulo funcional repartido en varios módulos → --path propuestas en INVENTARIO
+  - MANUAL          \\servidor\Manuales\Producto_Manual_Modulo_v{ver}.docx   (solo .docx; versión más alta)
+  - ESPECIFICACIÓN  https://<tenant>.sharepoint.com/sites/<sitio>/<biblioteca>/<ruta>  (copia sincronizada con OneDrive)
+  - NORMATIVA       \\servidor\Normativa\Modulo\   --include "*.pdf"
+Destino: c:\documentacion\modulo        (raíz; vacía → git init con confirmación, sin remoto)
+Generador: mkdocs-material
+Idioma: es
+```
+
 ## Ejemplo de salida esperada (VALIDACIÓN + CLASIFICACIÓN + INVENTARIO)
 
 ```markdown
@@ -372,6 +421,9 @@ Normativa de referencia: no detectada → Arquetipo 8 omitido.
 - **"mkdocs build --strict falla tras SYNC NAV"** → ver `.claude/TESTING_GUIDE.md`; revisar páginas huérfanas o rotas en `nav:`
 - **"Contexto perdido entre fases"** → ver `.claude/EDGE_CASES.md`; retomar desde el RESUMEN parcial de la última fase completada
 - **"El usuario pide generar vía API externa"** → rechazar: principio innegociable (SHARED_INSTRUCTIONS § Principios)
+- **"`snapshot_sources.py sync` sale con 2"** → origen inexistente o patrón `{ver}` sin coincidencias: mostrar el error y pedir la ruta correcta; no inventar ficheros
+- **"La URL de SharePoint no está sincronizada en local"** → pedir al usuario que la sincronice con OneDrive; el conector M365 solo resuelve y contrasta, no da el binario
+- **"El clon del repositorio está desfasado"** → `git fetch` + worktree desacoplado en `_staging/`; nunca `pull` en el clon del usuario sin confirmación (`.claude/EDGE_CASES.md` § Orígenes remotos)
 
 ## Referencias
 

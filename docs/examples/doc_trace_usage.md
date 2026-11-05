@@ -118,6 +118,43 @@ python <doc_ia>/scripts/doc_trace.py --root . changes --origin ../mi_api   # có
 Sin cambios, `changes` termina con código `0`; sin baseline utilizable, con código `3` y el
 motivo (la sesión de `/document-project` se hace entonces completa).
 
+Alcance transversal: el destino `expedientes_docs` documenta solo el módulo funcional
+«expedientes» del repositorio `producto`, repartido entre `web/expedientes` y
+`servicios/expedientes`. `--path` (repetible, relativo al origen) fija ese alcance en el
+baseline (salida real sobre un repositorio de prueba):
+
+```bash
+cd expedientes_docs
+python <doc_ia>/scripts/doc_trace.py --root . baseline --origin ../producto \
+  --path servicios/expedientes --path web/expedientes
+# [doc_trace] producto: baseline cb7bef213690 (main) → …\expedientes_docs\.ai\doc_state.json
+# [doc_trace] producto: alcance servicios/expedientes, web/expedientes
+```
+
+La entrada del origen en `.ai/doc_state.json` añade `"rutas": ["servicios/expedientes",
+"web/expedientes"]`. `changes` reutiliza esas rutas sin repetirlas: un cambio en
+`servicios/facturas/` no cuenta (código `0`) y uno en `servicios/expedientes/` sí (código `1`):
+
+```bash
+python <doc_ia>/scripts/doc_trace.py --root . changes --origin ../producto
+# # Cambios en el origen «producto» desde cb7bef213690
+#
+# | Cambio | Fichero | Lo citan (Evidencia) | Lo mencionan |
+# |---|---|---|---|
+# | M | `servicios/expedientes/Servicio.java` | `docs/api/expedientes.md` | — |
+# ...
+```
+
+Pedir los cambios con otro alcance obliga a la sesión completa (código `3`):
+
+```bash
+python <doc_ia>/scripts/doc_trace.py --root . changes --origin ../producto --path web/expedientes
+# # Cambios en el origen «producto» desde cb7bef213690
+#
+# Modo completo: alcance --path distinto del baseline (servicios/expedientes, web/expedientes).
+# [doc_trace] Modo completo: alcance --path distinto del baseline (servicios/expedientes, web/expedientes).
+```
+
 Decisiones de cobertura en un destino con Arquetipo 8 (`mi_api_docs`). Las personas han
 decidido sobre `COB-RGPD-001` en el registro; `COB-RGPD-002` sigue pendiente:
 
@@ -194,4 +231,5 @@ python -m py_compile docs/examples/doc_trace_usage.py   # validación sintáctic
 
 - Documentación funcional: [Trazabilidad entre Documentación y Código](../functional/doc_trace.md)
 - Referencia técnica: [doc_trace](../api/doc_trace.md)
-- Ejemplos relacionados: [Verificar Entorno](check_env_usage.md)
+- Ejemplos relacionados: [Verificar Entorno](check_env_usage.md),
+  [Adquirir Orígenes Documentales](snapshot_sources_usage.md)

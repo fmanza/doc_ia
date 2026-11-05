@@ -34,6 +34,11 @@ Uso:
     python scripts/doc_trace.py decisions --output dist/decisions.md
     python scripts/doc_trace.py --root <destino> baseline --origin <origen>
     python scripts/doc_trace.py --root <destino> changes --origin <origen>
+    python scripts/doc_trace.py --root <destino> baseline --origin <repo> --path <a> --path <b>
+
+``--path`` (repetible, pathspec de git relativo al origen) limita ``baseline``/``changes`` a un
+alcance transversal dentro de un repositorio mayor (p. ej. un módulo funcional repartido entre
+varios módulos Maven). El baseline guarda esas rutas (``rutas``) y ``changes`` las reutiliza.
 """
 
 from __future__ import annotations
@@ -412,6 +417,7 @@ class OriginBaseline:
     branch: str | None
     dirty: bool
     date: str
+    paths: tuple[str, ...] = (".",)
 
 
 @dataclass(frozen=True)
@@ -435,6 +441,7 @@ class ChangeReport:
 # cambios no son cambios del código documentado.
 DOC_ARTIFACTS = (".ai", "_fuentes", "mkdocs.yml", "VER_DOCUMENTACION.md", "VIEW_DOCS.md")
 GIT_TIMEOUT = 60
+DEFAULT_PATHS: tuple[str, ...] = (".",)
 EXAMPLE_LINK_RE = re.compile(r"\]\(([^)#\s]*examples/[^)#\s]+\.md)")
 EVIDENCE_MARKER = '??? note "Evidencia"'
 
@@ -480,14 +487,19 @@ def _is_excluded(path: str, excluded: tuple[str, ...]) -> bool:
 
 
 def changed_files(
-    origin: Path, base: str, excluded: tuple[str, ...] = ()
+    origin: Path,
+    base: str,
+    excluded: tuple[str, ...] = (),
+    paths: tuple[str, ...] = DEFAULT_PATHS,
 ) -> list[OriginChange] | None:
     """Cambios del árbol de trabajo frente a ``base`` (confirmados, pendientes y sin seguimiento).
 
-    Rutas relativas al origen aunque sea una subcarpeta del repositorio. ``None`` si git falla.
+    Rutas relativas al origen aunque sea una subcarpeta del repositorio. ``paths`` son pathspecs
+    de git relativos al origen (alcance transversal). ``None`` si git falla.
     """
-    diff = _git(origin, "diff", "--name-status", "-z", "-M", "--relative", base, "--", ".")
-    untracked = _git(origin, "ls-files", "--others", "--exclude-standard", "-z", "--", ".")
+    spec = paths or DEFAULT_PATHS
+    diff = _git(origin, "diff", "--name-status", "-z", "-M", "--relative", base, "--", *spec)
+    untracked = _git(origin, "ls-files", "--others", "--exclude-standard", "-z", "--", *spec)
     if diff is None or untracked is None:
         return None
     fields = diff.decode("utf-8").split("\0")
@@ -515,18 +527,22 @@ def changed_files(
 
 
 def take_baseline(
-    origin: Path, excluded: tuple[str, ...] = (), today: str | None = None
+    origin: Path,
+    excluded: tuple[str, ...] = (),
+    today: str | None = None,
+    paths: tuple[str, ...] = DEFAULT_PATHS,
 ) -> OriginBaseline:
-    """Commit, rama y si hay cambios sin confirmar (fuera de ``excluded``) en el origen."""
+    """Commit, rama y si hay cambios sin confirmar (fuera de ``excluded``) en el alcance."""
     day = today or date.today().isoformat()
+    spec = tuple(sorted(paths)) if paths else DEFAULT_PATHS
     head = _git(origin, "rev-parse", "HEAD")
     if head is None:
-        return OriginBaseline(commit=None, branch=None, dirty=False, date=day)
+        return OriginBaseline(commit=None, branch=None, dirty=False, date=day, paths=spec)
     commit = head.decode().strip()
     branch_out = _git(origin, "rev-parse", "--abbrev-ref", "HEAD")
     branch = branch_out.decode().strip() if branch_out else None
-    pending = changed_files(origin, "HEAD", excluded)
-    return OriginBaseline(commit=commit, branch=branch, dirty=bool(pending), date=day)
+    pending = changed_files(origin, "HEAD", excluded, spec)
+    return OriginBaseline(commit, branch, bool(pending), day, spec)
 
 
 def read_state(state_path: Path) -> dict[str, Any]:
@@ -541,12 +557,15 @@ def write_baseline(state_path: Path, name: str, baseline: OriginBaseline) -> Non
     """Guarda el baseline de un origen conservando los de los demás orígenes."""
     stored = read_state(state_path).get("origenes")
     origins: dict[str, Any] = stored if isinstance(stored, dict) else {}
-    origins[name] = {
+    entry: dict[str, Any] = {
         "commit": baseline.commit,
         "rama": baseline.branch,
         "sucio": baseline.dirty,
         "fecha": baseline.date,
     }
+    if baseline.paths != DEFAULT_PATHS:  # solo con alcance transversal: compatible hacia atrás
+        entry["rutas"] = list(baseline.paths)
+    origins[name] = entry
     state = {"doc_ia": _doc_ia_version(), "origenes": dict(sorted(origins.items()))}
     state_path.parent.mkdir(parents=True, exist_ok=True)
     text = json.dumps(state, indent=2, ensure_ascii=False) + "\n"
@@ -607,8 +626,18 @@ def linked_examples(pages: list[Path], docs_dir: Path) -> tuple[Path, ...]:
     return tuple(sorted(found - {p.resolve() for p in pages}))
 
 
-def check_changes(origin: Path, docs_dir: Path, state_path: Path, name: str) -> ChangeReport:
-    """Cambios del origen desde su baseline y páginas del destino afectadas."""
+def check_changes(
+    origin: Path,
+    docs_dir: Path,
+    state_path: Path,
+    name: str,
+    scope: tuple[str, ...] | None = None,
+) -> ChangeReport:
+    """Cambios del origen desde su baseline y páginas del destino afectadas.
+
+    ``scope`` (``--path``) debe coincidir con las rutas del baseline; si se omite, se usan las
+    guardadas. Un alcance distinto obliga al modo completo: el baseline no lo cubre.
+    """
     state = read_state(state_path)
     origins = state.get("origenes")
     entry = origins.get(name) if isinstance(origins, dict) else None
@@ -623,7 +652,14 @@ def check_changes(origin: Path, docs_dir: Path, state_path: Path, name: str) -> 
         return ChangeReport("fallback", reason, base)
     if _git(origin, "cat-file", "-e", f"{base}^{{commit}}") is None:
         return ChangeReport("fallback", f"el commit {base[:12]} no está en el historial", base)
-    changes = changed_files(origin, base, documentation_paths(origin, docs_dir))
+    stored = entry.get("rutas")
+    stored_paths = tuple(sorted(str(p) for p in stored)) if isinstance(stored, list) else None
+    baseline_paths = stored_paths or DEFAULT_PATHS
+    if scope and tuple(sorted(scope)) != baseline_paths:
+        reason = f"alcance --path distinto del baseline ({', '.join(baseline_paths)})"
+        return ChangeReport("fallback", reason, base)
+    excluded = documentation_paths(origin, docs_dir)
+    changes = changed_files(origin, base, excluded, baseline_paths)
     if changes is None:
         return ChangeReport("fallback", "git no pudo calcular el diff del origen", base)
     paths = sorted({p for c in changes for p in (c.path, c.old_path) if p})
@@ -1121,6 +1157,14 @@ def _default_llms_output(mkdocs_yml: Path) -> Path:
     return mkdocs_yml.parent / str(docs_dir) / "llms.txt"
 
 
+def _paths_arg(args: argparse.Namespace) -> tuple[str, ...]:
+    """Pathspecs de ``--path`` (vacío si no se indicó)."""
+    given: list[str] | None = args.path
+    # Normalizado: "gui/vg/", "./gui/vg" y "gui\vg" son el mismo alcance que "gui/vg".
+    normalized = (p.replace("\\", "/").removeprefix("./").rstrip("/") or "." for p in given or ())
+    return tuple(normalized)
+
+
 def _origin_args(args: argparse.Namespace) -> tuple[Path, Path, Path, str]:
     """(origen, docs, fichero de estado, nombre) con los valores por defecto relativos a --root."""
     root: Path = args.root.resolve()
@@ -1132,12 +1176,15 @@ def _origin_args(args: argparse.Namespace) -> tuple[Path, Path, Path, str]:
 
 def _cmd_baseline(args: argparse.Namespace) -> int:
     origin, docs, state, name = _origin_args(args)
-    baseline = take_baseline(origin, documentation_paths(origin, docs))
+    paths = _paths_arg(args) or DEFAULT_PATHS
+    baseline = take_baseline(origin, documentation_paths(origin, docs), paths=paths)
     write_baseline(state, name, baseline)
     if baseline.commit is None:
         print(f"[doc_trace] {name}: el origen no está bajo git; la próxima sesión será completa.")
         return 0
     print(f"[doc_trace] {name}: baseline {baseline.commit[:12]} ({baseline.branch}) → {state}")
+    if baseline.paths != DEFAULT_PATHS:
+        print(f"[doc_trace] {name}: alcance {', '.join(baseline.paths)}")
     if baseline.dirty:
         print(
             f"[doc_trace] AVISO: {name} tiene cambios sin confirmar; se volverán a revisar "
@@ -1148,7 +1195,7 @@ def _cmd_baseline(args: argparse.Namespace) -> int:
 
 def _cmd_changes(args: argparse.Namespace) -> int:
     origin, docs, state, name = _origin_args(args)
-    report = check_changes(origin, docs, state, name)
+    report = check_changes(origin, docs, state, name, _paths_arg(args) or None)
     text = format_changes(report, name, args.root.resolve())
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -1168,6 +1215,11 @@ def _add_origin_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--docs", type=Path, help="Carpeta de docs del destino (<root>/docs).")
     parser.add_argument(
         "--state", type=Path, help="Estado del destino (<root>/.ai/doc_state.json)."
+    )
+    parser.add_argument(
+        "--path",
+        action="append",
+        help="Pathspec de git relativo al origen (repetible): alcance transversal.",
     )
 
 

@@ -1,11 +1,12 @@
 ---
 arquetipo: "2"
 fuentes:
-  .claude/commands/document-project.md: 95f53ec0e433
-  .github/agents/documentation-generator.agent.md: 27f825be33fb
-  .github/prompts/document_project.prompt.md: 4dba1b469bc1
-  mkdocs.yml: c1dbfb514add
-revisado: 2026-11-04
+  .claude/commands/document-project.md: 3321b9303a7b
+  .github/agents/documentation-generator.agent.md: ccdfdc6d2019
+  .github/prompts/document_project.prompt.md: 11cbfbf62af3
+  mkdocs.yml: 9d6912b83c82
+  scripts/snapshot_sources.py: d350c174f962
+revisado: 2026-11-05
 ---
 # document_project
 
@@ -17,7 +18,7 @@ Punto de entrada único del producto doc_ia: orquesta los arquetipos formales so
 stateDiagram-v2
     accTitle: Fases internas de document_project
     accDescr: Máquina de fases del flujo, desde la validación de los cuatro parámetros hasta el cierre de sesión, con las dos salidas anticipadas (parámetro faltante o ningún origen de código) y el build estricto opcional.
-    state "VALIDACIÓN · 4 parámetros" as VALIDACION
+    state "VALIDACIÓN · 4 parámetros + Fase 0-pre · adquisición en _staging/" as VALIDACION
     state "Fase 0a · Clasificación" as CLASIFICACION
     state "Fase 0b · Sincronización visual" as SYNC_VISUAL
     state "Fase 0 normativa · Fase 0c md/ y _fuentes/" as PREPARACION
@@ -65,21 +66,25 @@ La vista del mismo flujo desde el usuario (qué pide, qué confirma y qué recib
 
 | Parámetro | Tipo | Descripción | Restricciones |
 |---|---|---|---|
-| `Origen(es)` | ruta(s) | Ruta raíz del/los proyectos a documentar | Obligatorio; debe existir y ser accesible |
+| `Origen(es)` | ruta(s) o forma de origen | Ruta raíz del/los proyectos a documentar, o una forma de origen de la Fase 0-pre: fichero con `{ver}` en el nombre, carpeta de red (UNC), biblioteca de SharePoint (copia sincronizada con OneDrive) o repositorio remoto con `Ref` | Obligatorio; debe existir y ser accesible. Lo que no es una carpeta local de trabajo se copia a `<raíz del destino>/_staging/<nombre>/` (ignorada por git): MATERIAL con [`snapshot_sources.py`](snapshot_sources.md) (`add` + `sync`), CÓDIGO remoto con `git fetch` + `git worktree add --detach … origin/<ref>`; el origen nunca se escribe |
 | `Destino` | ruta | Ruta donde se escriben los archivos Markdown | Obligatorio; no se asume `docs/` por defecto |
 | `Generador` | string | `mkdocs-material` (por defecto) o `zensical` | Obligatorio. Ambos usan `mkdocs.yml` (nunca `zensical.toml`); con `zensical` se aplican las *Reglas por generador: Zensical* del prompt (pipeline sin hooks, Gap A4, plugins soportados, build vía script) |
 | `Idioma` | string | `es`, `en` u otro código ISO 639-1 | Obligatorio; aplica a todo el contenido generado |
 | `Tipo de cada origen` | string | `CÓDIGO` · `NORMATIVA` · `ESPECIFICACIÓN` · `UI/PANTALLAS` · `REFERENCIA` · `CONTRATO` · `INFRAESTRUCTURA` · `MANUAL` | Opcional; autodetectado si se omite; se confirma antes de continuar. Catálogo completo en [Tipos de Origen](../functional/origin_types.md) |
 | `Estrategia` | string | `federado` · `hub+satélite` · `monorepo` | Solo con ≥2 orígenes CÓDIGO; nunca autodetectado |
-| `Alcance` | string | Módulos o subconjunto | Opcional; por defecto proyecto completo |
+| `Alcance` | string | Módulos o subconjunto | Opcional; por defecto proyecto completo. Un módulo funcional transversal dentro de un repositorio mayor se expresa como pathspecs de git (`doc_trace.py --path`), propuestos en el INVENTARIO y confirmados por el usuario |
+| `Ref` | string | Rama, etiqueta o commit de un origen CÓDIGO remoto | Solo con repositorio remoto; se pregunta, nunca se asume `main` |
 | `Arquetipos` | string | Subconjunto de arquetipos a aplicar | Opcional; por defecto todos los aplicables |
 | `Verificación` | flags | `--verify-tools` y/o `--verify-build [--serve]` | Opcional; nunca automático |
 | `Modo` | string | `incremental` · `completo` | Opcional; por defecto `incremental` si `<raíz destino>/.ai/doc_state.json` tiene baseline del origen. La Fase 1 parte de `doc_trace.py changes`; su código `3` (sin baseline, sin git, commit fuera del historial u otra versión menor de doc_ia) fuerza `completo`. El CIERRE siempre ejecuta `doc_trace.py baseline` |
 
 ### Contrato de salida
 
-Doce bloques en el chat, en este orden:
+Doce bloques en el chat, en este orden (más `ADQUISICIÓN` tras el primero, solo con Fase 0-pre):
 1. `VALIDACIÓN DE INPUTS` — tabla de estado por parámetro; si hay ❌ el flujo se detiene.
+   Con orígenes no locales sigue `ADQUISICIÓN`: tabla `Origen · Forma · Ruta de trabajo
+   (_staging/…) · Versión / Ref · Estado` y salida de `snapshot_sources.py sync` (altas,
+   modificados, bajas y cambios de versión).
 2. `CLASIFICACIÓN DE ORÍGENES` — solo con ≥2 orígenes o si el único no es CÓDIGO.
 3. `INVENTARIO` — tabla módulo × estado (A/B/C) × acción × arquetipos afectados; incluye estado de las tres señales ZIP offline (`TIENE_ZIP_SCRIPT`, `TIENE_MKDOCS_PLUGIN`, `TIENE_WORKFLOW_GITHUB`) y, con Zensical, `TIENE_PIPELINE_SIN_HOOKS`; con documentos convertidos, la sub-sección "Fuentes convertidas (`_fuentes/`)" (copiados, sin cambios, huérfanos y migración pendiente).
 4. `PLAN_DOC` — orden de ejecución con secciones afectadas por módulo.
@@ -104,6 +109,9 @@ Doce bloques en el chat, en este orden:
 | Todos los orígenes son MATERIAL (sin CÓDIGO) | El flujo se detiene con mensaje orientativo hacia los prompts de arquetipo directo |
 | `--verify-build` falla | Se reportan errores del build MkDocs; el RESUMEN los lista como pendientes |
 | Estado B con secciones vigentes | Solo se actualizan las secciones afectadas; las vigentes se copian verbatim |
+| `snapshot_sources.py sync` con código `2` | Origen inexistente o patrón `{ver}` sin coincidencias: se muestra el error y se pide la ruta correcta; no se inventan ficheros |
+| Biblioteca de SharePoint no sincronizada en local | Se pide al usuario que la sincronice con OneDrive; no se inventan rutas |
+| Clon local del repositorio remoto desfasado | `git fetch` y worktree desacoplado en `_staging/`; nunca `pull` ni `checkout` en el clon del usuario sin confirmación |
 | Origen con carpetas `md/` | Fase 0c, Paso 5: copia siempre en `<raíz del destino>/_fuentes/<nombre_origen>/<ruta relativa al origen>`, fuera de `docs_dir`; solo copia lo que falta o cambió; los huérfanos se listan y no se borran sin confirmación |
 | Destino con `.fuentes/` o `fuentes/` en su raíz | Migración a `_fuentes/` con confirmación; si un mismo fichero difiere entre carpetas, el flujo se detiene; las referencias de `docs/` se reescriben y se vuelven a sellar con `doc_trace.py --root` |
 | CIERRE omitido por el agente | Error del flujo: el cierre es siempre obligatorio; si falta, solicitar al agente que cree los artefactos `.ai/sessions/` y proponga el commit antes de cerrar la sesión |
@@ -159,6 +167,7 @@ para prohibirlos o migrarlos.
     | Caso degenerado sin origen CÓDIGO | `.github/prompts/document_project.prompt.md` (Fase 0a, paso 5) | ✅ |
     | Estado B: secciones vigentes verbatim | `.github/prompts/document_project.prompt.md` (protocolo ACTUALIZAR) | ✅ |
     | Cierre de sesión obligatorio | `.github/prompts/document_project.prompt.md` (bloque 10) | ✅ |
+    | Fase 0-pre: formas de origen, `_staging/`, `Ref`, bloque `ADQUISICIÓN` y sus casos | `.github/prompts/document_project.prompt.md` (Fase 0-pre, opcionales "Alcance" y "Ref"), `.claude/commands/document-project.md` (Inputs requeridos, bloque 1b, casos límite), `scripts/snapshot_sources.py::main` | ✅ |
     | Copia en `_fuentes/` y migración de otros nombres | `.github/prompts/document_project.prompt.md` (Fase 0c, Paso 5), `tests/test_docs_conformance.py::test_sources_folder_is_canonical` | ✅ |
     | Generador `zensical`: `TIENE_PIPELINE_SIN_HOOKS`, Gap A4, plugins soportados, build vía script | `.github/prompts/document_project.prompt.md` (sección "Reglas por generador: Zensical") | ✅ |
     | Dependencias: norma, `docs.instructions.md`, `mkdocs.yml`, prompts, `mkdocs build` | `.github/prompts/document_project.prompt.md`, `.github/agents/documentation-generator.agent.md` | ✅ |

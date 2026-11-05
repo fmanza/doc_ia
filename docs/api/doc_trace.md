@@ -1,9 +1,9 @@
 ---
 arquetipo: "2"
 fuentes:
-  scripts/doc_trace.py: bf53744f0627
-  tests/test_doc_trace.py: b08e25e66a70
-revisado: 2026-11-04
+  scripts/doc_trace.py: 7fbd066dfa3a
+  tests/test_doc_trace.py: 34e6a9b446e5
+revisado: 2026-11-05
 ---
 # doc_trace
 
@@ -61,6 +61,12 @@ flowchart TD
 Las rutas de git y las citas se comparan en POSIX y relativas a la raíz del origen
 (`git diff --relative`), aunque el origen sea una subcarpeta de un repositorio.
 
+`--path` (repetible) limita ambos subcomandos a un alcance transversal dentro del origen: los
+pathspecs se pasan tal cual a `git diff` y `git ls-files` en lugar de `.` (`DEFAULT_PATHS`).
+`baseline` los guarda ordenados en `rutas`, solo si difieren de `.` (el formato anterior sigue
+siendo válido); `changes` sin `--path` reutiliza las rutas guardadas y, con `--path`, exige
+que coincidan como conjunto (comparación de cadenas, sin normalizar).
+
 ### Decisiones de cobertura (`decisions`)
 
 ```mermaid
@@ -99,16 +105,16 @@ documentación puede mostrar el formato sin generar hallazgos. Nunca escribe en 
 | `build_matrix` | `build_matrix(criteria, test_ids, repo_root) -> tuple[str, list[str]]` | Matriz Markdown por página, totales, tests inexistentes y tests sin criterio | `(markdown, inexistentes)` |
 | `build_llms_txt` | `build_llms_txt(mkdocs_yml, site_url=None) -> str` | `llms.txt` con `site_name`, `site_description` y una sección `##` por grupo del `nav` | Contenido |
 | `OriginChange` | `dataclass(frozen)`: `kind`, `path`, `old_path` | Fichero cambiado; `kind` ∈ `A` \| `M` \| `D` \| `R` (`old_path` solo en `R`; las copias cuentan como `A`) | — |
-| `OriginBaseline` | `dataclass(frozen)`: `commit`, `branch`, `dirty`, `date` | Estado del origen al cerrar la sesión; `commit=None` si no hay git | — |
+| `OriginBaseline` | `dataclass(frozen)`: `commit`, `branch`, `dirty`, `date`, `paths: tuple[str, ...] = (".",)` | Estado del origen al cerrar la sesión; `commit=None` si no hay git; `paths` = alcance ordenado | — |
 | `ChangeReport` | `dataclass(frozen)`: `status`, `reason`, `base`, `changes`, `pages`, `mentions`, `examples` | Resultado de `changes`; `status` ∈ `ok` \| `fallback` | — |
-| `take_baseline` | `take_baseline(origin, excluded=(), today=None) -> OriginBaseline` | `HEAD`, rama y cambios pendientes fuera de `excluded` | `OriginBaseline` |
-| `write_baseline` | `write_baseline(state_path, name, baseline) -> None` | Escribe la entrada del origen y la versión de doc_ia; conserva los demás orígenes | — |
+| `take_baseline` | `take_baseline(origin, excluded=(), today=None, paths=DEFAULT_PATHS) -> OriginBaseline` | `HEAD`, rama y cambios pendientes dentro de `paths` y fuera de `excluded` | `OriginBaseline` |
+| `write_baseline` | `write_baseline(state_path, name, baseline) -> None` | Escribe la entrada del origen (con `rutas` si `paths` no es `(".",)`) y la versión de doc_ia; conserva los demás orígenes | — |
 | `read_state` | `read_state(state_path) -> dict[str, Any]` | Lee `.ai/doc_state.json` | `{}` si no existe |
-| `changed_files` | `changed_files(origin, base, excluded=()) -> list[OriginChange] \| None` | `git diff --name-status -z -M --relative <base>` + ficheros sin seguimiento | Cambios ordenados o `None` si git falla |
+| `changed_files` | `changed_files(origin, base, excluded=(), paths=DEFAULT_PATHS) -> list[OriginChange] \| None` | `git diff --name-status -z -M --relative <base> -- <paths>` + ficheros sin seguimiento en `paths` | Cambios ordenados o `None` si git falla |
 | `documentation_paths` | `documentation_paths(origin, docs_dir) -> tuple[str, ...]` | Artefactos de la documentación dentro del origen (`docs/`, `DOC_ARTIFACTS`) | Rutas POSIX relativas al origen |
 | `pages_citing` | `pages_citing(docs_dir, paths, name) -> tuple[dict, dict]` | Por ruta: páginas que la citan (frontmatter o bloque «Evidencia») y páginas que solo la mencionan | `(citas, menciones)` |
 | `linked_examples` | `linked_examples(pages, docs_dir) -> tuple[Path, ...]` | Ejemplos enlazados desde las páginas de `api/` afectadas | Rutas de ejemplos |
-| `check_changes` | `check_changes(origin, docs_dir, state_path, name) -> ChangeReport` | Valida el baseline y compone el informe | `ChangeReport` |
+| `check_changes` | `check_changes(origin, docs_dir, state_path, name, scope=None) -> ChangeReport` | Valida el baseline (y que `scope`, si se da, coincida con sus `rutas`) y compone el informe | `ChangeReport` |
 | `format_changes` | `format_changes(report, name, root) -> str` | Informe Markdown para el INVENTARIO | Markdown |
 | `DecisionEntry` | `dataclass(frozen)`: `register`, `cid`, `line`, `fields: dict[str, str]`; propiedades `decision`, `pending`, `detected`, `result` | Ficha `COB-<ÁMBITO>-<NNN>`; campos por nombre normalizado (minúsculas, sin `*`); sin decisión cuenta como `Pendiente` | — |
 | `CoverageRow` | `dataclass(frozen)`: `page`, `cid`, `line`, `text`, `symbol`; propiedad `is_coverage` | Línea que cita un ID fuera de código; `is_coverage` si es fila de tabla con símbolo o «No aplica» | — |
@@ -134,6 +140,7 @@ documentación puede mostrar el formato sin generar hallazgos. Nunca escribe en 
 | `baseline` / `changes --origin` | `Path` | Raíz del origen documentado | Obligatorio; puede ser una subcarpeta de un repositorio |
 | `baseline` / `changes --name` | `str` | Clave del origen en el estado | Por defecto, el nombre de la carpeta del origen (regla de `_fuentes/`) |
 | `baseline` / `changes --docs` / `--state` | `Path` | Docs y estado del destino | Por defecto `<--root>/docs` y `<--root>/.ai/doc_state.json` |
+| `baseline` / `changes --path` | `str` (repetible) | Pathspec de git relativo al origen: alcance transversal | Por defecto `.` en `baseline` y las `rutas` guardadas en `changes`; en `changes`, debe coincidir con las guardadas |
 | `changes --output` | `Path` | Fichero Markdown del informe | Por defecto, stdout |
 | `decisions --docs` / `--output` | `Path` | Docs del destino y fichero Markdown del informe | Por defecto `<--root>/docs` (registros en `<docs>/decisiones/`) y stdout |
 
@@ -144,8 +151,9 @@ documentación puede mostrar el formato sin generar hallazgos. Nunca escribe en 
 - `drift`: una línea `[doc_trace] <status> <página> ← <fuente>` por hallazgo.
 - `matrix`: Markdown a stdout o a `--output` (crea el directorio padre).
 - `baseline`: `.ai/doc_state.json` con `{"doc_ia": <versión>, "origenes": {<nombre>: {"commit",
-  "rama", "sucio", "fecha"}}}`, orígenes ordenados, UTF-8 y LF; código `0` (también sin git,
-  con `commit: null`).
+  "rama", "sucio", "fecha"}}}` y, solo con `--path`, `"rutas": [<pathspecs ordenados>]`;
+  orígenes ordenados, UTF-8 y LF; código `0` (también sin git, con `commit: null`). Con
+  `--path` imprime además `[doc_trace] <nombre>: alcance <rutas>`.
 - `changes`: tabla `| Cambio | Fichero | Lo citan (Evidencia) | Lo mencionan |` y listas de
   páginas a revisar, páginas que solo lo mencionan, ejemplos enlazados y ficheros sin página;
   código `0` sin cambios, `1` con cambios, `3` sin baseline utilizable.
@@ -168,6 +176,7 @@ documentación puede mostrar el formato sin generar hallazgos. Nunca escribe en 
 | `mkdocs.yml` sin `nav` | `ValueError` capturado en `_cmd_llms` → `[doc_trace] ERROR:` y código `1` |
 | Consola no UTF-8 (cp1252) | Solo al ejecutarse como script, stdout/stderr se reconfiguran a UTF-8 |
 | `changes`: sin entrada, `commit: null`, commit fuera del historial o versión menor de doc_ia distinta | `ChangeReport("fallback", motivo)` → motivo por stderr y código `3` |
+| `changes --path` distinto de las `rutas` del baseline (o de `.` si no hay), tras normalizar `\` → `/`, `./` inicial y `/` final | `ChangeReport("fallback", "alcance --path distinto del baseline (<rutas>)")` → código `3` |
 | Destino dentro del origen | `docs/`, `.ai/`, `_fuentes/`, `mkdocs.yml`, `VER_DOCUMENTACION.md` y `VIEW_DOCS.md` no cuentan como cambios ni como cambios pendientes |
 | Rutas con caracteres no ASCII | `git … -z` evita el entrecomillado de `core.quotepath` |
 | git ausente o con error | `_git` devuelve `None` (sin excepción); `baseline` guarda `commit: null` |
@@ -226,6 +235,7 @@ documentación puede mostrar el formato sin generar hallazgos. Nunca escribe en 
 | `test_changes_*` (4 funciones, 7 casos) | Sin cambios (0), citas/menciones/renombrados/ñ/ejemplos (1), prefijo multiorigen y los cuatro motivos de modo completo (3) | integración (git local) |
 | `test_baseline_without_git_then_changes_is_full_mode` (1) | Origen sin git → `commit: null` y `changes` con código 3 | integración (CLI) |
 | `test_destination_inside_origin_ignores_its_own_artifacts`, `test_origin_in_subfolder_of_repository_uses_origin_relative_paths` (2) | Artefactos propios excluidos; origen en subcarpeta | integración (git local) |
+| `test_changed_files_limited_to_paths`, `test_baseline_with_paths_is_reused_by_changes`, `test_changes_with_different_paths_falls_back`, `test_baseline_without_paths_keeps_legacy_format` (4) | Alcance `--path`: diff limitado, `rutas` guardadas y reutilizadas, alcance distinto → `3`, formato sin `rutas` | integración (git local / CLI) |
 | `test_decisions_without_registers_is_clean`, `test_pending_card_is_not_a_finding`, `test_decided_*` (4) | Sin registros (0), pendientes sin hallazgo, decisión reflejada, sin reflejar (símbolo o enlace) e incompleta | unitario / integración (CLI) |
 | `test_decision_not_allowed_for_state_is_invalid`, `test_bad_date_and_scope_are_invalid`, `test_not_applicable_must_match_and_be_written_in_page` (3) | Hallazgos `invalid` y «No aplica» | unitario |
 | `test_duplicate_orphan_entry_and_orphan_ref`, `test_pending_card_with_different_page_symbol_is_mismatch` (2) | `duplicate`, `orphan_entry`, `orphan_ref`, `mismatch` | unitario |
@@ -263,6 +273,7 @@ python -m pytest tests/test_doc_trace.py -q
     | Exclusión de artefactos de la documentación | `scripts/doc_trace.py::documentation_paths`, `::DOC_ARTIFACTS` | ✅ |
     | Llamada a git sin shell y con timeout | `scripts/doc_trace.py::_git`, `::GIT_TIMEOUT` | ✅ |
     | Código 3 en `changes` | `scripts/doc_trace.py::_cmd_changes` | ✅ |
+    | Alcance `--path` | `scripts/doc_trace.py::DEFAULT_PATHS`, `::_paths_arg`, `::_add_origin_args`, `::take_baseline`, `::write_baseline`, `::changed_files`, `::check_changes`, `::_cmd_baseline` | ✅ |
     | Subcomando `decisions`: tipos, lectura, validación y reflejo | `scripts/doc_trace.py::DecisionEntry`, `::CoverageRow`, `::DecisionFinding`, `::DecisionReport`, `::parse_registers`, `::collect_coverage_rows`, `::check_decisions`, `::_validate_entry`, `::_reflection_problem` | ✅ |
     | Informe y códigos de `decisions` | `scripts/doc_trace.py::format_decisions`, `::_cmd_decisions` | ✅ |
     | Tests del §6 | `tests/test_doc_trace.py` | ✅ |

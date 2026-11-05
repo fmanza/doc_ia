@@ -20,6 +20,7 @@
 - [Tooling Determinista › ZIP de Documentación Offline](https://fmanza.github.io/doc_ia/functional/build_docs_zip.html)
 - [Tooling Determinista › Conversión de Documentos a Markdown](https://fmanza.github.io/doc_ia/functional/convert_to_md.html)
 - [Tooling Determinista › Trazabilidad Docs ↔ Código](https://fmanza.github.io/doc_ia/functional/doc_trace.html)
+- [Tooling Determinista › Adquisición de Orígenes](https://fmanza.github.io/doc_ia/functional/snapshot_sources.html)
 - [Flujos IA › Documentar un Proyecto](https://fmanza.github.io/doc_ia/functional/document_project.html)
 - [Flujos IA › Catálogo de Tipos de Origen](https://fmanza.github.io/doc_ia/functional/origin_types.html)
 - [Flujos IA › Arquetipos Formales](https://fmanza.github.io/doc_ia/functional/archetypes.html)
@@ -46,6 +47,7 @@
 - [Tooling Determinista › build_docs_zip](https://fmanza.github.io/doc_ia/api/build_docs_zip.html)
 - [Tooling Determinista › convert_to_md](https://fmanza.github.io/doc_ia/api/convert_to_md.html)
 - [Tooling Determinista › doc_trace](https://fmanza.github.io/doc_ia/api/doc_trace.html)
+- [Tooling Determinista › snapshot_sources](https://fmanza.github.io/doc_ia/api/snapshot_sources.html)
 
 ## Ejemplos
 
@@ -56,6 +58,7 @@
 - [Tooling Determinista › Generar ZIP Offline](https://fmanza.github.io/doc_ia/examples/build_docs_zip_offline.html)
 - [Tooling Determinista › Convertir Documentos a Markdown](https://fmanza.github.io/doc_ia/examples/convert_to_md_usage.html)
 - [Tooling Determinista › Trazabilidad Docs ↔ Código](https://fmanza.github.io/doc_ia/examples/doc_trace_usage.html)
+- [Tooling Determinista › Adquirir Orígenes Documentales](https://fmanza.github.io/doc_ia/examples/snapshot_sources_usage.html)
 
 ## Guías
 

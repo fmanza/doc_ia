@@ -1,13 +1,14 @@
 ---
 arquetipo: "1"
 fuentes:
-  .claude/commands/document-project.md: 95f53ec0e433
+  .claude/commands/document-project.md: 3321b9303a7b
   .github/DOCUMENTATION_STANDARD.md: d42bac6b22cb
-  .github/prompts/document_project.prompt.md: 4dba1b469bc1
-  CLAUDE.md: bdce5f7fec35
+  .github/prompts/document_project.prompt.md: 11cbfbf62af3
+  CLAUDE.md: f4ee79d0d791
+  scripts/snapshot_sources.py: d350c174f962
 decisiones:
   ../decisiones/docproj_decisiones.md: ace9e2e187df
-revisado: 2026-11-04
+revisado: 2026-11-05
 ---
 # Documentar un Proyecto
 
@@ -36,7 +37,10 @@ decidir manualmente qué arquetipo aplicar a cada módulo.
   o Gemini, Copilot, Cursor y Codex (prompt `document_project.prompt.md`).
 - Los cuatro parámetros obligatorios: **origen(es)**, **destino**, **generador**
   (`mkdocs-material` por defecto, o `zensical`) e **idioma**.
-- Cada origen indicado existe y es legible.
+- Cada origen indicado existe y es legible. Además de una carpeta local, un origen puede ser
+  un fichero con la versión en el nombre (patrón con `{ver}`), una carpeta de red, una
+  biblioteca de SharePoint sincronizada con OneDrive o un repositorio remoto con su rama,
+  etiqueta o commit.
 - Al menos uno de los orígenes es de tipo CÓDIGO.
 - Opcionales: tipo de cada origen, estrategia (solo con ≥2 orígenes CÓDIGO), alcance,
   subconjunto de arquetipos, verificación (`--verify-tools`, `--verify-build`) y modo
@@ -99,6 +103,10 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
   pasos para ver la documentación desde cero en Windows, macOS y Linux, y viaja dentro del ZIP.
 - El destino tiene los seis recursos visuales en `docs/assets/`, entre ellos su propia copia de Mermaid y el shim de búsqueda para ficheros locales, y su configuración genera URLs `*.html` con el plugin `offline`: el ZIP se abre con doble clic en `index.html`, con búsqueda y diagramas, sin servidor ni conexión. Tiene además un `.gitignore` con los
   patrones estándar.
+- Si algún origen no era una carpeta local de trabajo, su copia está en `_staging/<nombre>/`
+  de la raíz del destino, excluida del control de versiones, y los orígenes de documentos
+  quedan registrados con su versión e historial en `.ai/sources.json`; el origen no se ha
+  modificado.
 - Si el origen tiene documentos convertidos a Markdown, el destino tiene su copia en
   `_fuentes/`, fuera de `docs/` y versionada, y ninguna carpeta con otro nombre para ellos.
 - Existe `.ai/sessions/YYYY-MM-DD/` en el destino con `00_REQUEST.md`,
@@ -113,6 +121,7 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
 | Regla | Descripción | Impacto si se viola |
 |---|---|---|
 | Cuatro parámetros obligatorios | Origen(es), Destino, Generador e Idioma son requeridos; el flujo se detiene y pregunta si falta alguno | Se documentaría un proyecto equivocado, en la ruta incorrecta o con el generador inadecuado |
+| Adquisición de orígenes (Fase 0-pre) | El origen nunca se escribe. Lo que no es una carpeta local de trabajo se copia antes a `_staging/<nombre>/` del destino, ignorada por git: los documentos (fichero, patrón con `{ver}`, carpeta de red, SharePoint sincronizado) con la [adquisición de orígenes](snapshot_sources.md), que elige la versión más alta y la copia con un nombre estable; los repositorios remotos se obtienen con git o glab en un `git worktree` desacoplado en la ref pedida. Las fases siguientes trabajan sobre esa copia | Conversiones y ficheros ajenos escritos en carpetas compartidas, o rutas de `_fuentes/` y de la evidencia que cambian con cada versión del manual |
 | Clasificación de orígenes | Con ≥2 orígenes, o cuando el único origen no es de tipo CÓDIGO, se ejecuta la Fase 0a antes del inventario; el usuario confirma la clasificación antes de continuar | Sin clasificación, un origen NORMATIVA o UI se trataría como proyecto de código y generaría páginas incorrectas |
 | Inventario previo a generación | Antes de escribir cualquier página se clasifica el estado de la documentación existente (sin doc / desactualizado / vigente) | Se sobreescribirían páginas vigentes o se ignorarían páginas desactualizadas |
 | Generación en el chat | Toda la generación documental ocurre en el chat de la plataforma IA (Claude Code, Gemini, Copilot, Cursor, Codex); nunca en código Python ni en CI | Violaría el principio innegociable del proyecto de ejecución sin APIs externas |
@@ -222,6 +231,7 @@ automatizados.
 | `CONTRATO` | Especificaciones machine-readable de las APIs y modelos de datos del propio proyecto (OpenAPI, AsyncAPI, GraphQL, Protobuf, SQL DDL, DBML…); enriquece Arquetipo 2 §1 y §2 y Arquetipo 12 §5 |
 | `INFRAESTRUCTURA` | Artefactos IaC y de despliegue del propio proyecto (Terraform, Kubernetes, Docker, Ansible…); enriquece Arquetipo 2 §4 y Arquetipo 6C §3 › Despliegue |
 | `MANUAL` | Documentación narrativa ya escrita para el propio proyecto (manuales de usuario, guías de administrador, runbooks…); enriquece Arquetipos 3a, 3b, 6 y 7 |
+| Fase 0-pre | Adquisición de orígenes: copia a `_staging/` del destino lo que no es una carpeta local de trabajo (documentos con versión, carpetas de red, SharePoint sincronizado, repositorios remotos) antes de clasificarlo |
 | Fase 0a | Paso de clasificación de orígenes ejecutado antes del inventario cuando hay ≥2 orígenes o el único origen no es CÓDIGO; requiere confirmación del usuario antes de continuar |
 | Fase 0b | Sincronización visual obligatoria al inicio de toda sesión: verificar assets CSS/JS, `mkdocs.yml` (sin `navigation.sections`), `.gitignore` con patrones estándar |
 | Carpeta `md/` | Artefactos generados por `convert_to_md.py` en la Fase 0c: versiones Markdown de documentos binarios del origen. No generan páginas propias |
@@ -235,6 +245,7 @@ automatizados.
     | Elemento | Fuente | Confianza |
     |---|---|---|
     | Regla «Cuatro parámetros obligatorios» | `.github/prompts/document_project.prompt.md::VALIDACIÓN (bloqueante)` | ✅ |
+    | Regla «Adquisición de orígenes (Fase 0-pre)», precondición de formas de origen y postcondición de `_staging/` | `.github/prompts/document_project.prompt.md::Fase 0-pre`, `scripts/snapshot_sources.py::sync_source`, `::resolve` | ✅ |
     | Regla «Clasificación de orígenes» | `.github/prompts/document_project.prompt.md::Fase 0a` | ✅ |
     | Regla «Inventario previo a generación» | `.github/prompts/document_project.prompt.md::Fase 1` | ✅ |
     | Regla «Generación en el chat» | `.github/prompts/document_project.prompt.md::Política innegociable` | ✅ |

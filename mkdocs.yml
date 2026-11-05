@@ -99,6 +99,7 @@ nav:
           - ZIP de Documentación Offline: functional/build_docs_zip.md
           - Conversión de Documentos a Markdown: functional/convert_to_md.md
           - Trazabilidad Docs ↔ Código: functional/doc_trace.md
+          - Adquisición de Orígenes: functional/snapshot_sources.md
       - Flujos IA:
           - Documentar un Proyecto: functional/document_project.md
           - Catálogo de Tipos de Origen: functional/origin_types.md
@@ -128,6 +129,7 @@ nav:
           - build_docs_zip: api/build_docs_zip.md
           - convert_to_md: api/convert_to_md.md
           - doc_trace: api/doc_trace.md
+          - snapshot_sources: api/snapshot_sources.md
 
   # ── Audiencia: usuarios y operadores del tooling (Arquetipo 12) ───────────
   - Referencia del Sistema: reference/index.md
@@ -143,6 +145,7 @@ nav:
           - Generar ZIP Offline: examples/build_docs_zip_offline.md
           - Convertir Documentos a Markdown: examples/convert_to_md_usage.md
           - Trazabilidad Docs ↔ Código: examples/doc_trace_usage.md
+          - Adquirir Orígenes Documentales: examples/snapshot_sources_usage.md
 
   # ── Guías de uso y operación ───────────────────────────────────────────────
   - Guías:

@@ -3,16 +3,17 @@ arquetipo: "12"
 fuentes:
   .claude/settings.json.example: e1c10842aa20
   .github/workflows/docs-zip-release.yml: bd807d444ea2
-  CLAUDE.md: bdce5f7fec35
+  CLAUDE.md: f4ee79d0d791
   hooks/sync_root_docs.py: ef5e576436c6
-  mkdocs.yml: c1dbfb514add
+  mkdocs.yml: 9d6912b83c82
   mkdocs_hooks.py: 31259b7911a3
   scripts/build_docs_zip.py: 5f972ee674c8
   scripts/check_env.py: c9105c709663
   scripts/convert_to_md.py: e7e60518d96f
-  scripts/doc_trace.py: bf53744f0627
+  scripts/doc_trace.py: 7fbd066dfa3a
+  scripts/snapshot_sources.py: d350c174f962
   scripts/start-server.py: a12209ac8507
-revisado: 2026-11-04
+revisado: 2026-11-05
 ---
 # Referencia — doc_ia
 
@@ -118,7 +119,28 @@ python scripts/doc_trace.py [--root DIR] {drift,stamp,matrix,llms,decisions,base
 | `baseline` / `changes --name` | cadena | carpeta del origen | Clave del origen en el estado; con varios orígenes, la de `_fuentes/` |
 | `baseline` / `changes --docs` | ruta | `<--root>/docs` | Docs del destino (citas y artefactos a excluir) |
 | `baseline` / `changes --state` | ruta | `<--root>/.ai/doc_state.json` | Estado del modo incremental |
+| `baseline` / `changes --path` | pathspec de git (repetible) | `.` en `baseline`; las `rutas` guardadas en `changes` | Alcance transversal relativo al origen (p. ej. un módulo funcional repartido entre varios módulos de build); en `changes` debe coincidir con el del baseline |
 | `changes --output` | ruta | stdout | Fichero Markdown del informe |
+
+### snapshot_sources.py
+
+```bash
+python scripts/snapshot_sources.py --root DIR {add,sync,list} [opciones]
+```
+
+Copia los orígenes documentales de solo lectura (fichero, carpeta, ruta UNC, biblioteca de
+SharePoint sincronizada o patrón con `{ver}`) a `<--root>/_staging/<nombre>/` y registra
+`<--root>/.ai/sources.json`. No escribe en el origen ni accede a la red.
+
+| Opción / Argumento | Tipo | Por defecto | Descripción |
+|---|---|---|---|
+| `--root` | ruta (obligatorio) | — | Raíz del destino (carpeta con `mkdocs.yml`); global, antes del subcomando |
+| `add <nombre>` | cadena (obligatorio) | — | Nombre del origen (`[\w.-]+`): carpeta en `_staging/` y `_fuentes/` |
+| `add <origen>` | ruta o patrón (obligatorio) | — | Fichero, carpeta o patrón con `{ver}` en el nombre del fichero |
+| `add --include` | glob (repetible) | todos los ficheros | Filtro para carpetas; no admitido con `{ver}` |
+| `sync [nombres…]` | cadenas | todos los declarados | Orígenes a sincronizar |
+| `sync --dry-run` | flag | desactivado | Informa sin copiar ni escribir el manifiesto |
+| `sync --date` | `YYYY-MM-DD` | hoy | Fecha de los eventos del historial |
 
 ### start-server.py
 
@@ -174,6 +196,10 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 | `0` | `doc_trace.py changes` | Sin cambios en el origen desde el baseline | Todas las páginas siguen vigentes (estado C) |
 | `1` | `doc_trace.py changes` | Hay ficheros cambiados | Inventariar solo el informe (modo incremental) |
 | `3` | `doc_trace.py changes` | Sin baseline para el origen, origen sin git, commit fuera del historial o versión menor de doc_ia distinta | Documentar en modo completo; el CIERRE guardará un baseline nuevo |
+| `3` | `doc_trace.py changes` | `--path` distinto del alcance guardado en el baseline | Repetir sin `--path` o documentar en modo completo con el nuevo alcance |
+| `0` | `snapshot_sources.py` | `add` y `list` correctos; `sync` sin cambios | — |
+| `1` | `snapshot_sources.py sync` | Algún fichero nuevo, cambiado o eliminado (también con `--dry-run`) | Convertir de nuevo lo cambiado (`convert_to_md.py`) y citar los cambios de versión en el resumen |
+| `2` | `snapshot_sources.py` | Origen inexistente o ilegible, patrón sin coincidencias, nombre inválido, `--include` con `{ver}`, origen no declarado, manifiesto inválido u `OSError`; un origen caído no impide sincronizar los demás | Ver `[snapshot] ERROR…` por stderr; corregir la ruta o reconectar la unidad |
 | `0` | `sync_root_docs.py` | Siempre; un fichero raíz ausente solo genera un aviso | — |
 
 ## 4. Eventos y Mensajes
@@ -184,7 +210,7 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 | `on_post_build` | MkDocs | `mkdocs_hooks.py` | Configuración MkDocs (`site_dir`); genera `site/doc_ia-docs-latest.zip` + `.sha256`, con prioridad -200: después del plugin `offline`, para incluir el índice de búsqueda en JS |
 | Pre/post-build sin hooks | `build_docs_zip.py --builder zensical` | `sync_root_docs.main()` / `mkdocs_hooks.on_post_build({"site_dir": ...})` | Mismo efecto que los dos eventos anteriores; el post-build solo si el build termina con `0` |
 | `PostToolUse` (`Edit\|Write`) | Claude Code | Comandos de `.claude/settings.json` | Ejecuta `sync_root_docs.py`, ruff, mypy y pytest `--collect-only`; salida truncada a 5–15 líneas |
-| Prefijos de log `[build_docs_zip]`, `[ZIP]`, `[OK]`, `[sync_root_docs]`, `[doc_ia-docs]` | Scripts y hooks | Usuario / CI | Texto libre por stdout; sin contrato estable más allá del prefijo |
+| Prefijos de log `[build_docs_zip]`, `[ZIP]`, `[OK]`, `[sync_root_docs]`, `[doc_ia-docs]`, `[doc_trace]`, `[snapshot]` | Scripts y hooks | Usuario / CI | Texto libre por stdout; sin contrato estable más allá del prefijo |
 
 ## 5. Interfaces Publicadas
 
@@ -197,7 +223,9 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 | Ficheros `<origen>/md/**/*.md` | Fichero de salida | `scripts/convert_to_md.py::output_path` | Estructura reflejada del origen; frontmatter opcional con `--metadata` |
 | `llms.txt` | Fichero de salida publicado en la raíz del sitio | `scripts/doc_trace.py::build_llms_txt` | Índice para agentes IA ([llmstxt.org](https://llmstxt.org/)): un `##` por sección del `nav` y un enlace por página |
 | Matriz de trazabilidad | Fichero de salida (Markdown) | `scripts/doc_trace.py::build_matrix` | Criterios y tests por página, tests citados inexistentes y tests sin criterio |
-| `.ai/doc_state.json` | Fichero de estado del destino (JSON, versionado) | `scripts/doc_trace.py::write_baseline` | `doc_ia` (versión) y `origenes.<nombre>`: `commit`, `rama`, `sucio`, `fecha` |
+| `.ai/doc_state.json` | Fichero de estado del destino (JSON, versionado) | `scripts/doc_trace.py::write_baseline` | `doc_ia` (versión) y `origenes.<nombre>`: `commit`, `rama`, `sucio`, `fecha` y, solo con alcance `--path`, `rutas` |
+| `.ai/sources.json` | Manifiesto de orígenes del destino (JSON) | `scripts/snapshot_sources.py::write_manifest` | `doc_ia` (versión) y `fuentes.<nombre>`: `origen`, `incluir`, `ficheros`, `historial`, `sincronizado` (ver §6) |
+| `_staging/<nombre>/` | Carpeta de trabajo del destino (ignorada por git) | `scripts/snapshot_sources.py::sync_source` | Copia de los ficheros del origen; con `{ver}`, con nombre estable sin versión |
 | Registro de decisiones de cobertura | Fichero de entrada editado por personas (`docs/decisiones/<ámbito>_decisiones.md`) | `scripts/doc_trace.py::parse_registers` | Fichas bajo encabezados con el ID y tabla `Campo` / `Valor` (ver §6) |
 | Informe de decisiones | Fichero de salida (Markdown) | `scripts/doc_trace.py::format_decisions` | Resumen por registro, pendientes de decisión y tabla de hallazgos |
 
@@ -237,6 +265,8 @@ erDiagram
 | Frontmatter de trazabilidad | `fuentes` | mapa ruta → huella | Rutas relativas dentro del repositorio; huella = 12 hex de SHA256 con saltos LF (en `.md`, sin su frontmatter) | pública |
 | Frontmatter de trazabilidad | `decisiones` | mapa ruta → huella | Registros de decisiones enlazados desde IDs `COB-…`; ruta relativa a la página, tal como la escribe el enlace; la escribe `stamp` | pública |
 | Frontmatter de trazabilidad | `revisado` | fecha | `YYYY-MM-DD` | pública |
+| Manifiesto `sources.json` | `ficheros.<rel>` | objeto | `sha256` (64 hex), `bytes`, `origen` (ruta real en el origen), `version` (`null` sin `{ver}`) | interna |
+| Manifiesto `sources.json` | `historial[]` | lista | `fecha`, `fichero`, `cambio` (`alta` \| `modificado` \| `baja`), `sha256` (salvo en bajas), `version`, `version_anterior` (solo si cambió); solo se añaden eventos | interna |
 | Ficha de decisión | identificador | cadena | `COB-<ÁMBITO>-<NNN>`; `<ÁMBITO>` en `[A-Z0-9]+` e igual al nombre del registro; nunca se reutiliza | pública |
 | Ficha de decisión | `Estado detectado` | símbolo | ✅ ⚠️ ❌ 🔍 (lo escribe el agente) | pública |
 | Ficha de decisión | `Decisión` | cadena | Vocabulario cerrado por estado o `Pendiente` (la escribe una persona) | interna |
@@ -282,6 +312,10 @@ decisiones se publica con el sitio y el ZIP (`DOCUMENTATION_STANDARD.md` §3.18)
     | Códigos de `doc_trace.py` | `scripts/doc_trace.py::_cmd_drift`, `::_cmd_stamp`, `::_cmd_matrix`, `::_cmd_llms`, `::_cmd_decisions`, `::_cmd_baseline`, `::_cmd_changes` | ✅ |
     | Registro e informe de decisiones; campos de la ficha | `scripts/doc_trace.py::parse_registers`, `::format_decisions`, `::DECISIONS_BY_STATE`, `::_validate_entry`, `::COVERAGE_ID_RE` | ✅ |
     | `.ai/doc_state.json` | `scripts/doc_trace.py::write_baseline`, `::read_state` | ✅ |
+    | Opción `--path` y código `3` por alcance distinto | `scripts/doc_trace.py::_add_origin_args`, `::check_changes` | ✅ |
+    | Opciones de `snapshot_sources.py` | `scripts/snapshot_sources.py::_parser`, `::NAME_RE`, `::declare` | ✅ |
+    | Códigos de `snapshot_sources.py` | `scripts/snapshot_sources.py::_cmd_sync`, `::main` | ✅ |
+    | `.ai/sources.json` y `_staging/` | `scripts/snapshot_sources.py::write_manifest`, `::sync_source`, `::STAGING_DIR`, `::MANIFEST` | ✅ |
     | `llms.txt` | `scripts/doc_trace.py::build_llms_txt` | ✅ |
     | Matriz de trazabilidad | `scripts/doc_trace.py::build_matrix` | ✅ |
     | Frontmatter de trazabilidad y huella | `scripts/doc_trace.py::format_frontmatter`, `::fingerprint` | ✅ |

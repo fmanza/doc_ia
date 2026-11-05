@@ -5,6 +5,31 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+### Added
+
+- **Orígenes remotos, de red y versionados en `/document-project` (Fase 0-pre)**: todo origen
+  que no sea una carpeta local de trabajo se copia a `<raíz del destino>/_staging/<nombre>/`
+  (git-ignorado) y el flujo trabaja sobre la copia; el origen nunca se escribe. Formas: fichero
+  con la versión en el nombre (`…_v{ver}.docx`: se elige la más alta y se copia con nombre
+  estable), carpeta de red UNC, biblioteca de SharePoint sincronizada con OneDrive y repositorio
+  GitLab/GitHub remoto con `ref` (`git fetch` + `git worktree --detach`, autenticación de
+  `glab`/`gh`, sin tokens).
+- **`scripts/snapshot_sources.py`** (`add` / `sync [--dry-run]` / `list`): copia por hash,
+  invalida la conversión `md/` del fichero cambiado y registra en `.ai/sources.json` sha256,
+  versión e historial (`v1.2.50 → v1.2.51`). Sin red; exit 0/1/2.
+- **`doc_trace.py baseline|changes --path`** (repetible): alcance transversal dentro de un
+  repositorio mayor; el baseline guarda `rutas` (solo si no es `.`, compatible hacia atrás) y un
+  `--path` distinto pasa a modo completo (exit 3).
+
+### Changed
+
+- **Instrucciones de `/document-project`**: «raíz del destino» definida sin ambigüedad (las
+  sesiones `.ai/` ya no van a `{destino}/..`); `git init` con confirmación si el destino no es
+  repositorio; `_staging/` en el `.gitignore` estándar; palabras clave `normativa`, `boe`,
+  `legislación`, `doue`, y solo lo de obligado cumplimiento activa el Arquetipo 8 (planes y guías
+  → REFERENCIA); prioridad CÓDIGO > ESPECIFICACIÓN > MANUAL con fichas `COB-…` por discrepancia;
+  regla de datos personales en dominios sensibles; GitLab CI equivalente al workflow de GitHub.
+
 ## [0.7.0] — 2026-11-04
 
 ### Changed
