@@ -791,3 +791,17 @@ def test_paths_are_normalized_before_comparing_with_baseline(tmp_path: Path) -> 
     _baseline(dest, repo, "--path", "gui/vg/")
     assert _origins_state(dest)["producto"]["rutas"] == ["gui/vg"]
     assert _changes(dest, repo, "--path", "./gui/vg") == 0
+
+
+def test_baseline_detached_head_records_the_ref_pointing_at_it(tmp_path: Path) -> None:
+    origin, dest = _origin(tmp_path), _dest(tmp_path)
+    _git(origin, "checkout", "-q", "--detach", "HEAD")
+    _baseline(dest, origin)
+    assert _origins_state(dest)["mi_api"]["rama"] == "main"
+
+
+def test_baseline_ref_overrides_branch(tmp_path: Path) -> None:
+    origin, dest = _origin(tmp_path), _dest(tmp_path)
+    _git(origin, "checkout", "-q", "--detach", "HEAD")
+    _baseline(dest, origin, "--ref", "origin/dev")
+    assert _origins_state(dest)["mi_api"]["rama"] == "origin/dev"

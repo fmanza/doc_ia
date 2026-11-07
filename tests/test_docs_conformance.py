@@ -450,7 +450,7 @@ def test_doc_ia_coverage_decisions_are_consistent() -> None:
 
 # --- Bootstrap: la capa A lleva las plantillas que citan sus prompts ---
 
-TEMPLATE_REF_RE = re.compile(r"\.github/templates/([A-Za-z0-9_.-]+)")
+TEMPLATE_REF_RE = re.compile(r"\.github/templates/([A-Za-z0-9_.*/-]+[A-Za-z0-9_*])")
 
 
 def test_bootstrap_copies_every_referenced_template() -> None:
@@ -462,8 +462,12 @@ def test_bootstrap_copies_every_referenced_template() -> None:
     ]
     cited = {m for s in sources for m in TEMPLATE_REF_RE.findall(s.read_text(encoding="utf-8"))}
     assert cited, "ningún prompt cita plantillas: revisar el patrón"
+    templates = ROOT / ".github" / "templates"
     for name in sorted(cited):
-        assert (ROOT / ".github" / "templates" / name).is_file(), name
+        if "*" in name:  # patrón (p. ej. ai_context/*.template.md): al menos una plantilla
+            assert any(templates.glob(name)), name
+        else:
+            assert (templates / name).is_file(), name
     bootstrap = (ROOT / ".github/prompts/bootstrap_ai_config.prompt.md").read_text(encoding="utf-8")
     layer_a = bootstrap.split("### Capa A", 1)[1].split("### Capa B", 1)[0]
     assert "`.github/templates/`" in layer_a
@@ -567,3 +571,119 @@ def test_nine_tabs_rule_everywhere(path: str) -> None:
     text = (ROOT / path).read_text(encoding="utf-8")
     assert re.search(r"(?i)9 (pestañas|entradas de primer nivel)", text), path
     assert "«Inicio»" in text, path
+
+
+# --- Contexto .ai/ del CIERRE e independencia entre proyectos ---
+
+AI_CONTEXT_SECTIONS = {
+    "product": [
+        "Qué es",
+        "Audiencia",
+        "Capacidades",
+        "Marco legal y normativo",
+        "Estado y evolución",
+    ],
+    "architecture": [
+        "Stack",
+        "Módulos y capas",
+        "Modelo de datos",
+        "Integraciones y acoplamientos",
+        "Alcance documental",
+    ],
+    "runtime": [
+        "Estructura",
+        "Orígenes y cómo refrescarlos",
+        "Comandos",
+        "Primera vez en otro equipo",
+    ],
+    "standards": [
+        "Estándar documental",
+        "Reglas propias de este proyecto",
+        "Convenciones del código fuente",
+        "Commits",
+    ],
+}
+AI_CONTEXT_DIR = ".github/templates/ai_context"
+CLOSURE_RULE_FILES = (
+    ".claude/commands/document-project.md",
+    ".github/prompts/document_project.prompt.md",
+)
+
+
+@pytest.mark.parametrize("name", sorted(AI_CONTEXT_SECTIONS))
+def test_ai_context_templates_have_fixed_sections(name: str) -> None:
+    text = (ROOT / AI_CONTEXT_DIR / f"{name}.template.md").read_text(encoding="utf-8")
+    titles = re.findall(r"^## \d+\. (.+)$", text, re.M)
+    assert titles == AI_CONTEXT_SECTIONS[name]
+    assert "no son plantilla" in text.lower()  # otros destinos no se copian
+
+
+def test_ai_context_glossary_template_has_source_column() -> None:
+    text = (ROOT / AI_CONTEXT_DIR / "glossary.template.md").read_text(encoding="utf-8")
+    assert "| Término | Significado | Fuente |" in text
+
+
+@pytest.mark.parametrize("path", CLOSURE_RULE_FILES)
+def test_closure_uses_ai_context_templates(path: str) -> None:
+    text = (ROOT / path).read_text(encoding="utf-8")
+    assert "templates/ai_context/" in text
+    assert "DPSS o SOCYALPRO" not in text  # la regla es general, no una lista de proyectos
+
+
+@pytest.mark.parametrize(
+    "path", (*CLOSURE_RULE_FILES, ".github/agents/documentation-generator.agent.md")
+)
+def test_projects_do_not_inherit_templates_or_decisions(path: str) -> None:
+    """Otros destinos documentados con doc_ia no son plantilla ni fuente de decisiones."""
+    text = (ROOT / path).read_text(encoding="utf-8")
+    assert "Origen de plantillas y decisiones" in text
+
+
+# --- Kit de documentación en el destino ---
+
+KIT_FLOW_FILES = (
+    ".claude/commands/document-project.md",
+    ".github/prompts/document_project.prompt.md",
+    ".github/agents/documentation-generator.agent.md",
+)
+KIT_REF_RE = re.compile(r"\.github/(?:prompts|agents|templates|instructions)/[\w./-]+\.(?:md|yml)")
+KIT_NOT_SHIPPED = ("bootstrap_ai_config", "config_review", "version_closure", "SHARED_INSTRUCTIONS")
+
+
+def _manifest_methodology() -> set[str]:
+    text = (ROOT / ".github/kit/MANIFEST.txt").read_text(encoding="utf-8")
+    body = text.split("\n[metodologia]\n", 1)[1].split("\n[lanzadores]\n", 1)[0]
+    return {line.strip() for line in body.splitlines() if line.strip() and not line.startswith("#")}
+
+
+@pytest.mark.parametrize("path", KIT_FLOW_FILES)
+def test_kit_rule_everywhere(path: str) -> None:
+    text = (ROOT / path).read_text(encoding="utf-8")
+    assert "kit.py sync" in text
+    assert "documentar.prompt" in text
+
+
+def test_kit_manifest_ships_everything_the_flow_cites() -> None:
+    """Un destino con kit tiene todo prompt, agente o plantilla que cite el flujo de documentar."""
+    shipped = _manifest_methodology()
+    cited = {
+        ref
+        for path in KIT_FLOW_FILES
+        for ref in KIT_REF_RE.findall((ROOT / path).read_text(encoding="utf-8"))
+        if (ROOT / ref).is_file() and not any(x in ref for x in KIT_NOT_SHIPPED)
+    }
+    assert cited, "el patrón no encuentra referencias"
+    assert sorted(cited - shipped) == []
+
+
+def test_kit_documentar_template_has_fixed_sections() -> None:
+    text = (ROOT / ".github/templates/kit/DOCUMENTAR.template.md").read_text(encoding="utf-8")
+    assert re.findall(r"^## (\d+)\. ", text, re.M) == [str(n) for n in range(7)]
+    assert text.count("`/documentar") >= 6  # ejemplos de uso
+
+
+def test_kit_instance_template_has_fixed_sections() -> None:
+    path = ROOT / ".github/templates/kit/documentar.prompt.template.md"
+    text = path.read_text(encoding="utf-8")
+    assert re.findall(r"^## (\d+)\. ", text, re.M) == [str(n) for n in range(1, 8)]
+    assert "no son plantilla" in text.lower() or "nada copiado de otros" in text.lower()

@@ -220,6 +220,18 @@
   (guardado en el baseline como `rutas`).
 - **Sesión**: análisis PLAN/AUDIT_PLAN de 2026-11-05 (feature 0.8.0).
 
+## [kit.py] — Un clon del destino daba todo el kit por «editado» (RESUELTO)
+
+- **Síntoma**: tras instalar el kit en VG, APDI y RACS, `kit.py check` sobre un clon limpio del
+  destino marcaba cada fichero de `.doc_ia/` como «editado en el destino».
+- **Causa**: la huella del lock se calculaba sobre los bytes. La copia de trabajo de doc_ia tiene
+  CRLF (`autocrlf`) y git normaliza a LF en los destinos con `* text=auto eol=lf` (o al revés en
+  otro equipo): el mismo contenido, otra huella.
+- **Tratamiento**: `kit.py::sha256` normaliza CRLF → LF en ficheros de texto (sin NUL en los
+  primeros 8 KB) antes de calcular la huella, como hace `doc_trace.py::fingerprint`. La copia sigue
+  siendo byte a byte. Tests: `tests/test_kit.py::test_checkout_with_other_line_endings_is_not_an_edit`.
+- **Sesión**: kit de documentación, 2026-11-07.
+
 ## [ZIP offline] — Abrir `index.html` sin servidor muestra listados de carpetas (RESUELTO)
 
 - **Síntoma**: tras extraer el ZIP, abrir `index.html` con doble clic carga la portada, pero el

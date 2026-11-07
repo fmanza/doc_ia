@@ -2,10 +2,10 @@
 arquetipo: "2"
 fuentes:
   .github/agents/config-reviewer.agent.md: 376360c404e4
-  .github/prompts/bootstrap_ai_config.prompt.md: fd55edd86bb6
+  .github/prompts/bootstrap_ai_config.prompt.md: fdf4648ffdbe
 decisiones:
   ../decisiones/bootstrap_decisiones.md: 254ead9347ae
-revisado: 2026-11-04
+revisado: 2026-11-07
 ---
 # bootstrap
 
@@ -67,6 +67,7 @@ Seis bloques en el chat, en este orden: ANÁLISIS → PLAN → AUDIT_PLAN → IM
 |---|---|
 | Parámetro obligatorio faltante | El flujo se detiene antes del ANÁLISIS y pide completarlo |
 | Generador de docs no indicado | Como cualquier campo obligatorio: el flujo se detiene y lo pide (se admite `ninguno`) |
+| Se busca que un destino de documentación se relance sin doc_ia | No es un bootstrap: se usa `scripts/kit.py sync --root <destino>` ([kit](kit.md)); el prompt lo advierte al inicio y el kit no sustituye la configuración IA del bootstrap |
 | Bootstrap lanzado desde el origen en lugar del destino | Riesgo de arrastrar suposiciones del stack origen; el prompt exige invocarlo desde el destino y explica por qué |
 | [COB-BOOTSTRAP-004](../decisiones/bootstrap_decisiones.md#cob-bootstrap-004) · Fichero de Capa D presente en el origen | Se excluye siempre; no se copia ni con instrucciones explícitas del usuario ✅ |
 
@@ -114,6 +115,7 @@ a los ficheros reales de doc_ia; lo detecta la auditoría posterior del Config R
     | Capas A/B/C/D y sus acciones | `.github/prompts/bootstrap_ai_config.prompt.md` (sección "Clasificación por capas") | ✅ |
     | Seis bloques ANÁLISIS → VERSION | `.github/prompts/bootstrap_ai_config.prompt.md` (salida esperada) | ✅ |
     | Parada por parámetro faltante | `.github/prompts/bootstrap_ai_config.prompt.md` (VALIDACIÓN) | ✅ |
+    | Distinción con el kit de documentación | `.github/prompts/bootstrap_ai_config.prompt.md` (nota «No confundir con el kit de documentación»), `scripts/kit.py` | ✅ |
     | Invocación desde el destino (modelo PULL) | `.github/prompts/bootstrap_ai_config.prompt.md` (sección "Método y dirección de la llamada") | ✅ |
     | [COB-BOOTSTRAP-004](../decisiones/bootstrap_decisiones.md#cob-bootstrap-004) · Capa D excluida aunque el usuario lo pida | `.github/prompts/bootstrap_ai_config.prompt.md::Capa D` (se excluye aunque el usuario pida copiarlo) | 🔍 → ✅ (decisión: Reclasificar) |
     | Dependencias: código del destino, Capa A+B del origen, norma documental | `.github/prompts/bootstrap_ai_config.prompt.md` | ✅ |

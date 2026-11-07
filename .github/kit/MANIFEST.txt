@@ -1,0 +1,61 @@
+# Kit de documentación de doc_ia — lista blanca (scripts/kit.py).
+# [metodologia]: se copia a <destino>/.doc_ia/<misma ruta>. Solo lo que necesita /document-project
+#   en un destino; lo que es de desarrollo de doc_ia (SHARED_INSTRUCTIONS, bootstrap,
+#   config_review, version_closure, tests) NO entra.
+# [lanzadores]: "plantilla -> ruta en la raíz del destino". Nunca pisan un fichero ajeno.
+# [instancia]: "plantilla -> ruta"; se crea solo si falta y después es del proyecto.
+
+[metodologia]
+pyproject.toml
+requirements.txt
+.claude/commands/document-project.md
+.claude/EDGE_CASES.md
+.github/DOCUMENTATION_STANDARD.md
+.github/instructions/docs.instructions.md
+.github/agents/documentation-generator.agent.md
+.github/agents/documentation-reviewer.agent.md
+.github/prompts/document_project.prompt.md
+.github/prompts/functional_doc.prompt.md
+.github/prompts/technical_doc.prompt.md
+.github/prompts/example_doc.prompt.md
+.github/prompts/howto_doc.prompt.md
+.github/prompts/tutorial_doc.prompt.md
+.github/prompts/architecture_doc.prompt.md
+.github/prompts/landing_doc.prompt.md
+.github/prompts/onboarding_dev.prompt.md
+.github/prompts/normative_traceability.prompt.md
+.github/prompts/reference_doc.prompt.md
+.github/prompts/coverage_decisions.prompt.md
+.github/prompts/changelog.prompt.md
+.github/prompts/contributing_doc.prompt.md
+.github/prompts/ai_config_doc.prompt.md
+.github/prompts/documentation_review.prompt.md
+.github/templates/VER_DOCUMENTACION.template.md
+.github/templates/DECISIONES_COBERTURA.template.md
+.github/templates/TEMPLATE_mkdocs.yml
+.github/templates/ai_context/product.template.md
+.github/templates/ai_context/architecture.template.md
+.github/templates/ai_context/glossary.template.md
+.github/templates/ai_context/runtime.template.md
+.github/templates/ai_context/standards.template.md
+.github/templates/kit/DOCUMENTAR.template.md
+.github/templates/kit/documentar.prompt.template.md
+.github/kit/MANIFEST.txt
+scripts/kit.py
+scripts/doc_trace.py
+scripts/snapshot_sources.py
+scripts/db_trace.py
+scripts/convert_to_md.py
+scripts/check_env.py
+scripts/build_docs_zip.py
+scripts/start-server.py
+mkdocs_hooks.py
+
+[lanzadores]
+.github/templates/kit/documentar.command.md -> .claude/commands/documentar.md
+.github/templates/kit/documentar.copilot.prompt.md -> .github/prompts/documentar.prompt.md
+.github/templates/kit/AGENTS.md -> AGENTS.md
+.github/templates/kit/GEMINI.md -> GEMINI.md
+
+[instancia]
+.github/templates/kit/DOCUMENTAR.template.md -> DOCUMENTAR.md

@@ -1,8 +1,8 @@
 ---
 arquetipo: "2"
 fuentes:
-  scripts/doc_trace.py: 7fbd066dfa3a
-  tests/test_doc_trace.py: 34e6a9b446e5
+  scripts/doc_trace.py: 3631c07d7fc3
+  tests/test_doc_trace.py: 359233b2f669
 revisado: 2026-11-05
 ---
 # doc_trace
@@ -107,7 +107,7 @@ documentación puede mostrar el formato sin generar hallazgos. Nunca escribe en 
 | `OriginChange` | `dataclass(frozen)`: `kind`, `path`, `old_path` | Fichero cambiado; `kind` ∈ `A` \| `M` \| `D` \| `R` (`old_path` solo en `R`; las copias cuentan como `A`) | — |
 | `OriginBaseline` | `dataclass(frozen)`: `commit`, `branch`, `dirty`, `date`, `paths: tuple[str, ...] = (".",)` | Estado del origen al cerrar la sesión; `commit=None` si no hay git; `paths` = alcance ordenado | — |
 | `ChangeReport` | `dataclass(frozen)`: `status`, `reason`, `base`, `changes`, `pages`, `mentions`, `examples` | Resultado de `changes`; `status` ∈ `ok` \| `fallback` | — |
-| `take_baseline` | `take_baseline(origin, excluded=(), today=None, paths=DEFAULT_PATHS) -> OriginBaseline` | `HEAD`, rama y cambios pendientes dentro de `paths` y fuera de `excluded` | `OriginBaseline` |
+| `take_baseline` | `take_baseline(origin, excluded=(), today=None, paths=DEFAULT_PATHS) -> OriginBaseline` | `HEAD`, rama (con HEAD desacoplado, la única rama local o remota que apunta a él — `_detached_ref`; si no es única, `HEAD`) y cambios pendientes dentro de `paths` y fuera de `excluded`. `baseline --ref` sobrescribe la rama | `OriginBaseline` |
 | `write_baseline` | `write_baseline(state_path, name, baseline) -> None` | Escribe la entrada del origen (con `rutas` si `paths` no es `(".",)`) y la versión de doc_ia; conserva los demás orígenes | — |
 | `read_state` | `read_state(state_path) -> dict[str, Any]` | Lee `.ai/doc_state.json` | `{}` si no existe |
 | `changed_files` | `changed_files(origin, base, excluded=(), paths=DEFAULT_PATHS) -> list[OriginChange] \| None` | `git diff --name-status -z -M --relative <base> -- <paths>` + ficheros sin seguimiento en `paths` | Cambios ordenados o `None` si git falla |

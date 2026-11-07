@@ -21,6 +21,8 @@
 - [Tooling Determinista › Conversión de Documentos a Markdown](https://fmanza.github.io/doc_ia/functional/convert_to_md.html)
 - [Tooling Determinista › Trazabilidad Docs ↔ Código](https://fmanza.github.io/doc_ia/functional/doc_trace.html)
 - [Tooling Determinista › Adquisición de Orígenes](https://fmanza.github.io/doc_ia/functional/snapshot_sources.html)
+- [Tooling Determinista › Kit de Documentación](https://fmanza.github.io/doc_ia/functional/kit.html)
+- [Tooling Determinista › Trazabilidad con la Base de Datos](https://fmanza.github.io/doc_ia/functional/db_trace.html)
 - [Flujos IA › Documentar un Proyecto](https://fmanza.github.io/doc_ia/functional/document_project.html)
 - [Flujos IA › Catálogo de Tipos de Origen](https://fmanza.github.io/doc_ia/functional/origin_types.html)
 - [Flujos IA › Arquetipos Formales](https://fmanza.github.io/doc_ia/functional/archetypes.html)
@@ -48,6 +50,8 @@
 - [Tooling Determinista › convert_to_md](https://fmanza.github.io/doc_ia/api/convert_to_md.html)
 - [Tooling Determinista › doc_trace](https://fmanza.github.io/doc_ia/api/doc_trace.html)
 - [Tooling Determinista › snapshot_sources](https://fmanza.github.io/doc_ia/api/snapshot_sources.html)
+- [Tooling Determinista › kit](https://fmanza.github.io/doc_ia/api/kit.html)
+- [Tooling Determinista › db_trace](https://fmanza.github.io/doc_ia/api/db_trace.html)
 
 ## Ejemplos
 
@@ -59,6 +63,8 @@
 - [Tooling Determinista › Convertir Documentos a Markdown](https://fmanza.github.io/doc_ia/examples/convert_to_md_usage.html)
 - [Tooling Determinista › Trazabilidad Docs ↔ Código](https://fmanza.github.io/doc_ia/examples/doc_trace_usage.html)
 - [Tooling Determinista › Adquirir Orígenes Documentales](https://fmanza.github.io/doc_ia/examples/snapshot_sources_usage.html)
+- [Tooling Determinista › Kit de Documentación en un Destino](https://fmanza.github.io/doc_ia/examples/kit_usage.html)
+- [Tooling Determinista › Origen Base de Datos con db_trace](https://fmanza.github.io/doc_ia/examples/db_trace_usage.html)
 
 ## Guías
 

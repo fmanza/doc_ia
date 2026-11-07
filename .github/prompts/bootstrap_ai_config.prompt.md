@@ -16,6 +16,13 @@ de entrada** que confirma quien lo invoca, no constantes embebidas.
 
 ---
 
+
+> **No confundir con el kit de documentación.** Este bootstrap configura un proyecto para
+> *desarrollarlo* con IA (capas A-D). Para que un **destino de documentación** pueda relanzar
+> `/document-project` por sí mismo se usa `scripts/kit.py sync --root <destino>` (lista blanca
+> `.github/kit/MANIFEST.txt`), que instala `.doc_ia/`, `/documentar` y `DOCUMENTAR.md` solo con
+> nombres propios: nunca sustituye la configuración de IA que deje este bootstrap.
+
 ## Método y dirección de la llamada (OBLIGATORIO leer antes de empezar)
 
 **Modelo PULL — se invoca desde el proyecto DESTINO**, apuntando al origen como plantilla de solo lectura.

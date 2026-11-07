@@ -2,18 +2,23 @@
 arquetipo: "12"
 fuentes:
   .claude/settings.json.example: e1c10842aa20
+  .github/kit/MANIFEST.txt: 4d76505a2867
+  .github/prompts/document_project.prompt.md: 223fe49c672b
+  .github/templates/kit/documentar.prompt.template.md: 332acf5a5cc7
   .github/workflows/docs-zip-release.yml: bd807d444ea2
-  CLAUDE.md: f4ee79d0d791
+  CLAUDE.md: fa46521cd504
   hooks/sync_root_docs.py: ef5e576436c6
-  mkdocs.yml: 9d6912b83c82
+  mkdocs.yml: c40961922f4c
   mkdocs_hooks.py: 31259b7911a3
   scripts/build_docs_zip.py: 5f972ee674c8
   scripts/check_env.py: c9105c709663
   scripts/convert_to_md.py: e7e60518d96f
-  scripts/doc_trace.py: 7fbd066dfa3a
+  scripts/db_trace.py: c337133736ca
+  scripts/doc_trace.py: 3631c07d7fc3
+  scripts/kit.py: 432af520016f
   scripts/snapshot_sources.py: d350c174f962
   scripts/start-server.py: a12209ac8507
-revisado: 2026-11-05
+revisado: 2026-11-07
 ---
 # Referencia — doc_ia
 
@@ -26,7 +31,7 @@ línea de comandos, códigos de salida y eventos de build. La API interna de cad
 | Clave | Origen | Tipo | Por defecto | Descripción |
 |---|---|---|---|---|
 | `CUDA_VISIBLE_DEVICES` | `env` | cadena | `""` (lo fija `convert_to_md.py` al importarse si no existe) | Visibilidad de GPU para docling. `--device cpu` la fija a `""`; `--device cuda` la elimina; `--device auto` respeta un valor exportado por el usuario e ignora el que fija el propio módulo |
-| `project.version` | fichero `pyproject.toml` | cadena SemVer | `0.8.0` (valor actual) | Versión usada en el nombre del ZIP (`doc_ia-docs-{versión}.zip`) y en la release `docs-v{versión}` |
+| `project.version` | fichero `pyproject.toml` | cadena SemVer | `0.9.0` (valor actual) | Versión usada en el nombre del ZIP (`doc_ia-docs-{versión}.zip`) y en la release `docs-v{versión}` |
 | `site_dir` | fichero `mkdocs.yml` | ruta | `site` | Directorio de salida del build; `mkdocs_hooks.py` lo lee de la configuración. `build_docs_zip.py` usa `site/` fijo |
 | `use_directory_urls` | fichero `mkdocs.yml` | booleano | `false` | URLs `*.html`: el sitio y el ZIP se abren con doble clic en `index.html` (el plugin `offline` lo fuerza igualmente) |
 | `plugins: offline` | fichero `mkdocs.yml` | plugin | activo | Escribe el índice de búsqueda como JS (`search/search_index.js`; Zensical: `search.js`) para buscar desde `file://` |
@@ -92,6 +97,37 @@ python scripts/convert_to_md.py <source> [opciones]
 | `--batch-size` | entero | `1` | Documentos por lote; `>1` solo con `docling` |
 | `--workers` | entero | `1` | Concurrencia por lote; `>1` solo con `docling` |
 
+### db_trace.py
+
+```bash
+python scripts/db_trace.py info --export DIR
+python scripts/db_trace.py select --export DIR --root DIR --name NOMBRE --env ENTORNO [--subdir bd] [--include PATRÓN …]
+python scripts/db_trace.py compare --catalog FICHERO --entities FICHERO [--output FICHERO] [--include PATRÓN …]
+python scripts/db_trace.py changes --catalog FICHERO --previous FICHERO [--docs DIR] [--subdir bd] [--include PATRÓN …]
+python scripts/db_trace.py tracemap --catalog FICHERO --docs DIR --output FICHERO [--origin DIR] [--entities FICHERO] [--subdir bd] [--include PATRÓN …]
+```
+
+Origen BASE DE DATOS: lee la exportación Markdown de `util_bbdd` (`manifest.json` y
+`docs/catalog.json`), la importa al destino, la contrasta con `entities.xml`, compara catálogos
+y genera el `trace_map.toml` de `util_bbdd`. No se conecta a ninguna base de datos ni a la red.
+
+| Opción / Argumento | Tipo | Por defecto | Descripción |
+|---|---|---|---|
+| `info --export` / `select --export` | ruta (obligatorio) | — | Carpeta de la exportación |
+| `select --root` | ruta (obligatorio) | — | Raíz del destino |
+| `select --name` | cadena (obligatorio) | — | Nombre del origen: carpeta `_fuentes/<nombre>/` |
+| `select --env` | cadena (obligatorio) | — | Entorno que representa la exportación (p. ej. `Calidad`); en blanco, error |
+| `--subdir` | cadena | `bd` | Sección importada dentro de `docs/` del destino (`select`); en `changes` y `tracemap`, carpeta que no cuenta como evidencia |
+| `--include` | glob (repetible) | todos los objetos | Alcance por nombre, sin distinguir mayúsculas (`select`, `compare`, `changes`, `tracemap`) |
+| `compare --catalog` | ruta (obligatorio) | — | Catálogo; normalmente `_fuentes/<nombre>/catalog.json` |
+| `compare --entities` | ruta (obligatorio) | — | Modelo del código `entities.xml` (vdyn) |
+| `compare --output` | ruta | solo stdout | Copia del informe Markdown |
+| `changes --catalog` / `--previous` | ruta (obligatorio) | — | Catálogo nuevo (puede ser el completo de la exportación) y anterior (`_fuentes/<nombre>/catalog.json`); antes de `select` |
+| `changes --docs` | ruta | sin búsqueda | `docs/` del destino: páginas que citan cada objeto |
+| `tracemap --catalog` / `--docs` / `--output` | ruta (obligatorio) | — | Catálogo, `docs/` del destino y TOML de salida (`.ai/trace_map.toml`) |
+| `tracemap --origin` | ruta | sin código | Repositorio del código (`git ls-files`) |
+| `tracemap --entities` | ruta | sin entidades | `entities.xml` para buscar por entidad y localizar su código |
+
 ### doc_trace.py
 
 ```bash
@@ -120,7 +156,30 @@ python scripts/doc_trace.py [--root DIR] {drift,stamp,matrix,llms,decisions,base
 | `baseline` / `changes --docs` | ruta | `<--root>/docs` | Docs del destino (citas y artefactos a excluir) |
 | `baseline` / `changes --state` | ruta | `<--root>/.ai/doc_state.json` | Estado del modo incremental |
 | `baseline` / `changes --path` | pathspec de git (repetible) | `.` en `baseline`; las `rutas` guardadas en `changes` | Alcance transversal relativo al origen (p. ej. un módulo funcional repartido entre varios módulos de build); en `changes` debe coincidir con el del baseline |
+| `baseline --ref` | cadena | rama actual; con HEAD desacoplado, la única ref que apunta a él | Rama o ref documentada que se guarda en `rama` (p. ej. `origin/dev` en un worktree desacoplado) |
 | `changes --output` | ruta | stdout | Fichero Markdown del informe |
+
+### kit.py
+
+```bash
+python scripts/kit.py [--from DOC_IA] {install,sync} --root DIR [--force] [--dry-run] [--date YYYY-MM-DD]
+python scripts/kit.py [--from DOC_IA] check --root DIR
+```
+
+Instala, actualiza y comprueba el kit de documentación de un destino: la metodología y los
+scripts de la lista blanca `.github/kit/MANIFEST.txt` en `<--root>/.doc_ia/`, los lanzadores
+`/documentar` y `DOCUMENTAR.md` (solo si falta). Se distribuye en el propio kit
+(`<destino>/.doc_ia/scripts/kit.py`). No accede a la red.
+
+| Opción / Argumento | Tipo | Por defecto | Descripción |
+|---|---|---|---|
+| `--from` | ruta | el doc_ia que contiene el script | doc_ia de origen; global, antes del subcomando. Obligatorio en `install`/`sync` desde una copia `.doc_ia/` |
+| `install` / `sync` | subcomando | — | Alias: instalan o actualizan el kit |
+| `check` | subcomando | — | Comprueba el kit contra `kit.lock.json`; con `--from`, también contra doc_ia |
+| `--root` | ruta (obligatorio) | — | Raíz del destino (carpeta con `mkdocs.yml`); no puede ser doc_ia |
+| `--force` | flag | desactivado | Sobrescribe ficheros del kit editados y ajenos; retira aunque estén editados |
+| `--dry-run` | flag | desactivado | Informa sin escribir ficheros ni lock |
+| `--date` | `YYYY-MM-DD` | hoy | Fecha del lock |
 
 ### snapshot_sources.py
 
@@ -200,6 +259,17 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 | `0` | `snapshot_sources.py` | `add` y `list` correctos; `sync` sin cambios | — |
 | `1` | `snapshot_sources.py sync` | Algún fichero nuevo, cambiado o eliminado (también con `--dry-run`) | Convertir de nuevo lo cambiado (`convert_to_md.py`) y citar los cambios de versión en el resumen |
 | `2` | `snapshot_sources.py` | Origen inexistente o ilegible, patrón sin coincidencias, nombre inválido, `--include` con `{ver}`, origen no declarado, manifiesto inválido u `OSError`; un origen caído no impide sincronizar los demás | Ver `[snapshot] ERROR…` por stderr; corregir la ruta o reconectar la unidad |
+| `0` | `db_trace.py` | `info` y `tracemap` correctos; `select`, `compare` o `changes` sin cambios ni discrepancias | — |
+| `1` | `db_trace.py select` | Páginas, índice o `_fuentes/` creados, actualizados o retirados | Revisar e incluir en el commit `docs/bd/` y `_fuentes/<nombre>/` |
+| `1` | `db_trace.py compare` | Discrepancias código ↔ BD | Una ficha `COB-DATOS-…` por discrepancia; decide una persona |
+| `1` | `db_trace.py changes` | Objetos del alcance con alta, baja o huella distinta | Revisar las páginas que los citan (candidatas a estado B) |
+| `2` | `db_trace.py` | Exportación o catálogo inexistente, JSON inválido, `format`/`format_version` no admitidos, objeto del catálogo sin `id`/`kind`/`name`/`path`, `select` sin `--env` o con él en blanco, alcance sin coincidencias, páginas citadas inexistentes (antes de escribir nada), `entities.xml` inexistente o mal formado, `OSError`; argparse | Ver `[db_trace] ERROR: …` por stderr |
+| `0` | `kit.py install`/`sync` | Kit al día: nada que copiar, crear ni retirar | — |
+| `1` | `kit.py install`/`sync` | Ficheros creados, actualizados o retirados (también con `--dry-run`) | Revisar e incluir en el commit `.doc_ia/`, los lanzadores y `DOCUMENTAR.md` |
+| `2` | `kit.py install`/`sync` | Conflicto: fichero del kit editado en el destino, fichero ajeno con el nombre de un lanzador o fichero retirado y editado | Revisar el fichero; `--force` solo si los cambios locales sobran |
+| `0` | `kit.py check` | Kit al día (`[kit] Kit al día.`) | — |
+| `1` | `kit.py check` | Kit no instalado, fichero editado o ausente, falta `DOCUMENTAR.md` o `.ai/prompts/documentar.prompt.md` o, con `--from`, fichero desfasado o nuevo en doc_ia | `kit.py sync` desde doc_ia; el prompt de instancia lo crea `/documentar` o el CIERRE |
+| `2` | `kit.py` | `sync` desde una copia `.doc_ia/` sin `--from`, destino igual a doc_ia o inexistente, manifiesto mal formado o que cita un fichero inexistente, lock con JSON inválido u `OSError`; argparse | Ver `[kit] ERROR: …` por stderr |
 | `0` | `sync_root_docs.py` | Siempre; un fichero raíz ausente solo genera un aviso | — |
 
 ## 4. Eventos y Mensajes
@@ -210,7 +280,7 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 | `on_post_build` | MkDocs | `mkdocs_hooks.py` | Configuración MkDocs (`site_dir`); genera `site/doc_ia-docs-latest.zip` + `.sha256`, con prioridad -200: después del plugin `offline`, para incluir el índice de búsqueda en JS |
 | Pre/post-build sin hooks | `build_docs_zip.py --builder zensical` | `sync_root_docs.main()` / `mkdocs_hooks.on_post_build({"site_dir": ...})` | Mismo efecto que los dos eventos anteriores; el post-build solo si el build termina con `0` |
 | `PostToolUse` (`Edit\|Write`) | Claude Code | Comandos de `.claude/settings.json` | Ejecuta `sync_root_docs.py`, ruff, mypy y pytest `--collect-only`; salida truncada a 5–15 líneas |
-| Prefijos de log `[build_docs_zip]`, `[ZIP]`, `[OK]`, `[sync_root_docs]`, `[doc_ia-docs]`, `[doc_trace]`, `[snapshot]` | Scripts y hooks | Usuario / CI | Texto libre por stdout; sin contrato estable más allá del prefijo |
+| Prefijos de log `[build_docs_zip]`, `[ZIP]`, `[OK]`, `[sync_root_docs]`, `[doc_ia-docs]`, `[doc_trace]`, `[snapshot]`, `[kit]`, `[db_trace]` | Scripts y hooks | Usuario / CI | Texto libre por stdout; sin contrato estable más allá del prefijo |
 
 ## 5. Interfaces Publicadas
 
@@ -226,6 +296,15 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 | `.ai/doc_state.json` | Fichero de estado del destino (JSON, versionado) | `scripts/doc_trace.py::write_baseline` | `doc_ia` (versión) y `origenes.<nombre>`: `commit`, `rama`, `sucio`, `fecha` y, solo con alcance `--path`, `rutas` |
 | `.ai/sources.json` | Manifiesto de orígenes del destino (JSON) | `scripts/snapshot_sources.py::write_manifest` | `doc_ia` (versión) y `fuentes.<nombre>`: `origen`, `incluir`, `ficheros`, `historial`, `sincronizado` (ver §6) |
 | `_staging/<nombre>/` | Carpeta de trabajo del destino (ignorada por git) | `scripts/snapshot_sources.py::sync_source` | Copia de los ficheros del origen; con `{ver}`, con nombre estable sin versión |
+| `.doc_ia/kit.lock.json` | Registro del kit en el destino (JSON, versionado) | `scripts/kit.py::write_lock` | `doc_ia` (versión), `fecha` y `ficheros`: ruta POSIX en el destino → SHA256 (en texto, con CRLF normalizado a LF) |
+| `.doc_ia/` | Copia fijada de la metodología en el destino | `scripts/kit.py::sync`, `.github/kit/MANIFEST.txt` | Misma ruta que en doc_ia para cada entrada de `[metodologia]`; no se edita a mano |
+| Lanzadores `/documentar` | Ficheros de entrada para plataformas IA en el destino | `.github/kit/MANIFEST.txt` (`[lanzadores]`), `.github/templates/kit/` | `.claude/commands/documentar.md` (Claude Code), `.github/prompts/documentar.prompt.md` (Copilot), `AGENTS.md` (Codex, Cursor y otros), `GEMINI.md`; remiten a `.ai/prompts/documentar.prompt.md` y a `.doc_ia/` |
+| `DOCUMENTAR.md` | Guía del destino para quien mantiene la documentación | `scripts/kit.py::render_instance`, `.github/templates/kit/DOCUMENTAR.template.md` | Secciones fijas 0-6; se crea solo si falta, con `{proyecto}` = `site_name`; después es del proyecto |
+| `.ai/prompts/documentar.prompt.md` | Prompt de instancia del destino (lo mantiene el CIERRE) | `.github/templates/kit/documentar.prompt.template.md` | Secciones fijas 1-7: parámetros, orígenes, adquisición, alcance, decisiones, independencia y salida |
+| Exportación de `util_bbdd` | Carpeta de entrada (la genera el usuario fuera de doc_ia) | `scripts/db_trace.py::load_manifest`, `::load_catalog` | `manifest.json` con `format: util_bbdd.doc.markdown` (versión 1 o 2) y `docs/catalog.json` con `format: util_bbdd.doc.catalog` (versión 1); contrato versionado de `util_bbdd` (su ADR-006) |
+| `docs/bd/` | Sección generada del destino (versionada) | `scripts/db_trace.py::import_pages`, `::_index_page` | Una página por objeto del alcance, con la ruta de la exportación, e `index.md` con entorno, base de datos, motor, fecha y frontera; no se edita a mano |
+| `_fuentes/<bd>/catalog.json` y `manifest.json` | Catálogo del subconjunto y cabecera (JSON, versionados) | `scripts/db_trace.py::import_pages` | El catálogo con solo los objetos del alcance y `doc_ia_alcance` (patrones); la cabecera con `doc_ia_entorno`, `database`, `engine`, `format`, `format_version`, `generated_at`, `schema`, `util_bbdd_version` |
+| `.ai/trace_map.toml` | Mapa de trazabilidad para `util_bbdd` (TOML, versionado) | `scripts/db_trace.py::build_tracemap` | `[tables."NOMBRE"]` / `[views."NOMBRE"]` con `code`, `functional` y `technical`; lo lee `util_bbdd` (`markdown.trace_map`) en la siguiente exportación |
 | Registro de decisiones de cobertura | Fichero de entrada editado por personas (`docs/decisiones/<ámbito>_decisiones.md`) | `scripts/doc_trace.py::parse_registers` | Fichas bajo encabezados con el ID y tabla `Campo` / `Valor` (ver §6) |
 | Informe de decisiones | Fichero de salida (Markdown) | `scripts/doc_trace.py::format_decisions` | Resumen por registro, pendientes de decisión y tabla de hallazgos |
 
@@ -316,6 +395,13 @@ decisiones se publica con el sitio y el ZIP (`DOCUMENTATION_STANDARD.md` §3.18)
     | Opciones de `snapshot_sources.py` | `scripts/snapshot_sources.py::_parser`, `::NAME_RE`, `::declare` | ✅ |
     | Códigos de `snapshot_sources.py` | `scripts/snapshot_sources.py::_cmd_sync`, `::main` | ✅ |
     | `.ai/sources.json` y `_staging/` | `scripts/snapshot_sources.py::write_manifest`, `::sync_source`, `::STAGING_DIR`, `::MANIFEST` | ✅ |
+    | Opciones de `db_trace.py` | `scripts/db_trace.py::_parser` | ✅ |
+    | Códigos de `db_trace.py` | `scripts/db_trace.py::_cmd_select`, `::_cmd_compare`, `::_cmd_changes`, `::_cmd_tracemap`, `::main` | ✅ |
+    | Exportación de `util_bbdd`, `docs/bd/`, `_fuentes/<bd>/` y `.ai/trace_map.toml` | `scripts/db_trace.py::load_manifest`, `::load_catalog`, `::import_pages`, `::_index_page`, `::build_tracemap`, `.github/prompts/document_project.prompt.md::Origen BASE DE DATOS (opción BD)` | ✅ |
+    | Opciones de `kit.py` | `scripts/kit.py::_parser`, `::resolve_source` | ✅ |
+    | Códigos de `kit.py` | `scripts/kit.py::_cmd_sync`, `::_cmd_check`, `::main` | ✅ |
+    | `kit.lock.json`, `.doc_ia/`, lanzadores, `DOCUMENTAR.md` | `scripts/kit.py::write_lock`, `::sha256`, `::sync`, `::render_instance`, `.github/kit/MANIFEST.txt` | ✅ |
+    | Prompt de instancia y sus secciones | `.github/templates/kit/documentar.prompt.template.md`, `.github/prompts/document_project.prompt.md::Devuelve en este orden` (punto 10) | ✅ |
     | `llms.txt` | `scripts/doc_trace.py::build_llms_txt` | ✅ |
     | Matriz de trazabilidad | `scripts/doc_trace.py::build_matrix` | ✅ |
     | Frontmatter de trazabilidad y huella | `scripts/doc_trace.py::format_frontmatter`, `::fingerprint` | ✅ |

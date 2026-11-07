@@ -27,8 +27,11 @@ Documentar un proyecto (origen → destino) orquestando los arquetipos formales.
 - [ ] **Estrategia** (solo con ≥2 orígenes CÓDIGO): `federado` | `hub+satélite` | `monorepo` — preguntar al usuario, nunca autodetectar
 - [ ] **Alcance** (opcional): módulos o subconjunto; por defecto proyecto completo. Módulo funcional
   transversal dentro de un repo mayor → rutas/pathspecs de git (`doc_trace.py --path`), propuestas
-  en el INVENTARIO y confirmadas por el usuario
+  y aplicadas en el INVENTARIO (se informan; el usuario puede corregirlas, pero el flujo no se detiene)
 - [ ] **Ref** (orígenes CÓDIGO remotos): rama, etiqueta o commit — preguntar, nunca asumir
+- [ ] **BD** (opción): exportación Markdown de `util_bbdd` + entorno + patrones del alcance →
+  origen BASE DE DATOS (`docs/bd/` generado, contraste código ↔ BD con `scripts/db_trace.py`,
+  `.ai/trace_map.toml`); ver `document_project.prompt.md` § Origen BASE DE DATOS
 - [ ] **Arquetipos** (opcional): subconjunto; por defecto todos los aplicables **excepto 9 (Changelog) y 11 (Contribución)**, que son opt-in explícito
 - [ ] **Verificación** (opcional): `--verify-tools` y/o `--verify-build [--serve]`
 - [ ] **Modo** (opcional): `incremental` | `completo` — por defecto `incremental` si el destino
@@ -72,6 +75,9 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
   en el clon del usuario sin su confirmación
 - Pedir, escribir o versionar tokens (la autenticación es la de `glab auth`/`gh auth`/OneDrive)
 - Copiar datos personales reales de manuales o capturas a la documentación o a los ejemplos
+- Usar otro destino documentado con doc_ia (proyecto hermano) como plantilla o como fuente de
+  decisiones: scripts, `.ai/*.md`, páginas, fichas `COB-…` y ADR salen de doc_ia y de los
+  orígenes de ESTE proyecto (`document_project.prompt.md` § Origen de plantillas y decisiones)
 
 **Recomendado**:
 - Iterar módulo a módulo dentro de cada fase; nunca un único prompt masivo
@@ -93,6 +99,8 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 **Checklist obligatorio** (ejecutar al inicio de CADA sesión, antes de cualquier otra fase):
 
 - [ ] `.gitignore` presente en la raíz del destino con los patrones estándar (primera sesión: crear si no existe; ver tabla abajo), sin ignorar `_fuentes/`
+- [ ] **Kit de lanzamiento** (toda sesión, también en destinos ya creados): `python <repositorio doc_ia>/scripts/kit.py sync --root <raíz destino>` → `.doc_ia/` (metodología + scripts, `kit.lock.json`), lanzadores `/documentar` y `DOCUMENTAR.md` si falta; conflicto (exit 2) → informar, nunca `--force` sin pedirlo el usuario (`document_project.prompt.md` § Kit de documentación)
+- [ ] `.gitattributes` en la raíz del destino: `* text=auto eol=lf`, binarios (`*.zip`, `*.png`, `*.jpg`) como `binary` y `docs/assets/vendor/** -text` (la huella de los ficheros de terceros no cambia entre Windows y Linux)
 - [ ] `theme.features` verificado — sin `navigation.sections` si `nav.css` presente; con `navigation.indexes`
 - [ ] `nav` con **≤ 9 entradas de primer nivel**: Inicio/Quick Start/Instalación/Descargas en la sección «Inicio», Configuración IA/Changelog/Contribuir en «Proyecto» (las pestañas no tienen desplegables; con más se corta la barra)
 - [ ] `extra_css` incluye `assets/css/nav.css` y `assets/css/mermaid.css`
@@ -272,6 +280,7 @@ _staging/
 
 9. **RESUMEN**
    - Archivos generados/actualizados, entradas de nav, pendientes de verificación humana
+   - Estado del kit: versión de doc_ia, cambios y conflictos de `kit.py sync`/`check`
 
 10. **CIERRE DE SESIÓN** (siempre obligatorio)
 
@@ -279,16 +288,16 @@ _staging/
     (o si faltan en un destino existente), crear los siguientes archivos de contexto persistente
     sobre el proyecto FUENTE. Una IA futura los leerá en su `00_CONTEXT_SNAPSHOT` antes de empezar.
 
-    | Archivo | Contenido |
-    |---|---|
-    | `.ai/product.md` | Descripción, versión, dominio funcional, audiencia, capacidades, marco legal |
-    | `.ai/architecture.md` | Módulos, stack tecnológico, patrones de diseño, CI/CD |
-    | `.ai/glossary.md` | Términos del dominio funcional, capas arquitectónicas, abreviaturas |
-    | `.ai/runtime.md` | Prerequisitos, estructura de proyecto, comandos, despliegue, BD |
-    | `.ai/standards.md` | Estilo de código, testing, commits, seguridad, API |
+    | Archivo | Plantilla (doc_ia) | Secciones fijas |
+    |---|---|---|
+    | `.ai/product.md` | `.github/templates/ai_context/product.template.md` | Qué es · Audiencia · Capacidades · Marco legal y normativo · Estado y evolución |
+    | `.ai/architecture.md` | `.github/templates/ai_context/architecture.template.md` | Stack · Módulos y capas · Modelo de datos · Integraciones y acoplamientos · Alcance documental |
+    | `.ai/glossary.md` | `.github/templates/ai_context/glossary.template.md` | Tabla Término · Significado · Fuente |
+    | `.ai/runtime.md` | `.github/templates/ai_context/runtime.template.md` | Estructura · Orígenes y cómo refrescarlos · Comandos · Primera vez en otro equipo |
+    | `.ai/standards.md` | `.github/templates/ai_context/standards.template.md` | Estándar documental · Reglas propias del proyecto · Convenciones del código fuente · Commits |
 
-    Estos archivos describen el **proyecto fuente**, no doc_ia. No copiar de DPSS o SOCYALPRO —
-    escribir a partir de lo observado en el origen durante el INVENTARIO.
+    Estos archivos describen el **proyecto fuente**, no doc_ia: se rellenan con lo observado en
+    los orígenes de ESTE proyecto durante el INVENTARIO, con las secciones fijas de la plantilla.
     En sesiones posteriores: actualizar solo si el INVENTARIO detecta cambios relevantes en el origen.
 
     **b) Artefacto `.ai/sessions/`** — crear en el **destino** (no en doc_ia), en la ruta
@@ -323,10 +332,16 @@ _staging/
     Fuentes: _fuentes/ <N> copiadas · <M> sin cambios     ← solo si hubo Fase 0c
     ```
 
+    - **Prompt de instancia**: crear o actualizar `.ai/prompts/documentar.prompt.md` desde
+      `<doc_ia>/.github/templates/kit/documentar.prompt.template.md` con los parámetros y
+      decisiones de la sesión; primera sesión: completar §3 de `DOCUMENTAR.md` con ejemplos reales
+    - `git add` incluye `.doc_ia/`, los lanzadores (`.claude/commands/documentar.md`,
+      `.github/prompts/documentar.prompt.md`, `AGENTS.md`, `GEMINI.md`), `DOCUMENTAR.md` y el
+      prompt de instancia
     - `git add` incluye `_fuentes/` cuando la Fase 0c la creó o cambió, y `.ai/sources.json`
       con Fase 0-pre (nunca `_staging/`); un cambio de versión de una fuente va en el cuerpo:
       `Fuentes: manual v1.2.50 → v1.2.51`
-    - Alcance transversal: `baseline` con los mismos `--path` confirmados en el INVENTARIO
+    - Alcance transversal: `baseline` con los mismos `--path` aplicados en el INVENTARIO
     - Antes del commit, `doc_trace.py --root <raíz destino> baseline --origin <origen>` por cada
       origen CÓDIGO; `git add` incluye `.ai/doc_state.json` (base del próximo modo incremental)
 

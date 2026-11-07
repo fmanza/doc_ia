@@ -5,6 +5,52 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+## [0.9.0] — 2026-11-07
+
+### Added
+
+- **Origen BASE DE DATOS (opción `BD`)**: `scripts/db_trace.py` lee la exportación Markdown de
+  `util_bbdd` (`manifest.json` y `catalog.json`, contrato versionado; sin conexión a la BD) e
+  importa en `docs/bd/` las páginas de los objetos del alcance con el entorno que representan
+  (`select --env`), contrasta el modelo del código (`entities.xml`) con la BD (`compare`: tablas,
+  columnas, nulabilidad y FK → fichas `COB-DATOS`), detecta cambios de esquema entre exportaciones
+  dentro del alcance (`changes`) y genera el `trace_map.toml` de `util_bbdd` desde la evidencia de
+  la documentación (`tracemap`). Tipo nuevo en el estándar (§3.10), regla de prioridad «se contrasta
+  con el código, no lo corrige», `docs/bd/` como artefacto generado; sin lint de esquema.
+
+- **Kit de documentación en cada destino** (`scripts/kit.py install|sync|check`): el destino lleva
+  la metodología y los scripts de doc_ia en `.doc_ia/` (lista blanca `.github/kit/MANIFEST.txt`,
+  `kit.lock.json` con versión y huellas), los lanzadores `/documentar`
+  (`.claude/commands/documentar.md`, `.github/prompts/documentar.prompt.md`, `AGENTS.md`,
+  `GEMINI.md`), `DOCUMENTAR.md` con instrucciones y ejemplos, y el prompt de instancia
+  `.ai/prompts/documentar.prompt.md` (plantilla con secciones fijas, mantenido por el CIERRE). Se
+  sincroniza en la Fase 0b de toda sesión, también en destinos ya creados; nunca pisa ficheros
+  editados ni ajenos; huellas independientes del fin de línea. Tests de `kit.py` y de conformidad
+  (la lista blanca cubre todo lo que cita el flujo).
+
+- **Plantillas del contexto `.ai/` del CIERRE** (`.github/templates/ai_context/`: `product`,
+  `architecture`, `glossary`, `runtime`, `standards`) con secciones fijas. El CIERRE de
+  `/document-project` las usa; hasta ahora solo había una tabla de contenidos y cada destino
+  improvisaba (o copiaba de otro) el formato. Tests de conformidad de secciones y de referencias.
+- **Regla «Origen de plantillas y decisiones»** en prompt, comando y agente: todo artefacto del
+  destino sale de doc_ia y de los orígenes del propio proyecto; otro destino documentado con
+  doc_ia no es plantilla ni fuente de decisiones (fichas `COB-…`, ADR, alcance, clasificación).
+  Lo que un destino resolvió y el estándar no cubría se incorpora antes a doc_ia.
+- **`doc_trace.py baseline --ref`** y rama deducida con HEAD desacoplado (worktree en
+  `origin/<ref>`): se guarda la única rama local o remota que apunta al commit, no `HEAD`.
+- **Paso B1**: la versión de un repositorio de documentación separado del origen se lee de
+  `extra.version` de `mkdocs.yml` (versión del origen documentado). Fase 0b: `.gitattributes`
+  estándar en el destino.
+
+### Changed
+
+- **`--path` ya no detiene el flujo**: las rutas del alcance transversal se proponen y aplican en
+  el INVENTARIO (el usuario puede corregirlas), en línea con el resto de `/document-project`.
+
+### Fixed
+
+- Mapa funcional: recuentos de criterios con test (arquetipos 15/15; total 96 de 121).
+
 ## [0.8.0] — 2026-11-05
 
 ### Added
@@ -371,7 +417,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - Restauración de `config-reviewer.agent.md` y creación de `docs.instructions.md`
   tras corrupción del bootstrap.
 
-[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/fmanza/doc_ia/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/fmanza/doc_ia/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/fmanza/doc_ia/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/fmanza/doc_ia/compare/v0.5.1...v0.6.0

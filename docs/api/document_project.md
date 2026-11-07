@@ -1,12 +1,16 @@
 ---
 arquetipo: "2"
 fuentes:
-  .claude/commands/document-project.md: 3321b9303a7b
-  .github/agents/documentation-generator.agent.md: ccdfdc6d2019
-  .github/prompts/document_project.prompt.md: 11cbfbf62af3
-  mkdocs.yml: 9d6912b83c82
+  .claude/commands/document-project.md: 93b8243cf975
+  .github/agents/documentation-generator.agent.md: 26beb1a41916
+  .github/prompts/document_project.prompt.md: 223fe49c672b
+  .github/templates/kit/AGENTS.md: f9b80f0f102b
+  .github/templates/kit/documentar.command.md: 44364ebb0ca8
+  mkdocs.yml: c40961922f4c
+  scripts/db_trace.py: c337133736ca
+  scripts/kit.py: 432af520016f
   scripts/snapshot_sources.py: d350c174f962
-revisado: 2026-11-05
+revisado: 2026-11-07
 ---
 # document_project
 
@@ -20,7 +24,7 @@ stateDiagram-v2
     accDescr: Máquina de fases del flujo, desde la validación de los cuatro parámetros hasta el cierre de sesión, con las dos salidas anticipadas (parámetro faltante o ningún origen de código) y el build estricto opcional.
     state "VALIDACIÓN · 4 parámetros + Fase 0-pre · adquisición en _staging/" as VALIDACION
     state "Fase 0a · Clasificación" as CLASIFICACION
-    state "Fase 0b · Sincronización visual" as SYNC_VISUAL
+    state "Fase 0b · Sincronización visual y kit" as SYNC_VISUAL
     state "Fase 0 normativa · Fase 0c md/ y _fuentes/" as PREPARACION
     state "Fase 1 · Inventario A/B/C" as INVENTARIO
     state "PLAN_DOC" as PLAN_DOC
@@ -61,6 +65,7 @@ La vista del mismo flujo desde el usuario (qué pide, qué confirma y qué recib
 | `/document-project` | slash command | Entrada en Claude Code: valida inputs y ejecuta el flujo | Fases VALIDACIÓN → RESUMEN en el chat |
 | `document_project.prompt.md` | prompt multiplataforma | Equivalente del slash command para Gemini, Copilot, Cursor, Codex | Mismas fases |
 | `documentation-generator.agent.md` | agente | Ejecutor por fases del flujo; orquestado por el prompt | Fases 0-7 |
+| `/documentar` (destino con kit) | lanzador por plataforma | `.claude/commands/documentar.md`, `.github/prompts/documentar.prompt.md`, `AGENTS.md`, `GEMINI.md`: leen `.ai/prompts/documentar.prompt.md` y aplican este flujo desde `.doc_ia/` (`<doc_ia>` = `.doc_ia/`); modo opcional `incremental` \| `completo` \| `verificar` \| `aplicar-decisiones` \| `zip` | Mismas fases con los parámetros del prompt de instancia |
 
 ### Contrato de entrada
 
@@ -70,10 +75,11 @@ La vista del mismo flujo desde el usuario (qué pide, qué confirma y qué recib
 | `Destino` | ruta | Ruta donde se escriben los archivos Markdown | Obligatorio; no se asume `docs/` por defecto |
 | `Generador` | string | `mkdocs-material` (por defecto) o `zensical` | Obligatorio. Ambos usan `mkdocs.yml` (nunca `zensical.toml`); con `zensical` se aplican las *Reglas por generador: Zensical* del prompt (pipeline sin hooks, Gap A4, plugins soportados, build vía script) |
 | `Idioma` | string | `es`, `en` u otro código ISO 639-1 | Obligatorio; aplica a todo el contenido generado |
-| `Tipo de cada origen` | string | `CÓDIGO` · `NORMATIVA` · `ESPECIFICACIÓN` · `UI/PANTALLAS` · `REFERENCIA` · `CONTRATO` · `INFRAESTRUCTURA` · `MANUAL` | Opcional; autodetectado si se omite; se confirma antes de continuar. Catálogo completo en [Tipos de Origen](../functional/origin_types.md) |
+| `Tipo de cada origen` | string | `CÓDIGO` · `NORMATIVA` · `ESPECIFICACIÓN` · `UI/PANTALLAS` · `REFERENCIA` · `CONTRATO` · `INFRAESTRUCTURA` · `MANUAL` · `BASE DE DATOS` | Opcional; autodetectado si se omite; se confirma antes de continuar. Catálogo completo en [Tipos de Origen](../functional/origin_types.md) |
 | `Estrategia` | string | `federado` · `hub+satélite` · `monorepo` | Solo con ≥2 orígenes CÓDIGO; nunca autodetectado |
-| `Alcance` | string | Módulos o subconjunto | Opcional; por defecto proyecto completo. Un módulo funcional transversal dentro de un repositorio mayor se expresa como pathspecs de git (`doc_trace.py --path`), propuestos en el INVENTARIO y confirmados por el usuario |
+| `Alcance` | string | Módulos o subconjunto | Opcional; por defecto proyecto completo. Un módulo funcional transversal dentro de un repositorio mayor se expresa como pathspecs de git (`doc_trace.py --path`), propuestos y aplicados en el INVENTARIO (se informan; el usuario puede corregirlos sin que el flujo se detenga) |
 | `Ref` | string | Rama, etiqueta o commit de un origen CÓDIGO remoto | Solo con repositorio remoto; se pregunta, nunca se asume `main` |
+| `BD` | ruta + entorno + patrones | Exportación Markdown de `util_bbdd` (carpeta con `manifest.json`), entorno que representa y patrones del alcance | Opcional; activa el origen BASE DE DATOS: Fase 0-pre (`snapshot_sources.py add`, `db_trace.py info`), Fase 3 (`db_trace.py select --env` → `docs/bd/`, `compare` → fichas `COB-DATOS`), Fase 1 incremental (`changes --include`, antes de `select`) y CIERRE (`tracemap` → `.ai/trace_map.toml`). Ver [db_trace](db_trace.md) |
 | `Arquetipos` | string | Subconjunto de arquetipos a aplicar | Opcional; por defecto todos los aplicables |
 | `Verificación` | flags | `--verify-tools` y/o `--verify-build [--serve]` | Opcional; nunca automático |
 | `Modo` | string | `incremental` · `completo` | Opcional; por defecto `incremental` si `<raíz destino>/.ai/doc_state.json` tiene baseline del origen. La Fase 1 parte de `doc_trace.py changes`; su código `3` (sin baseline, sin git, commit fuera del historial u otra versión menor de doc_ia) fuerza `completo`. El CIERRE siempre ejecuta `doc_trace.py baseline` |
@@ -94,10 +100,17 @@ Doce bloques en el chat, en este orden (más `ADQUISICIÓN` tras el primero, sol
 8. `BUILD` — resultado de `--verify-build` (solo opt-in).
 9. `DOWNLOADS` — `docs/downloads.md` creado/actualizado (siempre obligatorio); indica variante A o B; reporta huecos de las señales ZIP que falten (Gaps A1-A3 y, con Zensical, A4: script de build sin pasos pre/post).
 10. `VISUALIZACIÓN` — `VER_DOCUMENTACION.md` (idioma `en`: `VIEW_DOCS.md`) creado/actualizado en la raíz del destino desde `.github/templates/VER_DOCUMENTACION.template.md` (siempre obligatorio); tabla marcador → valor → fuente verificada; Ruta A solo con publicación verificada; Gaps V1 (sin `requirements-docs.txt`), V2 (`EXTRA_FILES` en hook/script) y V3 (hook sin `on_post_build.mkdocs_priority = -200`: el ZIP latest sale sin búsqueda). La Ruta B es el doble clic en `index.html` del ZIP extraído, que la Fase 0b hace posible (`use_directory_urls: false`, plugin `offline`, shim iframe-worker local en `extra.polyfills`); `start-server.py`, la alternativa.
-11. `RESUMEN` — contadores de archivos creados/actualizados/omitidos y entradas de nav; con
+11. `RESUMEN` — contadores de archivos creados/actualizados/omitidos y entradas de nav; estado
+    del kit (`kit.py sync`/`check`: versión de doc_ia, cambios y conflictos); con
     registro de decisiones (Arquetipo 13), decisiones aplicadas (ID → páginas), fichas
     `Pendiente` con la pregunta para quien decide e inválidas o incompletas.
-12. `CIERRE DE SESIÓN` — siempre obligatorio: artefactos `.ai/sessions/YYYY-MM-DD/` en el destino + propuesta de commit Conventional Commits.
+12. `CIERRE DE SESIÓN` — siempre obligatorio: artefactos `.ai/sessions/YYYY-MM-DD/` en el destino + propuesta de commit Conventional Commits. Crea o actualiza el prompt de instancia `.ai/prompts/documentar.prompt.md` desde `<doc_ia>/.github/templates/kit/documentar.prompt.template.md` (secciones 1-7) con los parámetros y decisiones de la sesión; en la primera sesión completa §3 de `DOCUMENTAR.md` con ejemplos reales. El commit incluye `.doc_ia/`, los lanzadores, `DOCUMENTAR.md` y el prompt de instancia.
+
+La Fase 0b ejecuta en toda sesión `python <repositorio doc_ia>/scripts/kit.py sync --root <raíz destino>`
+(desde un destino: `python .doc_ia/scripts/kit.py --from <repositorio doc_ia> sync …`), que deja
+`.doc_ia/` con `kit.lock.json`, los lanzadores y `DOCUMENTAR.md` si falta ([kit](kit.md)).
+`<doc_ia>` en las instrucciones es la raíz de doc_ia o, lanzada la sesión desde un destino con
+kit, su carpeta `.doc_ia/`.
 
 ### Errores y casos especiales
 
@@ -114,6 +127,10 @@ Doce bloques en el chat, en este orden (más `ADQUISICIÓN` tras el primero, sol
 | Clon local del repositorio remoto desfasado | `git fetch` y worktree desacoplado en `_staging/`; nunca `pull` ni `checkout` en el clon del usuario sin confirmación |
 | Origen con carpetas `md/` | Fase 0c, Paso 5: copia siempre en `<raíz del destino>/_fuentes/<nombre_origen>/<ruta relativa al origen>`, fuera de `docs_dir`; solo copia lo que falta o cambió; los huérfanos se listan y no se borran sin confirmación |
 | Destino con `.fuentes/` o `fuentes/` en su raíz | Migración a `_fuentes/` con confirmación; si un mismo fichero difiere entre carpetas, el flujo se detiene; las referencias de `docs/` se reescriben y se vuelven a sellar con `doc_trace.py --root` |
+| `db_trace.py` con código `2` | Exportación fuera de contrato (`format`/`format_version`, objeto incompleto), fichero inexistente, `select` sin entorno (`--env`) o alcance sin coincidencias: se informa y no se importa nada; no se inventa el esquema |
+| `db_trace.py compare` con código `1` | Discrepancias código ↔ BD: una ficha `COB-DATOS-…` por discrepancia y fila ⚠️ en la Evidencia del modelo de datos con el ancla `bd/tables/<tabla>.md#col-<columna>` |
+| `kit.py sync` con código `2` | Fichero del kit editado en el destino o lanzador ajeno con el mismo nombre: se informa y no se usa `--force` sin que lo pida el usuario |
+| Sin repositorio doc_ia accesible en la Fase 0b | `kit.py check` sobre la copia del destino y aviso en RESUMEN de que el kit no se ha podido actualizar |
 | CIERRE omitido por el agente | Error del flujo: el cierre es siempre obligatorio; si falta, solicitar al agente que cree los artefactos `.ai/sessions/` y proponga el commit antes de cerrar la sesión |
 
 ## 3. Componentes y Clases
@@ -132,6 +149,8 @@ Doce bloques en el chat, en este orden (más `ADQUISICIÓN` tras el primero, sol
 | `.github/instructions/docs.instructions.md` | Reglas operativas (resumen de Mermaid, snippets, MkDocs; reglas de diagramas en `DOCUMENTATION_STANDARD.md` §3.17) | Sí | Riesgo de inconsistencias de estilo y formato |
 | `mkdocs.yml` (destino) | Navegación que se sincroniza en Fase 5 | Sí, con cualquiera de los dos generadores | Sin él, SYNC NAV no puede actualizar la navegación |
 | Prompts de arquetipo (`.github/prompts/`) | Plantillas de cada tipo de documento | Sí | Las fases 2-4 no tienen instrucciones para generar cada arquetipo |
+| `scripts/kit.py` y `.github/kit/MANIFEST.txt` | Kit de documentación en el destino (Fase 0b) | Sí | Sin kit, el destino no se puede relanzar con `/documentar` sin doc_ia |
+| `scripts/db_trace.py` | Origen BASE DE DATOS: importación, contraste, cambios y `trace_map` | Solo con `BD` | Sin él, no se puede usar una exportación de `util_bbdd` |
 | `python -m mkdocs build` | Verificación de build (Fase 7) | Solo con `--verify-build` | Si falta, la fase 7 no se puede ejecutar |
 | `python scripts/build_docs_zip.py --builder zensical` (o `python -m zensical build --strict`) | Verificación de build con Zensical (Fase 7) | Solo con `--verify-build` y generador `zensical` | Sin el script, los hooks no se ejecutan y se reporta Gap A4 |
 
@@ -146,9 +165,12 @@ Doce bloques en el chat, en este orden (más `ADQUISICIÓN` tras el primero, sol
 *Sin tests del comportamiento.* El flujo es un conjunto de instrucciones ejecutadas en el chat, no
 código Python. Riesgo principal sin cubrir: que el comando, el prompt y el agente se desincronicen
 (fases, bloques de salida, mapeos MATERIAL → arquetipos). Hoy solo lo detecta una revisión manual
-o el Documentation Reviewer, salvo en un punto: `test_sources_folder_is_canonical` comprueba que
+o el Documentation Reviewer, salvo en dos puntos: `test_sources_folder_is_canonical` comprueba que
 las cuatro instrucciones fijan la misma ruta `_fuentes/` y que los demás nombres solo aparecen
-para prohibirlos o migrarlos.
+para prohibirlos o migrarlos; `test_kit_rule_everywhere` y
+`test_kit_manifest_ships_everything_the_flow_cites` comprueban que el comando, el prompt y el
+agente exigen `kit.py sync` y el prompt de instancia, y que el kit distribuye todo prompt,
+agente o plantilla que citan.
 
 ??? note "Evidencia"
 
@@ -168,6 +190,8 @@ para prohibirlos o migrarlos.
     | Estado B: secciones vigentes verbatim | `.github/prompts/document_project.prompt.md` (protocolo ACTUALIZAR) | ✅ |
     | Cierre de sesión obligatorio | `.github/prompts/document_project.prompt.md` (bloque 10) | ✅ |
     | Fase 0-pre: formas de origen, `_staging/`, `Ref`, bloque `ADQUISICIÓN` y sus casos | `.github/prompts/document_project.prompt.md` (Fase 0-pre, opcionales "Alcance" y "Ref"), `.claude/commands/document-project.md` (Inputs requeridos, bloque 1b, casos límite), `scripts/snapshot_sources.py::main` | ✅ |
+    | Kit: Fase 0b, `<doc_ia>`, conflictos, RESUMEN, prompt de instancia en el CIERRE y lanzadores `/documentar` | `.github/prompts/document_project.prompt.md` (Kit de documentación en el destino y `<doc_ia>`, Fase 0b, puntos 9 y 10), `.claude/commands/document-project.md` (Fase 0b, RESUMEN, CIERRE), `.github/agents/documentation-generator.agent.md` (inventario), `.github/templates/kit/documentar.command.md`, `.github/templates/kit/AGENTS.md`, `tests/test_docs_conformance.py::test_kit_rule_everywhere` | ✅ |
+    | Parámetro `BD` y origen BASE DE DATOS en las fases | `.github/prompts/document_project.prompt.md::Origen BASE DE DATOS (opción BD)`, `::Fase 0a`, `::Fase 3`, `::Devuelve en este orden` (Trazabilidad para la BD), `.claude/commands/document-project.md` (Inputs requeridos), `.github/agents/documentation-generator.agent.md` (inventario), `scripts/db_trace.py::main` | ✅ |
     | Copia en `_fuentes/` y migración de otros nombres | `.github/prompts/document_project.prompt.md` (Fase 0c, Paso 5), `tests/test_docs_conformance.py::test_sources_folder_is_canonical` | ✅ |
     | Generador `zensical`: `TIENE_PIPELINE_SIN_HOOKS`, Gap A4, plugins soportados, build vía script | `.github/prompts/document_project.prompt.md` (sección "Reglas por generador: Zensical") | ✅ |
     | Dependencias: norma, `docs.instructions.md`, `mkdocs.yml`, prompts, `mkdocs build` | `.github/prompts/document_project.prompt.md`, `.github/agents/documentation-generator.agent.md` | ✅ |
