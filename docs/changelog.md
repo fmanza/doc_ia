@@ -7,6 +7,16 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ### Added
 
+- **Kit de documentación en cada destino** (`scripts/kit.py install|sync|check`): el destino lleva
+  la metodología y los scripts de doc_ia en `.doc_ia/` (lista blanca `.github/kit/MANIFEST.txt`,
+  `kit.lock.json` con versión y huellas), los lanzadores `/documentar`
+  (`.claude/commands/documentar.md`, `.github/prompts/documentar.prompt.md`, `AGENTS.md`,
+  `GEMINI.md`), `DOCUMENTAR.md` con instrucciones y ejemplos, y el prompt de instancia
+  `.ai/prompts/documentar.prompt.md` (plantilla con secciones fijas, mantenido por el CIERRE). Se
+  sincroniza en la Fase 0b de toda sesión, también en destinos ya creados; nunca pisa ficheros
+  editados ni ajenos; huellas independientes del fin de línea. Tests de `kit.py` y de conformidad
+  (la lista blanca cubre todo lo que cita el flujo).
+
 - **Plantillas del contexto `.ai/` del CIERRE** (`.github/templates/ai_context/`: `product`,
   `architecture`, `glossary`, `runtime`, `standards`) con secciones fijas. El CIERRE de
   `/document-project` las usa; hasta ahora solo había una tabla de contenidos y cada destino

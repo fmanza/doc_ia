@@ -1,10 +1,10 @@
 ---
 arquetipo: "1"
 fuentes:
-  .github/prompts/bootstrap_ai_config.prompt.md: fd55edd86bb6
+  .github/prompts/bootstrap_ai_config.prompt.md: fdf4648ffdbe
 decisiones:
   ../decisiones/bootstrap_decisiones.md: 254ead9347ae
-revisado: 2026-11-04
+revisado: 2026-11-07
 ---
 # Bootstrap de Configuración IA Multiplataforma
 
@@ -98,6 +98,9 @@ configuración comprueba la coherencia del resultado.
 - No copia el contexto de dominio del origen: lo regenera a partir del destino.
 - No inventa módulos, capacidades ni APIs del destino.
 - No transfiere historial (sesiones pasadas, changelog, caches).
+- No prepara un destino de documentación para relanzarse solo: eso lo hace el
+  [kit de documentación](kit.md) (`.doc_ia/`, `/documentar`, `DOCUMENTAR.md`), que usa nombres
+  propios y nunca sustituye la configuración IA que deja el bootstrap.
 
 ### Flujos alternativos
 
@@ -161,6 +164,7 @@ ejecuta en el chat y no tiene tests automatizados.
     | [COB-BOOTSTRAP-002](../decisiones/bootstrap_decisiones.md#cob-bootstrap-002) · Flujo «Fase parcial (solo PLAN + AUDIT_PLAN)» | `.github/prompts/bootstrap_ai_config.prompt.md::Devuelve en este orden` | 🔍 → ✅ (decisión: Aportar evidencia) |
     | AC-01 | `.github/prompts/bootstrap_ai_config.prompt.md::Auditoría posterior` (cero referencias huérfanas) | ✅ |
     | [COB-BOOTSTRAP-003](../decisiones/bootstrap_decisiones.md#cob-bootstrap-003) · AC-02 | `.github/prompts/bootstrap_ai_config.prompt.md::Contexto a completar` (generador del destino) | 🔍 → ✅ (decisión: Aportar evidencia) |
+    | Límite «no prepara un destino de documentación» | `.github/prompts/bootstrap_ai_config.prompt.md` (nota «No confundir con el kit de documentación») | ✅ |
     | AC-03 | `.github/prompts/bootstrap_ai_config.prompt.md::Auditoría posterior` (DRY, rutas portables) | ✅ |
     | AC-04 | `.github/prompts/bootstrap_ai_config.prompt.md::Capa D` | ✅ |
     | AC-05 | `.github/prompts/bootstrap_ai_config.prompt.md::Capa A` (`.github/templates/`), `tests/test_docs_conformance.py::test_bootstrap_copies_every_referenced_template` | ✅ |

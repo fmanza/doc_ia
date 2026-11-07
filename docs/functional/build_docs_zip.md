@@ -1,17 +1,17 @@
 ---
 arquetipo: "1"
 fuentes:
-  mkdocs.yml: 9d6912b83c82
+  mkdocs.yml: a01ff47d0ba4
   mkdocs_hooks.py: 31259b7911a3
   scripts/build_docs_zip.py: 5f972ee674c8
   tests/test_build_docs_zip.py: 82a1d595e6f4
-  tests/test_docs_conformance.py: 1b8b53960310
+  tests/test_docs_conformance.py: b76e5660be0b
   tests/test_mermaid_assets.py: e49f4b5a3361
   tests/test_offline_assets.py: 7e632c37987d
   tests/test_zensical_compat.py: d62c11ebe8cd
 decisiones:
   ../decisiones/buildzip_decisiones.md: e610c12daad7
-revisado: 2026-11-05
+revisado: 2026-11-07
 ---
 # ZIP de Documentación Offline
 

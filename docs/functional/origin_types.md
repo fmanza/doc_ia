@@ -2,11 +2,11 @@
 arquetipo: "1"
 fuentes:
   .github/DOCUMENTATION_STANDARD.md: d42bac6b22cb
-  .github/prompts/document_project.prompt.md: 2ba557bc9a37
+  .github/prompts/document_project.prompt.md: 2f89f04372f7
   scripts/snapshot_sources.py: d350c174f962
 decisiones:
   ../decisiones/origins_decisiones.md: 2aa59f9fc5e0
-revisado: 2026-11-05
+revisado: 2026-11-07
 ---
 # Catálogo de Tipos de Origen
 

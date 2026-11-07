@@ -96,6 +96,7 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 **Checklist obligatorio** (ejecutar al inicio de CADA sesión, antes de cualquier otra fase):
 
 - [ ] `.gitignore` presente en la raíz del destino con los patrones estándar (primera sesión: crear si no existe; ver tabla abajo), sin ignorar `_fuentes/`
+- [ ] **Kit de lanzamiento** (toda sesión, también en destinos ya creados): `python <repositorio doc_ia>/scripts/kit.py sync --root <raíz destino>` → `.doc_ia/` (metodología + scripts, `kit.lock.json`), lanzadores `/documentar` y `DOCUMENTAR.md` si falta; conflicto (exit 2) → informar, nunca `--force` sin pedirlo el usuario (`document_project.prompt.md` § Kit de documentación)
 - [ ] `.gitattributes` en la raíz del destino: `* text=auto eol=lf`, binarios (`*.zip`, `*.png`, `*.jpg`) como `binary` y `docs/assets/vendor/** -text` (la huella de los ficheros de terceros no cambia entre Windows y Linux)
 - [ ] `theme.features` verificado — sin `navigation.sections` si `nav.css` presente; con `navigation.indexes`
 - [ ] `nav` con **≤ 9 entradas de primer nivel**: Inicio/Quick Start/Instalación/Descargas en la sección «Inicio», Configuración IA/Changelog/Contribuir en «Proyecto» (las pestañas no tienen desplegables; con más se corta la barra)
@@ -276,6 +277,7 @@ _staging/
 
 9. **RESUMEN**
    - Archivos generados/actualizados, entradas de nav, pendientes de verificación humana
+   - Estado del kit: versión de doc_ia, cambios y conflictos de `kit.py sync`/`check`
 
 10. **CIERRE DE SESIÓN** (siempre obligatorio)
 
@@ -327,6 +329,12 @@ _staging/
     Fuentes: _fuentes/ <N> copiadas · <M> sin cambios     ← solo si hubo Fase 0c
     ```
 
+    - **Prompt de instancia**: crear o actualizar `.ai/prompts/documentar.prompt.md` desde
+      `<doc_ia>/.github/templates/kit/documentar.prompt.template.md` con los parámetros y
+      decisiones de la sesión; primera sesión: completar §3 de `DOCUMENTAR.md` con ejemplos reales
+    - `git add` incluye `.doc_ia/`, los lanzadores (`.claude/commands/documentar.md`,
+      `.github/prompts/documentar.prompt.md`, `AGENTS.md`, `GEMINI.md`), `DOCUMENTAR.md` y el
+      prompt de instancia
     - `git add` incluye `_fuentes/` cuando la Fase 0c la creó o cambió, y `.ai/sources.json`
       con Fase 0-pre (nunca `_staging/`); un cambio de versión de una fuente va en el cuerpo:
       `Fuentes: manual v1.2.50 → v1.2.51`

@@ -637,3 +637,53 @@ def test_projects_do_not_inherit_templates_or_decisions(path: str) -> None:
     """Otros destinos documentados con doc_ia no son plantilla ni fuente de decisiones."""
     text = (ROOT / path).read_text(encoding="utf-8")
     assert "Origen de plantillas y decisiones" in text
+
+
+# --- Kit de documentación en el destino ---
+
+KIT_FLOW_FILES = (
+    ".claude/commands/document-project.md",
+    ".github/prompts/document_project.prompt.md",
+    ".github/agents/documentation-generator.agent.md",
+)
+KIT_REF_RE = re.compile(r"\.github/(?:prompts|agents|templates|instructions)/[\w./-]+\.(?:md|yml)")
+KIT_NOT_SHIPPED = ("bootstrap_ai_config", "config_review", "version_closure", "SHARED_INSTRUCTIONS")
+
+
+def _manifest_methodology() -> set[str]:
+    text = (ROOT / ".github/kit/MANIFEST.txt").read_text(encoding="utf-8")
+    body = text.split("\n[metodologia]\n", 1)[1].split("\n[lanzadores]\n", 1)[0]
+    return {line.strip() for line in body.splitlines() if line.strip() and not line.startswith("#")}
+
+
+@pytest.mark.parametrize("path", KIT_FLOW_FILES)
+def test_kit_rule_everywhere(path: str) -> None:
+    text = (ROOT / path).read_text(encoding="utf-8")
+    assert "kit.py sync" in text
+    assert "documentar.prompt" in text
+
+
+def test_kit_manifest_ships_everything_the_flow_cites() -> None:
+    """Un destino con kit tiene todo prompt, agente o plantilla que cite el flujo de documentar."""
+    shipped = _manifest_methodology()
+    cited = {
+        ref
+        for path in KIT_FLOW_FILES
+        for ref in KIT_REF_RE.findall((ROOT / path).read_text(encoding="utf-8"))
+        if (ROOT / ref).is_file() and not any(x in ref for x in KIT_NOT_SHIPPED)
+    }
+    assert cited, "el patrón no encuentra referencias"
+    assert sorted(cited - shipped) == []
+
+
+def test_kit_documentar_template_has_fixed_sections() -> None:
+    text = (ROOT / ".github/templates/kit/DOCUMENTAR.template.md").read_text(encoding="utf-8")
+    assert re.findall(r"^## (\d+)\. ", text, re.M) == [str(n) for n in range(7)]
+    assert text.count("`/documentar") >= 6  # ejemplos de uso
+
+
+def test_kit_instance_template_has_fixed_sections() -> None:
+    path = ROOT / ".github/templates/kit/documentar.prompt.template.md"
+    text = path.read_text(encoding="utf-8")
+    assert re.findall(r"^## (\d+)\. ", text, re.M) == [str(n) for n in range(1, 8)]
+    assert "no son plantilla" in text.lower() or "nada copiado de otros" in text.lower()

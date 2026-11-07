@@ -1,7 +1,7 @@
 ---
 arquetipo: "2"
 fuentes:
-  mkdocs.yml: 9d6912b83c82
+  mkdocs.yml: a01ff47d0ba4
   mkdocs_hooks.py: 31259b7911a3
   pyproject.toml: 09d78977771b
   scripts/build_docs_zip.py: 5f972ee674c8
@@ -9,7 +9,7 @@ fuentes:
   tests/test_offline_assets.py: 7e632c37987d
 decisiones:
   ../decisiones/buildzip_decisiones.md: e610c12daad7
-revisado: 2026-11-05
+revisado: 2026-11-07
 ---
 # build_docs_zip
 

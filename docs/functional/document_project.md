@@ -1,14 +1,16 @@
 ---
 arquetipo: "1"
 fuentes:
-  .claude/commands/document-project.md: b709f8bc0b4f
+  .claude/commands/document-project.md: 0aaab32c28a5
   .github/DOCUMENTATION_STANDARD.md: d42bac6b22cb
-  .github/prompts/document_project.prompt.md: 2ba557bc9a37
-  CLAUDE.md: f4ee79d0d791
+  .github/prompts/document_project.prompt.md: 2f89f04372f7
+  .github/templates/kit/documentar.command.md: 44364ebb0ca8
+  CLAUDE.md: d5b850033e86
+  scripts/kit.py: 432af520016f
   scripts/snapshot_sources.py: d350c174f962
 decisiones:
   ../decisiones/docproj_decisiones.md: ace9e2e187df
-revisado: 2026-11-05
+revisado: 2026-11-07
 ---
 # Documentar un Proyecto
 
@@ -34,7 +36,9 @@ decidir manualmente qué arquetipo aplicar a cada módulo.
 ## 2. Precondiciones
 
 - Una plataforma IA con acceso al repositorio doc_ia: Claude Code (comando `/document-project`)
-  o Gemini, Copilot, Cursor y Codex (prompt `document_project.prompt.md`).
+  o Gemini, Copilot, Cursor y Codex (prompt `document_project.prompt.md`). En un destino que ya
+  tiene el [kit de documentación](kit.md), basta con abrirlo y lanzar `/documentar`: la
+  metodología está en su carpeta `.doc_ia/` y los parámetros en su prompt de instancia.
 - Los cuatro parámetros obligatorios: **origen(es)**, **destino**, **generador**
   (`mkdocs-material` por defecto, o `zensical`) e **idioma**.
 - Cada origen indicado existe y es legible. Además de una carpeta local, un origen puede ser
@@ -109,6 +113,13 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
   modificado.
 - Si el origen tiene documentos convertidos a Markdown, el destino tiene su copia en
   `_fuentes/`, fuera de `docs/` y versionada, y ninguna carpeta con otro nombre para ellos.
+- El destino lleva el [kit de documentación](kit.md) al día con la versión de doc_ia de la
+  sesión: la metodología y las herramientas en `.doc_ia/` (con su registro `kit.lock.json`), los
+  lanzadores `/documentar` para cada plataforma IA y `DOCUMENTAR.md` en su raíz; los ficheros
+  del kit editados en el destino o ajenos con el mismo nombre no se han tocado y figuran en el
+  resumen. El prompt de instancia `.ai/prompts/documentar.prompt.md` recoge los parámetros y
+  las decisiones de la sesión, y en la primera sesión `DOCUMENTAR.md` incluye ejemplos reales
+  del proyecto.
 - Existe `.ai/sessions/YYYY-MM-DD/` en el destino con `00_REQUEST.md`,
   `00_CONTEXT_SNAPSHOT.md` y `TRACEABILITY.md`; en la primera sesión se crean además los
   cinco ficheros de contexto `.ai/*.md`, con las secciones fijas de las plantillas de doc_ia
@@ -136,6 +147,7 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
 | Documentos pre-convertidos (`md/`) | Si el origen contiene carpetas `md/` (generadas por `convert_to_md.py`), se usan como contexto de primera clase en Fases 2-4 sin re-conversión; no generan páginas propias ni reciben estado A/B/C | Se perdería contexto valioso de documentos binarios o se intentaría re-convertir innecesariamente |
 | Fuentes convertidas en `_fuentes/` | El destino recibe siempre una copia de los documentos convertidos en `_fuentes/<origen>/…`, con la misma ruta que en el origen, aunque origen y destino sean el mismo repositorio. Es el único nombre válido: otro nombre existente se migra a `_fuentes/` con confirmación, y nada se borra sin confirmar. Su texto se versiona en el destino; los binarios, no | Cada sesión elegiría un nombre distinto (`.fuentes/`, `_fuentes/`), la evidencia apuntaría a rutas fuera del repositorio y la trazabilidad no detectaría cambios en esos documentos |
 | Independencia entre proyectos | Todo lo que se escribe en el destino se deriva de doc_ia (scripts, plantillas, recursos) y de los orígenes del propio proyecto. Otro proyecto documentado con doc_ia no es plantilla ni fuente de decisiones: su clasificación de orígenes, su alcance, sus fichas de cobertura o sus ADR no se aplican aquí, aunque el stack coincida. Lo que otro proyecto resolvió y el estándar no cubría se incorpora primero a doc_ia | Un proyecto heredaría decisiones que nadie tomó para él, y cada destino copiado de otro acumularía sus errores y versiones antiguas de los scripts |
+| Kit de documentación en el destino | Al inicio de toda sesión, también en destinos ya creados, se instala o actualiza el [kit de documentación](kit.md) desde doc_ia; un fichero del kit editado en el destino o un lanzador ajeno es un conflicto que se informa y nunca se fuerza sin que lo pida el usuario. Sin doc_ia accesible, solo se comprueba el kit y se avisa en el resumen. El cierre crea o actualiza el prompt de instancia con los parámetros y decisiones de la sesión, para que `/documentar` la repita sin preguntar, y el commit propuesto incluye el kit, los lanzadores, `DOCUMENTAR.md` y ese prompt | Quien recibe el repositorio de documentación no podría relanzarla sin doc_ia ni sin repetir las preguntas de la primera sesión |
 | Contexto persistente `.ai/*.md` | En la primera sesión de un destino nuevo (o si faltan), se crean los 5 ficheros de contexto raíz: `product.md`, `architecture.md`, `glossary.md`, `runtime.md`, `standards.md`; en sesiones posteriores se actualizan si el inventario detecta cambios relevantes | Una IA futura no tendría el snapshot del proyecto para su `00_CONTEXT_SNAPSHOT` |
 
 ## 6. Límites, Flujos Alternativos y Casos Especiales
@@ -177,6 +189,11 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
   `mkdocs.yml`). Cambian el build, que se hace a través del script del destino para que se
   ejecuten los pasos que Zensical ignora, la comprobación de plugins soportados y la señal
   adicional del pipeline en la página de descargas.
+
+- **Relanzamiento desde el destino con `/documentar`**: el lanzador lee el prompt de instancia
+  y aplica la metodología de `.doc_ia/` con esos parámetros; modos opcionales `incremental`
+  (por defecto), `completo`, `verificar`, `aplicar-decisiones` y `zip`. Si falta el prompt de
+  instancia, se crea pidiendo al usuario los parámetros obligatorios.
 
 ### Casos especiales
 
@@ -240,6 +257,8 @@ automatizados.
 | `_fuentes/` | Copia de las carpetas `md/` en la raíz del destino, fuera de `docs/`; es lo que se lee como contexto en Fases 2-4 y lo que cita la evidencia. Único nombre válido |
 | Contexto `.ai/*.md` | Ficheros de contexto persistente del proyecto (`product.md`, `architecture.md`, `glossary.md`, `runtime.md`, `standards.md`); creados en la primera sesión de un destino nuevo |
 | Estrategia | Forma de documentar múltiples orígenes de tipo CÓDIGO: `federado` (cada proyecto independiente), `hub+satélite` (un proyecto concentra el destino), `monorepo` (un `mkdocs.yml` raíz agrupa secciones); nunca se autodetecta |
+| Kit de documentación | Lo que deja doc_ia en el destino para relanzar su documentación: `.doc_ia/`, lanzadores `/documentar`, `DOCUMENTAR.md` y su registro. Ver [Kit de Documentación](kit.md) |
+| Prompt de instancia | `.ai/prompts/documentar.prompt.md` del destino: parámetros y decisiones del proyecto que `/documentar` aplica; lo mantiene el cierre de sesión |
 | Cierre de sesión | Paso final obligatorio del flujo: crea los artefactos `.ai/sessions/YYYY-MM-DD/` en el destino, actualiza o crea `.ai/*.md` si es primera sesión, y propone un commit Conventional Commits con el resumen de la sesión |
 
 ??? note "Evidencia"
@@ -259,6 +278,7 @@ automatizados.
     | Regla «Sincronización visual (Fase 0b)» | `.claude/commands/document-project.md::Sincronización de Configuración Visual (Fase 0b)`, `.github/prompts/document_project.prompt.md::Fase 0b` | ✅ |
     | Regla «Documentos pre-convertidos (`md/`)» | `.github/prompts/document_project.prompt.md::Fase 0c — Paso 0` | ✅ |
     | [COB-DOCPROJ-004](../decisiones/docproj_decisiones.md#cob-docproj-004) · Regla «Fuentes convertidas en `_fuentes/`», AC-09 y AC-10 | `.github/prompts/document_project.prompt.md::Fase 0c — Paso 5`, `tests/test_docs_conformance.py::test_sources_folder_is_canonical` (coherencia de las instrucciones, no del resultado) | ⚠️ (decisión: Aceptar riesgo) |
+    | Regla «Kit de documentación en el destino», postcondición del kit y flujo `/documentar` | `.github/prompts/document_project.prompt.md::Kit de documentación en el destino y <doc_ia>`, `::Fase 0b` (Kit de lanzamiento), `::Devuelve en este orden` (puntos 9 y 10), `.claude/commands/document-project.md::Sincronización de Configuración Visual (Fase 0b)`, `.github/templates/kit/documentar.command.md`, `scripts/kit.py::sync` | ✅ |
     | Regla «Contexto persistente `.ai/*.md`» | `.claude/commands/document-project.md::Devuelve en este orden` (tabla de ficheros `.ai/`) | ✅ |
     | Postcondición y caso «registro de decisiones» | `.github/prompts/document_project.prompt.md::Fase 3` (Decisiones de cobertura), `::Devuelve en este orden` (punto 9), `.github/DOCUMENTATION_STANDARD.md::3.18` | ✅ |
     | Precondición «generador instalado para `--verify-build`» | `.github/prompts/document_project.prompt.md::Fase 7` | ✅ |

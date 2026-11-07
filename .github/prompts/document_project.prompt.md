@@ -53,6 +53,18 @@ Ejemplos de detención:
 - "Origen `c:\repos\mi_api` no existe o no es legible → preguntar ruta correcta antes de inventariar."
 - "Generador no indicado → preguntar: ¿MkDocs Material (por defecto) o Zensical?"
 
+## Kit de documentación en el destino y `<doc_ia>`
+
+Todo destino lleva dentro lo necesario para relanzar su documentación sin abrir doc_ia:
+metodología y scripts en `<raíz destino>/.doc_ia/` (copia fijada, `kit.lock.json`), lanzadores
+`/documentar` (`.claude/commands/documentar.md`, `.github/prompts/documentar.prompt.md`,
+`AGENTS.md`, `GEMINI.md`), el prompt de instancia `.ai/prompts/documentar.prompt.md` y
+`DOCUMENTAR.md` en la raíz. Qué se copia lo fija `.github/kit/MANIFEST.txt`; lo instala y
+actualiza `scripts/kit.py` (Fase 0b).
+
+**`<doc_ia>`** en estas instrucciones es la raíz del repositorio doc_ia o, cuando la sesión se
+lanza desde un destino con kit, su carpeta `.doc_ia/` (scripts en `.doc_ia/scripts/`).
+
 ## Política innegociable (de `SHARED_INSTRUCTIONS.md` § Principios)
 
 1. **Prohibido incrustar API keys**: ninguna credencial de servicios IA se configura, versiona
@@ -183,6 +195,14 @@ Fase 0b — Sincronización visual del destino (OBLIGATORIO en toda sesión, cre
              de la primera escritura; el remoto es opcional y solo lo decide el usuario.
            · .gitattributes en la raíz del destino: `* text=auto eol=lf`, `*.zip`/`*.png`/`*.jpg`
              binary y `docs/assets/vendor/** -text` (huella estable de los ficheros de terceros)
+           · Kit de lanzamiento (OBLIGATORIO en toda sesión, también en destinos ya creados):
+               python <repositorio doc_ia>/scripts/kit.py sync --root <raíz destino>
+             (desde un destino: `python .doc_ia/scripts/kit.py --from <repositorio doc_ia> sync …`).
+             Instala o actualiza `.doc_ia/`, los lanzadores y crea `DOCUMENTAR.md` si falta.
+             Exit 0 al día · 1 actualizado · 2 conflicto: un fichero del kit editado en el destino
+             o un lanzador ajeno con el mismo nombre → informar y NO usar `--force` sin que el
+             usuario lo pida. Sin repositorio doc_ia accesible → `kit.py check` y avisar en RESUMEN
+             de que el kit no se ha podido actualizar.
              Nunca ignorar `_fuentes/`: el texto convertido se versiona (Fase 0c, Paso 5)
            · theme.features SIN navigation.sections si nav.css está en extra_css
            · los 6 recursos de docs/assets/ existen y están en extra_css / extra_javascript /
@@ -678,7 +698,8 @@ anonimiza o se excluye. `_staging/` no se versiona nunca.
 8. **BUILD** (Fase 7, solo opt-in) — resultado de `--verify-build`.
 8b. **DOWNLOADS** (Fase 7b, siempre) — `downloads.md` creado/actualizado; indicar variante A o B; estado de las tres señales (TIENE_ZIP_SCRIPT, TIENE_MKDOCS_PLUGIN, TIENE_WORKFLOW_GITHUB) y, con Zensical, TIENE_PIPELINE_SIN_HOOKS; huecos (Gaps A1/A2/A3 y, con Zensical, A4) reportados si alguna falta; entrada en la sección «Inicio» del nav; número de pestañas (≤ 9).
 8c. **VISUALIZACIÓN** (Fase 7c, siempre) — `VER_DOCUMENTACION.md` (o `VIEW_DOCS.md`) creado/actualizado/vigente; tabla | Marcador | Valor | Fuente verificada |; Ruta A aplicada o "No aplica" con motivo; Gaps V1/V2 resueltos o pendientes.
-9. **RESUMEN** — archivos generados/actualizados, entradas de nav, pendientes de verificación humana.
+9. **RESUMEN** — archivos generados/actualizados, entradas de nav, pendientes de verificación humana;
+   estado del kit (`kit.py sync`/`check`: versión de doc_ia, cambios, conflictos).
    Si hay registro de decisiones (Arq. 13): decisiones aplicadas en esta sesión (ID → páginas),
    fichas `Pendiente` con la pregunta concreta para quien decide e inválidas/incompletas.
 10. **CIERRE DE SESIÓN** (siempre obligatorio) — contexto `.ai/{product,architecture,glossary,runtime,standards}.md`
@@ -687,6 +708,12 @@ anonimiza o se excluye. `_staging/` no se versiona nunca.
     destino (`00_REQUEST.md`, `00_CONTEXT_SNAPSHOT.md`, `TRACEABILITY.md`) y proponer commit
     `docs(<scope>): <resumen>` con recuento de páginas creadas/actualizadas/omitidas; el commit
     incluye `_fuentes/` si la Fase 0c la creó o cambió.
+    **Prompt de instancia** (siempre): crear o actualizar `.ai/prompts/documentar.prompt.md` desde
+    `<doc_ia>/.github/templates/kit/documentar.prompt.template.md` con los parámetros y las
+    decisiones de esta sesión (orígenes, adquisición, alcance `--path`, clasificación, prioridades),
+    para que `/documentar` la repita sin preguntar. En la primera sesión, completar §3 de
+    `DOCUMENTAR.md` con ejemplos reales del proyecto (sin inventar rutas). El commit incluye
+    `.doc_ia/`, los lanzadores, `DOCUMENTAR.md` y el prompt de instancia.
     **Baseline** (siempre, en ambos modos, antes del commit): por cada origen CÓDIGO,
     `python <doc_ia>/scripts/doc_trace.py --root <raíz destino> baseline --origin <origen> [--name <nombre_origen>] [--path <ruta> …]`
     → `<raíz destino>/.ai/doc_state.json` (lo escribe la herramienta; nunca a mano) entra en el

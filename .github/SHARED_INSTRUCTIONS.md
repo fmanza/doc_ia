@@ -67,7 +67,7 @@ trabaja sobre la copia local en `_staging/` (Fase 0-pre de `document_project.pro
 ```text
 doc_ia/
   scripts/              # Tooling determinista: check_env.py, build_docs_zip.py, convert_to_md.py,
-                        #   doc_trace.py, snapshot_sources.py
+                        #   doc_trace.py, snapshot_sources.py, kit.py
   hooks/                # Hooks MkDocs + PostToolUse: sync_root_docs.py
   tests/                # Tests pytest del tooling
   docs/                 # Sitio MkDocs Material (es): index, downloads, guides/
@@ -93,6 +93,7 @@ doc_ia/
 |---|---|
 | `scripts/` | Tooling determinista sin dependencias IA: validación de entorno, build + ZIP de docs, conversión de documentos binarios a Markdown con validación previa y motor elegido con `--engine` (`docling` por defecto: PDF/DOCX/PPTX/XLSX/CSV/HTML/EPUB, imágenes, email, LaTeX, audio, con OCR; `markitdown` alternativa ligera, necesaria solo para XLS; `pandoc` complemento: DOC/ODT/RST) |
 | `.ai/doc_state.json` (destino) | Baseline del modo incremental de `/document-project`: commit de cada origen CÓDIGO al cerrar la sesión y versión de doc_ia. Lo escribe `doc_trace.py baseline` en el CIERRE (nunca a mano) y lo lee `doc_trace.py changes` en la Fase 1 para limitar el inventario a lo cambiado. Se versiona con el destino. |
+| Kit de documentación (destino) | `scripts/kit.py` copia a `<destino>/.doc_ia/` la metodología y los scripts de la lista blanca `.github/kit/MANIFEST.txt` (con `kit.lock.json`), instala los lanzadores `/documentar` (`.claude/commands/documentar.md`, `.github/prompts/documentar.prompt.md`, `AGENTS.md`, `GEMINI.md`) y crea `DOCUMENTAR.md` si falta. Se sincroniza en la Fase 0b de toda sesión; nunca pisa ficheros editados ni ajenos. El prompt de instancia `.ai/prompts/documentar.prompt.md` lo mantiene el CIERRE. |
 | `.ai/sources.json` + `_staging/` (destino) | Fase 0-pre de `/document-project`: `snapshot_sources.py` copia los orígenes MATERIAL no locales (fichero con `{ver}`, carpeta de red, biblioteca de SharePoint sincronizada) a `<raíz del destino>/_staging/<nombre>/` (git-ignorado) con nombre estable y registra en `.ai/sources.json` (versionado) sha256, versión e historial. El repositorio CÓDIGO remoto vive ahí como `git worktree` desacoplado. Nunca editar `sources.json` a mano. |
 | Patrón `<origen>/md/` → `_fuentes/` | Artefactos generados por `scripts/convert_to_md.py`: versiones `.md` de documentos binarios del origen (PDF, DOCX, PPTX, …). El destino recibe **siempre** una copia en `<raíz del destino>/_fuentes/<nombre_origen>/<ruta relativa al origen>` (nombre único, fuera de `docs/`, versionada); el agente la usa como contexto de primera clase en Fases 2-4 sin re-conversión. Nunca editarlos directamente. Ver Fase 0c de `document_project.prompt.md`. |
 | `hooks/` | `sync_root_docs.py`: copia `CHANGELOG.md`/`CONTRIBUTING.md` a `docs/` antes del build y tras cada Edit/Write |
@@ -143,6 +144,8 @@ python scripts/check_env.py           # Verificación del entorno de tooling
 python scripts/build_docs_zip.py      # Build + ZIP offline en dist/doc_ia-docs-{version}.zip
 python scripts/convert_to_md.py <ruta>                 # Valida + convierte a Markdown en <ruta>/md/ (docling por defecto; --engine markitdown | pandoc)
 python scripts/convert_to_md.py <ruta> --validate-only # Solo validación previa (motor instalado, integridad de ficheros)
+python scripts/kit.py sync --root <destino>                                   # Kit de documentación en el destino (Fase 0b)
+python scripts/kit.py check --root <destino>                                  # ¿Kit editado o desfasado?
 python scripts/snapshot_sources.py --root <destino> add <nombre> "<ruta|patrón {ver}>"  # Declara un origen (Fase 0-pre)
 python scripts/snapshot_sources.py --root <destino> sync [--dry-run]                    # Copia a _staging/ + .ai/sources.json
 python scripts/doc_trace.py --root <destino> baseline --origin <repo> --path <ruta>…    # Baseline con alcance transversal
