@@ -33,6 +33,9 @@ Opcionales:
   (se informan con su justificación; el usuario puede corregirlas, pero el flujo no se detiene)
 - **Ref** (solo orígenes CÓDIGO remotos): rama, etiqueta o commit a documentar — preguntar,
   nunca asumir `main`
+- **BD** (opción): exportación Markdown de la base de datos generada con `util_bbdd`
+  (carpeta con `manifest.json`) + entorno que representa + patrones del alcance. Activa el
+  origen BASE DE DATOS (§ Origen BASE DE DATOS); sin él, nada de esa sección se aplica
 - **Arquetipos**: subconjunto a aplicar (por defecto: todos los aplicables según inventario)
 - **Verificación**: `--verify-tools` y/o `--verify-build [--serve]` (opt-in, nunca automáticos)
 - **Modo**: `incremental` | `completo` — por defecto `incremental` si el destino tiene
@@ -64,6 +67,37 @@ actualiza `scripts/kit.py` (Fase 0b).
 
 **`<doc_ia>`** en estas instrucciones es la raíz del repositorio doc_ia o, cuando la sesión se
 lanza desde un destino con kit, su carpeta `.doc_ia/` (scripts en `.doc_ia/scripts/`).
+
+## Origen BASE DE DATOS (opción `BD`)
+
+La exportación la genera el usuario con `util_bbdd` (formato Markdown) y sus credenciales, fuera
+de doc_ia: **doc_ia nunca se conecta a una base de datos**. Recomendado al generarla:
+`markdown.previous` (exportación anterior) y `markdown.trace_map` (`.ai/trace_map.toml`).
+
+1. **Adquisición** (Fase 0-pre): declarar la carpeta con `snapshot_sources.py add <nombre>
+   <carpeta>` (va a `_staging/`). Ya es Markdown: no se convierte (Fase 0c no aplica) ni se
+   copia entera a `_fuentes/`. `python <doc_ia>/scripts/db_trace.py info --export <carpeta>`
+   comprueba el contrato (`format`/`format_version`) y muestra motor y fecha.
+2. **Entorno**: cada exportación es una foto de un entorno (motor, base de datos, fecha). Se
+   indica en `docs/bd/index.md` y en la Evidencia; nunca se presenta como «el modelo» sin más.
+3. **Importación** (Fase 3): `db_trace.py select --export <carpeta> --root <raíz destino>
+   --name <nombre> --env <entorno> --include <patrón> …` importa en `docs/bd/` solo los objetos del alcance
+   (enlaces a objetos no importados → texto), genera `docs/bd/index.md` (con la frontera por
+   FK) y guarda en `_fuentes/<nombre>/` el `catalog.json` y el `manifest.json` del subconjunto
+   (base del próximo `changes`). `docs/bd/` es un **artefacto generado**: no se edita y sus
+   diagramas `erDiagram` quedan fuera de las reglas Mermaid del estándar (§3.17). Nav: una
+   pestaña «Base de datos» (≤ 9 pestañas en total).
+4. **Contraste** (Fase 3): `db_trace.py compare --catalog _fuentes/<nombre>/catalog.json
+   --entities <modelo del código> --include <patrón> …` → tablas, columnas, nulabilidad y FK
+   que solo están en un lado. Cada discrepancia → ficha `COB-DATOS-…` (registro de datos) y
+   fila ⚠️ en la Evidencia del modelo de datos citando la página de `docs/bd/` con su ancla
+   (`bd/tables/<tabla>.md#col-<columna>`). Adaptador disponible: `entities.xml` (vdyn).
+5. **Incremental** (Fase 1): `db_trace.py changes --catalog <exportación>/docs/catalog.json
+   --previous _fuentes/<nombre>/catalog.json --docs <destino>/docs --include <patrón> …`
+   (antes de `select`, que sustituye el subconjunto) → objetos con alta, baja o cambio
+   y páginas que los citan (candidatas a estado B).
+6. **Sin lint de esquema**: la calidad del esquema (FK sin índice, comentarios…) no forma parte
+   de la documentación.
 
 ## Política innegociable (de `SHARED_INSTRUCTIONS.md` § Principios)
 
@@ -157,6 +191,10 @@ Fase 0a — Clasificación de orígenes (solo con ≥2 orígenes, o si el único
                                YAML en k8s/, deploy/, manifests/, helm/; playbooks Ansible en roles//ansible/
             - MANUAL         : documentación narrativa del PROPIO proyecto: .pdf/.docx/.md con manual/
                                guide/runbook/ayuda/help en nombre; carpetas manuals/, help/, user-docs/; .chm
+            - BASE DE DATOS  : exportación de util_bbdd: manifest.json con
+                               `format: util_bbdd.doc.markdown` y docs/catalog.json
+                               (`util_bbdd.doc.catalog`). Esquema REAL de un entorno desplegado
+                               (no datos). Solo con el parámetro BD (opción)
             - REFERENCIA     : manuales de TERCEROS, RFCs, especificaciones de protocolo AJENAS
                                al proyecto; también lo que no coincide con ningún tipo anterior.
                                Un contrato o manual de un tercero es REFERENCIA (la propiedad decide)
@@ -182,6 +220,8 @@ Fase 0a — Clasificación de orígenes (solo con ≥2 orígenes, o si el único
             CONTRATO         → enriquece Arquetipo 2 §1 (Arquitectura/interfaces) y §2 (Modelo de Datos/Contratos) y Arquetipo 12 §5 (Interfaces Publicadas)
             INFRAESTRUCTURA  → enriquece Arquetipo 2 §4 (Dependencias) y Arquetipo 6C §3 › Despliegue
             MANUAL           → enriquece Arq. 3a §3, Arq. 3b §3, Arq. 6A/B §1 (Descripción), Arq. 7 §3 y §5
+            BASE DE DATOS    → sección generada `docs/bd/` + evidencia de Arq. 2 (modelo de datos) y
+                               Arq. 12 (tablas/vistas/rutinas) + fichas `COB-DATOS` del contraste
 
 Fase 0 — Detección de normativa: si el origen referencia normativa de obligado cumplimiento,
          ofrecer Arquetipo 8 (normative_traceability.prompt.md). Si no hay, omitir.
@@ -376,6 +416,8 @@ Fase 1 — Inventariar y clasificar:
 Fase 2 — Mapeo funcional (functional_doc.prompt.md) → [destino]/functional/
          + Mapa Funcional del sistema (Variante 1-I) → [destino]/functional/index.md; columna Test en §7.
 Fase 3 — Documentación técnica con Mermaid (technical_doc.prompt.md) → [destino]/api/
+         Con origen BASE DE DATOS: ver § Origen BASE DE DATOS (importar `docs/bd/`, contrastar el
+         modelo del código con la BD y citar las anclas de columna en la Evidencia).
          Referencia del sistema (reference_doc.prompt.md, Arquetipo 12) → [destino]/reference/
          SOLO si el INVENTARIO detecta señales (configuración, CLI, códigos de salida, eventos, CONTRATO).
          Evidencia (DOCUMENTATION_STANDARD.md §3.16): las páginas de Arq. 1, 2 y 12 terminan con el
@@ -655,6 +697,8 @@ APIs ni capacidades; secciones vacías → `*No aplica para este módulo.*`; reg
 3. **MANUAL** — lo publicado al usuario: sus pantallas y pasos enriquecen guías y flujos, pero
    no corrigen al código.
 4. **NORMATIVA** — obliga, no describe: su incumplimiento es hallazgo, no se "corrige" el texto.
+5. **BASE DE DATOS** — lo desplegado en un entorno concreto: se **contrasta** con el CÓDIGO (lo
+   construido); ninguno corrige al otro. Toda discrepancia es ficha `COB-DATOS-…`.
 Cada discrepancia relevante se registra (no se resuelve en silencio): ficha `COB-<ÁMBITO>-<NNN>`
 del Arquetipo 13 con las dos fuentes citadas; la decisión es humana.
 
@@ -714,6 +758,9 @@ anonimiza o se excluye. `_staging/` no se versiona nunca.
     para que `/documentar` la repita sin preguntar. En la primera sesión, completar §3 de
     `DOCUMENTAR.md` con ejemplos reales del proyecto (sin inventar rutas). El commit incluye
     `.doc_ia/`, los lanzadores, `DOCUMENTAR.md` y el prompt de instancia.
+    **Trazabilidad para la BD** (solo con origen BASE DE DATOS): regenerar
+    `.ai/trace_map.toml` con `db_trace.py tracemap` (versionado): la próxima exportación de
+    util_bbdd lo usa (`markdown.trace_map`) y publica en cada tabla su código y sus páginas.
     **Baseline** (siempre, en ambos modos, antes del commit): por cada origen CÓDIGO,
     `python <doc_ia>/scripts/doc_trace.py --root <raíz destino> baseline --origin <origen> [--name <nombre_origen>] [--path <ruta> …]`
     → `<raíz destino>/.ai/doc_state.json` (lo escribe la herramienta; nunca a mano) entra en el

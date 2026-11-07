@@ -1,9 +1,9 @@
 ---
 arquetipo: "1"
 fuentes:
-  .github/kit/MANIFEST.txt: c35635df261d
+  .github/kit/MANIFEST.txt: 4d76505a2867
   .github/prompts/bootstrap_ai_config.prompt.md: fdf4648ffdbe
-  .github/prompts/document_project.prompt.md: 2f89f04372f7
+  .github/prompts/document_project.prompt.md: 223fe49c672b
   .github/templates/kit/AGENTS.md: f9b80f0f102b
   .github/templates/kit/documentar.command.md: 44364ebb0ca8
   scripts/kit.py: 432af520016f

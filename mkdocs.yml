@@ -101,6 +101,7 @@ nav:
           - Trazabilidad Docs ↔ Código: functional/doc_trace.md
           - Adquisición de Orígenes: functional/snapshot_sources.md
           - Kit de Documentación: functional/kit.md
+          - Trazabilidad con la Base de Datos: functional/db_trace.md
       - Flujos IA:
           - Documentar un Proyecto: functional/document_project.md
           - Catálogo de Tipos de Origen: functional/origin_types.md
@@ -132,6 +133,7 @@ nav:
           - doc_trace: api/doc_trace.md
           - snapshot_sources: api/snapshot_sources.md
           - kit: api/kit.md
+          - db_trace: api/db_trace.md
 
   # ── Audiencia: usuarios y operadores del tooling (Arquetipo 12) ───────────
   - Referencia del Sistema: reference/index.md
@@ -149,6 +151,7 @@ nav:
           - Trazabilidad Docs ↔ Código: examples/doc_trace_usage.md
           - Adquirir Orígenes Documentales: examples/snapshot_sources_usage.md
           - Kit de Documentación en un Destino: examples/kit_usage.md
+          - Origen Base de Datos con db_trace: examples/db_trace_usage.md
 
   # ── Guías de uso y operación ───────────────────────────────────────────────
   - Guías:

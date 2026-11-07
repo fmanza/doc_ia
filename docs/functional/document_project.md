@@ -1,11 +1,12 @@
 ---
 arquetipo: "1"
 fuentes:
-  .claude/commands/document-project.md: 0aaab32c28a5
-  .github/DOCUMENTATION_STANDARD.md: d42bac6b22cb
-  .github/prompts/document_project.prompt.md: 2f89f04372f7
+  .claude/commands/document-project.md: 93b8243cf975
+  .github/DOCUMENTATION_STANDARD.md: ff88b112809b
+  .github/prompts/document_project.prompt.md: 223fe49c672b
   .github/templates/kit/documentar.command.md: 44364ebb0ca8
-  CLAUDE.md: d5b850033e86
+  CLAUDE.md: fa46521cd504
+  scripts/db_trace.py: c337133736ca
   scripts/kit.py: 432af520016f
   scripts/snapshot_sources.py: d350c174f962
 decisiones:
@@ -47,6 +48,7 @@ decidir manualmente qué arquetipo aplicar a cada módulo.
   etiqueta o commit.
 - Al menos uno de los orígenes es de tipo CÓDIGO.
 - Opcionales: tipo de cada origen, estrategia (solo con ≥2 orígenes CÓDIGO), alcance,
+  exportación de la base de datos (`BD`, ver [Trazabilidad con la Base de Datos](db_trace.md)),
   subconjunto de arquetipos, verificación (`--verify-tools`, `--verify-build`) y modo
   (`incremental` por defecto si el destino ya se documentó con baseline; `completo`).
 - Para la verificación de build: el generador elegido instalado en el entorno.
@@ -111,6 +113,10 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
   de la raíz del destino, excluida del control de versiones, y los orígenes de documentos
   quedan registrados con su versión e historial en `.ai/sources.json`; el origen no se ha
   modificado.
+- Con origen BASE DE DATOS (parámetro `BD`): el destino tiene la sección generada `docs/bd/`
+  con las páginas de los objetos del alcance, el catálogo de ese subconjunto en
+  `_fuentes/<nombre>/`, una ficha `COB-DATOS-…` por discrepancia entre el código y la base de
+  datos, y `.ai/trace_map.toml` regenerado al cerrar la sesión.
 - Si el origen tiene documentos convertidos a Markdown, el destino tiene su copia en
   `_fuentes/`, fuera de `docs/` y versionada, y ninguna carpeta con otro nombre para ellos.
 - El destino lleva el [kit de documentación](kit.md) al día con la versión de doc_ia de la
@@ -135,6 +141,7 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
 | Cuatro parámetros obligatorios | Origen(es), Destino, Generador e Idioma son requeridos; el flujo se detiene y pregunta si falta alguno | Se documentaría un proyecto equivocado, en la ruta incorrecta o con el generador inadecuado |
 | Adquisición de orígenes (Fase 0-pre) | El origen nunca se escribe. Lo que no es una carpeta local de trabajo se copia antes a `_staging/<nombre>/` del destino, ignorada por git: los documentos (fichero, patrón con `{ver}`, carpeta de red, SharePoint sincronizado) con la [adquisición de orígenes](snapshot_sources.md), que elige la versión más alta y la copia con un nombre estable; los repositorios remotos se obtienen con git o glab en un `git worktree` desacoplado en la ref pedida. Las fases siguientes trabajan sobre esa copia | Conversiones y ficheros ajenos escritos en carpetas compartidas, o rutas de `_fuentes/` y de la evidencia que cambian con cada versión del manual |
 | Clasificación de orígenes | Con ≥2 orígenes, o cuando el único origen no es de tipo CÓDIGO, se ejecuta la Fase 0a antes del inventario; el usuario confirma la clasificación antes de continuar | Sin clasificación, un origen NORMATIVA o UI se trataría como proyecto de código y generaría páginas incorrectas |
+| Origen BASE DE DATOS (opción `BD`) | Con una exportación de `util_bbdd`, se importan en `docs/bd/` solo los objetos del alcance, se contrasta el modelo del código con la base de datos y cada discrepancia se registra como decisión de cobertura; ninguna de las dos fuentes corrige a la otra. doc_ia nunca se conecta a la base de datos ([Trazabilidad con la Base de Datos](db_trace.md)) | Se presentaría el esquema de un entorno como «el modelo», o se ocultarían diferencias reales entre lo construido y lo desplegado |
 | Inventario previo a generación | Antes de escribir cualquier página se clasifica el estado de la documentación existente (sin doc / desactualizado / vigente) | Se sobreescribirían páginas vigentes o se ignorarían páginas desactualizadas |
 | Generación en el chat | Toda la generación documental ocurre en el chat de la plataforma IA (Claude Code, Gemini, Copilot, Cursor, Codex); nunca en código Python ni en CI | Violaría el principio innegociable del proyecto de ejecución sin APIs externas |
 | Sin inventar | El contenido generado se basa únicamente en el código y la documentación real del origen; no se inventan módulos, APIs, salidas ni dependencias | Documentación incorrecta que no corresponde al proyecto real |
@@ -245,7 +252,7 @@ automatizados.
 | Estado C | Módulo con página existente y vigente; acción derivada: OMITIR |
 | Arquetipo formal | Plantilla de documentación con estructura fija y audiencia definida (ver [Arquetipos Formales](archetypes.md)) |
 | Generador | Herramienta de sitio estático que construye el HTML a partir de los archivos Markdown (`mkdocs-material` por defecto) |
-| Tipo de origen | Naturaleza del origen; determina el tratamiento documental. Ocho tipos: `CÓDIGO`, `NORMATIVA`, `ESPECIFICACIÓN`, `UI/PANTALLAS`, `REFERENCIA`, `CONTRATO`, `INFRAESTRUCTURA`, `MANUAL`. Catálogo completo: [Tipos de Origen](origin_types.md) |
+| Tipo de origen | Naturaleza del origen; determina el tratamiento documental. Nueve tipos: `CÓDIGO`, `NORMATIVA`, `ESPECIFICACIÓN`, `UI/PANTALLAS`, `REFERENCIA`, `CONTRATO`, `INFRAESTRUCTURA`, `MANUAL`, `BASE DE DATOS`. Catálogo completo: [Tipos de Origen](origin_types.md) |
 | MATERIAL | Término colectivo para orígenes que no son de tipo CÓDIGO; su contenido enriquece secciones de los arquetipos del proyecto CÓDIGO principal sin generar páginas propias |
 | `CONTRATO` | Especificaciones machine-readable de las APIs y modelos de datos del propio proyecto (OpenAPI, AsyncAPI, GraphQL, Protobuf, SQL DDL, DBML…); enriquece Arquetipo 2 §1 y §2 y Arquetipo 12 §5 |
 | `INFRAESTRUCTURA` | Artefactos IaC y de despliegue del propio proyecto (Terraform, Kubernetes, Docker, Ansible…); enriquece Arquetipo 2 §4 y Arquetipo 6C §3 › Despliegue |
@@ -278,6 +285,7 @@ automatizados.
     | Regla «Sincronización visual (Fase 0b)» | `.claude/commands/document-project.md::Sincronización de Configuración Visual (Fase 0b)`, `.github/prompts/document_project.prompt.md::Fase 0b` | ✅ |
     | Regla «Documentos pre-convertidos (`md/`)» | `.github/prompts/document_project.prompt.md::Fase 0c — Paso 0` | ✅ |
     | [COB-DOCPROJ-004](../decisiones/docproj_decisiones.md#cob-docproj-004) · Regla «Fuentes convertidas en `_fuentes/`», AC-09 y AC-10 | `.github/prompts/document_project.prompt.md::Fase 0c — Paso 5`, `tests/test_docs_conformance.py::test_sources_folder_is_canonical` (coherencia de las instrucciones, no del resultado) | ⚠️ (decisión: Aceptar riesgo) |
+    | Regla «Origen BASE DE DATOS», precondición `BD` y postcondición `docs/bd/` | `.github/prompts/document_project.prompt.md::Origen BASE DE DATOS (opción BD)`, `::Devuelve en este orden` (Trazabilidad para la BD), `.claude/commands/document-project.md` (Inputs requeridos), `scripts/db_trace.py::import_pages`, `::build_tracemap` | ✅ |
     | Regla «Kit de documentación en el destino», postcondición del kit y flujo `/documentar` | `.github/prompts/document_project.prompt.md::Kit de documentación en el destino y <doc_ia>`, `::Fase 0b` (Kit de lanzamiento), `::Devuelve en este orden` (puntos 9 y 10), `.claude/commands/document-project.md::Sincronización de Configuración Visual (Fase 0b)`, `.github/templates/kit/documentar.command.md`, `scripts/kit.py::sync` | ✅ |
     | Regla «Contexto persistente `.ai/*.md`» | `.claude/commands/document-project.md::Devuelve en este orden` (tabla de ficheros `.ai/`) | ✅ |
     | Postcondición y caso «registro de decisiones» | `.github/prompts/document_project.prompt.md::Fase 3` (Decisiones de cobertura), `::Devuelve en este orden` (punto 9), `.github/DOCUMENTATION_STANDARD.md::3.18` | ✅ |

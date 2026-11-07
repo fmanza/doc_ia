@@ -44,6 +44,7 @@ requirements.txt
 scripts/kit.py
 scripts/doc_trace.py
 scripts/snapshot_sources.py
+scripts/db_trace.py
 scripts/convert_to_md.py
 scripts/check_env.py
 scripts/build_docs_zip.py

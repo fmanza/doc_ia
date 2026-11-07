@@ -29,6 +29,9 @@ Documentar un proyecto (origen → destino) orquestando los arquetipos formales.
   transversal dentro de un repo mayor → rutas/pathspecs de git (`doc_trace.py --path`), propuestas
   y aplicadas en el INVENTARIO (se informan; el usuario puede corregirlas, pero el flujo no se detiene)
 - [ ] **Ref** (orígenes CÓDIGO remotos): rama, etiqueta o commit — preguntar, nunca asumir
+- [ ] **BD** (opción): exportación Markdown de `util_bbdd` + entorno + patrones del alcance →
+  origen BASE DE DATOS (`docs/bd/` generado, contraste código ↔ BD con `scripts/db_trace.py`,
+  `.ai/trace_map.toml`); ver `document_project.prompt.md` § Origen BASE DE DATOS
 - [ ] **Arquetipos** (opcional): subconjunto; por defecto todos los aplicables **excepto 9 (Changelog) y 11 (Contribución)**, que son opt-in explícito
 - [ ] **Verificación** (opcional): `--verify-tools` y/o `--verify-build [--serve]`
 - [ ] **Modo** (opcional): `incremental` | `completo` — por defecto `incremental` si el destino

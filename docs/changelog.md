@@ -7,6 +7,15 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ### Added
 
+- **Origen BASE DE DATOS (opción `BD`)**: `scripts/db_trace.py` lee la exportación Markdown de
+  `util_bbdd` (`manifest.json` y `catalog.json`, contrato versionado; sin conexión a la BD) e
+  importa en `docs/bd/` las páginas de los objetos del alcance con el entorno que representan
+  (`select --env`), contrasta el modelo del código (`entities.xml`) con la BD (`compare`: tablas,
+  columnas, nulabilidad y FK → fichas `COB-DATOS`), detecta cambios de esquema entre exportaciones
+  dentro del alcance (`changes`) y genera el `trace_map.toml` de `util_bbdd` desde la evidencia de
+  la documentación (`tracemap`). Tipo nuevo en el estándar (§3.10), regla de prioridad «se contrasta
+  con el código, no lo corrige», `docs/bd/` como artefacto generado; sin lint de esquema.
+
 - **Kit de documentación en cada destino** (`scripts/kit.py install|sync|check`): el destino lleva
   la metodología y los scripts de doc_ia en `.doc_ia/` (lista blanca `.github/kit/MANIFEST.txt`,
   `kit.lock.json` con versión y huellas), los lanzadores `/documentar`

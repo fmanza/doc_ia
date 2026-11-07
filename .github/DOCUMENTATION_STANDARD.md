@@ -579,6 +579,7 @@ Cuando `/document-project` recibe más de un `Origen`, o cuando el único origen
 | `CONTRATO` | Especificaciones machine-readable de las APIs/datos del **propio proyecto**: `.yaml`/`.json` con clave `openapi:` o `asyncapi:`; `.graphql`/`.gql`; `.proto`; `.avsc`; `.sql` DDL en `db/`/`migrations/`; `.dbml`; carpetas `api/`, `contracts/`, `schemas/`, `proto/` | Enriquece Arquetipo 2 §1 (Arquitectura) y §2 (Modelo de Datos / Contratos) y Arquetipo 12 §5 (Interfaces Publicadas) |
 | `INFRAESTRUCTURA` | IaC y despliegue: `.tf`; `Dockerfile`, `docker-compose.yml`; YAML en `k8s/`, `deploy/`, `manifests/`, `helm/`; playbooks Ansible; CloudFormation en `cloudformation/` | Enriquece Arquetipo 2 §4 (Dependencias) y Arquetipo 6C §3 › Despliegue |
 | `MANUAL` | Documentación narrativa del **propio proyecto**: `.pdf`, `.docx`, `.md` con `manual`/`guide`/`runbook`/`ayuda`/`help` en nombre; carpetas `manuals/`, `help/`, `user-docs/`; `.chm` | Enriquece Arquetipos 3a §3, 3b §3, 6A/B §1 (Descripción) y 7 §3+§5 |
+| `BASE DE DATOS` *(opción `BD`)* | Exportación de `util_bbdd`: `manifest.json` con `format: util_bbdd.doc.markdown` y `docs/catalog.json` (`util_bbdd.doc.catalog`). Esquema real de un entorno desplegado, sin datos | Sección generada `docs/bd/` (objetos del alcance); evidencia del Arq. 2 §2 y del Arq. 12; contraste con el código → fichas `COB-DATOS` (Arq. 13). Se contrasta con `CÓDIGO`, no lo corrige |
 | `REFERENCIA` | Manuales de terceros, RFCs, especificaciones de protocolo **ajenas al proyecto** | Enriquece Arquetipo 2 §4 (Dependencias) o Arquetipo 5 (ADR) |
 
 **Orden de evaluación**: las señales se evalúan en el orden de la tabla y se asigna el primer tipo que coincide. `REFERENCIA` va la última: es el tipo de lo ajeno al proyecto y el tipo por defecto si ninguna señal coincide. Un contrato o un manual de un tercero se reclasifica como `REFERENCIA` (la propiedad decide); el usuario confirma siempre la clasificación.
@@ -600,6 +601,7 @@ Cuando `/document-project` recibe más de un `Origen`, o cuando el único origen
 | `CONTRATO` | 2 + 12 (proyecto principal) | Arq. 2 §1 Arquitectura y §2 Modelo de Datos / Contratos; Arq. 12 §5 Interfaces Publicadas |
 | `INFRAESTRUCTURA` | 2 + 6 | Arq. 2 §4 Dependencias y Requisitos; Arq. 6C §3 › Despliegue |
 | `MANUAL` | 3a · 3b · 6 · 7 | Arq. 3a §3 Pasos; Arq. 3b §3; Arq. 6A/B §1; Arq. 7 §3 y §5 |
+| `BASE DE DATOS` | 2 + 12 + 13 | Sección generada `docs/bd/`; Arq. 2 §2 Modelo de Datos (evidencia con ancla de columna); Arq. 12 §5; fichas `COB-DATOS` del contraste |
 
 Los orígenes MATERIAL **no generan páginas propias** en `docs/`; su contenido enriquece las secciones indicadas de los arquetipos del proyecto principal.
 

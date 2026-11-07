@@ -1,12 +1,13 @@
 ---
 arquetipo: "2"
 fuentes:
-  .claude/commands/document-project.md: 0aaab32c28a5
-  .github/agents/documentation-generator.agent.md: db4cb6d66779
-  .github/prompts/document_project.prompt.md: 2f89f04372f7
+  .claude/commands/document-project.md: 93b8243cf975
+  .github/agents/documentation-generator.agent.md: 26beb1a41916
+  .github/prompts/document_project.prompt.md: 223fe49c672b
   .github/templates/kit/AGENTS.md: f9b80f0f102b
   .github/templates/kit/documentar.command.md: 44364ebb0ca8
-  mkdocs.yml: a01ff47d0ba4
+  mkdocs.yml: c40961922f4c
+  scripts/db_trace.py: c337133736ca
   scripts/kit.py: 432af520016f
   scripts/snapshot_sources.py: d350c174f962
 revisado: 2026-11-07
@@ -74,10 +75,11 @@ La vista del mismo flujo desde el usuario (qué pide, qué confirma y qué recib
 | `Destino` | ruta | Ruta donde se escriben los archivos Markdown | Obligatorio; no se asume `docs/` por defecto |
 | `Generador` | string | `mkdocs-material` (por defecto) o `zensical` | Obligatorio. Ambos usan `mkdocs.yml` (nunca `zensical.toml`); con `zensical` se aplican las *Reglas por generador: Zensical* del prompt (pipeline sin hooks, Gap A4, plugins soportados, build vía script) |
 | `Idioma` | string | `es`, `en` u otro código ISO 639-1 | Obligatorio; aplica a todo el contenido generado |
-| `Tipo de cada origen` | string | `CÓDIGO` · `NORMATIVA` · `ESPECIFICACIÓN` · `UI/PANTALLAS` · `REFERENCIA` · `CONTRATO` · `INFRAESTRUCTURA` · `MANUAL` | Opcional; autodetectado si se omite; se confirma antes de continuar. Catálogo completo en [Tipos de Origen](../functional/origin_types.md) |
+| `Tipo de cada origen` | string | `CÓDIGO` · `NORMATIVA` · `ESPECIFICACIÓN` · `UI/PANTALLAS` · `REFERENCIA` · `CONTRATO` · `INFRAESTRUCTURA` · `MANUAL` · `BASE DE DATOS` | Opcional; autodetectado si se omite; se confirma antes de continuar. Catálogo completo en [Tipos de Origen](../functional/origin_types.md) |
 | `Estrategia` | string | `federado` · `hub+satélite` · `monorepo` | Solo con ≥2 orígenes CÓDIGO; nunca autodetectado |
 | `Alcance` | string | Módulos o subconjunto | Opcional; por defecto proyecto completo. Un módulo funcional transversal dentro de un repositorio mayor se expresa como pathspecs de git (`doc_trace.py --path`), propuestos y aplicados en el INVENTARIO (se informan; el usuario puede corregirlos sin que el flujo se detenga) |
 | `Ref` | string | Rama, etiqueta o commit de un origen CÓDIGO remoto | Solo con repositorio remoto; se pregunta, nunca se asume `main` |
+| `BD` | ruta + entorno + patrones | Exportación Markdown de `util_bbdd` (carpeta con `manifest.json`), entorno que representa y patrones del alcance | Opcional; activa el origen BASE DE DATOS: Fase 0-pre (`snapshot_sources.py add`, `db_trace.py info`), Fase 3 (`db_trace.py select --env` → `docs/bd/`, `compare` → fichas `COB-DATOS`), Fase 1 incremental (`changes --include`, antes de `select`) y CIERRE (`tracemap` → `.ai/trace_map.toml`). Ver [db_trace](db_trace.md) |
 | `Arquetipos` | string | Subconjunto de arquetipos a aplicar | Opcional; por defecto todos los aplicables |
 | `Verificación` | flags | `--verify-tools` y/o `--verify-build [--serve]` | Opcional; nunca automático |
 | `Modo` | string | `incremental` · `completo` | Opcional; por defecto `incremental` si `<raíz destino>/.ai/doc_state.json` tiene baseline del origen. La Fase 1 parte de `doc_trace.py changes`; su código `3` (sin baseline, sin git, commit fuera del historial u otra versión menor de doc_ia) fuerza `completo`. El CIERRE siempre ejecuta `doc_trace.py baseline` |
@@ -125,6 +127,8 @@ kit, su carpeta `.doc_ia/`.
 | Clon local del repositorio remoto desfasado | `git fetch` y worktree desacoplado en `_staging/`; nunca `pull` ni `checkout` en el clon del usuario sin confirmación |
 | Origen con carpetas `md/` | Fase 0c, Paso 5: copia siempre en `<raíz del destino>/_fuentes/<nombre_origen>/<ruta relativa al origen>`, fuera de `docs_dir`; solo copia lo que falta o cambió; los huérfanos se listan y no se borran sin confirmación |
 | Destino con `.fuentes/` o `fuentes/` en su raíz | Migración a `_fuentes/` con confirmación; si un mismo fichero difiere entre carpetas, el flujo se detiene; las referencias de `docs/` se reescriben y se vuelven a sellar con `doc_trace.py --root` |
+| `db_trace.py` con código `2` | Exportación fuera de contrato (`format`/`format_version`, objeto incompleto), fichero inexistente, `select` sin entorno (`--env`) o alcance sin coincidencias: se informa y no se importa nada; no se inventa el esquema |
+| `db_trace.py compare` con código `1` | Discrepancias código ↔ BD: una ficha `COB-DATOS-…` por discrepancia y fila ⚠️ en la Evidencia del modelo de datos con el ancla `bd/tables/<tabla>.md#col-<columna>` |
 | `kit.py sync` con código `2` | Fichero del kit editado en el destino o lanzador ajeno con el mismo nombre: se informa y no se usa `--force` sin que lo pida el usuario |
 | Sin repositorio doc_ia accesible en la Fase 0b | `kit.py check` sobre la copia del destino y aviso en RESUMEN de que el kit no se ha podido actualizar |
 | CIERRE omitido por el agente | Error del flujo: el cierre es siempre obligatorio; si falta, solicitar al agente que cree los artefactos `.ai/sessions/` y proponga el commit antes de cerrar la sesión |
@@ -146,6 +150,7 @@ kit, su carpeta `.doc_ia/`.
 | `mkdocs.yml` (destino) | Navegación que se sincroniza en Fase 5 | Sí, con cualquiera de los dos generadores | Sin él, SYNC NAV no puede actualizar la navegación |
 | Prompts de arquetipo (`.github/prompts/`) | Plantillas de cada tipo de documento | Sí | Las fases 2-4 no tienen instrucciones para generar cada arquetipo |
 | `scripts/kit.py` y `.github/kit/MANIFEST.txt` | Kit de documentación en el destino (Fase 0b) | Sí | Sin kit, el destino no se puede relanzar con `/documentar` sin doc_ia |
+| `scripts/db_trace.py` | Origen BASE DE DATOS: importación, contraste, cambios y `trace_map` | Solo con `BD` | Sin él, no se puede usar una exportación de `util_bbdd` |
 | `python -m mkdocs build` | Verificación de build (Fase 7) | Solo con `--verify-build` | Si falta, la fase 7 no se puede ejecutar |
 | `python scripts/build_docs_zip.py --builder zensical` (o `python -m zensical build --strict`) | Verificación de build con Zensical (Fase 7) | Solo con `--verify-build` y generador `zensical` | Sin el script, los hooks no se ejecutan y se reporta Gap A4 |
 
@@ -186,6 +191,7 @@ agente o plantilla que citan.
     | Cierre de sesión obligatorio | `.github/prompts/document_project.prompt.md` (bloque 10) | ✅ |
     | Fase 0-pre: formas de origen, `_staging/`, `Ref`, bloque `ADQUISICIÓN` y sus casos | `.github/prompts/document_project.prompt.md` (Fase 0-pre, opcionales "Alcance" y "Ref"), `.claude/commands/document-project.md` (Inputs requeridos, bloque 1b, casos límite), `scripts/snapshot_sources.py::main` | ✅ |
     | Kit: Fase 0b, `<doc_ia>`, conflictos, RESUMEN, prompt de instancia en el CIERRE y lanzadores `/documentar` | `.github/prompts/document_project.prompt.md` (Kit de documentación en el destino y `<doc_ia>`, Fase 0b, puntos 9 y 10), `.claude/commands/document-project.md` (Fase 0b, RESUMEN, CIERRE), `.github/agents/documentation-generator.agent.md` (inventario), `.github/templates/kit/documentar.command.md`, `.github/templates/kit/AGENTS.md`, `tests/test_docs_conformance.py::test_kit_rule_everywhere` | ✅ |
+    | Parámetro `BD` y origen BASE DE DATOS en las fases | `.github/prompts/document_project.prompt.md::Origen BASE DE DATOS (opción BD)`, `::Fase 0a`, `::Fase 3`, `::Devuelve en este orden` (Trazabilidad para la BD), `.claude/commands/document-project.md` (Inputs requeridos), `.github/agents/documentation-generator.agent.md` (inventario), `scripts/db_trace.py::main` | ✅ |
     | Copia en `_fuentes/` y migración de otros nombres | `.github/prompts/document_project.prompt.md` (Fase 0c, Paso 5), `tests/test_docs_conformance.py::test_sources_folder_is_canonical` | ✅ |
     | Generador `zensical`: `TIENE_PIPELINE_SIN_HOOKS`, Gap A4, plugins soportados, build vía script | `.github/prompts/document_project.prompt.md` (sección "Reglas por generador: Zensical") | ✅ |
     | Dependencias: norma, `docs.instructions.md`, `mkdocs.yml`, prompts, `mkdocs build` | `.github/prompts/document_project.prompt.md`, `.github/agents/documentation-generator.agent.md` | ✅ |

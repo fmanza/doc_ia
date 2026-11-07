@@ -248,6 +248,8 @@ python scripts/doc_trace.py llms     # Regenera docs/llms.txt desde el nav
 python scripts/doc_trace.py decisions  # Registros docs/decisiones/ ↔ páginas: decisiones sin reflejar
 python scripts/doc_trace.py stamp <página>  # Re-sella las fuentes actuales tras revisar una página
 python scripts/doc_trace.py stamp <página> --source <ruta>…  # Primer sellado: --source SUSTITUYE la lista entera
+python scripts/db_trace.py select --export <util_bbdd> --root <destino> --name <bd> --include <patrón>  # Origen BD → docs/bd/
+python scripts/db_trace.py compare --catalog <catalog.json> --entities <entities.xml>  # Contraste código ↔ BD (COB-DATOS)
 python scripts/kit.py sync --root <destino>   # Kit de documentación: .doc_ia/ + /documentar + DOCUMENTAR.md (Fase 0b)
 python scripts/kit.py check --root <destino>  # Comprueba el kit del destino (editado, desfasado, falta instancia)
 python scripts/snapshot_sources.py --root <destino> add <nombre> "<ruta|…_v{ver}.docx>"  # Fase 0-pre: declara origen
