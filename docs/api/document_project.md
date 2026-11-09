@@ -1,16 +1,16 @@
 ---
 arquetipo: "2"
 fuentes:
-  .claude/commands/document-project.md: 93b8243cf975
-  .github/agents/documentation-generator.agent.md: 26beb1a41916
-  .github/prompts/document_project.prompt.md: 223fe49c672b
+  .claude/commands/document-project.md: b5474ca44113
+  .github/agents/documentation-generator.agent.md: 96be0885983a
+  .github/prompts/document_project.prompt.md: c4e92f40f097
   .github/templates/kit/AGENTS.md: f9b80f0f102b
   .github/templates/kit/documentar.command.md: 44364ebb0ca8
-  mkdocs.yml: c40961922f4c
+  mkdocs.yml: 6b0f556ef76d
   scripts/db_trace.py: c337133736ca
   scripts/kit.py: 432af520016f
-  scripts/snapshot_sources.py: d350c174f962
-revisado: 2026-11-07
+  scripts/snapshot_sources.py: 0c769b0d5761
+revisado: 2026-11-09
 ---
 # document_project
 
@@ -122,6 +122,9 @@ kit, su carpeta `.doc_ia/`.
 | Todos los orígenes son MATERIAL (sin CÓDIGO) | El flujo se detiene con mensaje orientativo hacia los prompts de arquetipo directo |
 | `--verify-build` falla | Se reportan errores del build MkDocs; el RESUMEN los lista como pendientes |
 | Estado B con secciones vigentes | Solo se actualizan las secciones afectadas; las vigentes se copian verbatim |
+| El usuario indica un documento reestructurado (otro nombre u otra ubicación) | Fase 0-pre: `snapshot_sources.py replace` + `sync`; manda aunque su versión sea menor; los `.md` antiguos de `_fuentes/<nombre>/` quedan huérfanos y se retiran con confirmación |
+| Documento convertido con credenciales | Fase 0c, Paso 4b: `redact_secrets.py` sobre `md/` antes de copiar a `_fuentes/`; CIERRE: `redact_secrets.py _fuentes --check` con código `0` antes del commit |
+| Origen con señales de integración (clientes HTTP/SOAP, mensajería, cargas planificadas, SSO, endpoints para terceros) | Fase 1 detecta `INTEGRACIONES_APLICA`; Fase 3b genera `docs/integraciones/` (Arquetipo 14, `integration_doc.prompt.md`) |
 | `snapshot_sources.py sync` con código `2` | Origen inexistente o patrón `{ver}` sin coincidencias: se muestra el error y se pide la ruta correcta; no se inventan ficheros |
 | Biblioteca de SharePoint no sincronizada en local | Se pide al usuario que la sincronice con OneDrive; no se inventan rutas |
 | Clon local del repositorio remoto desfasado | `git fetch` y worktree desacoplado en `_staging/`; nunca `pull` ni `checkout` en el clon del usuario sin confirmación |
@@ -192,6 +195,7 @@ agente o plantilla que citan.
     | Fase 0-pre: formas de origen, `_staging/`, `Ref`, bloque `ADQUISICIÓN` y sus casos | `.github/prompts/document_project.prompt.md` (Fase 0-pre, opcionales "Alcance" y "Ref"), `.claude/commands/document-project.md` (Inputs requeridos, bloque 1b, casos límite), `scripts/snapshot_sources.py::main` | ✅ |
     | Kit: Fase 0b, `<doc_ia>`, conflictos, RESUMEN, prompt de instancia en el CIERRE y lanzadores `/documentar` | `.github/prompts/document_project.prompt.md` (Kit de documentación en el destino y `<doc_ia>`, Fase 0b, puntos 9 y 10), `.claude/commands/document-project.md` (Fase 0b, RESUMEN, CIERRE), `.github/agents/documentation-generator.agent.md` (inventario), `.github/templates/kit/documentar.command.md`, `.github/templates/kit/AGENTS.md`, `tests/test_docs_conformance.py::test_kit_rule_everywhere` | ✅ |
     | Parámetro `BD` y origen BASE DE DATOS en las fases | `.github/prompts/document_project.prompt.md::Origen BASE DE DATOS (opción BD)`, `::Fase 0a`, `::Fase 3`, `::Devuelve en este orden` (Trazabilidad para la BD), `.claude/commands/document-project.md` (Inputs requeridos), `.github/agents/documentation-generator.agent.md` (inventario), `scripts/db_trace.py::main` | ✅ |
+    | Documento reestructurado, redacción de credenciales y Arquetipo 14 | `.github/prompts/document_project.prompt.md` (Fase 0-pre «Versión vigente», Fase 0c Paso 4b, Fase 1 «Detección de integraciones», Fase 3b, CIERRE «Credenciales»), `.claude/commands/document-project.md`, `scripts/snapshot_sources.py::replace_source` | ✅ |
     | Copia en `_fuentes/` y migración de otros nombres | `.github/prompts/document_project.prompt.md` (Fase 0c, Paso 5), `tests/test_docs_conformance.py::test_sources_folder_is_canonical` | ✅ |
     | Generador `zensical`: `TIENE_PIPELINE_SIN_HOOKS`, Gap A4, plugins soportados, build vía script | `.github/prompts/document_project.prompt.md` (sección "Reglas por generador: Zensical") | ✅ |
     | Dependencias: norma, `docs.instructions.md`, `mkdocs.yml`, prompts, `mkdocs build` | `.github/prompts/document_project.prompt.md`, `.github/agents/documentation-generator.agent.md` | ✅ |

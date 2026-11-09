@@ -22,6 +22,7 @@ Lee antes de generar:
 - `.github/prompts/technical_doc.prompt.md` — prompt para documentación técnica
 - `.github/prompts/reference_doc.prompt.md` — prompt para la referencia del sistema (Arquetipo 12)
 - `.github/prompts/coverage_decisions.prompt.md` — registro de decisiones de cobertura (Arquetipo 13)
+- `.github/prompts/integration_doc.prompt.md` — integraciones externas e internas (Arquetipo 14)
 - `mkdocs.yml` — navegación, tema, extensiones y páginas publicadas
 - `README.md` y `docs/` — documentación existente que puede requerir actualización
 
@@ -381,6 +382,15 @@ usuario lo pide. Aplica `.github/prompts/coverage_decisions.prompt.md` (regla:
   `COB-<ÁMBITO>-<NNN>` estables.
 - **Nunca** rellenes ni modifiques los campos de persona (Decisión, Contexto aportado,
   Responsable, Fecha, Estado resultante): decide una persona, no el agente.
+
+### 6. Integraciones (`docs/integraciones/`) — Condicional
+
+Solo si el inventario detecta señales de integración (clientes HTTP/SOAP, mensajería, cargas
+planificadas, identidad federada, endpoints para terceros, componentes internos en proceso o un
+diseño técnico de integraciones). Aplica `.github/prompts/integration_doc.prompt.md` (regla:
+`DOCUMENTATION_STANDARD.md` §3.19): `index.md` (vista funcional), `externas.md` e `internas.md`
+(vista técnica con tabla de inventario). Credenciales solo por nombre; «fuera de alcance» para
+las integraciones que no alimentan el ámbito documentado.
 
 ## Restricciones
 

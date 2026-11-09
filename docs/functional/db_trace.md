@@ -1,11 +1,11 @@
 ---
 arquetipo: ""
 fuentes:
-  .claude/commands/document-project.md: 93b8243cf975
-  .github/prompts/document_project.prompt.md: 223fe49c672b
+  .claude/commands/document-project.md: b5474ca44113
+  .github/prompts/document_project.prompt.md: c4e92f40f097
   scripts/db_trace.py: c337133736ca
   tests/test_db_trace.py: 34b0d703cff9
-revisado: 2026-11-07
+revisado: 2026-11-09
 ---
 # Trazabilidad con la Base de Datos
 

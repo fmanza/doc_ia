@@ -1,13 +1,13 @@
 ---
 arquetipo: "1"
 fuentes:
-  .github/DOCUMENTATION_STANDARD.md: ff88b112809b
-  .github/prompts/document_project.prompt.md: 223fe49c672b
+  .github/DOCUMENTATION_STANDARD.md: 9b52d08908a0
+  .github/prompts/document_project.prompt.md: c4e92f40f097
   scripts/db_trace.py: c337133736ca
-  scripts/snapshot_sources.py: d350c174f962
+  scripts/snapshot_sources.py: 0c769b0d5761
 decisiones:
   ../decisiones/origins_decisiones.md: 2aa59f9fc5e0
-revisado: 2026-11-07
+revisado: 2026-11-09
 ---
 # Catálogo de Tipos de Origen
 
@@ -95,7 +95,7 @@ secciones concretas de los arquetipos del proyecto `CÓDIGO` principal.
 | Tipo | Arquetipo(s) enriquecido(s) | Sección(es) afectadas |
 |---|---|---|
 | `NORMATIVA` | Arquetipo 8 (completo) + Arquetipo 1 (proyecto principal) | Arq. 8 completo; Arq. 1 §5 Reglas de Negocio |
-| `ESPECIFICACIÓN` | Arquetipo 1 (proyecto principal) | §3 Flujo Principal, §5 Reglas de Negocio, §6 Flujos Alternativos, §7 Criterios de Aceptación |
+| `ESPECIFICACIÓN` | Arquetipo 1 (proyecto principal); Arquetipo 14 si es un diseño técnico de integraciones | §3 Flujo Principal, §5 Reglas de Negocio, §6 Flujos Alternativos, §7 Criterios de Aceptación; Arq. 14: contratos, periodicidad y efectos (manda el código si discrepan) |
 | `UI/PANTALLAS` | Arquetipos 1 + 3 | Arq. 1 §3 Flujo Principal; Arq. 3 (How-to/Tutorial) §3 Pasos |
 | `REFERENCIA` | Arquetipo 2 o Arquetipo 5 | Arq. 2 §4 Dependencias y Requisitos; o Arq. 5 decisión (ADR) |
 | `CONTRATO` | Arquetipos 2 + 12 (proyecto principal) | Arq. 2 §1 Arquitectura y §2 Modelo de Datos / Contratos; Arq. 12 §5 Interfaces Publicadas |

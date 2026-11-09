@@ -51,6 +51,7 @@ Estandarizar instrucciones de documentación para asegurar:
 | **Prompt: landing_doc** | `.github/prompts/landing_doc.prompt.md` | ✅ Existente |
 | **Prompt: reference_doc** | `.github/prompts/reference_doc.prompt.md` | ✅ Existente (Arq. 12, 2026-10-28) |
 | **Prompt: coverage_decisions** | `.github/prompts/coverage_decisions.prompt.md` | ✅ Existente (Arq. 13, 2026-11-04) |
+| **Prompt: integration_doc** | `.github/prompts/integration_doc.prompt.md` | ✅ Existente (Arq. 14, 2026-11-09) |
 | **Prompt: documentation_review** | `.github/prompts/documentation_review.prompt.md` | ✅ Existente |
 
 ### 2.4 Gaps Actuales
@@ -204,7 +205,8 @@ Si el módulo no tiene tests: "*Sin tests automatizados.*" + riesgo principal si
 **Delimitación con el Arquetipo 12**: el Arquetipo 2 documenta la **API interna de un módulo**
 (quien integra código). La superficie que ve el usuario u operador de todo el sistema (CLI,
 configuración, códigos de salida, interfaces publicadas) pertenece al Arquetipo 12 (§3.15);
-el Arquetipo 2 la enlaza, no la duplica.
+el Arquetipo 2 la enlaza, no la duplica. Los intercambios con otros sistemas (inventario,
+contrato, periodicidad, efecto) pertenecen al Arquetipo 14 (§3.19); el §4 los enlaza.
 
 **Regla de sección vacía**: Si un subapartado queda vacío, escribe `*No aplica para este módulo.*`.
 
@@ -1266,6 +1268,98 @@ enlaza en «Contexto aportado».
 
 ---
 
+### 3.19 Arquetipo 14 — Integraciones (`docs/integraciones/`) — **Condicional**
+
+**Propósito**: responder "¿Con qué sistemas intercambia datos el proyecto, en qué sentido, cuándo,
+con qué contrato y qué efecto tiene cada intercambio sobre el dominio?".
+
+**Audiencia**: responsables de producto y operación (vista funcional) y desarrolladores e
+integradores (vista técnica).
+
+**Condición de activación**: el INVENTARIO detecta al menos una **señal de integración**. Sin
+señales → no aplica y `docs/integraciones/` no se crea.
+
+| Señal | Ejemplos |
+|---|---|
+| Cliente HTTP / REST / SOAP | `RestTemplate`, `WebClient`, `@FeignClient`, `HttpClient`, `requests`, `httpx`, `fetch`, axios, WSDL / `@WebService` |
+| Mensajería | JMS, Kafka, RabbitMQ / AMQP, colas de la nube |
+| Ficheros remotos | FTP / SFTP, intercambio de CSV o Excel con otro sistema |
+| Planificación de cargas | cron, `@Scheduled`, Quartz, tablas de planificador que lanzan llamadas |
+| Identidad federada | OAuth2 / OIDC, SAML, LDAP / Active Directory |
+| Llamadas entrantes de otros sistemas | webhooks, callbacks, endpoints de integración o exportación para terceros |
+| Componentes internos del producto | librerías o servicios de otro módulo usados en proceso, base de datos compartida, motor BPM, informes |
+| Material | origen `ESPECIFICACIÓN` de **diseño técnico de integraciones** (contratos, periodicidad) |
+
+**Ubicación y estructura** (tres páginas; las secciones de los arquetipos 1 y 2, con el inventario
+como contenido obligatorio):
+
+```
+docs/integraciones/index.md      ← vista FUNCIONAL (estructura del Arquetipo 1, §3.1)
+  ## 1. Objetivo y Descripción     + tabla inventario funcional:
+       | Integración | Sistema | Sentido | Qué aporta al dominio |
+  ## 2. Precondiciones             (orden de ejecución, datos previos, credenciales disponibles)
+  ### Actores y permisos
+  ## 3. Flujo Principal            (sequenceDiagram con el orden y la periodicidad)
+  ## 4. Postcondiciones y Efectos
+  ## 5. Reglas de Negocio          (altas, bajas, modificaciones; qué pasa con procesos en curso)
+  ## 6. Límites, Flujos Alternativos y Casos Especiales
+  ### Qué NO hace esta funcionalidad   ← incluye «Fuera de alcance»: integraciones del sistema
+                                         que no alimentan el ámbito documentado (una línea cada una)
+  ## 7. Criterios de Aceptación
+  ## 8. Glosario de Dominio
+  ??? note "Evidencia"
+
+docs/integraciones/externas.md   ← vista TÉCNICA (estructura del Arquetipo 2, §3.2)
+docs/integraciones/internas.md   ← vista TÉCNICA de las dependencias con otros componentes
+  ## 1. Arquitectura y Diseño      + tabla inventario técnico OBLIGATORIA:
+       | Integración | Sentido | Mecanismo | Autenticación | Periodicidad | Datos | Destino | Errores |
+  ## 2. Modelo de Datos / Contratos   (endpoint u operación, parámetros, correspondencia
+                                      campo origen → tabla/campo destino, errores y reintentos)
+  ## 3. Componentes y Clases
+  ## 4. Dependencias y Requisitos
+  ## 5. Ejemplos Relacionados       ← enlace bidireccional con el Arquetipo 4
+  ## 6. Verificación y Tests
+  ??? note "Evidencia"
+```
+
+`internas.md` es opcional si el proyecto no tiene dependencias internas relevantes; `externas.md`
+y `index.md` existen siempre que el arquetipo aplica. Las tres páginas llevan bloque Evidencia
+(§3.16) y, si el destino adopta el registro (§3.18), un ámbito propio `INTEG`.
+
+**Reglas**:
+- **Inventario completo y verificado**: cada fila sale del código (cliente, endpoint, planificador)
+  o del diseño técnico, con su evidencia. No inventar sistemas, periodicidades ni contratos; lo que
+  solo consta en el diseño o en una wiki va con 🔍.
+- **Sentido explícito**: entrante (otro sistema → proyecto), saliente (proyecto → otro sistema) o
+  bidireccional; los servicios que el proyecto **ofrece** a terceros también son integraciones.
+- **Credenciales**: se nombra la clave o el fichero donde están, **nunca el valor** (§3.16 regla 3).
+  Las credenciales que viajan en URL, sin verificar o en claro son hallazgos (⚠️).
+- **Efecto sobre el dominio**: la vista funcional explica qué cambia en los datos del ámbito
+  (altas, bajas lógicas, modificaciones, procesos en curso) y las salvaguardas ante respuestas
+  incompletas.
+- **Fuera de alcance**: las integraciones del sistema que no alimentan el ámbito documentado se
+  listan, no se documentan.
+
+**Delimitación**: el Arquetipo 14 describe **el intercambio** (quién, qué, cuándo, cómo y con qué
+efecto). El Arquetipo 2 §4 (Dependencias) de un módulo **enlaza** a la integración que usa, no la
+repite. El Arquetipo 12 §5 (Interfaces publicadas) solo **lista** las interfaces que el sistema
+publica y enlaza aquí para el detalle. Con varios orígenes CÓDIGO (§3.10), la integración entre
+ellos se documenta en `internas.md` del hub.
+
+**Prompt**: `.github/prompts/integration_doc.prompt.md`
+
+**Sección MkDocs** (pestaña propia si quedan pestañas libres en §4.1; si no, sección dentro de
+«Técnica»):
+
+```yaml
+- Integraciones:
+    - Integraciones: integraciones/index.md
+    - Externas: integraciones/externas.md
+    - Internas: integraciones/internas.md
+```
+
+---
+
 ## 4. Configuración Recomendada mkdocs.yml
 
 La siguiente configuración es la **referencia estándar** para todos los proyectos.
@@ -1481,6 +1575,7 @@ para evitar copias desactualizadas). Sigue la estructura de §4.1 con estas conc
 | **Docker / Contenedores** | `docs/architecture/docker.md` | — | Si existe `Dockerfile` o `docker-compose.yml` en el repo |
 | **Normativa** | `docs/normativa/` | 8 (§3.8) | **Solo** si el proyecto referencia leyes, decretos o normativas de obligado cumplimiento |
 | **Decisiones** | `docs/decisiones/` | 13 (§3.18) | Siempre que exista el Arquetipo 8; con Arq. 1/2/12, si el destino adopta el registro de decisiones |
+| **Integraciones** | `docs/integraciones/` | 14 (§3.19) | **Solo** si el INVENTARIO detecta señales de integración (clientes HTTP/SOAP, mensajería, cargas planificadas, identidad federada, endpoints para terceros) |
 
 ---
 

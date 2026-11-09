@@ -100,6 +100,7 @@ nav:
           - Conversión de Documentos a Markdown: functional/convert_to_md.md
           - Trazabilidad Docs ↔ Código: functional/doc_trace.md
           - Adquisición de Orígenes: functional/snapshot_sources.md
+          - Redacción de Credenciales: functional/redact_secrets.md
           - Kit de Documentación: functional/kit.md
           - Trazabilidad con la Base de Datos: functional/db_trace.md
       - Flujos IA:
@@ -132,6 +133,7 @@ nav:
           - convert_to_md: api/convert_to_md.md
           - doc_trace: api/doc_trace.md
           - snapshot_sources: api/snapshot_sources.md
+          - redact_secrets: api/redact_secrets.md
           - kit: api/kit.md
           - db_trace: api/db_trace.md
 
@@ -150,6 +152,7 @@ nav:
           - Convertir Documentos a Markdown: examples/convert_to_md_usage.md
           - Trazabilidad Docs ↔ Código: examples/doc_trace_usage.md
           - Adquirir Orígenes Documentales: examples/snapshot_sources_usage.md
+          - Redactar Credenciales: examples/redact_secrets_usage.md
           - Kit de Documentación en un Destino: examples/kit_usage.md
           - Origen Base de Datos con db_trace: examples/db_trace_usage.md
 

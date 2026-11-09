@@ -2,13 +2,13 @@
 arquetipo: "12"
 fuentes:
   .claude/settings.json.example: e1c10842aa20
-  .github/kit/MANIFEST.txt: 4d76505a2867
-  .github/prompts/document_project.prompt.md: 223fe49c672b
+  .github/kit/MANIFEST.txt: 6a6e0bbca848
+  .github/prompts/document_project.prompt.md: c4e92f40f097
   .github/templates/kit/documentar.prompt.template.md: 332acf5a5cc7
   .github/workflows/docs-zip-release.yml: bd807d444ea2
-  CLAUDE.md: fa46521cd504
+  CLAUDE.md: ea1a21efde18
   hooks/sync_root_docs.py: ef5e576436c6
-  mkdocs.yml: c40961922f4c
+  mkdocs.yml: 6b0f556ef76d
   mkdocs_hooks.py: 31259b7911a3
   scripts/build_docs_zip.py: 5f972ee674c8
   scripts/check_env.py: c9105c709663
@@ -16,9 +16,10 @@ fuentes:
   scripts/db_trace.py: c337133736ca
   scripts/doc_trace.py: 3631c07d7fc3
   scripts/kit.py: 432af520016f
-  scripts/snapshot_sources.py: d350c174f962
+  scripts/redact_secrets.py: d0cbb8ed3fbf
+  scripts/snapshot_sources.py: 0c769b0d5761
   scripts/start-server.py: a12209ac8507
-revisado: 2026-11-07
+revisado: 2026-11-09
 ---
 # Referencia — doc_ia
 
@@ -184,7 +185,7 @@ scripts de la lista blanca `.github/kit/MANIFEST.txt` en `<--root>/.doc_ia/`, lo
 ### snapshot_sources.py
 
 ```bash
-python scripts/snapshot_sources.py --root DIR {add,sync,list} [opciones]
+python scripts/snapshot_sources.py --root DIR {add,replace,sync,list} [opciones]
 ```
 
 Copia los orígenes documentales de solo lectura (fichero, carpeta, ruta UNC, biblioteca de
@@ -197,9 +198,25 @@ SharePoint sincronizada o patrón con `{ver}`) a `<--root>/_staging/<nombre>/` y
 | `add <nombre>` | cadena (obligatorio) | — | Nombre del origen (`[\w.-]+`): carpeta en `_staging/` y `_fuentes/` |
 | `add <origen>` | ruta o patrón (obligatorio) | — | Fichero, carpeta o patrón con `{ver}` en el nombre del fichero |
 | `add --include` | glob (repetible) | todos los ficheros | Filtro para carpetas; no admitido con `{ver}` |
+| `replace <nombre> <origen>` | cadenas (obligatorios) | — | Sustituye un origen ya declarado por un documento **reestructurado** que indica el usuario (manda aunque su versión sea menor); historial «sustituido» y retira `_staging/<nombre>/` |
+| `replace --include` / `--date` | glob / `YYYY-MM-DD` | todos / hoy | Filtro para carpetas; fecha del evento del historial |
 | `sync [nombres…]` | cadenas | todos los declarados | Orígenes a sincronizar |
 | `sync --dry-run` | flag | desactivado | Informa sin copiar ni escribir el manifiesto |
 | `sync --date` | `YYYY-MM-DD` | hoy | Fecha de los eventos del historial |
+
+### redact_secrets.py
+
+```bash
+python scripts/redact_secrets.py <ruta> [<ruta> …] [--check]
+```
+
+Detecta credenciales en ficheros `.md` (recorrido recursivo en carpetas) y sustituye su valor por
+`<REDACTADO>`; con `--check` solo informa. El informe nunca muestra el valor.
+
+| Opción / Argumento | Tipo | Por defecto | Descripción |
+|---|---|---|---|
+| `<ruta>` | ruta (obligatorio, repetible) | — | Fichero `.md` o carpeta |
+| `--check` | flag | desactivado | Informa sin modificar (CIERRE: sobre `_fuentes/`) |
 
 ### start-server.py
 
@@ -258,6 +275,10 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 | `3` | `doc_trace.py changes` | `--path` distinto del alcance guardado en el baseline | Repetir sin `--path` o documentar en modo completo con el nuevo alcance |
 | `0` | `snapshot_sources.py` | `add` y `list` correctos; `sync` sin cambios | — |
 | `1` | `snapshot_sources.py sync` | Algún fichero nuevo, cambiado o eliminado (también con `--dry-run`) | Convertir de nuevo lo cambiado (`convert_to_md.py`) y citar los cambios de versión en el resumen |
+| `0` | `redact_secrets.py` | Sin credenciales | — |
+| `1` | `redact_secrets.py` | Credenciales redactadas (o pendientes con `--check`) | Con `--check` sobre `_fuentes/`: redactar antes del commit; avisar de que el documento original sigue conteniéndolas |
+| `2` | `redact_secrets.py` | Ruta inexistente, UTF-8 inválido u `OSError` | Corregir la ruta |
+| `2` | `snapshot_sources.py replace` | Origen no declarado, mismo origen que el declarado («usa `sync`») o documento nuevo inexistente; la declaración anterior se conserva | Corregir la ruta o usar `sync` para una versión nueva del mismo documento |
 | `2` | `snapshot_sources.py` | Origen inexistente o ilegible, patrón sin coincidencias, nombre inválido, `--include` con `{ver}`, origen no declarado, manifiesto inválido u `OSError`; un origen caído no impide sincronizar los demás | Ver `[snapshot] ERROR…` por stderr; corregir la ruta o reconectar la unidad |
 | `0` | `db_trace.py` | `info` y `tracemap` correctos; `select`, `compare` o `changes` sin cambios ni discrepancias | — |
 | `1` | `db_trace.py select` | Páginas, índice o `_fuentes/` creados, actualizados o retirados | Revisar e incluir en el commit `docs/bd/` y `_fuentes/<nombre>/` |
@@ -394,6 +415,8 @@ decisiones se publica con el sitio y el ZIP (`DOCUMENTATION_STANDARD.md` §3.18)
     | Opción `--path` y código `3` por alcance distinto | `scripts/doc_trace.py::_add_origin_args`, `::check_changes` | ✅ |
     | Opciones de `snapshot_sources.py` | `scripts/snapshot_sources.py::_parser`, `::NAME_RE`, `::declare` | ✅ |
     | Códigos de `snapshot_sources.py` | `scripts/snapshot_sources.py::_cmd_sync`, `::main` | ✅ |
+    | `snapshot_sources.py replace` | `scripts/snapshot_sources.py::replace_source`, `::_cmd_replace`, `::_parser` | ✅ |
+    | CLI y códigos de `redact_secrets.py` | `scripts/redact_secrets.py::main`, `::redact_tree` | ✅ |
     | `.ai/sources.json` y `_staging/` | `scripts/snapshot_sources.py::write_manifest`, `::sync_source`, `::STAGING_DIR`, `::MANIFEST` | ✅ |
     | Opciones de `db_trace.py` | `scripts/db_trace.py::_parser` | ✅ |
     | Códigos de `db_trace.py` | `scripts/db_trace.py::_cmd_select`, `::_cmd_compare`, `::_cmd_changes`, `::_cmd_tracemap`, `::main` | ✅ |

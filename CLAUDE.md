@@ -99,7 +99,7 @@ al sync, añadir su tupla a `PAIRS` en `hooks/sync_root_docs.py` y su entrada en
 
 Toda documentación sigue los **arquetipos formales** definidos en
 [`.github/DOCUMENTATION_STANDARD.md`](./.github/DOCUMENTATION_STANDARD.md).
-Los arquetipos 1–8 son la base; 3b y 9–11 son las adiciones 2024-2025; 12, 13 y la regla
+Los arquetipos 1–8 son la base; 3b y 9–11 son las adiciones 2024-2025; 12, 13, 14 y la regla
 transversal de evidencia (§3.16) son las adiciones 2026.
 
 | Arquetipo | Propósito | Ubicación | Prompt |
@@ -118,6 +118,7 @@ transversal de evidencia (§3.16) son las adiciones 2026.
 | **11. Guía de Contribución** *(opt-in)* | ¿Cómo contribuyo al proyecto? | `CONTRIBUTING.md` | `contributing_doc.prompt.md` |
 | **12. Referencia del Sistema** *(condicional)* | ¿Qué configuración, comandos y códigos expone? | `docs/reference/` | `reference_doc.prompt.md` |
 | **13. Registro de Decisiones de Cobertura** *(condicional, transversal)* | ¿Qué hemos decidido sobre cada ⚠️ ❌ 🔍? | `docs/decisiones/` | `coverage_decisions.prompt.md` |
+| **14. Integraciones** *(condicional)* | ¿Con qué sistemas intercambia datos, cuándo y con qué efecto? | `docs/integraciones/` | `integration_doc.prompt.md` |
 
 **Características clave**:
 - ✅ Secciones fijas: estructura inmutable (nunca omitir; escribir "No aplica" si vacío)

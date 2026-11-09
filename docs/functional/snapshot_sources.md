@@ -1,9 +1,9 @@
 ---
 arquetipo: "1"
 fuentes:
-  scripts/snapshot_sources.py: d350c174f962
-  tests/test_snapshot_sources.py: b173a75ee987
-revisado: 2026-11-05
+  scripts/snapshot_sources.py: 0c769b0d5761
+  tests/test_snapshot_sources.py: cc22398cf536
+revisado: 2026-11-09
 ---
 # Adquisición de Orígenes Documentales
 
@@ -23,7 +23,10 @@ origen y se deja constancia de cada cambio en un registro con su fecha. Cuando u
 publica con la versión en el nombre del fichero, se indica un patrón y se elige siempre la
 versión más alta; la copia lleva un nombre estable sin la versión, de modo que las rutas que
 cita la documentación no cambian al publicarse una versión nueva y el registro guarda la
-evolución de una versión a la siguiente.
+evolución de una versión a la siguiente. Si un documento se **reestructura** en otro nuevo (otro
+nombre u otra ubicación), el usuario indica cuál manda y el origen se **sustituye** por el nuevo
+aunque su número de versión sea menor: las versiones solo se comparan dentro de un mismo
+documento.
 
 La usan quienes preparan una sesión de documentación con material que no está en el
 repositorio del proyecto. Todo el proceso es local y determinista: no accede a la red (las
@@ -85,6 +88,9 @@ con un resultado distinto según haya habido cambios o no.
   fecha (y la versión anterior cuando cambia).
 - **Sincronizar sin cambios**: no modifica nada.
 - **Simulación**: informa de los cambios que se harían sin copiar ni escribir el registro.
+- **Sustituir**: el origen apunta al documento nuevo, su lista de ficheros queda vacía, su copia
+  en la zona de trabajo se retira y el historial anota la sustitución con el origen anterior y la
+  fecha; la siguiente sincronización copia el documento nuevo como alta.
 - **Listar**: muestra cada origen declarado, sus ficheros, su versión y el inicio de su huella;
   no modifica nada.
 - El origen no se modifica nunca.
@@ -100,6 +106,7 @@ con un resultado distinto según haya habido cambios o no.
 | Solo lo cambiado se copia | Un fichero se vuelve a copiar si cambia su huella o su versión, o si falta su copia en la zona de trabajo | Copias completas en cada sesión, o una copia borrada a mano que nunca se repone |
 | Un cambio invalida su conversión | Al copiar o retirar un fichero se borra su conversión a Markdown en la zona de trabajo | La conversión posterior omitiría el fichero cambiado y la documentación seguiría citando el texto anterior |
 | Todo cambio queda registrado | Cada alta, modificación o baja se anota con su fecha y, al cambiar de versión, con la versión anterior; el registro se guarda tras cada origen sincronizado | No se podría saber qué versión del manual respalda la documentación ni cuándo cambió |
+| La versión vigente la indica el usuario | Las versiones solo se comparan dentro de un mismo patrón; un documento reestructurado sustituye al anterior aunque su versión sea menor, y solo cuando lo indica el usuario | Se seguiría documentando con el documento antiguo porque su número de versión es mayor |
 | Un origen caído no frena a los demás | Si un origen falla, se informa y se continúa con el resto; el resultado final indica el error | Una unidad de red desconectada dejaría sin actualizar todos los demás orígenes |
 | Lo que no es documento se omite | En una carpeta se omiten la conversión a Markdown previa, las carpetas ocultas y de control de versiones, la zona de trabajo y los ficheros de bloqueo de Office y de metadatos del sistema | Se copiarían ficheros temporales o conversiones viejas como si fueran documentos del origen |
 | Sin red ni servicios IA | Todo origen es una ruta del sistema de ficheros; el registro se escribe con orden estable | Dependencia de credenciales o de conexión; registros con diferencias espurias en git |
@@ -143,6 +150,10 @@ con un resultado distinto según haya habido cambios o no.
   filtro de ficheros acepta tanto el nombre como la ruta relativa.
 - **Redeclarar un origen**: cambia su ruta o su filtro sin perder lo ya sincronizado ni su
   historial.
+- **Documento reestructurado**: se sustituye el origen; si el documento nuevo no existe, la
+  sustitución se rechaza y la declaración y la copia anteriores se conservan. Sustituir por el
+  mismo origen se rechaza: una versión nueva del mismo documento la recoge la sincronización.
+  Las conversiones antiguas copiadas en `_fuentes/` quedan huérfanas y se retiran con confirmación.
 
 ## 7. Criterios de Aceptación
 
@@ -161,6 +172,10 @@ con un resultado distinto según haya habido cambios o no.
 | AC-11 | Un nombre de origen con espacios, un filtro junto a un patrón con versión o la sincronización de un origen no declarado | Se ejecuta la operación | Error con su motivo y resultado 2 | `tests/test_snapshot_sources.py::test_errors_exit_2` |
 | AC-12 | Un manual con versión sincronizado | Se listan los orígenes | Aparece el nombre estable con su versión | `tests/test_snapshot_sources.py::test_list_shows_versions` |
 | AC-13 | Dos orígenes declarados, uno en una unidad desconectada | Se sincronizan todos | El resultado es 2, pero el origen accesible queda copiado y registrado; una nueva sincronización de ese origen no encuentra cambios | `tests/test_snapshot_sources.py::test_sync_failing_origin_does_not_lose_the_others` |
+| AC-14 | Un origen sincronizado con un documento v1.10 y un documento reestructurado v1.2 en otra carpeta | Se sustituye el origen y se sincroniza | El origen apunta al nuevo, la copia anterior se retira, el historial anota «sustituido» con el origen anterior y el documento nuevo entra como alta con versión 1.2 | `tests/test_snapshot_sources.py::test_replace_switches_source_even_with_lower_version`, `tests/test_snapshot_sources.py::test_replace_keeps_previous_history` |
+| AC-15 | Un documento nuevo que no existe | Se sustituye el origen | Resultado 2; la declaración y la copia anteriores se conservan | `tests/test_snapshot_sources.py::test_replace_with_missing_document_keeps_old_declaration` |
+| AC-16 | Un origen no declarado, o la sustitución por el mismo origen | Se sustituye | Resultado 2 con su motivo («no declarado» / «usa `sync`») | `tests/test_snapshot_sources.py::test_replace_errors_exit_2` |
+| AC-17 | Un origen sustituido | Se listan los orígenes | Aparece el origen nuevo | `tests/test_snapshot_sources.py::test_list_tolerates_replaced_history` |
 
 Verificación: `python -m pytest tests/test_snapshot_sources.py -q`.
 
@@ -175,6 +190,8 @@ Verificación: `python -m pytest tests/test_snapshot_sources.py -q`.
 | Nombre estable | Nombre de la copia sin la versión ni su separador; no cambia al publicarse una versión nueva |
 | Huella | Resumen SHA256 del contenido de un fichero; cambia cuando cambia el fichero |
 | Alta / modificación / baja | Tipos de cambio del historial: fichero nuevo, fichero cambiado (o copia repuesta) y fichero que ya no está en el origen |
+| Documento reestructurado | Documento rehecho con otro nombre u otra ubicación que sustituye a uno anterior; su versión no se compara con la del anterior |
+| Sustitución | Cambio del documento al que apunta un origen, indicado por el usuario y anotado en el historial |
 | Fase 0-pre | Paso de [Documentar un Proyecto](document_project.md) que adquiere los orígenes antes de clasificarlos |
 
 ??? note "Evidencia"
@@ -196,5 +213,6 @@ Verificación: `python -m pytest tests/test_snapshot_sources.py -q`.
     | Regla «Un origen caído no frena a los demás» | `scripts/snapshot_sources.py::_cmd_sync` (`failed`, `write_manifest` tras cada origen) | ✅ |
     | Errores de declaración y de origen | `scripts/snapshot_sources.py::declare`, `::resolve_versioned`, `::resolve`, `::SnapshotError` | ✅ |
     | Listar | `scripts/snapshot_sources.py::_cmd_list` | ✅ |
+    | Sustituir y regla «La versión vigente la indica el usuario» | `scripts/snapshot_sources.py::replace_source`, `::_cmd_replace` | ✅ |
     | Repositorios remotos y SharePoint fuera de la herramienta | `scripts/snapshot_sources.py` (docstring del módulo) | ✅ |
-    | AC-01 – AC-13 | `tests/test_snapshot_sources.py` | ✅ |
+    | AC-01 – AC-17 | `tests/test_snapshot_sources.py` | ✅ |

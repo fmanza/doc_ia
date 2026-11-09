@@ -220,6 +220,30 @@
   (guardado en el baseline como `rutas`).
 - **Sesión**: análisis PLAN/AUDIT_PLAN de 2026-11-05 (feature 0.8.0).
 
+## [document-project] — Documento reestructurado con versión menor que el anterior
+
+- **Síntoma** (documentación de un destino, 2026-11-09): el diseño técnico de integraciones se
+  rehízo en un documento nuevo (otro nombre y otra carpeta, `…_Info v1.2`) mientras el antiguo
+  seguía en otra ubicación con `v1.10`. Comparar versiones habría elegido el antiguo.
+- **Causa**: `{ver}` compara versiones dentro de un mismo patrón; dos documentos distintos no son
+  comparables y la versión vigente solo la sabe el usuario.
+- **Tratamiento**: regla en la Fase 0-pre (manda la versión que indica el usuario; un documento
+  reestructurado sustituye al anterior aunque su versión sea menor) y `snapshot_sources.py replace`
+  (historial «sustituido», retira `_staging/<nombre>/`).
+- **Sesión**: feature 0.10.0.
+
+## [document-project] — Credenciales en claro en documentos fuente
+
+- **Síntoma** (mismo destino, 2026-11-09): el diseño técnico convertido traía un `client_secret`
+  OAuth en una URL de ejemplo; varias páginas de wiki traían token y contraseñas. El texto
+  convertido se versiona en `_fuentes/`.
+- **Causa**: los documentos de diseño y operación copian ejemplos reales; nada filtraba antes de
+  versionar.
+- **Tratamiento**: `scripts/redact_secrets.py` en la Fase 0c (Paso 4b) sustituye los valores por
+  `<REDACTADO>` antes del Paso 5 y `--check` sobre `_fuentes/` antes del commit. El informe nunca
+  muestra el valor. Límite conocido: pares «usuario / clave» sin `=` ni `:` no se detectan.
+- **Sesión**: feature 0.10.0.
+
 ## [kit.py] — Un clon del destino daba todo el kit por «editado» (RESUELTO)
 
 - **Síntoma**: tras instalar el kit en VG, APDI y RACS, `kit.py check` sobre un clon limpio del
