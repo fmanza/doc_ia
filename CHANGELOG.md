@@ -5,6 +5,33 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+## [0.10.0] — 2026-11-09
+
+### Added
+
+- **Arquetipo 14 — Integraciones** (condicional, `DOCUMENTATION_STANDARD.md` §3.19): documenta con
+  qué sistemas intercambia datos el proyecto, en qué sentido, cuándo, con qué contrato y qué efecto
+  tiene cada intercambio. Tres páginas en `docs/integraciones/`: `index.md` (vista funcional, sobre
+  el Arquetipo 1, con inventario y «fuera de alcance») y `externas.md` / `internas.md` (vista
+  técnica, sobre el Arquetipo 2, con tabla de inventario obligatoria: sentido, mecanismo,
+  autenticación, periodicidad, datos, destino, errores). Prompt nuevo
+  `.github/prompts/integration_doc.prompt.md`; señales de detección en la Fase 1 de
+  `document_project` (clientes HTTP/SOAP, mensajería, cargas planificadas, identidad federada,
+  endpoints para terceros, diseño técnico de integraciones) y Fase 3b; credenciales solo por
+  nombre. Registrado en `CLAUDE.md`, el agente Documentation Generator, `docs.instructions`, el
+  kit y tests de conformidad; doc_ia no tiene integraciones propias (no aplica).
+- **Versión vigente de un documento** (Fase 0-pre): la versión que manda la indica el usuario; un
+  documento **reestructurado** (otro nombre u otra ubicación) sustituye al anterior aunque su
+  número de versión sea menor (las versiones solo se comparan dentro de un mismo patrón `{ver}`).
+  Subcomando nuevo `snapshot_sources.py replace <nombre> <origen>`: evento «sustituido» en el
+  historial de `.ai/sources.json`, retira `_staging/<nombre>/`; el siguiente `sync` copia el
+  documento nuevo como alta.
+- **Redacción de credenciales** (`scripts/redact_secrets.py`, Fase 0c Paso 4b y CIERRE): detecta
+  `client_secret`, contraseñas, tokens y claves de API, credenciales en URL, JWT y claves privadas
+  PEM en los `.md` convertidos y sustituye el **valor** por `<REDACTADO>` antes de copiar a
+  `_fuentes/`; `--check` sobre `_fuentes/` antes del commit. Informe sin valores, idempotente, sin
+  tocar marcadores ni prosa; exit 0/1/2. Incluido en el kit.
+
 ## [0.9.0] — 2026-11-07
 
 ### Added
@@ -417,7 +444,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - Restauración de `config-reviewer.agent.md` y creación de `docs.instructions.md`
   tras corrupción del bootstrap.
 
-[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/fmanza/doc_ia/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/fmanza/doc_ia/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/fmanza/doc_ia/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/fmanza/doc_ia/compare/v0.6.0...v0.7.0

@@ -234,6 +234,86 @@ def test_corrupt_manifest_exit_2(tmp_path: Path, capsys: pytest.CaptureFixture[s
     assert "JSON inválido" in capsys.readouterr().err
 
 
+# --- replace: documento reestructurado (la versión vigente la indica el usuario) ---
+
+
+def _restructured(tmp_path: Path) -> tuple[Path, str, str]:
+    """Origen antiguo con versión alta y documento nuevo, reestructurado, con versión menor."""
+    _write(tmp_path / "general" / "Diseno_Integraciones_v1.10.docx", "antiguo")
+    _write(tmp_path / "modulo" / "Diseno_Integraciones_Info_v1.2.docx", "nuevo")
+    old_spec = str(tmp_path / "general" / "Diseno_Integraciones_v{ver}.docx")
+    new_spec = str(tmp_path / "modulo" / "Diseno_Integraciones_Info_v{ver}.docx")
+    return tmp_path / "destino", old_spec, new_spec
+
+
+def test_replace_switches_source_even_with_lower_version(tmp_path: Path) -> None:
+    dest, old_spec, new_spec = _restructured(tmp_path)
+    assert _run(dest, "add", "dt", old_spec) == 0
+    assert _sync(dest) == 1
+    _write(dest / "_staging" / "dt" / "md" / "Diseno_Integraciones.md", "conversión antigua")
+    assert _run(dest, "replace", "dt", new_spec, "--date", DAY) == 0
+    entry = _manifest(dest)["dt"]
+    assert entry["origen"] == new_spec
+    assert entry["ficheros"] == {}
+    assert not (dest / "_staging" / "dt").exists()  # binario anterior y su md/ retirados
+    assert entry["historial"][-1] == {  # type: ignore[index]
+        "fecha": DAY,
+        "cambio": "sustituido",
+        "origen_anterior": old_spec,
+        "origen": new_spec,
+    }
+    assert _sync(dest) == 1  # el documento nuevo entra como alta, con su versión menor
+    files = _manifest(dest)["dt"]["ficheros"]
+    assert list(files) == ["Diseno_Integraciones_Info.docx"]  # type: ignore[call-overload]
+    assert files["Diseno_Integraciones_Info.docx"]["version"] == "1.2"  # type: ignore[index]
+    staged = dest / "_staging" / "dt" / "Diseno_Integraciones_Info.docx"
+    assert staged.read_text(encoding="utf-8") == "nuevo"
+
+
+def test_replace_keeps_previous_history(tmp_path: Path) -> None:
+    dest, old_spec, new_spec = _restructured(tmp_path)
+    _run(dest, "add", "dt", old_spec)
+    _sync(dest)
+    _run(dest, "replace", "dt", new_spec)
+    _sync(dest)
+    history = _manifest(dest)["dt"]["historial"]
+    assert [e["cambio"] for e in history] == ["alta", "sustituido", "alta"]  # type: ignore[union-attr]
+
+
+def test_replace_with_missing_document_keeps_old_declaration(tmp_path: Path) -> None:
+    dest, old_spec, _ = _restructured(tmp_path)
+    _run(dest, "add", "dt", old_spec)
+    _sync(dest)
+    assert _run(dest, "replace", "dt", str(tmp_path / "modulo" / "No_Existe_v{ver}.docx")) == 2
+    assert _manifest(dest)["dt"]["origen"] == old_spec
+    assert (dest / "_staging" / "dt" / "Diseno_Integraciones.docx").is_file()
+
+
+@pytest.mark.parametrize(
+    ("declared", "message"),
+    [(False, "no declarado"), (True, "usa `sync`")],
+)
+def test_replace_errors_exit_2(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], declared: bool, message: str
+) -> None:
+    dest, old_spec, _ = _restructured(tmp_path)
+    if declared:
+        _run(dest, "add", "dt", old_spec)
+    assert _run(dest, "replace", "dt", old_spec) == 2
+    assert message in capsys.readouterr().err
+
+
+def test_list_tolerates_replaced_history(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    dest, old_spec, new_spec = _restructured(tmp_path)
+    _run(dest, "add", "dt", old_spec)
+    _run(dest, "replace", "dt", new_spec)
+    capsys.readouterr()
+    assert _run(dest, "list") == 0
+    assert "Diseno_Integraciones_Info_v{ver}.docx" in capsys.readouterr().out
+
+
 def test_cli_prints_version_arrow_on_non_utf8_console(tmp_path: Path) -> None:
     """Consola cp1252 (Windows): la flecha de cambio de versión no rompe el sync."""
     import os

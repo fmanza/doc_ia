@@ -1,18 +1,18 @@
 ---
 arquetipo: "2"
 fuentes:
-  .github/DOCUMENTATION_STANDARD.md: ff88b112809b
-  .github/agents/documentation-generator.agent.md: 26beb1a41916
+  .github/DOCUMENTATION_STANDARD.md: 9b52d08908a0
+  .github/agents/documentation-generator.agent.md: 96be0885983a
   .github/prompts/example_doc.prompt.md: 6041f616e0c3
-  mkdocs.yml: c40961922f4c
-  tests/test_docs_conformance.py: b76e5660be0b
+  mkdocs.yml: 6b0f556ef76d
+  tests/test_docs_conformance.py: 7b230e7e6002
 decisiones:
   ../decisiones/archetypes_decisiones.md: 1a6976ff3ff3
-revisado: 2026-11-07
+revisado: 2026-11-09
 ---
 # archetypes
 
-Sistema de trece arquetipos de documentación (más variante 3b) con estructura fija, audiencia definida y ubicación establecida que garantiza coherencia y auditabilidad en todos los proyectos documentados con doc_ia. Los arquetipos 1–8 son la base; 3b y 9–11 son las adiciones 2024-2025; el 12, el 13 (registro de decisiones de cobertura, §3.18) y las reglas transversales de evidencia (`DOCUMENTATION_STANDARD.md` §3.16) y de diagramas (§3.17) son las adiciones 2026.
+Sistema de catorce arquetipos de documentación (más variante 3b) con estructura fija, audiencia definida y ubicación establecida que garantiza coherencia y auditabilidad en todos los proyectos documentados con doc_ia. Los arquetipos 1–8 son la base; 3b y 9–11 son las adiciones 2024-2025; el 12, el 13 (registro de decisiones de cobertura, §3.18), el 14 (integraciones, §3.19) y las reglas transversales de evidencia (`DOCUMENTATION_STANDARD.md` §3.16) y de diagramas (§3.17) son las adiciones 2026.
 
 ## 1. Arquitectura y Diseño
 
@@ -20,7 +20,7 @@ Sistema de trece arquetipos de documentación (más variante 3b) con estructura 
 flowchart TD
     accTitle: Estructura del sistema de arquetipos
     accDescr: DOCUMENTATION_STANDARD.md define los arquetipos, cada uno con su prompt; el agente Documentation Generator orquesta los prompts y document_project es el flujo de entrada único. Los prompts técnico y de ejemplos se enlazan en ambos sentidos.
-    DS["DOCUMENTATION_STANDARD.md<br/>§3 — define 13 arquetipos + 3b"] --> P
+    DS["DOCUMENTATION_STANDARD.md<br/>§3 — define 14 arquetipos + 3b"] --> P
     subgraph P[Prompts por arquetipo · .github/prompts]
         A2[technical_doc<br/>Arquetipo 2]
         A4[example_doc<br/>Arquetipo 4]
@@ -53,6 +53,7 @@ La relación arquetipo → prompt → ubicación de salida está en la tabla de 
 | **11 — Guía de Contribución** *(opt-in)* | `contributing_doc.prompt.md` | `CONTRIBUTING.md` (raíz) | ¿Cómo contribuyo al proyecto? |
 | **12 — Referencia del Sistema** *(condicional)* | `reference_doc.prompt.md` | `docs/reference/` | ¿Qué configuración, comandos y códigos expone? |
 | **13 — Registro de Decisiones de Cobertura** *(condicional, transversal)* | `coverage_decisions.prompt.md` + plantilla `.github/templates/DECISIONES_COBERTURA.template.md` | `docs/decisiones/<ámbito>_decisiones.md` | ¿Qué hemos decidido sobre cada ⚠️ ❌ 🔍? |
+| **14 — Integraciones** *(condicional)* | `integration_doc.prompt.md` | `docs/integraciones/{index,externas,internas}.md` | ¿Con qué sistemas intercambia datos, cuándo y con qué efecto? |
 
 ### Contrato de entrada
 
@@ -75,6 +76,7 @@ Cada arquetipo produce un archivo Markdown con las secciones numeradas obligator
 | Arquetipo 8 invocado sin normativa de referencia | No aplica: el Arquetipo 8 solo se genera si el origen referencia normativa de obligado cumplimiento |
 | Arquetipo 9 o 11 no generados tras `/document-project` | Comportamiento esperado: son opt-in y no se incluyen por defecto; solicitarlos con `Arquetipos: changelog` o `Arquetipos: contribución` |
 | Arquetipo 12 sin señales en el inventario (sin configuración, CLI, códigos ni interfaces) | No se genera `docs/reference/` ni su entrada en `nav` |
+| Arquetipo 14 sin señales de integración en el inventario | No se genera `docs/integraciones/` ni su entrada en `nav` |
 | Arquetipo 13 con un registro ya editado por personas | Modo aplicación antes que generación: se reflejan las decisiones y se añaden fichas nuevas sin tocar los campos de persona |
 | Identificador `COB-…` citado sin ficha, o ficha decidida sin reflejar | `doc_trace decisions` lo informa (`orphan_ref`, `unreflected`) y termina con código `1` |
 | Cita de evidencia a código fuera de `docs/` | Se escribe como código inline (`ruta::símbolo`), nunca como enlace: un enlace rompería `mkdocs build --strict` |
@@ -132,7 +134,7 @@ norma y los prompts (como la corregida en ADR-002).
 
     | Elemento | Fuente | Confianza |
     |---|---|---|
-    | 13 arquetipos + 3b y sus ubicaciones | `.github/DOCUMENTATION_STANDARD.md` §3.1–§3.15, §3.18 | ✅ |
+    | 14 arquetipos + 3b y sus ubicaciones | `.github/DOCUMENTATION_STANDARD.md` §3.1–§3.15, §3.18, §3.19 | ✅ |
     | Un prompt por arquetipo | `.github/prompts/` (`functional_doc`, `technical_doc`, `howto_doc`, `tutorial_doc`, `example_doc`, `architecture_doc`, `landing_doc`, `onboarding_dev`, `normative_traceability`, `changelog`, `ai_config_doc`, `contributing_doc`, `reference_doc`, `coverage_decisions`) | ✅ |
     | Arquetipo 13: modo aplicación, campos de persona y plantilla | `.github/DOCUMENTATION_STANDARD.md` §3.18, `.github/templates/DECISIONES_COBERTURA.template.md` | ✅ |
     | Regla transversal de evidencia | `.github/DOCUMENTATION_STANDARD.md` §3.16 | ✅ |

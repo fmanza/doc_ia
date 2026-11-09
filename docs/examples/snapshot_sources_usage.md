@@ -138,6 +138,17 @@ python <doc_ia>/scripts/snapshot_sources.py --root mi_modulo_docs sync otro
 # [snapshot] ERROR: orígenes no declarados: otro (usa `add`)
 ```
 
+**Documento reestructurado.** Si el usuario indica que el manual se ha rehecho en otro
+documento (otro nombre u otra carpeta), se sustituye el origen aunque la versión nueva sea menor:
+
+```bash
+python <doc_ia>/scripts/snapshot_sources.py --root mi_modulo_docs replace manual "Guias/Guia_Modulo_v{ver}.docx"
+# [snapshot] «manual»: Modulos/Manual_Modulo_v{ver}.docx → Guias/Guia_Modulo_v{ver}.docx (sustituido, <fecha>).
+# [snapshot] Ejecuta `sync` para copiar el documento nuevo; …
+python <doc_ia>/scripts/snapshot_sources.py --root mi_modulo_docs sync
+#   ALTA       manual/Guia_Modulo.docx (v1.0)
+```
+
 ## 5. Referencias Relacionadas
 
 - Documentación funcional: [Adquisición de Orígenes Documentales](../functional/snapshot_sources.md)

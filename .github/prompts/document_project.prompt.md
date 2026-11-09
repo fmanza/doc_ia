@@ -164,6 +164,18 @@ Fase 0-pre — Adquisición de orígenes (si algún origen no es una carpeta loc
                herramienta, nunca a mano). Exit 0 sin cambios · 1 con cambios · 2 error.
            En sesiones posteriores: `sync` sin argumentos repite las declaraciones guardadas.
            Un cambio de versión (`v1.2.50 → v1.2.51`) se cita en RESUMEN y en el commit.
+         Versión vigente de un documento (regla general):
+           · La versión que manda la indica el USUARIO. `{ver}` compara versiones solo dentro
+             de un mismo patrón (mismo documento): una versión nueva la recoge `sync`.
+           · Si el documento se REESTRUCTURA en otro nuevo (otro nombre u otra ubicación), el
+             nuevo sustituye al anterior AUNQUE SU VERSIÓN SEA MENOR: nunca se comparan
+             versiones entre documentos distintos. Ante dos candidatos, preguntar al usuario.
+           · Sustitución (solo cuando lo indica el usuario):
+               python <doc_ia>/scripts/snapshot_sources.py --root <raíz destino> replace <nombre> "<ruta o patrón {ver} nuevo>"
+             → evento «sustituido» en el historial de `.ai/sources.json`, retira
+               `_staging/<nombre>/`; después `sync` copia el documento nuevo y la Fase 0c lo
+               convierte. Los `.md` antiguos de `_fuentes/<nombre>/` quedan huérfanos (Paso 5:
+               listar y borrar con confirmación). El documento sustituido no se vuelve a declarar.
          Salida: tabla | Origen | Forma | Ruta de trabajo (_staging/…) | Versión / Ref | Estado |
 Fase 0a — Clasificación de orígenes (solo con ≥2 orígenes, o si el único origen no es CÓDIGO):
          1. Para cada origen, detectar tipo por señales del sistema de ficheros, en este orden
@@ -215,6 +227,8 @@ Fase 0a — Clasificación de orígenes (solo con ≥2 orígenes, o si el único
          Mapeo MATERIAL → arquetipos (para orígenes no-CÓDIGO):
             NORMATIVA        → Arquetipo 8 + enriquece §5 (Reglas de Negocio) del Arquetipo 1
             ESPECIFICACIÓN   → enriquece Arquetipo 1 §3+§5+§6+§7 del proyecto principal
+                               (diseño técnico de INTEGRACIONES → Arquetipo 14: contratos,
+                               periodicidad, explotación; manda el código si discrepan)
             UI/PANTALLAS     → enriquece Arquetipo 1 §3 (Flujo Principal) y Arquetipo 3
             REFERENCIA       → enriquece Arquetipo 2 §4 (Dependencias) o Arquetipo 5 (ADR)
             CONTRATO         → enriquece Arquetipo 2 §1 (Arquitectura/interfaces) y §2 (Modelo de Datos/Contratos) y Arquetipo 12 §5 (Interfaces Publicadas)
@@ -322,6 +336,16 @@ Fase 0c — Conversión de documentos no legibles y uso de documentos pre-conver
                                         macOS:   brew install pandoc
                                         Linux:   sudo apt install pandoc | sudo dnf install pandoc
             `python scripts/check_env.py` informa del estado de los tres motores.
+         Paso 4b — Redactar credenciales (SIEMPRE, antes del Paso 5): el texto de `_fuentes/` se
+                  versiona, así que ninguna credencial de los documentos fuente puede llegar a él:
+                python <doc_ia>/scripts/redact_secrets.py <ruta_origen>/md
+            Sustituye el VALOR (client_secret, password/contraseña, token/api_key, usuario:clave@
+            en URL, JWT, claves privadas PEM) por `<REDACTADO>`; no toca marcadores (`xxxxxx`,
+            `--`, `<…>`) ni prosa. Exit 0 sin hallazgos · 1 redactados · 2 error. Informa
+            fichero:línea · regla, nunca el valor: citar el recuento en INVENTARIO y avisar al
+            usuario de que el documento ORIGINAL sigue conteniendo la credencial (recomendar
+            rotarla). Es una red de seguridad: revisar igualmente el texto (p. ej. «usuario /
+            clave» sin `=` no se detecta). Excepción documentada a «no editar `_fuentes/`».
          Paso 5 — Sincronizar `_fuentes/` en el destino (SIEMPRE que haya contenido en `md/`,
                   también si origen y destino son el mismo repositorio):
            · Nombre único: `_fuentes/`, en la raíz del destino (la carpeta que contiene
@@ -394,6 +418,15 @@ Fase 1 — Inventariar y clasificar:
            ESTADO C — vigente: página existe y código coincide con lo documentado.
          Acción derivada: A → CREAR | B → ACTUALIZAR | C → OMITIR.
          Prioridad de ejecución: A antes que B; C no se toca.
+         Detección de integraciones (Arquetipo 14, §3.19 del estándar) — señales en el ORIGEN:
+           clientes HTTP/REST/SOAP (RestTemplate, WebClient, @FeignClient, HttpClient, requests,
+           httpx, fetch, axios, WSDL), mensajería (JMS, Kafka, AMQP), FTP/SFTP, cargas planificadas
+           (cron, @Scheduled, Quartz, tablas de planificador), identidad federada (OAuth2/OIDC,
+           SAML, LDAP/AD), endpoints para terceros (exportaciones, webhooks, callbacks),
+           componentes internos usados en proceso o por BD compartida, o un origen
+           ESPECIFICACIÓN de diseño de integraciones. Con ≥1 señal → INTEGRACIONES_APLICA = true:
+           el INVENTARIO lista cada integración (sistema, sentido, mecanismo) y las que quedan
+           fuera del alcance documentado. Sin señales → `docs/integraciones/` no se crea.
          Detección de patrón ZIP offline — comprobar en el ORIGEN (tres señales independientes):
            · Si existe `scripts/build_docs_zip.py`                                → TIENE_ZIP_SCRIPT = true
            · Si mkdocs.yml del ORIGEN tiene `hooks: [mkdocs_hooks.py]`              → TIENE_MKDOCS_PLUGIN = true
@@ -427,6 +460,12 @@ Fase 3 — Documentación técnica con Mermaid (technical_doc.prompt.md) → [de
          Si el registro existe, APLICAR sus decisiones ANTES de regenerar las páginas del ámbito
          (modo aplicación) y nunca tocar sus campos de persona; después, generar fichas para los
          ⚠️/❌/🔍 nuevos (modo generación) con IDs `COB-<ÁMBITO>-<NNN>`.
+Fase 3b — Integraciones (integration_doc.prompt.md, Arquetipo 14) → [destino]/integraciones/
+         SOLO si INTEGRACIONES_APLICA (Fase 1): `index.md` (vista funcional, estructura del Arq. 1),
+         `externas.md` y, si hay dependencias internas relevantes, `internas.md` (estructura del
+         Arq. 2 con la tabla de inventario técnico). Credenciales solo por nombre; lo que solo
+         consta en el diseño o en una wiki va con 🔍. Las páginas técnicas de módulo (Arq. 2 §4)
+         y la referencia (Arq. 12 §5) enlazan aquí. Con registro de decisiones: ámbito `INTEG`.
 Fase 4 — Ejemplos verificables (example_doc.prompt.md) → [destino]/examples/
          Guías y landing según inventario: howto_doc, tutorial_doc, landing_doc, onboarding_dev, architecture_doc.
 Fase 5 — Sincronizar navegación y verificar configuración estándar del generador (mkdocs.yml del destino):
@@ -752,6 +791,8 @@ anonimiza o se excluye. `_staging/` no se versiona nunca.
     destino (`00_REQUEST.md`, `00_CONTEXT_SNAPSHOT.md`, `TRACEABILITY.md`) y proponer commit
     `docs(<scope>): <resumen>` con recuento de páginas creadas/actualizadas/omitidas; el commit
     incluye `_fuentes/` si la Fase 0c la creó o cambió.
+    **Credenciales** (siempre que el commit incluya `_fuentes/`): `python <doc_ia>/scripts/redact_secrets.py
+    <raíz destino>/_fuentes --check` debe terminar con 0; con 1, redactar (Fase 0c, Paso 4b) antes del commit.
     **Prompt de instancia** (siempre): crear o actualizar `.ai/prompts/documentar.prompt.md` desde
     `<doc_ia>/.github/templates/kit/documentar.prompt.template.md` con los parámetros y las
     decisiones de esta sesión (orígenes, adquisición, alcance `--path`, clasificación, prioridades),

@@ -1,17 +1,18 @@
 ---
 arquetipo: "1"
 fuentes:
-  .claude/commands/document-project.md: 93b8243cf975
-  .github/DOCUMENTATION_STANDARD.md: ff88b112809b
-  .github/prompts/document_project.prompt.md: 223fe49c672b
+  .claude/commands/document-project.md: b5474ca44113
+  .github/DOCUMENTATION_STANDARD.md: 9b52d08908a0
+  .github/prompts/document_project.prompt.md: c4e92f40f097
   .github/templates/kit/documentar.command.md: 44364ebb0ca8
-  CLAUDE.md: fa46521cd504
+  CLAUDE.md: ea1a21efde18
   scripts/db_trace.py: c337133736ca
   scripts/kit.py: 432af520016f
-  scripts/snapshot_sources.py: d350c174f962
+  scripts/redact_secrets.py: d0cbb8ed3fbf
+  scripts/snapshot_sources.py: 0c769b0d5761
 decisiones:
   ../decisiones/docproj_decisiones.md: ace9e2e187df
-revisado: 2026-11-07
+revisado: 2026-11-09
 ---
 # Documentar un Proyecto
 
@@ -140,6 +141,9 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
 |---|---|---|
 | Cuatro parámetros obligatorios | Origen(es), Destino, Generador e Idioma son requeridos; el flujo se detiene y pregunta si falta alguno | Se documentaría un proyecto equivocado, en la ruta incorrecta o con el generador inadecuado |
 | Adquisición de orígenes (Fase 0-pre) | El origen nunca se escribe. Lo que no es una carpeta local de trabajo se copia antes a `_staging/<nombre>/` del destino, ignorada por git: los documentos (fichero, patrón con `{ver}`, carpeta de red, SharePoint sincronizado) con la [adquisición de orígenes](snapshot_sources.md), que elige la versión más alta y la copia con un nombre estable; los repositorios remotos se obtienen con git o glab en un `git worktree` desacoplado en la ref pedida. Las fases siguientes trabajan sobre esa copia | Conversiones y ficheros ajenos escritos en carpetas compartidas, o rutas de `_fuentes/` y de la evidencia que cambian con cada versión del manual |
+| Versión vigente de un documento | La versión que manda la indica el usuario. Un documento reestructurado (otro nombre u otra ubicación) sustituye al anterior aunque su número de versión sea menor; las versiones solo se comparan dentro de un mismo documento | Se documentaría con un documento antiguo porque su número de versión es mayor |
+| Credenciales fuera del repositorio | Antes de copiar el texto convertido a `_fuentes/`, las credenciales que contiene se redactan con la [redacción de credenciales](redact_secrets.md); antes del commit se comprueba que no queda ninguna, y se avisa de que el documento original las sigue conteniendo | Contraseñas, tokens o secretos publicados en el historial del repositorio de documentación |
+| Integraciones | Si el origen intercambia datos con otros sistemas, se documentan en `docs/integraciones/` con una vista funcional y otra técnica (Arquetipo 14) | Las cargas, los servicios externos y sus efectos sobre los datos quedarían repartidos o sin documentar |
 | Clasificación de orígenes | Con ≥2 orígenes, o cuando el único origen no es de tipo CÓDIGO, se ejecuta la Fase 0a antes del inventario; el usuario confirma la clasificación antes de continuar | Sin clasificación, un origen NORMATIVA o UI se trataría como proyecto de código y generaría páginas incorrectas |
 | Origen BASE DE DATOS (opción `BD`) | Con una exportación de `util_bbdd`, se importan en `docs/bd/` solo los objetos del alcance, se contrasta el modelo del código con la base de datos y cada discrepancia se registra como decisión de cobertura; ninguna de las dos fuentes corrige a la otra. doc_ia nunca se conecta a la base de datos ([Trazabilidad con la Base de Datos](db_trace.md)) | Se presentaría el esquema de un entorno como «el modelo», o se ocultarían diferencias reales entre lo construido y lo desplegado |
 | Inventario previo a generación | Antes de escribir cualquier página se clasifica el estado de la documentación existente (sin doc / desactualizado / vigente) | Se sobreescribirían páginas vigentes o se ignorarían páginas desactualizadas |
@@ -283,6 +287,7 @@ automatizados.
     | [COB-DOCPROJ-002](../decisiones/docproj_decisiones.md#cob-docproj-002) · Regla «Instrucciones de visualización siempre» y AC-11 | `.github/prompts/document_project.prompt.md::Fase 7c`, `.github/templates/VER_DOCUMENTACION.template.md`, `tests/test_docs_conformance.py::test_view_instructions_rule_everywhere` (coherencia de las instrucciones; el resultado solo se comprueba sobre doc_ia) | ⚠️ (decisión: Aceptar riesgo) |
     | [COB-DOCPROJ-003](../decisiones/docproj_decisiones.md#cob-docproj-003) · Regla «Relanzar solo sobre lo cambiado» y AC-12 | `.github/prompts/document_project.prompt.md::Fase 1` (modo incremental), `::Devuelve en este orden` (punto 10, Baseline), `scripts/doc_trace.py::check_changes`, `tests/test_docs_conformance.py::test_incremental_mode_rule_everywhere` (coherencia de las instrucciones; el flujo completo no tiene test) | ⚠️ (decisión: Aceptar riesgo) |
     | Regla «Sincronización visual (Fase 0b)» | `.claude/commands/document-project.md::Sincronización de Configuración Visual (Fase 0b)`, `.github/prompts/document_project.prompt.md::Fase 0b` | ✅ |
+    | Reglas «Versión vigente de un documento», «Credenciales fuera del repositorio» e «Integraciones» | `.github/prompts/document_project.prompt.md::Fase 0-pre` (Versión vigente), `::Fase 0c — Paso 4b`, `::Fase 3b`, `scripts/snapshot_sources.py::replace_source`, `scripts/redact_secrets.py::redact_tree` | ✅ |
     | Regla «Documentos pre-convertidos (`md/`)» | `.github/prompts/document_project.prompt.md::Fase 0c — Paso 0` | ✅ |
     | [COB-DOCPROJ-004](../decisiones/docproj_decisiones.md#cob-docproj-004) · Regla «Fuentes convertidas en `_fuentes/`», AC-09 y AC-10 | `.github/prompts/document_project.prompt.md::Fase 0c — Paso 5`, `tests/test_docs_conformance.py::test_sources_folder_is_canonical` (coherencia de las instrucciones, no del resultado) | ⚠️ (decisión: Aceptar riesgo) |
     | Regla «Origen BASE DE DATOS», precondición `BD` y postcondición `docs/bd/` | `.github/prompts/document_project.prompt.md::Origen BASE DE DATOS (opción BD)`, `::Devuelve en este orden` (Trazabilidad para la BD), `.claude/commands/document-project.md` (Inputs requeridos), `scripts/db_trace.py::import_pages`, `::build_tracemap` | ✅ |

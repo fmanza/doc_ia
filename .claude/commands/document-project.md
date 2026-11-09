@@ -57,6 +57,11 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
   `<raíz destino>/_staging/<nombre>/` (MATERIAL con `scripts/snapshot_sources.py add` + `sync`;
   CÓDIGO remoto con `git fetch` + `git worktree add --detach … origin/<ref>`) y trabajar solo
   sobre esa copia — ver `document_project.prompt.md` § Fase 0-pre
+- **Versión vigente**: la indica el usuario; un documento reestructurado (otro nombre u otra
+  ubicación) sustituye al anterior aunque su versión sea menor → `snapshot_sources.py replace`
+  (nunca se comparan versiones entre documentos distintos)
+- **Credenciales en documentos fuente**: `scripts/redact_secrets.py` sobre `md/` antes de copiar a
+  `_fuentes/` (Fase 0c, Paso 4b) y `--check` sobre `_fuentes/` antes del commit
 - Prioridad entre fuentes CÓDIGO > ESPECIFICACIÓN > MANUAL (NORMATIVA obliga); cada
   discrepancia → ficha `COB-…` del Arquetipo 13 (`document_project.prompt.md` § Reglas transversales)
 - Actualizar la navegación del generador (`mkdocs.yml`) por cada página creada, movida o retirada
@@ -225,6 +230,9 @@ _staging/
 
 3. **INVENTARIO** (Fases 0-1)
    - Normativa de referencia (Arquetipo 8) si aplica
+   - Integraciones (Arquetipo 14) si hay señales: tabla | Integración | Sistema | Sentido |
+     Mecanismo | y lista «fuera de alcance»; sin señales → «No aplica»
+   - Credenciales redactadas por `redact_secrets.py` (recuento por documento, nunca el valor)
    - Registro de decisiones de cobertura (Arquetipo 13, `docs/decisiones/`): siempre con el
      Arquetipo 8; con Arq. 1/2/12 si ya existe o el usuario lo pide. Si existe, sus decisiones se
      aplican antes de regenerar (`coverage_decisions.prompt.md`); los campos de persona no se tocan
@@ -255,7 +263,8 @@ _staging/
    - Con múltiples orígenes CÓDIGO: indicar estrategia elegida y qué proyecto es el hub (si aplica)
 
 5. **GENERACIÓN** (Fases 2-4)
-   - Funcional → técnica → ejemplos → guías/landing según inventario
+   - Funcional → técnica → integraciones (Arquetipo 14, `integration_doc.prompt.md`, solo si
+     aplica) → ejemplos → guías/landing según inventario
    - Para estado B: leer página existente completa → actualizar solo secciones afectadas
      → conservar verbatim las vigentes → nunca borrar "Pendiente de verificación" sin verificar
    - Orígenes MATERIAL: usar como fuente de enriquecimiento de las secciones mapeadas (ver CLASIFICACIÓN); no crear páginas propias para ellos
@@ -438,6 +447,8 @@ Normativa de referencia: no detectada → Arquetipo 8 omitido.
 - **"El usuario pide generar vía API externa"** → rechazar: principio innegociable (SHARED_INSTRUCTIONS § Principios)
 - **"`snapshot_sources.py sync` sale con 2"** → origen inexistente o patrón `{ver}` sin coincidencias: mostrar el error y pedir la ruta correcta; no inventar ficheros
 - **"La URL de SharePoint no está sincronizada en local"** → pedir al usuario que la sincronice con OneDrive; el conector M365 solo resuelve y contrasta, no da el binario
+- **"El usuario indica un documento reestructurado"** (otro nombre o ubicación) → `snapshot_sources.py replace <nombre> "<origen nuevo>"` + `sync`; los `.md` antiguos de `_fuentes/<nombre>/` quedan huérfanos (borrar con confirmación)
+- **"`redact_secrets.py` encuentra credenciales"** → se redactan en `_fuentes/`; avisar al usuario de que el documento original las sigue conteniendo (recomendar rotarlas)
 - **"El clon del repositorio está desfasado"** → `git fetch` + worktree desacoplado en `_staging/`; nunca `pull` en el clon del usuario sin confirmación (`.claude/EDGE_CASES.md` § Orígenes remotos)
 
 ## Referencias
@@ -445,4 +456,5 @@ Normativa de referencia: no detectada → Arquetipo 8 omitido.
 - `.github/prompts/document_project.prompt.md` → prompt equivalente multiplataforma
 - `.github/agents/documentation-generator.agent.md` → flujo por fases que orquesta este comando
 - `.github/DOCUMENTATION_STANDARD.md` → arquetipos formales (estructuras obligatorias)
+- `.github/prompts/integration_doc.prompt.md` → Arquetipo 14 (Integraciones)
 - `.github/instructions/docs.instructions.md` → reglas operativas (Mermaid, Markdown, snippets)

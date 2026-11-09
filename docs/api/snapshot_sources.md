@@ -1,9 +1,9 @@
 ---
 arquetipo: "2"
 fuentes:
-  scripts/snapshot_sources.py: d350c174f962
-  tests/test_snapshot_sources.py: b173a75ee987
-revisado: 2026-11-05
+  scripts/snapshot_sources.py: 0c769b0d5761
+  tests/test_snapshot_sources.py: cc22398cf536
+revisado: 2026-11-09
 ---
 # snapshot_sources
 
@@ -14,15 +14,15 @@ Instantánea local y versionada de los orígenes documentales MATERIAL (Fase 0-p
 ```mermaid
 flowchart TD
     accTitle: Subcomandos de snapshot_sources y sus funciones
-    accDescr: main despacha a add, sync y list; add declara el origen en el manifiesto; sync resuelve los ficheros de cada origen, compara huellas, copia a _staging e invalida la conversión md; list lee el manifiesto.
-    CLI[main · argparse] --> ADD[_cmd_add] & SYNC[_cmd_sync] & LIST[_cmd_list]
+    accDescr: main despacha a add, replace, sync y list; add declara el origen en el manifiesto; replace lo sustituye por un documento reestructurado; sync resuelve los ficheros de cada origen, compara huellas, copia a _staging e invalida la conversión md; list lee el manifiesto.
+    CLI[main · argparse] --> ADD[_cmd_add] & REP[_cmd_replace · replace_source] & SYNC[_cmd_sync] & LIST[_cmd_list]
     ADD --> DE[declare]
     SYNC --> SS[sync_source]
     SS --> RS[resolve]
     RS --> RV["resolve_versioned · {ver}"]
     RS --> RD[resolve_directory · _skipped]
     SS --> IV[_invalidate · md_twin]
-    DE & SS & LIST --> MF[(".ai/sources.json")]
+    DE & SS & REP & LIST --> MF[(".ai/sources.json")]
 ```
 
 Script standalone sin dependencias de otros módulos del proyecto ni de terceros (solo
@@ -60,6 +60,7 @@ los ficheros ya convertidos.
 | `sha256` | `sha256(path) -> str` | SHA256 completo, lectura por bloques de 1 MiB | Hex de 64 caracteres |
 | `read_manifest` | `read_manifest(path) -> dict[str, Any]` | Lee `.ai/sources.json`; `{"fuentes": {}}` si no existe; `SnapshotError` si no es un objeto con `fuentes` | Manifiesto |
 | `write_manifest` | `write_manifest(path, data) -> None` | Escribe `{"doc_ia", "fuentes"}` con orígenes ordenados, sangría 2, UTF-8 y LF; crea `.ai/` | — |
+| `replace_source` | `replace_source(data, name, spec, include, today) -> str` | Sustituye el origen de un nombre ya declarado por un documento reestructurado: valida que el nuevo resuelve, añade al historial `{fecha, cambio: "sustituido", origen_anterior, origen}`, vacía `ficheros` y quita `sincronizado`. Devuelve el origen anterior | origen anterior |
 | `declare` | `declare(data, name, spec, include) -> None` | Añade o actualiza `origen` e `incluir` de un origen conservando `ficheros` e `historial` | — |
 | `md_twin` | `md_twin(staging, rel) -> Path` | Ruta de la conversión Markdown de un fichero de `_staging/<nombre>/` | `Path` |
 | `sync_source` | `sync_source(root, name, entry, today, dry_run=False) -> list[Change]` | Copia lo nuevo o cambiado, retira lo eliminado, invalida conversiones y actualiza `entry` (historial, `ficheros`, `sincronizado`) | Cambios en orden: altas/modificaciones y luego bajas |
@@ -111,6 +112,9 @@ los ficheros ya convertidos.
 
 ### Errores y casos especiales
 
+- `replace` con un nombre no declarado, con el mismo origen («usa `sync`») o con un documento
+  nuevo que no resuelve → `SnapshotError` (exit 2) sin tocar la declaración ni `_staging/`.
+
 | Caso | Comportamiento |
 |---|---|
 | Origen inexistente o ilegible | `[snapshot] ERROR en <nombre>: …` por stderr; los demás orígenes se sincronizan y se registran; código `2` |
@@ -135,7 +139,7 @@ los ficheros ya convertidos.
 | `SKIP_DIRS`, `SKIP_FILES`, `_skipped` | Omisión de salida de conversión, control de versiones, bloqueos de Office y metadatos |
 | `_invalidate`, `md_twin` | Borrado del binario y de su `.md` en `_staging/` antes de copiar o al dar de baja |
 | `_doc_ia_version` | Versión de doc_ia leída de su `pyproject.toml` (no del destino) para el manifiesto |
-| `_cmd_add`, `_cmd_sync`, `_cmd_list`, `_parser`, `_manifest_path` | Capa CLI: argumentos, mensajes `[snapshot]` y códigos de salida |
+| `_cmd_add`, `_cmd_replace`, `_cmd_sync`, `_cmd_list`, `_parser`, `_manifest_path` | Capa CLI: argumentos, mensajes `[snapshot]` y códigos de salida |
 
 ## 4. Dependencias y Requisitos
 
@@ -156,6 +160,7 @@ los ficheros ya convertidos.
 | Test | Qué verifica | Tipo |
 |---|---|---|
 | `test_version_key_compares_numerically` (1) | Orden numérico por tramos | unitario |
+| `test_replace_switches_source_even_with_lower_version`, `test_replace_keeps_previous_history`, `test_replace_with_missing_document_keeps_old_declaration`, `test_replace_errors_exit_2` (2 casos), `test_list_tolerates_replaced_history` | Sustitución por documento reestructurado con versión menor, historial, documento inexistente, errores y `list` tras sustituir | integración |
 | `test_stable_name_strips_version_and_separator` (4 casos), `test_stable_name_without_stem_is_an_error` (1) | Nombre estable con `_v`, espacio, `-V` y versión inicial; patrón sin nombre útil | unitario |
 | `test_resolve_versioned_picks_highest_version`, `test_resolve_versioned_without_match_is_an_error` (2) | Versión más alta, otra extensión ignorada y patrón sin coincidencias | unitario |
 | `test_resolve_directory_filters_and_skips_generated`, `test_resolve_missing_origin_is_an_error` (2) | Recorrido recursivo, omisiones, `include` y origen inexistente | unitario |
@@ -186,6 +191,7 @@ python -m pytest tests/test_snapshot_sources.py -q
     | Huella SHA256 por bloques | `scripts/snapshot_sources.py::sha256`, `::CHUNK` | ✅ |
     | Lectura, validación y escritura del manifiesto | `scripts/snapshot_sources.py::read_manifest`, `::write_manifest`, `::_doc_ia_version` | ✅ |
     | Declaración y sus errores | `scripts/snapshot_sources.py::declare`, `::NAME_RE` | ✅ |
+    | Sustitución por documento reestructurado | `scripts/snapshot_sources.py::replace_source`, `::_cmd_replace` (retira `_staging/<nombre>/`) | ✅ |
     | Sincronización, invalidación e historial | `scripts/snapshot_sources.py::sync_source`, `::_invalidate`, `::md_twin` | ✅ |
     | Manifiesto escrito tras cada origen; un origen caído no frena a los demás | `scripts/snapshot_sources.py::_cmd_sync` (`failed`, `write_manifest`) | ✅ |
     | Informe y códigos de salida | `scripts/snapshot_sources.py::format_change`, `::_cmd_sync`, `::_cmd_list`, `::_cmd_add`, `::main` | ✅ |

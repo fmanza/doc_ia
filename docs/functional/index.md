@@ -1,20 +1,21 @@
 ---
 arquetipo: "1-I"
 fuentes:
-  docs/functional/archetypes.md: fca331f690ef
+  docs/functional/archetypes.md: b3e1192f2768
   docs/functional/bootstrap.md: 64112e3c9247
   docs/functional/build_docs_zip.md: 6ceab8a1e98d
   docs/functional/check_env.md: e6c1d275492a
   docs/functional/convert_to_md.md: 7328fd37ca63
   docs/functional/db_trace.md: d67a1a3e3195
   docs/functional/doc_trace.md: 781689742230
-  docs/functional/document_project.md: 5fa6ec09324f
+  docs/functional/document_project.md: abd0295e6b66
   docs/functional/kit.md: 44d24d2a910e
-  docs/functional/origin_types.md: 6df00388546b
-  docs/functional/snapshot_sources.md: 247a285608f0
+  docs/functional/origin_types.md: e87a9c4cb101
+  docs/functional/redact_secrets.md: 726e1a747d56
+  docs/functional/snapshot_sources.md: 7aee08c2b609
 decisiones:
   ../decisiones/sistema_decisiones.md: d03d67f5fae5
-revisado: 2026-11-07
+revisado: 2026-11-09
 ---
 # Mapa Funcional — doc_ia
 
@@ -28,16 +29,17 @@ y qué términos comparten. Cada capacidad enlaza a su página funcional detalla
 | Comprobar que el entorno tiene las herramientas necesarias | Tooling determinista | [Verificación de Entorno](check_env.md) | AC-01 – AC-06 | 6/6 |
 | Convertir documentos previos a Markdown para usarlos como contexto | Tooling determinista | [Conversión de Documentos a Markdown](convert_to_md.md) | AC-01 – AC-13 | 12/13 |
 | Empaquetar la documentación para consulta offline con verificación de integridad | Tooling determinista | [ZIP de Documentación Offline](build_docs_zip.md) | AC-01 – AC-15 | 14/15 |
-| Traer a una zona de trabajo local, con versión e historial, los documentos de origen que viven en carpetas de red, SharePoint sincronizado o carpetas de solo lectura | Tooling determinista | [Adquisición de Orígenes Documentales](snapshot_sources.md) | AC-01 – AC-13 | 13/13 |
+| Traer a una zona de trabajo local, con versión e historial, los documentos de origen que viven en carpetas de red, SharePoint sincronizado o carpetas de solo lectura | Tooling determinista | [Adquisición de Orígenes Documentales](snapshot_sources.md) | AC-01 – AC-17 | 17/17 |
+| Retirar las credenciales de los documentos convertidos antes de versionarlos en `_fuentes/` | Tooling determinista | [Redacción de Credenciales](redact_secrets.md) | AC-01 – AC-10 | 10/10 |
 | Llevar a cada destino la metodología, los lanzadores `/documentar` y una guía para relanzar su documentación sin abrir doc_ia | Tooling determinista | [Kit de Documentación en el Destino](kit.md) | AC-01 – AC-15 | 15/15 |
 | Incorporar el esquema real de la base de datos de un entorno, contrastarlo con el modelo del código y devolver a `util_bbdd` el mapa de páginas y código de cada tabla | Tooling determinista | [Trazabilidad con la Base de Datos](db_trace.md) | AC-01 – AC-16 | 16/16 |
 | Detectar documentación desactualizada respecto al código, cruzar criterios con tests y comprobar que las decisiones de cobertura se reflejan | Tooling determinista | [Trazabilidad Docs ↔ Código](doc_trace.md) | AC-01 – AC-33 | 33/33 |
 | Documentar un proyecto completo desde una única operación de entrada | Flujos IA | [Documentar un Proyecto](document_project.md) | AC-01 – AC-12 | 1/12 |
 | Clasificar cada origen (código, normativa, especificación, contrato…) y decidir su tratamiento | Flujos IA | [Catálogo de Tipos de Origen](origin_types.md) | AC-01 – AC-09 | 1/9 |
-| Producir documentación con estructura fija, evidencia verificable y decisiones humanas citadas | Flujos IA | [Arquetipos Formales](archetypes.md) | AC-01 – AC-15 | 15/15 |
+| Producir documentación con estructura fija, evidencia verificable y decisiones humanas citadas | Flujos IA | [Arquetipos Formales](archetypes.md) | AC-01 – AC-16 | 16/16 |
 | Trasladar el sistema de instrucciones IA a otro proyecto | Flujos IA | [Bootstrap de Configuración IA](bootstrap.md) | AC-01 – AC-05 | 1/5 |
 
-**Cobertura de pruebas**: 127 de 152 criterios tienen un test automatizado. Los flujos IA se
+**Cobertura de pruebas**: 142 de 167 criterios tienen un test automatizado. Los flujos IA se
 ejecutan en el chat de la plataforma IA: de ellos solo se comprueba la estructura de la
 documentación resultante (Arquetipos) ⚠️.
 
@@ -109,7 +111,8 @@ acceso al repositorio y a una plataforma IA puede usar todas las capacidades.
     | Capacidad «Verificación de Entorno» y 6/6 tests | `docs/functional/check_env.md::§7` | ✅ |
     | Capacidad «Conversión a Markdown» y 12/13 tests | `docs/functional/convert_to_md.md::§7` | ✅ |
     | Capacidad «ZIP offline» y 14/15 tests | `docs/functional/build_docs_zip.md::§7` | ✅ |
-    | Capacidad «Adquisición de orígenes» y 13/13 tests | `docs/functional/snapshot_sources.md::§7` | ✅ |
+    | Capacidad «Adquisición de orígenes» y 17/17 tests | `docs/functional/snapshot_sources.md::§7` | ✅ |
+    | Capacidad «Redacción de credenciales» y 10/10 tests | `docs/functional/redact_secrets.md::§7` | ✅ |
     | Capacidad «Kit de documentación» y 15/15 tests | `docs/functional/kit.md::§7` | ✅ |
     | Capacidad «Trazabilidad con la Base de Datos» y 16/16 tests | `docs/functional/db_trace.md::§7` | ✅ |
     | Capacidad «Trazabilidad» y 33/33 tests | `docs/functional/doc_trace.md::§7` | ✅ |

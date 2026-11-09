@@ -52,7 +52,8 @@ trabaja sobre la copia local en `_staging/` (Fase 0-pre de `document_project.pro
   de concluir la sesión.
 - **Arquetipos documentales**: prompts formales en `.github/prompts/` (funcional, técnica, how-to,
   tutorial, ejemplos, ADR/MADR 4.0, navegación principal, onboarding, changelog, config IA,
-  contribución, referencia del sistema) parametrizables por proyecto.
+  contribución, referencia del sistema, decisiones de cobertura, integraciones) parametrizables
+  por proyecto.
 - **Flujo de trabajo canónico**: `PLAN → AUDIT_PLAN → IMPLEMENT → AUDIT_CODE → VERSION` con
   agentes (`.github/agents/`) y slash commands (`.claude/commands/`).
 - **Bootstrap multiplataforma**: `.github/prompts/bootstrap_ai_config.prompt.md` replica este

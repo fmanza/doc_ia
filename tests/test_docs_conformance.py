@@ -127,6 +127,58 @@ def test_no_normative_archetype_without_normative() -> None:
     assert "normativa/" not in (ROOT / "mkdocs.yml").read_text(encoding="utf-8")
 
 
+def test_no_integrations_archetype_without_signals() -> None:
+    """Arq. 14 condicional: doc_ia no integra sistemas externos → sin docs/integraciones/."""
+    assert not (DOCS / "integraciones").exists()
+    assert "integraciones/" not in (ROOT / "mkdocs.yml").read_text(encoding="utf-8")
+
+
+def test_integrations_archetype_is_registered_everywhere() -> None:
+    """Arq. 14: norma, prompt, orquestador, agente, tabla de arquetipos y kit lo conocen."""
+    standard = (ROOT / ".github/DOCUMENTATION_STANDARD.md").read_text(encoding="utf-8")
+    assert "### 3.19 Arquetipo 14 — Integraciones (`docs/integraciones/`)" in standard
+    assert "integration_doc.prompt.md" in standard
+    for rel in (
+        ".github/prompts/document_project.prompt.md",
+        ".claude/commands/document-project.md",
+        ".github/agents/documentation-generator.agent.md",
+        ".github/instructions/docs.instructions.md",
+        ".github/kit/MANIFEST.txt",
+    ):
+        assert "integration_doc" in (ROOT / rel).read_text(encoding="utf-8"), rel
+    assert "**14. Integraciones**" in (ROOT / "CLAUDE.md").read_text(encoding="utf-8")
+
+
+def test_integrations_prompt_has_fixed_structure() -> None:
+    """Arq. 14: vista funcional (Arq. 1) y técnica (Arq. 2) con la tabla de inventario técnico."""
+    prompt = (ROOT / ".github/prompts/integration_doc.prompt.md").read_text(encoding="utf-8")
+    for heading in (
+        "## 1. Objetivo y Descripción",
+        "## 5. Reglas de Negocio",
+        "## 7. Criterios de Aceptación",
+        "## 1. Arquitectura y Diseño",
+        "## 2. Modelo de Datos / Contratos",
+        "## 5. Ejemplos Relacionados",
+        '??? note "Evidencia"',
+    ):
+        assert heading in prompt, heading
+    inventory = (
+        "| Integración | Sentido | Mecanismo | Autenticación | Periodicidad | Datos | Destino |"
+    )
+    assert inventory in prompt
+    assert "nunca** el valor" in prompt
+
+
+def test_new_tools_are_in_the_kit_and_the_prompt() -> None:
+    """replace y redact_secrets se distribuyen con el kit y el orquestador los usa."""
+    manifest = (ROOT / ".github/kit/MANIFEST.txt").read_text(encoding="utf-8")
+    assert "scripts/redact_secrets.py" in manifest.splitlines()
+    prompt = (ROOT / ".github/prompts/document_project.prompt.md").read_text(encoding="utf-8")
+    assert "snapshot_sources.py --root <raíz destino> replace" in prompt
+    assert "redact_secrets.py <ruta_origen>/md" in prompt
+    assert "redact_secrets.py\n    <raíz destino>/_fuentes --check" in prompt
+
+
 def test_changelog_follows_keep_a_changelog() -> None:
     """Arq. 9: Keep a Changelog con sección [Unreleased] (AC-05)."""
     text = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")

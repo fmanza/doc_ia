@@ -1,13 +1,14 @@
 ---
 arquetipo: "1"
 fuentes:
-  .claude/commands/document-project.md: 93b8243cf975
-  .github/DOCUMENTATION_STANDARD.md: ff88b112809b
+  .claude/commands/document-project.md: b5474ca44113
+  .github/DOCUMENTATION_STANDARD.md: 9b52d08908a0
+  .github/prompts/integration_doc.prompt.md: 8abca1d50c8e
   hooks/sync_root_docs.py: ef5e576436c6
-  tests/test_docs_conformance.py: b76e5660be0b
+  tests/test_docs_conformance.py: 7b230e7e6002
 decisiones:
   ../decisiones/archetypes_decisiones.md: 1a6976ff3ff3
-revisado: 2026-11-07
+revisado: 2026-11-09
 ---
 # Arquetipos Formales de Documentación
 
@@ -45,18 +46,21 @@ aplicar de forma individual a un único módulo o sección, sin invocar el flujo
 - **Arquetipo 13**: que exista el Arquetipo 8, que el destino ya tenga registro de decisiones o
   que el usuario lo pida; para aplicar decisiones, que una persona las haya escrito en el
   registro.
+- **Arquetipo 14**: que el origen tenga señales de integración (clientes HTTP o SOAP,
+  mensajería, cargas planificadas, identidad federada, endpoints para terceros) o un diseño
+  técnico de integraciones.
 
 ## 3. Flujo Principal
 
 ```mermaid
 flowchart TD
     accTitle: Qué arquetipos se aplican a un módulo
-    accDescr: Durante el inventario se aplican los Arquetipos 1, 2 y 4 si falta su página, los condicionales 8, 10, 12 y 13 si el origen cumple su condición y los opt-in 9 y 11 si el usuario los pide; en otro caso se omiten.
+    accDescr: Durante el inventario se aplican los Arquetipos 1, 2 y 4 si falta su página, los condicionales 8, 10, 12, 13 y 14 si el origen cumple su condición y los opt-in 9 y 11 si el usuario los pide; en otro caso se omiten.
     INV[Inventario del módulo] --> BASE{¿Falta la página funcional,<br/>técnica o de ejemplo?}
     BASE -- Sí --> A124[Aplicar Arquetipo 1, 2 o 4<br/>según la que falte]
     BASE -- No, y está vigente --> OMIT[Omitir]
     INV --> COND{¿El origen cumple<br/>la condición?}
-    COND -- Sí --> A81012[Aplicar Arquetipo 8, 10, 12 o 13]
+    COND -- Sí --> A81012[Aplicar Arquetipo 8, 10, 12, 13 o 14]
     COND -- No --> OMIT
     INV --> OPT{¿El usuario lo pide<br/>en Arquetipos?}
     OPT -- Sí --> A911[Aplicar Arquetipo 9 u 11]
@@ -65,7 +69,7 @@ flowchart TD
 
 Durante el inventario, cada módulo se evalúa en tres grupos: si le falta la página funcional,
 técnica o de ejemplos, se aplica el arquetipo correspondiente; si ya existe y está vigente, se
-omite. Los arquetipos condicionales (8, 10, 12 y 13) solo se aplican cuando el origen cumple su
+omite. Los arquetipos condicionales (8, 10, 12, 13 y 14) solo se aplican cuando el origen cumple su
 condición, y los opt-in (9 y 11) solo cuando el usuario los pide. La condición de cada uno:
 
 | Arquetipo | Se aplica cuando | Si no se cumple |
@@ -79,6 +83,7 @@ condición, y los opt-in (9 y 11) solo cuando el usuario los pide. La condición
 | 11 — Contribución | El parámetro Arquetipos incluye `contribución` | Se omite |
 | 12 — Referencia | El origen expone configuración, CLI, códigos de salida o interfaces | Se omite |
 | 13 — Decisiones de cobertura | Hay Arquetipo 8, el destino ya tiene registro de decisiones o el usuario lo pide | Se omite |
+| 14 — Integraciones | El origen intercambia datos con otros sistemas (señales de integración) o hay un diseño técnico de integraciones | Se omite |
 
 ### Arquetipos disponibles
 
@@ -98,6 +103,7 @@ condición, y los opt-in (9 y 11) solo cuando el usuario los pide. La condición
 | **11 — Guía de Contribución** *(opt-in)* | ¿Cómo contribuyo al proyecto? | Contribuidores externos | `CONTRIBUTING.md` (raíz) | `contributing_doc.prompt.md` |
 | **12 — Referencia del Sistema** *(condicional)* | ¿Qué configuración, comandos y códigos expone? | Usuarios, operadores, integradores | `docs/reference/` | `reference_doc.prompt.md` |
 | **13 — Registro de Decisiones de Cobertura** *(condicional, transversal)* | ¿Qué hemos decidido sobre cada apartado parcial, sin cubrir o por verificar? | Responsables de producto, cumplimiento y arquitectura | `docs/decisiones/` | `coverage_decisions.prompt.md` |
+| **14 — Integraciones** *(condicional)* | ¿Con qué sistemas intercambia datos el proyecto, cuándo, con qué contrato y qué efecto tiene? | Producto y operación (vista funcional); desarrolladores e integradores (vista técnica) | `docs/integraciones/` | `integration_doc.prompt.md` |
 
 ## 4. Postcondiciones y Efectos
 
@@ -123,6 +129,7 @@ condición, y los opt-in (9 y 11) solo cuando el usuario los pide. La condición
 | Enlace bidireccional | El Arquetipo 2 (técnica, §5) debe enlazar al Arquetipo 4 (ejemplos, §5) y viceversa | Rompe la trazabilidad entre la referencia técnica y los ejemplos ejecutables |
 | Arquetipo 8 condicional | La trazabilidad normativa solo se genera si el proyecto origen referencia normativa de obligado cumplimiento; si no, se omite | Generación innecesaria de páginas vacías o sin valor en proyectos sin normativa |
 | Arquetipo 12 condicional | La Referencia del Sistema solo se genera si el proyecto expone configuración, comandos, códigos de salida, eventos o interfaces publicadas | Páginas de referencia vacías en librerías sin superficie de usuario |
+| Arquetipo 14 condicional | La documentación de integraciones solo se genera si el proyecto intercambia datos con otros sistemas; tiene una vista funcional y otra técnica con un inventario de cada integración, y nunca muestra el valor de una credencial | Páginas vacías en proyectos sin integraciones, o credenciales publicadas |
 | Evidencia verificable | Las páginas funcionales, técnicas y de referencia terminan con un bloque plegable "Evidencia" que indica el origen de cada regla, contrato o criterio y su grado de confianza (✅ ⚠️ 🔍 ❌), y declaran al principio de qué ficheros derivan, con una huella que permite detectar cuándo esos ficheros cambian | Afirmaciones imposibles de auditar; lo inferido se confunde con lo verificado |
 | Diagramas conformes | Cada diagrama declara título y descripción accesibles, no supera 12 nodos (8 en las páginas de navegación), muestra la perspectiva de su arquetipo sin repetir el de otra página y se sustituye por una tabla cuando no hay flujo | Diagramas ilegibles, inaccesibles para lectores de pantalla o duplicados que divergen al mantenerlos |
 | Decide una persona, no el agente | En el registro de decisiones el agente prepara cada ficha y aplica lo decidido, pero nunca escribe la decisión, el contexto, el responsable, la fecha ni el estado resultante | Decisiones de cumplimiento o de producto tomadas sin responsable humano |
@@ -136,7 +143,7 @@ condición, y los opt-in (9 y 11) solo cuando el usuario los pide. La condición
 
 - No genera contenido de forma programática: los prompts se ejecutan en el chat.
 - No inventa secciones, capacidades ni contenido sin respaldo en el origen.
-- No aplica los Arquetipos 8, 12 y 13 sin su condición de activación, ni los 9 y 11 sin petición.
+- No aplica los Arquetipos 8, 12, 13 y 14 sin su condición de activación, ni los 9 y 11 sin petición.
 - No toma decisiones de cobertura: las prepara para que las tomen las personas responsables.
 - No mezcla how-to y tutorial en el mismo fichero.
 
@@ -179,6 +186,7 @@ condición, y los opt-in (9 y 11) solo cuando el usuario los pide. La condición
 | AC-13 | Diagrama Mermaid en cualquier página | Se genera el bloque | Declara `accTitle` y `accDescr` justo después del tipo, para que el SVG tenga título y descripción accesibles | `tests/test_docs_conformance.py::test_mermaid_has_accessibility` |
 | AC-14 | Un proyecto con Arquetipo 8, o un destino que adopta el registro de decisiones | Se aplica el flujo de documentación | Las instrucciones exigen el registro en `docs/decisiones/` con la leyenda canónica y las fichas de campos fijos, y prohíben al agente tocar los campos de persona; sobre doc_ia, que adopta el registro, toda fila parcial, sin cubrir o por verificar de un bloque «Evidencia» tiene ficha y la comprobación de decisiones no tiene hallazgos | `tests/test_docs_conformance.py::test_coverage_decisions_rule_everywhere`, `tests/test_docs_conformance.py::test_canonical_coverage_legend`, `tests/test_docs_conformance.py::test_decisions_template_cards_have_fixed_fields`, `tests/test_docs_conformance.py::test_doc_ia_coverage_decisions_are_consistent`, `tests/test_docs_conformance.py::test_unverified_evidence_rows_have_coverage_id` |
 | AC-15 | Un sitio con páginas de entrada, de contenido y de mantenimiento | Se sincroniza la navegación | El menú superior tiene como máximo 9 pestañas; «Inicio» agrupa inicio, arranque rápido, instalación y descargas y abre la página de inicio; «Proyecto» agrupa configuración IA, cambios y contribución; las instrucciones del flujo y la plantilla del estándar aplican la misma regla | `tests/test_docs_conformance.py::test_top_navigation_fits_in_nine_tabs`, `tests/test_docs_conformance.py::test_standard_nav_template_groups_home_and_project`, `tests/test_docs_conformance.py::test_nine_tabs_rule_everywhere` |
+| AC-16 | Un proyecto que intercambia datos con otros sistemas, y doc_ia, que no lo hace | Se aplica el flujo de documentación | Las instrucciones registran el Arquetipo 14 en la norma, el orquestador, el agente, la tabla de arquetipos y el kit, con vista funcional, vista técnica con inventario y credenciales solo por nombre; doc_ia no tiene `docs/integraciones/` | `tests/test_docs_conformance.py::test_integrations_archetype_is_registered_everywhere`, `tests/test_docs_conformance.py::test_integrations_prompt_has_fixed_structure`, `tests/test_docs_conformance.py::test_no_integrations_archetype_without_signals` |
 
 Verificación: `python -m mkdocs build --strict` sin warnings tras generar cualquier arquetipo.
 Los arquetipos se aplican en el chat y no tienen tests automatizados.
@@ -192,7 +200,7 @@ Los tests verifican el **resultado** sobre la documentación de doc_ia (dogfoodi
 | Arquetipo | Plantilla de documentación con estructura fija, audiencia definida y ubicación establecida en `docs/` |
 | Sección fija | Sección obligatoria del arquetipo que no se puede omitir aunque esté vacía |
 | Enlace bidireccional | Par de referencias cruzadas entre el Arquetipo 2 (técnica §5) y el Arquetipo 4 (ejemplos §5) |
-| Arquetipo condicional | Arquetipo que solo se aplica si se cumple una condición específica (el 8 requiere normativa en el origen; el 12, superficie de usuario) |
+| Arquetipo condicional | Arquetipo que solo se aplica si se cumple una condición específica (el 8 requiere normativa en el origen; el 12, superficie de usuario; el 14, intercambios con otros sistemas) |
 | Arquetipo opt-in | Arquetipo que solo se genera si el usuario lo pide explícitamente (9 y 11) |
 | Origen | Proyecto cuyo código es la fuente de verdad para generar la documentación |
 | Bloque Evidencia | Bloque plegable final, sin número de sección, que lista la fuente y la confianza de cada afirmación de las páginas de los Arquetipos 1, 2 y 12 |
@@ -213,6 +221,7 @@ Los tests verifican el **resultado** sobre la documentación de doc_ia (dogfoodi
     | Arquetipo 13, regla «Decide una persona, no el agente» y regla «Decisión citada» | `.github/DOCUMENTATION_STANDARD.md::3.18` | ✅ |
     | AC-14 | `.github/DOCUMENTATION_STANDARD.md::3.18`, `.github/prompts/coverage_decisions.prompt.md`, `scripts/doc_trace.py::check_decisions` | ✅ |
     | Regla «Evidencia verificable» | `.github/DOCUMENTATION_STANDARD.md::3.16` | ✅ |
+    | Regla «Arquetipo 14 condicional» · AC-16 | `.github/DOCUMENTATION_STANDARD.md::3.19`, `.github/prompts/integration_doc.prompt.md` | ✅ |
     | Regla «Diagramas conformes» | `.github/DOCUMENTATION_STANDARD.md::3.17` | ✅ |
     | Regla «Barra superior legible» y AC-15 | `.github/DOCUMENTATION_STANDARD.md::4.1` (Plantilla `mkdocs.yml`, notas críticas), `.github/prompts/document_project.prompt.md::Fase 5`, `mkdocs.yml::nav` | ✅ |
     | Regla «Arquetipos 9 y 11 opt-in» | `.claude/commands/document-project.md::Inputs requeridos` (Arquetipos) | ✅ |

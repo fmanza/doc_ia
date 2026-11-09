@@ -22,13 +22,20 @@ OneDrive); los repositorios remotos se obtienen con git/glab antes de usar este 
 
 Subcomandos:
 
-  add   Declara (o actualiza) un origen en el manifiesto, sin copiar nada.
-  sync  Copia los orígenes declarados que hayan cambiado y actualiza el manifiesto.
-        ``--dry-run`` solo informa. Exit 0 sin cambios · 1 con cambios · 2 error.
-  list  Muestra los orígenes declarados, su versión y sus ficheros.
+  add      Declara (o actualiza) un origen en el manifiesto, sin copiar nada.
+  replace  Sustituye un origen por un documento **reestructurado** (otro nombre o ubicación) que
+           indica el usuario: manda aunque su versión sea menor. Conserva el historial
+           («sustituido») y retira ``_staging/<nombre>/``. Exit 0 · 2 error.
+  sync     Copia los orígenes declarados que hayan cambiado y actualiza el manifiesto.
+           ``--dry-run`` solo informa. Exit 0 sin cambios · 1 con cambios · 2 error.
+  list     Muestra los orígenes declarados, su versión y sus ficheros.
+
+Una versión nueva del **mismo** documento (mismo patrón ``{ver}``) no necesita ``replace``: la
+recoge ``sync``. Las versiones solo se comparan dentro de un mismo patrón.
 
 Uso:
     python scripts/snapshot_sources.py --root <destino> add manual "<carpeta>\\Manual_v{ver}.docx"
+    python scripts/snapshot_sources.py --root <destino> replace manual "<otra>\\Guia_v{ver}.docx"
     python scripts/snapshot_sources.py --root <destino> add normativa "<carpeta>" --include "*.pdf"
     python scripts/snapshot_sources.py --root <destino> sync [nombre …] [--dry-run]
     python scripts/snapshot_sources.py --root <destino> list
@@ -213,6 +220,40 @@ def declare(data: dict[str, Any], name: str, spec: str, include: tuple[str, ...]
         entry.pop("incluir", None)
 
 
+def replace_source(
+    data: dict[str, Any], name: str, spec: str, include: tuple[str, ...], today: str
+) -> str:
+    """Sustituye el origen declarado por un documento **reestructurado** (otro nombre o ubicación).
+
+    La versión vigente la indica el usuario: el documento nuevo sustituye al anterior aunque su
+    número de versión sea menor (no se comparan versiones entre documentos distintos). Conserva
+    el historial con un evento ``sustituido`` y vacía ``ficheros`` para que el siguiente ``sync``
+    copie el documento nuevo como alta. Devuelve el origen anterior.
+    """
+    sources: dict[str, Any] = data["fuentes"]
+    if name not in sources:
+        raise SnapshotError(f"origen no declarado: {name} (usa `add`)")
+    entry: dict[str, Any] = sources[name]
+    previous = str(entry.get("origen", ""))
+    if previous == spec:
+        raise SnapshotError(f"«{name}» ya apunta a ese origen: usa `sync` para una versión nueva")
+    if VERSION_TOKEN in spec and include:
+        raise SnapshotError("--include no aplica a un fichero con {ver}")
+    resolve(spec, include)  # el documento nuevo debe existir antes de retirar el anterior
+    history: list[dict[str, Any]] = entry.setdefault("historial", [])
+    history.append(
+        {"fecha": today, "cambio": "sustituido", "origen_anterior": previous, "origen": spec}
+    )
+    entry["origen"] = spec
+    if include:
+        entry["incluir"] = list(include)
+    else:
+        entry.pop("incluir", None)
+    entry["ficheros"] = {}
+    entry.pop("sincronizado", None)
+    return previous
+
+
 # --- sincronización ---
 
 
@@ -313,6 +354,24 @@ def _cmd_add(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_replace(args: argparse.Namespace) -> int:
+    root: Path = args.root.resolve()
+    path = _manifest_path(args)
+    data = read_manifest(path)
+    today = args.date or date.today().isoformat()
+    previous = replace_source(data, args.name, args.source, tuple(args.include or ()), today)
+    staging = root / STAGING_DIR / args.name
+    if staging.is_dir():  # el binario anterior y su md/ ya no corresponden al origen
+        shutil.rmtree(staging)
+    write_manifest(path, data)
+    print(f"[snapshot] «{args.name}»: {previous} → {args.source} (sustituido, {today}).")
+    print(
+        f"[snapshot] Ejecuta `sync` para copiar el documento nuevo; los ficheros antiguos de "
+        f"_fuentes/{args.name}/ quedan huérfanos (Fase 0c: listar y borrar con confirmación)."
+    )
+    return 0
+
+
 def _cmd_sync(args: argparse.Namespace) -> int:
     root: Path = args.root.resolve()
     path = _manifest_path(args)
@@ -374,6 +433,16 @@ def _parser() -> argparse.ArgumentParser:
     add.add_argument("source", help="Fichero, carpeta o patrón con {ver}.")
     add.add_argument("--include", action="append", help="Patrón glob (repetible, carpetas).")
     add.set_defaults(func=_cmd_add)
+
+    rep = sub.add_parser(
+        "replace",
+        help="Sustituye un origen por un documento reestructurado (lo indica el usuario).",
+    )
+    rep.add_argument("name", help="Nombre del origen ya declarado.")
+    rep.add_argument("source", help="Fichero, carpeta o patrón con {ver} del documento nuevo.")
+    rep.add_argument("--include", action="append", help="Patrón glob (repetible, carpetas).")
+    rep.add_argument("--date", help="Fecha del historial YYYY-MM-DD (por defecto, hoy).")
+    rep.set_defaults(func=_cmd_replace)
 
     sync = sub.add_parser("sync", help="Copia los orígenes cambiados a _staging/.")
     sync.add_argument("names", nargs="*", help="Orígenes a sincronizar (por defecto, todos).")

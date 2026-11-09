@@ -26,6 +26,7 @@ requirements.txt
 .github/prompts/normative_traceability.prompt.md
 .github/prompts/reference_doc.prompt.md
 .github/prompts/coverage_decisions.prompt.md
+.github/prompts/integration_doc.prompt.md
 .github/prompts/changelog.prompt.md
 .github/prompts/contributing_doc.prompt.md
 .github/prompts/ai_config_doc.prompt.md
@@ -44,6 +45,7 @@ requirements.txt
 scripts/kit.py
 scripts/doc_trace.py
 scripts/snapshot_sources.py
+scripts/redact_secrets.py
 scripts/db_trace.py
 scripts/convert_to_md.py
 scripts/check_env.py
