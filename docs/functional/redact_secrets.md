@@ -1,10 +1,10 @@
 ---
 arquetipo: "1"
 fuentes:
-  .github/prompts/document_project.prompt.md: c4e92f40f097
+  .github/prompts/document_project.prompt.md: 03e2d68949a7
   scripts/redact_secrets.py: d0cbb8ed3fbf
   tests/test_redact_secrets.py: 39af357fe68b
-revisado: 2026-11-09
+revisado: 2026-11-10
 ---
 # Redacción de Credenciales
 

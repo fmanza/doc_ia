@@ -1,16 +1,17 @@
 ---
 arquetipo: "2"
 fuentes:
-  .claude/commands/document-project.md: b5474ca44113
-  .github/agents/documentation-generator.agent.md: 96be0885983a
-  .github/prompts/document_project.prompt.md: c4e92f40f097
+  .claude/commands/document-project.md: f82478174881
+  .github/agents/documentation-generator.agent.md: 6d6fda2b5f18
+  .github/prompts/document_project.prompt.md: 03e2d68949a7
   .github/templates/kit/AGENTS.md: f9b80f0f102b
   .github/templates/kit/documentar.command.md: 44364ebb0ca8
-  mkdocs.yml: 6b0f556ef76d
+  mkdocs.yml: ab0e72d492ad
   scripts/db_trace.py: c337133736ca
   scripts/kit.py: 432af520016f
   scripts/snapshot_sources.py: 0c769b0d5761
-revisado: 2026-11-09
+  scripts/web_captures.py: 53972c5aa039
+revisado: 2026-11-10
 ---
 # document_project
 
@@ -75,11 +76,12 @@ La vista del mismo flujo desde el usuario (qué pide, qué confirma y qué recib
 | `Destino` | ruta | Ruta donde se escriben los archivos Markdown | Obligatorio; no se asume `docs/` por defecto |
 | `Generador` | string | `mkdocs-material` (por defecto) o `zensical` | Obligatorio. Ambos usan `mkdocs.yml` (nunca `zensical.toml`); con `zensical` se aplican las *Reglas por generador: Zensical* del prompt (pipeline sin hooks, Gap A4, plugins soportados, build vía script) |
 | `Idioma` | string | `es`, `en` u otro código ISO 639-1 | Obligatorio; aplica a todo el contenido generado |
-| `Tipo de cada origen` | string | `CÓDIGO` · `NORMATIVA` · `ESPECIFICACIÓN` · `UI/PANTALLAS` · `REFERENCIA` · `CONTRATO` · `INFRAESTRUCTURA` · `MANUAL` · `BASE DE DATOS` | Opcional; autodetectado si se omite; se confirma antes de continuar. Catálogo completo en [Tipos de Origen](../functional/origin_types.md) |
+| `Tipo de cada origen` | string | `CÓDIGO` · `NORMATIVA` · `ESPECIFICACIÓN` · `UI/PANTALLAS` · `REFERENCIA` · `CONTRATO` · `INFRAESTRUCTURA` · `MANUAL` · `BASE DE DATOS` (con `WEB`, `UI/PANTALLAS` de la aplicación desplegada) | Opcional; autodetectado si se omite; se confirma antes de continuar. Catálogo completo en [Tipos de Origen](../functional/origin_types.md) |
 | `Estrategia` | string | `federado` · `hub+satélite` · `monorepo` | Solo con ≥2 orígenes CÓDIGO; nunca autodetectado |
 | `Alcance` | string | Módulos o subconjunto | Opcional; por defecto proyecto completo. Un módulo funcional transversal dentro de un repositorio mayor se expresa como pathspecs de git (`doc_trace.py --path`), propuestos y aplicados en el INVENTARIO (se informan; el usuario puede corregirlos sin que el flujo se detenga) |
 | `Ref` | string | Rama, etiqueta o commit de un origen CÓDIGO remoto | Solo con repositorio remoto; se pregunta, nunca se asume `main` |
 | `BD` | ruta + entorno + patrones | Exportación Markdown de `util_bbdd` (carpeta con `manifest.json`), entorno que representa y patrones del alcance | Opcional; activa el origen BASE DE DATOS: Fase 0-pre (`snapshot_sources.py add`, `db_trace.py info`), Fase 3 (`db_trace.py select --env` → `docs/bd/`, `compare` → fichas `COB-DATOS`), Fase 1 incremental (`changes --include`, antes de `select`) y CIERRE (`tracemap` → `.ai/trace_map.toml`). Ver [db_trace](db_trace.md) |
+| `WEB` | nombre + entorno + versión + roles + modo | Aplicación desplegada en un entorno (p. ej. PRE); modo `capturas` (base) o `navegador` (Claude in Chrome, solo lectura). La URL se da en el chat y nunca se versiona | Opcional; requiere origen CÓDIGO. Activa § Origen WEB: requisitos previos y plan de capturas en el INVENTARIO, Fase 0-pre (`snapshot_sources.py add` + `sync`), revisión humana y `web_captures.py publish`, Fase 3c (Arquetipo 15 → `docs/manual/`), contraste → fichas `COB-WEB`, Fase 6 y CIERRE (`web_captures.py check`). Ver [web_captures](web_captures.md) |
 | `Arquetipos` | string | Subconjunto de arquetipos a aplicar | Opcional; por defecto todos los aplicables |
 | `Verificación` | flags | `--verify-tools` y/o `--verify-build [--serve]` | Opcional; nunca automático |
 | `Modo` | string | `incremental` · `completo` | Opcional; por defecto `incremental` si `<raíz destino>/.ai/doc_state.json` tiene baseline del origen. La Fase 1 parte de `doc_trace.py changes`; su código `3` (sin baseline, sin git, commit fuera del historial u otra versión menor de doc_ia) fuerza `completo`. El CIERRE siempre ejecuta `doc_trace.py baseline` |
@@ -125,6 +127,7 @@ kit, su carpeta `.doc_ia/`.
 | El usuario indica un documento reestructurado (otro nombre u otra ubicación) | Fase 0-pre: `snapshot_sources.py replace` + `sync`; manda aunque su versión sea menor; los `.md` antiguos de `_fuentes/<nombre>/` quedan huérfanos y se retiran con confirmación |
 | Documento convertido con credenciales | Fase 0c, Paso 4b: `redact_secrets.py` sobre `md/` antes de copiar a `_fuentes/`; CIERRE: `redact_secrets.py _fuentes --check` con código `0` antes del commit |
 | Origen con señales de integración (clientes HTTP/SOAP, mensajería, cargas planificadas, SSO, endpoints para terceros) | Fase 1 detecta `INTEGRACIONES_APLICA`; Fase 3b genera `docs/integraciones/` (Arquetipo 14, `integration_doc.prompt.md`) |
+| Opción `WEB` sin autorización del entorno, sin origen CÓDIGO o con una captura con datos reales | Se detiene y se pregunta; la captura con datos reales no se publica (se repite con datos ficticios o se excluye). `web_captures.py check` con código `1` → corregir antes del commit |
 | `snapshot_sources.py sync` con código `2` | Origen inexistente o patrón `{ver}` sin coincidencias: se muestra el error y se pide la ruta correcta; no se inventan ficheros |
 | Biblioteca de SharePoint no sincronizada en local | Se pide al usuario que la sincronice con OneDrive; no se inventan rutas |
 | Clon local del repositorio remoto desfasado | `git fetch` y worktree desacoplado en `_staging/`; nunca `pull` ni `checkout` en el clon del usuario sin confirmación |
@@ -148,12 +151,13 @@ kit, su carpeta `.doc_ia/`.
 
 | Dependencia | Propósito | Requerida | Comportamiento sin ella |
 |---|---|---|---|
-| `.github/DOCUMENTATION_STANDARD.md` | Define los 12 arquetipos formales y sus estructuras | Sí | Las fases de generación no tienen plantilla de referencia |
+| `.github/DOCUMENTATION_STANDARD.md` | Define los 15 arquetipos formales y sus estructuras | Sí | Las fases de generación no tienen plantilla de referencia |
 | `.github/instructions/docs.instructions.md` | Reglas operativas (resumen de Mermaid, snippets, MkDocs; reglas de diagramas en `DOCUMENTATION_STANDARD.md` §3.17) | Sí | Riesgo de inconsistencias de estilo y formato |
 | `mkdocs.yml` (destino) | Navegación que se sincroniza en Fase 5 | Sí, con cualquiera de los dos generadores | Sin él, SYNC NAV no puede actualizar la navegación |
 | Prompts de arquetipo (`.github/prompts/`) | Plantillas de cada tipo de documento | Sí | Las fases 2-4 no tienen instrucciones para generar cada arquetipo |
 | `scripts/kit.py` y `.github/kit/MANIFEST.txt` | Kit de documentación en el destino (Fase 0b) | Sí | Sin kit, el destino no se puede relanzar con `/documentar` sin doc_ia |
 | `scripts/db_trace.py` | Origen BASE DE DATOS: importación, contraste, cambios y `trace_map` | Solo con `BD` | Sin él, no se puede usar una exportación de `util_bbdd` |
+| `scripts/web_captures.py` | Origen WEB: publicación de capturas revisadas y comprobación del manual | Solo con `WEB` | Sin él, las capturas no tienen registro ni control antes del commit |
 | `python -m mkdocs build` | Verificación de build (Fase 7) | Solo con `--verify-build` | Si falta, la fase 7 no se puede ejecutar |
 | `python scripts/build_docs_zip.py --builder zensical` (o `python -m zensical build --strict`) | Verificación de build con Zensical (Fase 7) | Solo con `--verify-build` y generador `zensical` | Sin el script, los hooks no se ejecutan y se reporta Gap A4 |
 
@@ -196,6 +200,7 @@ agente o plantilla que citan.
     | Kit: Fase 0b, `<doc_ia>`, conflictos, RESUMEN, prompt de instancia en el CIERRE y lanzadores `/documentar` | `.github/prompts/document_project.prompt.md` (Kit de documentación en el destino y `<doc_ia>`, Fase 0b, puntos 9 y 10), `.claude/commands/document-project.md` (Fase 0b, RESUMEN, CIERRE), `.github/agents/documentation-generator.agent.md` (inventario), `.github/templates/kit/documentar.command.md`, `.github/templates/kit/AGENTS.md`, `tests/test_docs_conformance.py::test_kit_rule_everywhere` | ✅ |
     | Parámetro `BD` y origen BASE DE DATOS en las fases | `.github/prompts/document_project.prompt.md::Origen BASE DE DATOS (opción BD)`, `::Fase 0a`, `::Fase 3`, `::Devuelve en este orden` (Trazabilidad para la BD), `.claude/commands/document-project.md` (Inputs requeridos), `.github/agents/documentation-generator.agent.md` (inventario), `scripts/db_trace.py::main` | ✅ |
     | Documento reestructurado, redacción de credenciales y Arquetipo 14 | `.github/prompts/document_project.prompt.md` (Fase 0-pre «Versión vigente», Fase 0c Paso 4b, Fase 1 «Detección de integraciones», Fase 3b, CIERRE «Credenciales»), `.claude/commands/document-project.md`, `scripts/snapshot_sources.py::replace_source` | ✅ |
+    | Parámetro `WEB`, origen WEB y Fase 3c | `.github/prompts/document_project.prompt.md::Origen WEB (opción WEB)`, `::Fase 3c`, `.claude/commands/document-project.md` (Inputs requeridos), `.github/agents/documentation-generator.agent.md` (§7), `scripts/web_captures.py::main` | ✅ |
     | Copia en `_fuentes/` y migración de otros nombres | `.github/prompts/document_project.prompt.md` (Fase 0c, Paso 5), `tests/test_docs_conformance.py::test_sources_folder_is_canonical` | ✅ |
     | Generador `zensical`: `TIENE_PIPELINE_SIN_HOOKS`, Gap A4, plugins soportados, build vía script | `.github/prompts/document_project.prompt.md` (sección "Reglas por generador: Zensical") | ✅ |
     | Dependencias: norma, `docs.instructions.md`, `mkdocs.yml`, prompts, `mkdocs build` | `.github/prompts/document_project.prompt.md`, `.github/agents/documentation-generator.agent.md` | ✅ |

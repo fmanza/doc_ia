@@ -1,13 +1,13 @@
 ---
 arquetipo: "1"
 fuentes:
-  .github/DOCUMENTATION_STANDARD.md: 9b52d08908a0
-  .github/prompts/document_project.prompt.md: c4e92f40f097
+  .github/DOCUMENTATION_STANDARD.md: 015af37230ba
+  .github/prompts/document_project.prompt.md: 03e2d68949a7
   scripts/db_trace.py: c337133736ca
   scripts/snapshot_sources.py: 0c769b0d5761
 decisiones:
   ../decisiones/origins_decisiones.md: 2aa59f9fc5e0
-revisado: 2026-11-09
+revisado: 2026-11-10
 ---
 # Catálogo de Tipos de Origen
 
@@ -96,15 +96,19 @@ secciones concretas de los arquetipos del proyecto `CÓDIGO` principal.
 |---|---|---|
 | `NORMATIVA` | Arquetipo 8 (completo) + Arquetipo 1 (proyecto principal) | Arq. 8 completo; Arq. 1 §5 Reglas de Negocio |
 | `ESPECIFICACIÓN` | Arquetipo 1 (proyecto principal); Arquetipo 14 si es un diseño técnico de integraciones | §3 Flujo Principal, §5 Reglas de Negocio, §6 Flujos Alternativos, §7 Criterios de Aceptación; Arq. 14: contratos, periodicidad y efectos (manda el código si discrepan) |
-| `UI/PANTALLAS` | Arquetipos 1 + 3 | Arq. 1 §3 Flujo Principal; Arq. 3 (How-to/Tutorial) §3 Pasos |
+| `UI/PANTALLAS` | Arquetipos 1 + 3 (+ 15 con la opción `WEB`) | Arq. 1 §3 Flujo Principal; Arq. 3 (How-to/Tutorial) §3 Pasos; con `WEB`, Arquetipo 15 (`docs/manual/`) y fichas `COB-WEB-…` del contraste |
 | `REFERENCIA` | Arquetipo 2 o Arquetipo 5 | Arq. 2 §4 Dependencias y Requisitos; o Arq. 5 decisión (ADR) |
 | `CONTRATO` | Arquetipos 2 + 12 (proyecto principal) | Arq. 2 §1 Arquitectura y §2 Modelo de Datos / Contratos; Arq. 12 §5 Interfaces Publicadas |
 | `INFRAESTRUCTURA` | Arquetipos 2 + 6 | Arq. 2 §4 Dependencias y Requisitos; Arq. 6C §3 › Despliegue |
 | `MANUAL` | Arquetipos 3a · 3b · 6 · 7 | Arq. 3a §3 Pasos (tareas ya descritas); Arq. 3b §3 (contenido de aprendizaje); Arq. 6A/B §1 Descripción; Arq. 7 §3 Configurar el Entorno y §5 Primer Resultado |
 | `BASE DE DATOS` | Sección generada `docs/bd/` + Arquetipos 2 · 12 · 13 | Sección `docs/bd/` importada con [db_trace](db_trace.md); Arq. 2 §2 Modelo de Datos (evidencia con ancla de columna); Arq. 12 §5; fichas `COB-DATOS-…` del contraste código ↔ BD |
 
-`BASE DE DATOS` es la única excepción a «MATERIAL no genera páginas propias»: sus páginas no
-las escribe el agente, sino que se importan generadas desde la exportación y no se editan.
+`BASE DE DATOS` y `UI/PANTALLAS` con la opción `WEB` son las excepciones a «MATERIAL no genera
+páginas propias». Las páginas de `docs/bd/` no las escribe el agente: se importan generadas desde
+la exportación y no se editan. Con `WEB`, las capturas de la aplicación **desplegada** en un
+entorno alimentan el manual de funcionamiento (`docs/manual/`, Arquetipo 15). `WEB` no es un tipo
+nuevo, sino una forma de obtener material `UI/PANTALLAS`: capturas que aporta el usuario o un
+recorrido de solo lectura en el chat.
 
 ## 4. Postcondiciones y Efectos
 
@@ -126,6 +130,7 @@ las escribe el agente, sino que se importan generadas desde la exportación y no
 | `CONTRATO` propio del proyecto | El tipo `CONTRATO` aplica a especificaciones de la API/datos del **propio proyecto**, no a contratos externos; los externos son `REFERENCIA` | Un contrato de terceros procesado como `CONTRATO` del proyecto inventaría una API que no pertenece al proyecto |
 | `INFRAESTRUCTURA` sin inventario de código | Los artefactos IaC no tienen módulos Python/JS inventariables; solo enriquecen las secciones de despliegue y dependencias | Intentar un inventario A/B/C sobre `.tf` o K8s YAML produce resultados vacíos |
 | `BASE DE DATOS` se contrasta | Describe lo desplegado en un entorno; se contrasta con el `CÓDIGO` (lo construido) y ninguno corrige al otro: cada discrepancia es una ficha `COB-DATOS-…`. doc_ia no se conecta a la base de datos | Se «corregiría» en silencio el modelo del código con un esquema de un entorno concreto, o al revés |
+| `UI/PANTALLAS` desplegadas se contrastan | Con la opción `WEB`, las capturas describen lo desplegado en un entorno (con su versión); se contrastan con el `CÓDIGO` y cada diferencia es una ficha `COB-WEB-…`. Ningún script navega por la aplicación y su dirección no se versiona | El manual contradiría al código sin que nadie lo decida, o la dirección interna del entorno quedaría publicada |
 | `MANUAL` propio del proyecto | El tipo `MANUAL` aplica a documentación narrativa escrita **por/para el propio proyecto**; la documentación de terceros es `REFERENCIA` | Documentación de un tercero procesada como `MANUAL` generaría guías de operación que no corresponden al proyecto |
 | Requisitos frente a manual | Un documento propio que describe lo que se va a construir (PRD, requisitos, user stories) es `ESPECIFICACIÓN` aunque su nombre diga `manual`; lo que describe lo ya construido es `MANUAL`. El nombre solo propone el tipo | Un PRD llamado `manual_producto.pdf` enriquecería guías de uso en lugar de los criterios de aceptación |
 
@@ -220,6 +225,7 @@ el chat y no tiene tests automatizados.
     | Señales `normativa`, `legislación`, `boe`, `doue` y caso «Normativa sin fuerza obligatoria» | `.github/prompts/document_project.prompt.md::Fase 0a` (paso 1, `NORMATIVA`) | ✅ |
     | Tipo `BASE DE DATOS`: señal, parámetro `BD`, mapeo, excepción `docs/bd/` y regla de contraste | `.github/prompts/document_project.prompt.md::Fase 0a` (paso 1 y mapeo), `::Origen BASE DE DATOS (opción BD)`, prioridad de fuentes (punto 5), `scripts/db_trace.py::load_manifest`, `::import_pages` | ✅ |
     | Orden 8 de la señal `BASE DE DATOS` en la tabla y su mapeo | `.github/DOCUMENTATION_STANDARD.md::3.10` (Tipos de origen, Mapeo MATERIAL → arquetipos), `.github/prompts/document_project.prompt.md::Fase 0a` (lista de tipos: tras `MANUAL`, antes de `REFERENCIA`) | ✅ |
+    | Excepción y regla de `UI/PANTALLAS` con la opción `WEB` | `.github/DOCUMENTATION_STANDARD.md::3.10` (Origen WEB, Mapeo MATERIAL), `::3.20`, `.github/prompts/document_project.prompt.md::Origen WEB` | ✅ |
     | Límite «No adquiere los orígenes» | `.github/prompts/document_project.prompt.md::Fase 0-pre`, `scripts/snapshot_sources.py` (docstring del módulo) | ✅ |
     | AC-01 | `.github/DOCUMENTATION_STANDARD.md::3.10` (filas `CONTRATO`) | ✅ |
     | AC-02 | `.github/DOCUMENTATION_STANDARD.md::3.10` (filas `INFRAESTRUCTURA`) | ✅ |

@@ -99,7 +99,7 @@ al sync, añadir su tupla a `PAIRS` en `hooks/sync_root_docs.py` y su entrada en
 
 Toda documentación sigue los **arquetipos formales** definidos en
 [`.github/DOCUMENTATION_STANDARD.md`](./.github/DOCUMENTATION_STANDARD.md).
-Los arquetipos 1–8 son la base; 3b y 9–11 son las adiciones 2024-2025; 12, 13, 14 y la regla
+Los arquetipos 1–8 son la base; 3b y 9–11 son las adiciones 2024-2025; 12, 13, 14, 15 y la regla
 transversal de evidencia (§3.16) son las adiciones 2026.
 
 | Arquetipo | Propósito | Ubicación | Prompt |
@@ -119,11 +119,12 @@ transversal de evidencia (§3.16) son las adiciones 2026.
 | **12. Referencia del Sistema** *(condicional)* | ¿Qué configuración, comandos y códigos expone? | `docs/reference/` | `reference_doc.prompt.md` |
 | **13. Registro de Decisiones de Cobertura** *(condicional, transversal)* | ¿Qué hemos decidido sobre cada ⚠️ ❌ 🔍? | `docs/decisiones/` | `coverage_decisions.prompt.md` |
 | **14. Integraciones** *(condicional)* | ¿Con qué sistemas intercambia datos, cuándo y con qué efecto? | `docs/integraciones/` | `integration_doc.prompt.md` |
+| **15. Manual de Funcionamiento** *(condicional, opción `WEB`)* | ¿Cómo uso la aplicación desplegada con mi rol y qué necesito antes? | `docs/manual/` | `user_manual_doc.prompt.md` |
 
 **Características clave**:
 - ✅ Secciones fijas: estructura inmutable (nunca omitir; escribir "No aplica" si vacío)
 - ✅ Enlaces bidireccionales: Arquetipo 2 (§5) ↔ Arquetipo 4 (§5) obligatorios
-- ✅ Evidencia verificable: Arq. 1, 2 y 12 cierran con bloque plegable "Evidencia" (`ruta::símbolo`
+- ✅ Evidencia verificable: Arq. 1, 2, 12 y 15 cierran con bloque plegable "Evidencia" (`ruta::símbolo`
   en código inline + leyenda ✅ ⚠️ 🔍 ❌) — ver `DOCUMENTATION_STANDARD.md` §3.16
 - ✅ Decisiones humanas: los ⚠️ ❌ 🔍 tienen ficha `COB-<ÁMBITO>-<NNN>` en `docs/decisiones/`
   (siempre con Arq. 8); las personas deciden, el agente aplica la decisión y la cita — §3.18
@@ -251,6 +252,8 @@ python scripts/doc_trace.py stamp <página>  # Re-sella las fuentes actuales tra
 python scripts/doc_trace.py stamp <página> --source <ruta>…  # Primer sellado: --source SUSTITUYE la lista entera
 python scripts/db_trace.py select --export <util_bbdd> --root <destino> --name <bd> --include <patrón>  # Origen BD → docs/bd/
 python scripts/db_trace.py compare --catalog <catalog.json> --entities <entities.xml>  # Contraste código ↔ BD (COB-DATOS)
+python scripts/web_captures.py --root <destino> publish <origen> <captura>… --env PRE --version <v>  # Origen WEB: publica capturas revisadas
+python scripts/web_captures.py --root <destino> check  # Capturas ↔ .ai/captures.json ↔ citas del manual (Arq. 15)
 python scripts/kit.py sync --root <destino>   # Kit de documentación: .doc_ia/ + /documentar + DOCUMENTAR.md (Fase 0b)
 python scripts/kit.py check --root <destino>  # Comprueba el kit del destino (editado, desfasado, falta instancia)
 python scripts/snapshot_sources.py --root <destino> add <nombre> "<ruta|…_v{ver}.docx>"  # Fase 0-pre: declara origen
@@ -265,4 +268,4 @@ python scripts/convert_to_md.py <ruta> --validate-only --engine markitdown  # Va
 
 ---
 
-*Actualizado: 2026-06-24*
+*Actualizado: 2026-11-10*

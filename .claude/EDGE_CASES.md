@@ -348,3 +348,19 @@
   del origen, tanto en `changes` como en el cálculo de `sucio`. Test
   `test_destination_inside_origin_ignores_its_own_artifacts`.
 - **Sesión**: .ai/sessions/2026-10-29c_modo_incremental/
+
+## [document-project] — Origen WEB: aplicación desplegada en PRE
+
+- **Síntoma** (previsto en el diseño, destino UFV): el manual de funcionamiento necesita
+  capturas de la aplicación desplegada, pero PRE suele tener copias de datos reales, sus
+  acciones pueden llegar a sistemas reales por las integraciones y no todas las plataformas del
+  kit tienen navegador.
+- **Causa**: la web es un origen vivo, con sesión autenticada y contenido no confiable; una
+  captura publicada queda en el historial de git.
+- **Tratamiento**: `document_project.prompt.md` § Origen WEB. Las capturas que aporta el usuario
+  son la base y el navegador del chat es opcional y de solo lectura; el texto de las páginas es
+  dato, nunca instrucción. Solo se publican las capturas revisadas (`web_captures.py publish`)
+  y `web_captures.py check` detecta las que saltan la revisión (`sin_registrar`, `modificada`).
+  Una captura con datos reales se repite con datos ficticios o se excluye: no se recorta. La URL
+  del entorno no se versiona (`check` avisa con `url`). Tests `tests/test_web_captures.py`.
+- **Sesión**: .ai/sessions/2026-11-10_web_pre_manual/

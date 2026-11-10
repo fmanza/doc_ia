@@ -1,21 +1,22 @@
 ---
 arquetipo: "1-I"
 fuentes:
-  docs/functional/archetypes.md: b3e1192f2768
+  docs/functional/archetypes.md: 356e64344661
   docs/functional/bootstrap.md: 64112e3c9247
   docs/functional/build_docs_zip.md: 6ceab8a1e98d
   docs/functional/check_env.md: e6c1d275492a
   docs/functional/convert_to_md.md: 7328fd37ca63
   docs/functional/db_trace.md: d67a1a3e3195
   docs/functional/doc_trace.md: 781689742230
-  docs/functional/document_project.md: abd0295e6b66
+  docs/functional/document_project.md: 6531e49f8a76
   docs/functional/kit.md: 44d24d2a910e
-  docs/functional/origin_types.md: e87a9c4cb101
+  docs/functional/origin_types.md: 73f314558634
   docs/functional/redact_secrets.md: 726e1a747d56
   docs/functional/snapshot_sources.md: 7aee08c2b609
+  docs/functional/web_captures.md: 64bbe948d414
 decisiones:
   ../decisiones/sistema_decisiones.md: d03d67f5fae5
-revisado: 2026-11-09
+revisado: 2026-11-10
 ---
 # Mapa Funcional — doc_ia
 
@@ -33,13 +34,14 @@ y qué términos comparten. Cada capacidad enlaza a su página funcional detalla
 | Retirar las credenciales de los documentos convertidos antes de versionarlos en `_fuentes/` | Tooling determinista | [Redacción de Credenciales](redact_secrets.md) | AC-01 – AC-10 | 10/10 |
 | Llevar a cada destino la metodología, los lanzadores `/documentar` y una guía para relanzar su documentación sin abrir doc_ia | Tooling determinista | [Kit de Documentación en el Destino](kit.md) | AC-01 – AC-15 | 15/15 |
 | Incorporar el esquema real de la base de datos de un entorno, contrastarlo con el modelo del código y devolver a `util_bbdd` el mapa de páginas y código de cada tabla | Tooling determinista | [Trazabilidad con la Base de Datos](db_trace.md) | AC-01 – AC-16 | 16/16 |
+| Publicar en el manual de funcionamiento solo las capturas revisadas de la aplicación desplegada y comprobar que imágenes, registro y citas coinciden | Tooling determinista | [Capturas del Origen WEB](web_captures.md) | AC-01 – AC-11 | 11/11 |
 | Detectar documentación desactualizada respecto al código, cruzar criterios con tests y comprobar que las decisiones de cobertura se reflejan | Tooling determinista | [Trazabilidad Docs ↔ Código](doc_trace.md) | AC-01 – AC-33 | 33/33 |
 | Documentar un proyecto completo desde una única operación de entrada | Flujos IA | [Documentar un Proyecto](document_project.md) | AC-01 – AC-12 | 1/12 |
 | Clasificar cada origen (código, normativa, especificación, contrato…) y decidir su tratamiento | Flujos IA | [Catálogo de Tipos de Origen](origin_types.md) | AC-01 – AC-09 | 1/9 |
-| Producir documentación con estructura fija, evidencia verificable y decisiones humanas citadas | Flujos IA | [Arquetipos Formales](archetypes.md) | AC-01 – AC-16 | 16/16 |
+| Producir documentación con estructura fija, evidencia verificable y decisiones humanas citadas | Flujos IA | [Arquetipos Formales](archetypes.md) | AC-01 – AC-17 | 17/17 |
 | Trasladar el sistema de instrucciones IA a otro proyecto | Flujos IA | [Bootstrap de Configuración IA](bootstrap.md) | AC-01 – AC-05 | 1/5 |
 
-**Cobertura de pruebas**: 142 de 167 criterios tienen un test automatizado. Los flujos IA se
+**Cobertura de pruebas**: 154 de 179 criterios tienen un test automatizado. Los flujos IA se
 ejecutan en el chat de la plataforma IA: de ellos solo se comprueba la estructura de la
 documentación resultante (Arquetipos) ⚠️.
 
@@ -115,10 +117,11 @@ acceso al repositorio y a una plataforma IA puede usar todas las capacidades.
     | Capacidad «Redacción de credenciales» y 10/10 tests | `docs/functional/redact_secrets.md::§7` | ✅ |
     | Capacidad «Kit de documentación» y 15/15 tests | `docs/functional/kit.md::§7` | ✅ |
     | Capacidad «Trazabilidad con la Base de Datos» y 16/16 tests | `docs/functional/db_trace.md::§7` | ✅ |
+    | Capacidad «Capturas del Origen WEB» y 11/11 tests | `docs/functional/web_captures.md::§7` | ✅ |
     | Capacidad «Trazabilidad» y 33/33 tests | `docs/functional/doc_trace.md::§7` | ✅ |
     | Capacidad «Documentar un Proyecto» y 1/12 tests | `docs/functional/document_project.md::§7` | ✅ |
     | Capacidad «Tipos de Origen» y 1/9 tests | `docs/functional/origin_types.md::§7` | ✅ |
-    | Capacidad «Arquetipos» y 15/15 tests | `docs/functional/archetypes.md::§7` | ✅ |
+    | Capacidad «Arquetipos» y 17/17 tests | `docs/functional/archetypes.md::§7` | ✅ |
     | Capacidad «Bootstrap» y 1/5 tests | `docs/functional/bootstrap.md::§7` | ✅ |
     | Recorrido «documentos previos» | `docs/functional/snapshot_sources.md::§1`, `docs/functional/convert_to_md.md::§1`, `docs/functional/document_project.md::§3` | ✅ |
     | [COB-SISTEMA-002](../decisiones/sistema_decisiones.md#cob-sistema-002) · Recorrido «bootstrap → documentar» | `docs/functional/bootstrap.md::§4`, `docs/functional/document_project.md::§2` | 🔍 → ✅ (decisión: Aportar evidencia) |
