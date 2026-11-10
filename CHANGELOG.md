@@ -5,6 +5,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+## [0.11.2] — 2026-11-10
+
 ### Fixed
 
 - `db_trace.py select`: `--subdir ..` (o `.`) hacía que la retirada de páginas obsoletas
@@ -483,7 +485,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - Restauración de `config-reviewer.agent.md` y creación de `docs.instructions.md`
   tras corrupción del bootstrap.
 
-[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.11.1...HEAD
+[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.11.2...HEAD
+[0.11.2]: https://github.com/fmanza/doc_ia/compare/v0.11.1...v0.11.2
 [0.11.1]: https://github.com/fmanza/doc_ia/compare/v0.11.0...v0.11.1
 [0.11.0]: https://github.com/fmanza/doc_ia/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/fmanza/doc_ia/compare/v0.9.0...v0.10.0
