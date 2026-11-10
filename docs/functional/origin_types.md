@@ -4,7 +4,7 @@ fuentes:
   .github/DOCUMENTATION_STANDARD.md: 015af37230ba
   .github/prompts/document_project.prompt.md: 03e2d68949a7
   scripts/db_trace.py: c337133736ca
-  scripts/snapshot_sources.py: 0c769b0d5761
+  scripts/snapshot_sources.py: f9dd29bea432
 decisiones:
   ../decisiones/origins_decisiones.md: 2aa59f9fc5e0
 revisado: 2026-11-10

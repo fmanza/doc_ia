@@ -17,7 +17,7 @@ fuentes:
   scripts/doc_trace.py: 3631c07d7fc3
   scripts/kit.py: 432af520016f
   scripts/redact_secrets.py: d0cbb8ed3fbf
-  scripts/snapshot_sources.py: 0c769b0d5761
+  scripts/snapshot_sources.py: f9dd29bea432
   scripts/start-server.py: a12209ac8507
   scripts/web_captures.py: 53972c5aa039
 revisado: 2026-11-10
@@ -33,7 +33,7 @@ línea de comandos, códigos de salida y eventos de build. La API interna de cad
 | Clave | Origen | Tipo | Por defecto | Descripción |
 |---|---|---|---|---|
 | `CUDA_VISIBLE_DEVICES` | `env` | cadena | `""` (lo fija `convert_to_md.py` al importarse si no existe) | Visibilidad de GPU para docling. `--device cpu` la fija a `""`; `--device cuda` la elimina; `--device auto` respeta un valor exportado por el usuario e ignora el que fija el propio módulo |
-| `project.version` | fichero `pyproject.toml` | cadena SemVer | `0.11.0` (valor actual) | Versión usada en el nombre del ZIP (`doc_ia-docs-{versión}.zip`) y en la release `docs-v{versión}` |
+| `project.version` | fichero `pyproject.toml` | cadena SemVer | `0.11.1` (valor actual) | Versión usada en el nombre del ZIP (`doc_ia-docs-{versión}.zip`) y en la release `docs-v{versión}` |
 | `site_dir` | fichero `mkdocs.yml` | ruta | `site` | Directorio de salida del build; `mkdocs_hooks.py` lo lee de la configuración. `build_docs_zip.py` usa `site/` fijo |
 | `use_directory_urls` | fichero `mkdocs.yml` | booleano | `false` | URLs `*.html`: el sitio y el ZIP se abren con doble clic en `index.html` (el plugin `offline` lo fuerza igualmente) |
 | `plugins: offline` | fichero `mkdocs.yml` | plugin | activo | Escribe el índice de búsqueda como JS (`search/search_index.js`; Zensical: `search.js`) para buscar desde `file://` |
@@ -196,7 +196,7 @@ SharePoint sincronizada o patrón con `{ver}`) a `<--root>/_staging/<nombre>/` y
 | Opción / Argumento | Tipo | Por defecto | Descripción |
 |---|---|---|---|
 | `--root` | ruta (obligatorio) | — | Raíz del destino (carpeta con `mkdocs.yml`); global, antes del subcomando |
-| `add <nombre>` | cadena (obligatorio) | — | Nombre del origen (`[\w.-]+`): carpeta en `_staging/` y `_fuentes/` |
+| `add <nombre>` | cadena (obligatorio) | — | Nombre del origen (`[\w.-]+`, no solo puntos): carpeta en `_staging/` y `_fuentes/` |
 | `add <origen>` | ruta o patrón (obligatorio) | — | Fichero, carpeta o patrón con `{ver}` en el nombre del fichero |
 | `add --include` | glob (repetible) | todos los ficheros | Filtro para carpetas; no admitido con `{ver}` |
 | `replace <nombre> <origen>` | cadenas (obligatorios) | — | Sustituye un origen ya declarado por un documento **reestructurado** que indica el usuario (manda aunque su versión sea menor); historial «sustituido» y retira `_staging/<nombre>/` |

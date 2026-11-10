@@ -5,6 +5,14 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+## [0.11.1] — 2026-11-10
+
+### Fixed
+
+- `snapshot_sources.py`: un nombre de origen `.` o `..` (al declararlo o escrito a mano en
+  `.ai/sources.json`) hacía que `replace` borrase la raíz del destino y que `sync` copiase y
+  borrase ficheros fuera de `_staging/`. Ahora se rechaza con exit 2 sin tocar nada.
+
 ## [0.11.0] — 2026-11-10
 
 ### Added
@@ -468,7 +476,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - Restauración de `config-reviewer.agent.md` y creación de `docs.instructions.md`
   tras corrupción del bootstrap.
 
-[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.11.0...HEAD
+[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.11.1...HEAD
+[0.11.1]: https://github.com/fmanza/doc_ia/compare/v0.11.0...v0.11.1
 [0.11.0]: https://github.com/fmanza/doc_ia/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/fmanza/doc_ia/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/fmanza/doc_ia/compare/v0.8.0...v0.9.0
