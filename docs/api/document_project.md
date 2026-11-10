@@ -9,7 +9,7 @@ fuentes:
   mkdocs.yml: ab0e72d492ad
   scripts/db_trace.py: c337133736ca
   scripts/kit.py: 432af520016f
-  scripts/snapshot_sources.py: 0c769b0d5761
+  scripts/snapshot_sources.py: f9dd29bea432
   scripts/web_captures.py: 53972c5aa039
 revisado: 2026-11-10
 ---

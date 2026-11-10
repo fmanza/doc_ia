@@ -62,7 +62,7 @@ VERSION_TOKEN = "{ver}"
 VERSION_GROUP = r"(?P<ver>\d+(?:\.\d+)*)"
 # Separador y prefijo «v» que acompañan a la versión y desaparecen del nombre estable.
 STABLE_NAME_RE = re.compile(r"[ _.-]?[vV]?\{ver\}")
-NAME_RE = re.compile(r"^[\w.-]+$")
+NAME_RE = re.compile(r"^(?!\.+$)[\w.-]+$")  # «.» o «..» saldrían de _staging/
 STAGING_DIR = "_staging"
 MANIFEST = Path(".ai") / "sources.json"
 # Carpetas y ficheros que nunca forman parte de un origen: salida de conversión, control de
@@ -194,6 +194,9 @@ def read_manifest(path: Path) -> dict[str, Any]:
         raise SnapshotError(f"manifiesto con JSON inválido: {path} ({exc})") from exc
     if not isinstance(data, dict) or not isinstance(data.get("fuentes"), dict):
         raise SnapshotError(f"manifiesto inválido: {path}")
+    for name in data["fuentes"]:
+        if not NAME_RE.fullmatch(name):
+            raise SnapshotError(f"manifiesto inválido: {path} (nombre de origen «{name}»)")
     return data
 
 

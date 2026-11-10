@@ -1,9 +1,9 @@
 ---
 arquetipo: "1"
 fuentes:
-  scripts/snapshot_sources.py: 0c769b0d5761
-  tests/test_snapshot_sources.py: cc22398cf536
-revisado: 2026-11-09
+  scripts/snapshot_sources.py: f9dd29bea432
+  tests/test_snapshot_sources.py: 5f8b5220c4a2
+revisado: 2026-11-10
 ---
 # Adquisición de Orígenes Documentales
 
@@ -110,6 +110,7 @@ con un resultado distinto según haya habido cambios o no.
 | Un origen caído no frena a los demás | Si un origen falla, se informa y se continúa con el resto; el resultado final indica el error | Una unidad de red desconectada dejaría sin actualizar todos los demás orígenes |
 | Lo que no es documento se omite | En una carpeta se omiten la conversión a Markdown previa, las carpetas ocultas y de control de versiones, la zona de trabajo y los ficheros de bloqueo de Office y de metadatos del sistema | Se copiarían ficheros temporales o conversiones viejas como si fueran documentos del origen |
 | Sin red ni servicios IA | Todo origen es una ruta del sistema de ficheros; el registro se escribe con orden estable | Dependencia de credenciales o de conexión; registros con diferencias espurias en git |
+| Nombre dentro de la zona de trabajo | El nombre de un origen no puede ser `.` ni `..`, ni al declararlo ni en un registro editado a mano | La copia, la sustitución o la limpieza actuarían fuera de `_staging/` y podrían borrar la raíz del destino |
 
 ## 6. Límites, Flujos Alternativos y Casos Especiales
 
@@ -176,6 +177,8 @@ con un resultado distinto según haya habido cambios o no.
 | AC-15 | Un documento nuevo que no existe | Se sustituye el origen | Resultado 2; la declaración y la copia anteriores se conservan | `tests/test_snapshot_sources.py::test_replace_with_missing_document_keeps_old_declaration` |
 | AC-16 | Un origen no declarado, o la sustitución por el mismo origen | Se sustituye | Resultado 2 con su motivo («no declarado» / «usa `sync`») | `tests/test_snapshot_sources.py::test_replace_errors_exit_2` |
 | AC-17 | Un origen sustituido | Se listan los orígenes | Aparece el origen nuevo | `tests/test_snapshot_sources.py::test_list_tolerates_replaced_history` |
+| AC-18 | Un nombre de origen `.` o `..` | Se declara | Resultado 2 y no se escribe el registro | `tests/test_snapshot_sources.py::test_add_rejects_names_that_leave_staging` |
+| AC-19 | Un registro editado a mano con el nombre `..` | Se sustituye o se sincroniza | Resultado 2 y la raíz del destino queda intacta | `tests/test_snapshot_sources.py::test_hand_edited_manifest_name_never_deletes_the_destination` |
 
 Verificación: `python -m pytest tests/test_snapshot_sources.py -q`.
 
@@ -215,4 +218,5 @@ Verificación: `python -m pytest tests/test_snapshot_sources.py -q`.
     | Listar | `scripts/snapshot_sources.py::_cmd_list` | ✅ |
     | Sustituir y regla «La versión vigente la indica el usuario» | `scripts/snapshot_sources.py::replace_source`, `::_cmd_replace` | ✅ |
     | Repositorios remotos y SharePoint fuera de la herramienta | `scripts/snapshot_sources.py` (docstring del módulo) | ✅ |
-    | AC-01 – AC-17 | `tests/test_snapshot_sources.py` | ✅ |
+    | Regla «Nombre dentro de la zona de trabajo» | `scripts/snapshot_sources.py::NAME_RE`, `::declare`, `::read_manifest` | ✅ |
+    | AC-01 – AC-19 | `tests/test_snapshot_sources.py` | ✅ |

@@ -234,6 +234,28 @@ def test_corrupt_manifest_exit_2(tmp_path: Path, capsys: pytest.CaptureFixture[s
     assert "JSON inválido" in capsys.readouterr().err
 
 
+@pytest.mark.parametrize("name", [".", ".."])
+def test_add_rejects_names_that_leave_staging(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], name: str
+) -> None:
+    src = _write(tmp_path / "doc.docx")
+    assert _run(tmp_path / "VG", "add", name, str(src)) == 2
+    assert "nombre de origen inválido" in capsys.readouterr().err
+    assert not (tmp_path / "VG" / ".ai" / "sources.json").exists()
+
+
+def test_hand_edited_manifest_name_never_deletes_the_destination(tmp_path: Path) -> None:
+    """Un `..` escrito a mano en sources.json haría que `replace` borrase la raíz del destino."""
+    dest = tmp_path / "VG"
+    keep = _write(dest / "mkdocs.yml", "site_name: VG")
+    new = _write(tmp_path / "nuevo.docx")
+    data = {"fuentes": {"..": {"origen": str(tmp_path / "viejo.docx"), "ficheros": {}}}}
+    _write(dest / ".ai" / "sources.json", json.dumps(data))
+    assert _run(dest, "replace", "..", str(new)) == 2
+    assert _sync(dest) == 2
+    assert keep.is_file()
+
+
 # --- replace: documento reestructurado (la versión vigente la indica el usuario) ---
 
 

@@ -1,9 +1,9 @@
 ---
 arquetipo: "2"
 fuentes:
-  scripts/snapshot_sources.py: 0c769b0d5761
-  tests/test_snapshot_sources.py: cc22398cf536
-revisado: 2026-11-09
+  scripts/snapshot_sources.py: f9dd29bea432
+  tests/test_snapshot_sources.py: 5f8b5220c4a2
+revisado: 2026-11-10
 ---
 # snapshot_sources
 
@@ -72,7 +72,7 @@ los ficheros ya convertidos.
 | Parámetro | Tipo | Descripción | Restricciones |
 |---|---|---|---|
 | `--root` | `Path` | Raíz del destino (carpeta con `mkdocs.yml`); opción global, antes del subcomando | Obligatorio |
-| `add name` | `str` | Nombre del origen: carpeta en `_staging/` y en `_fuentes/` | `^[\w.-]+$` (letras, dígitos, `.`, `_`, `-`) |
+| `add name` | `str` | Nombre del origen: carpeta en `_staging/` y en `_fuentes/` | `^(?!\.+$)[\w.-]+$` (letras, dígitos, `.`, `_`, `-`; nunca solo puntos) |
 | `add source` | `str` | Fichero, carpeta o patrón con `{ver}` | `{ver}` solo en el nombre del fichero, no en la carpeta; una ruta relativa se resuelve desde el directorio actual, no desde `--root` |
 | `add --include` | `str` (repetible) | Patrón glob para carpetas | No admitido junto a `{ver}`; sin efecto en un fichero suelto |
 | `sync names` | `str` (0..n) | Orígenes a sincronizar | Deben estar declarados; por defecto, todos |
@@ -168,6 +168,7 @@ los ficheros ya convertidos.
 | `test_sync_directory_detects_modified_and_removed` (1) | `modificado` y `baja` en carpeta, retirada de la conversión e `incluir` guardado | integración (CLI) |
 | `test_sync_dry_run_copies_nothing`, `test_sync_restores_deleted_staging_copy`, `test_sync_never_writes_into_the_origin` (3) | `--dry-run`, reposición de la copia y origen intacto | integración (CLI) |
 | `test_errors_exit_2` (3 casos), `test_sync_missing_origin_exit_2` (1) | Nombre inválido, `--include` con `{ver}`, origen no declarado y origen inexistente → `2` | integración (CLI) |
+| `test_add_rejects_names_that_leave_staging` (2 casos), `test_hand_edited_manifest_name_never_deletes_the_destination` | `.`/`..` rechazados al declarar y en un registro editado a mano; la raíz del destino no se borra | integración (CLI) |
 | `test_sync_failing_origin_does_not_lose_the_others` (1) | Un origen caído devuelve `2` sin impedir que otro se copie y se registre | integración (CLI) |
 | `test_list_shows_versions` (1) | `list` muestra el nombre estable con su versión | integración (CLI) |
 

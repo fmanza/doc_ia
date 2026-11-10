@@ -364,3 +364,18 @@
   Una captura con datos reales se repite con datos ficticios o se excluye: no se recorta. La URL
   del entorno no se versiona (`check` avisa con `url`). Tests `tests/test_web_captures.py`.
 - **Sesión**: .ai/sessions/2026-11-10_web_pre_manual/
+
+## [snapshot_sources.py] — Un origen llamado `..` borraba la raíz del destino (RESUELTO)
+
+- **Síntoma**: `NAME_RE` (`^[\w.-]+$`) admitía `.` y `..`. Con `add ..` (o un `..` escrito a mano
+  en `.ai/sources.json`), `replace ..` ejecutaba `shutil.rmtree(<destino>/_staging/..)`, es decir,
+  la raíz del destino, y `sync` copiaba y borraba ficheros en ella.
+- **Causa**: el nombre se usaba en `root / "_staging" / name` sin excluir los nombres formados
+  solo por puntos; `sync` y `replace` recorren los nombres del registro sin pasar por `declare`.
+- **Tratamiento**: `NAME_RE = ^(?!\.+$)[\w.-]+$` y `read_manifest` rechaza los nombres inválidos
+  (exit 2, sin tocar nada). Tests `test_add_rejects_names_that_leave_staging` y
+  `test_hand_edited_manifest_name_never_deletes_the_destination`. Detectado en el AUDIT_CODE de
+  `web_captures.py` (mismo fallo, C1).
+- **Pendiente**: `db_trace.py select --name ..` escribiría `catalog.json` y `manifest.json` en la
+  raíz del destino (sin borrar); propuesto como hotfix aparte.
+- **Sesión**: .ai/sessions/2026-11-10b_hotfix_nombre_origen/

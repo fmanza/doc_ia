@@ -5,6 +5,12 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+### Fixed
+
+- `snapshot_sources.py`: un nombre de origen `.` o `..` (al declararlo o escrito a mano en
+  `.ai/sources.json`) hacía que `replace` borrase la raíz del destino y que `sync` copiase y
+  borrase ficheros fuera de `_staging/`. Ahora se rechaza con exit 2 sin tocar nada.
+
 ## [0.11.0] — 2026-11-10
 
 ### Added
