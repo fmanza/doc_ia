@@ -52,6 +52,7 @@ Estandarizar instrucciones de documentación para asegurar:
 | **Prompt: reference_doc** | `.github/prompts/reference_doc.prompt.md` | ✅ Existente (Arq. 12, 2026-10-28) |
 | **Prompt: coverage_decisions** | `.github/prompts/coverage_decisions.prompt.md` | ✅ Existente (Arq. 13, 2026-11-04) |
 | **Prompt: integration_doc** | `.github/prompts/integration_doc.prompt.md` | ✅ Existente (Arq. 14, 2026-11-09) |
+| **Prompt: user_manual_doc** | `.github/prompts/user_manual_doc.prompt.md` | ✅ Existente (Arq. 15, 2026-11-10) |
 | **Prompt: documentation_review** | `.github/prompts/documentation_review.prompt.md` | ✅ Existente |
 
 ### 2.4 Gaps Actuales
@@ -577,7 +578,7 @@ Cuando `/document-project` recibe más de un `Origen`, o cuando el único origen
 | `CÓDIGO` | Archivos fuente (`.py`, `.js`, `.ts`, `.cs`, `.java`, `.go`, `.rs`, …), `pyproject.toml`, `package.json`, `pom.xml`, `Cargo.toml`, `go.mod`, `src/`, `tests/` | Documentar como proyecto: inventario completo + arquetipos 1–7 y 12 (si hay señales) |
 | `NORMATIVA` | PDFs/docs con palabras clave en nombre: `ley`, `decreto`, `directiva`, `rgpd`, `gdpr`, `une`, `iso`, `reglamento`, `compliance` | Activar Arquetipo 8; enriquece §5 (Reglas de Negocio) del Arquetipo 1 del proyecto principal |
 | `ESPECIFICACIÓN` | Word/PDF de requisitos, user stories, pliego, casos de uso; ficheros `.feature` (BDD/Gherkin); carpetas `specs/`, `requirements/`, `ux/`, `user-stories/` | Enriquece Arquetipo 1 §3+§5+§6+§7 del proyecto principal |
-| `UI/PANTALLAS` | Wireframes, mockups, capturas (`.png`, `.jpg`, `.pdf` de diseño); carpetas `mockups/`, `screens/`, `wireframes/`, `figma-exports/` | Enriquece Arquetipo 1 §3 (Flujo Principal) y Arquetipo 3 (Guías) |
+| `UI/PANTALLAS` | Wireframes, mockups, capturas (`.png`, `.jpg`, `.pdf` de diseño); carpetas `mockups/`, `screens/`, `wireframes/`, `figma-exports/`. Con la opción `WEB`: capturas de la aplicación **desplegada** en un entorno (p. ej. PRE) | Enriquece Arquetipo 1 §3 (Flujo Principal) y Arquetipo 3 (Guías); con `WEB`, Arquetipo 15 (Manual de funcionamiento) y contraste con el código → fichas `COB-WEB` (Arq. 13) |
 | `CONTRATO` | Especificaciones machine-readable de las APIs/datos del **propio proyecto**: `.yaml`/`.json` con clave `openapi:` o `asyncapi:`; `.graphql`/`.gql`; `.proto`; `.avsc`; `.sql` DDL en `db/`/`migrations/`; `.dbml`; carpetas `api/`, `contracts/`, `schemas/`, `proto/` | Enriquece Arquetipo 2 §1 (Arquitectura) y §2 (Modelo de Datos / Contratos) y Arquetipo 12 §5 (Interfaces Publicadas) |
 | `INFRAESTRUCTURA` | IaC y despliegue: `.tf`; `Dockerfile`, `docker-compose.yml`; YAML en `k8s/`, `deploy/`, `manifests/`, `helm/`; playbooks Ansible; CloudFormation en `cloudformation/` | Enriquece Arquetipo 2 §4 (Dependencias) y Arquetipo 6C §3 › Despliegue |
 | `MANUAL` | Documentación narrativa del **propio proyecto**: `.pdf`, `.docx`, `.md` con `manual`/`guide`/`runbook`/`ayuda`/`help` en nombre; carpetas `manuals/`, `help/`, `user-docs/`; `.chm` | Enriquece Arquetipos 3a §3, 3b §3, 6A/B §1 (Descripción) y 7 §3+§5 |
@@ -590,6 +591,8 @@ Cuando `/document-project` recibe más de un `Origen`, o cuando el único origen
 
 **Regla**: la autodetección propone el tipo; el usuario confirma antes de continuar al INVENTARIO. Nunca se asume el tipo sin confirmación.
 
+**Origen WEB** (opción `WEB`): la aplicación desplegada en un entorno no es un tipo nuevo, es una **forma de adquisición** de material `UI/PANTALLAS`: capturas que aporta el usuario o, en modo navegador opcional, recorrido de solo lectura en el chat. Como `BASE DE DATOS`, describe lo desplegado y se **contrasta** con el `CÓDIGO`; ninguno corrige al otro. Requiere siempre un origen `CÓDIGO`. Ver §3.20 y `document_project.prompt.md` § Origen WEB.
+
 **Caso degenerado**: si no hay ningún origen de tipo `CÓDIGO`, `/document-project` no aplica. Usar directamente el prompt de arquetipo correspondiente (`normative_traceability.prompt.md`, `functional_doc.prompt.md`, etc.).
 
 #### Mapeo MATERIAL → arquetipos (referencia rápida)
@@ -598,14 +601,14 @@ Cuando `/document-project` recibe más de un `Origen`, o cuando el único origen
 |-------------|-----------|--------------------------|
 | `NORMATIVA` | 8 + 1 (proyecto principal) | Arq. 8 completo; Arq. 1 §5 Reglas de Negocio |
 | `ESPECIFICACIÓN` | 1 (proyecto principal) | §3 Flujo Principal, §5 Reglas de Negocio, §6 Flujos Alternativos, §7 Criterios de Aceptación |
-| `UI/PANTALLAS` | 1 + 3 | Arq. 1 §3 Flujo Principal; Arq. 3 §3 Pasos |
+| `UI/PANTALLAS` | 1 + 3 (+ 15 con `WEB`) | Arq. 1 §3 Flujo Principal; Arq. 3 §3 Pasos; con `WEB`, Arq. 15 (Manual de funcionamiento, `docs/manual/`) y fichas `COB-WEB` del contraste |
 | `REFERENCIA` | 2 o 5 | Arq. 2 §4 Dependencias; o Arq. 5 (decisión ADR) |
 | `CONTRATO` | 2 + 12 (proyecto principal) | Arq. 2 §1 Arquitectura y §2 Modelo de Datos / Contratos; Arq. 12 §5 Interfaces Publicadas |
 | `INFRAESTRUCTURA` | 2 + 6 | Arq. 2 §4 Dependencias y Requisitos; Arq. 6C §3 › Despliegue |
 | `MANUAL` | 3a · 3b · 6 · 7 | Arq. 3a §3 Pasos; Arq. 3b §3; Arq. 6A/B §1; Arq. 7 §3 y §5 |
 | `BASE DE DATOS` | 2 + 12 + 13 | Sección generada `docs/bd/`; Arq. 2 §2 Modelo de Datos (evidencia con ancla de columna); Arq. 12 §5; fichas `COB-DATOS` del contraste |
 
-Los orígenes MATERIAL **no generan páginas propias** en `docs/`; su contenido enriquece las secciones indicadas de los arquetipos del proyecto principal.
+Los orígenes MATERIAL **no generan páginas propias** en `docs/`; su contenido enriquece las secciones indicadas de los arquetipos del proyecto principal. Excepciones: `BASE DE DATOS` (`docs/bd/`) y `UI/PANTALLAS` con `WEB` (Arquetipo 15, `docs/manual/`).
 
 #### Estrategia para múltiples orígenes CÓDIGO
 
@@ -926,7 +929,7 @@ de un módulo → Arquetipo 2.
 **Propósito**: que cada afirmación documental sea verificable contra el código y que el lector
 distinga lo verificado de lo inferido. Generaliza la leyenda del Arquetipo 8 a todo el estándar.
 
-**Aplica a**: Arquetipos 1, 2 y 12 (obligatorio) y Variante 6C §3–§4 (escenarios y despliegue).
+**Aplica a**: Arquetipos 1, 2, 12 y 15 (obligatorio) y Variante 6C §3–§4 (escenarios y despliegue).
 El resto de arquetipos puede usarlo de forma opcional.
 
 **Leyenda de confianza** (la canónica del Arquetipo 8, §3.8, leída sobre una afirmación
@@ -1360,6 +1363,79 @@ ellos se documenta en `internas.md` del hub.
 
 ---
 
+### 3.20 Arquetipo 15 — Manual de Funcionamiento (`docs/manual/`) — **Condicional**
+
+**Propósito**: responder "¿Cómo uso la aplicación tal como está desplegada, con mi rol, y qué
+necesito antes de empezar?".
+
+**Audiencia**: usuarios finales y sus responsables (coordinadores, gestores, soporte). No es
+documentación para desarrolladores: sin clases, rutas de código ni jerga técnica en el cuerpo.
+
+**Condición de activación**: la sesión `/document-project` recibe la opción **`WEB`** (aplicación
+desplegada en un entorno, p. ej. PRE) junto a un origen `CÓDIGO`. Sin `WEB` → no aplica y
+`docs/manual/` no se crea. Un manual narrativo ya escrito (`MANUAL`) no lo activa: enriquece los
+arquetipos 3a/3b/6/7.
+
+**Ubicación y estructura** (manual único con indicación del rol en cada tarea; un manual por rol
+solo si los roles no comparten pantallas):
+
+```
+docs/manual/index.md            ← portada del manual
+  ## 1. Propósito y Destinatarios     + tabla | Rol | Qué puede hacer | Áreas |
+  ## 2. Requisitos de Uso             (navegador, permisos y roles, acceso y red, requisitos
+                                       previos del negocio, entorno y versión de las capturas)
+  ## 3. Acceso al Sistema
+  ## 4. Mapa de Pantallas             (flowchart de navegación, ≤ 12 nodos)
+  ??? note "Evidencia"
+
+docs/manual/<área>.md           ← una página por área funcional (menú o módulo de la aplicación)
+  ## 1. Para Qué Sirve
+  ## 2. Antes de Empezar              (rol, permisos, datos que deben existir)
+  ## 3. Pantallas                     (captura + tabla | Campo / acción | Descripción | Obligatorio |)
+  ## 4. Tareas Paso a Paso            (cada tarea indica el rol; enlace al how-to 3a si existe)
+  ## 5. Mensajes y Errores            (tabla | Mensaje | Cuándo aparece | Qué hacer |; enlace al
+                                       Arquetipo 12 si existe)
+  ## 6. Preguntas Frecuentes
+  ??? note "Evidencia"
+```
+
+**Reglas**:
+- **Lo desplegado, con fecha**: la portada (§2) indica el entorno, la versión desplegada que se
+  ve en las capturas y la fecha; nunca se presenta como «el sistema» sin más. La URL del entorno
+  **no se escribe** en ninguna página ni fichero versionado.
+- **Capturas revisadas**: solo entran en `docs/assets/manual/<origen>/` con
+  `scripts/web_captures.py publish`, tras la revisión humana de datos personales; cada captura
+  lleva texto alternativo y figura en el frontmatter `fuentes:` de la página que la cita (el
+  `drift` detecta la captura republicada). `web_captures.py check` en la revisión final y en el
+  CIERRE.
+- **Solo lectura**: el manual describe también los flujos con escritura, pero el recorrido nunca
+  los ejecuta en el entorno; sus capturas las aporta el usuario.
+- **Contraste**: pantalla, campo, literal o permiso que solo está en la web o solo en el código →
+  ⚠️ en la Evidencia y ficha `COB-WEB-…` (§3.18). Manda la decisión humana; ninguno corrige al
+  otro.
+- **Evidencia** (§3.16): cada fila cita la captura (`docs/assets/manual/<origen>/<fichero>`) y,
+  si se verifica, el símbolo de código (`ruta::símbolo`) que la sustenta; lo visto solo en la
+  web sin código localizado va con 🔍.
+- **Datos ficticios**: los ejemplos de valores en las tablas son ficticios evidentes, aunque la
+  captura (ya revisada) muestre otros.
+
+**Delimitación**: el Arquetipo 1 explica **qué hace** el módulo y sus reglas (para producto); el
+3a resuelve **una tarea** concreta; el Arquetipo 15 recorre **la aplicación desplegada** pantalla
+a pantalla para quien la usa, y enlaza a ambos en lugar de repetirlos.
+
+**Prompt**: `.github/prompts/user_manual_doc.prompt.md`
+
+**Sección MkDocs** (pestaña propia si quedan pestañas libres en §4.1; si no, sección dentro de
+«Guías»):
+
+```yaml
+- Manual:
+    - Manual: manual/index.md
+    - Procesos: manual/procesos.md
+```
+
+---
+
 ## 4. Configuración Recomendada mkdocs.yml
 
 La siguiente configuración es la **referencia estándar** para todos los proyectos.
@@ -1576,6 +1652,7 @@ para evitar copias desactualizadas). Sigue la estructura de §4.1 con estas conc
 | **Normativa** | `docs/normativa/` | 8 (§3.8) | **Solo** si el proyecto referencia leyes, decretos o normativas de obligado cumplimiento |
 | **Decisiones** | `docs/decisiones/` | 13 (§3.18) | Siempre que exista el Arquetipo 8; con Arq. 1/2/12, si el destino adopta el registro de decisiones |
 | **Integraciones** | `docs/integraciones/` | 14 (§3.19) | **Solo** si el INVENTARIO detecta señales de integración (clientes HTTP/SOAP, mensajería, cargas planificadas, identidad federada, endpoints para terceros) |
+| **Manual de funcionamiento** | `docs/manual/` | 15 (§3.20) | **Solo** con la opción `WEB` (aplicación desplegada en un entorno) y un origen `CÓDIGO` |
 
 ---
 

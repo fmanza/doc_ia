@@ -68,7 +68,7 @@ trabaja sobre la copia local en `_staging/` (Fase 0-pre de `document_project.pro
 ```text
 doc_ia/
   scripts/              # Tooling determinista: check_env.py, build_docs_zip.py, convert_to_md.py,
-                        #   doc_trace.py, snapshot_sources.py, kit.py, db_trace.py
+                        #   doc_trace.py, snapshot_sources.py, kit.py, db_trace.py, web_captures.py
   hooks/                # Hooks MkDocs + PostToolUse: sync_root_docs.py
   tests/                # Tests pytest del tooling
   docs/                 # Sitio MkDocs Material (es): index, downloads, guides/
@@ -147,6 +147,8 @@ python scripts/convert_to_md.py <ruta>                 # Valida + convierte a Ma
 python scripts/convert_to_md.py <ruta> --validate-only # Solo validación previa (motor instalado, integridad de ficheros)
 python scripts/db_trace.py select --export <util_bbdd> --root <destino> --name <bd> --include <patrón>  # Origen BD: docs/bd/
 python scripts/db_trace.py compare --catalog <catalog.json> --entities <entities.xml> --include <patrón>  # Contraste código ↔ BD
+python scripts/web_captures.py --root <destino> publish <origen> <captura>… --env PRE --version <v>  # Origen WEB: capturas revisadas
+python scripts/web_captures.py --root <destino> check                         # Capturas, manifiesto y citas del manual (Arq. 15)
 python scripts/kit.py sync --root <destino>                                   # Kit de documentación en el destino (Fase 0b)
 python scripts/kit.py check --root <destino>                                  # ¿Kit editado o desfasado?
 python scripts/snapshot_sources.py --root <destino> add <nombre> "<ruta|patrón {ver}>"  # Declara un origen (Fase 0-pre)

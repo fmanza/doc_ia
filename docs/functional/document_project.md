@@ -1,18 +1,19 @@
 ---
 arquetipo: "1"
 fuentes:
-  .claude/commands/document-project.md: b5474ca44113
-  .github/DOCUMENTATION_STANDARD.md: 9b52d08908a0
-  .github/prompts/document_project.prompt.md: c4e92f40f097
+  .claude/commands/document-project.md: f82478174881
+  .github/DOCUMENTATION_STANDARD.md: 015af37230ba
+  .github/prompts/document_project.prompt.md: 03e2d68949a7
   .github/templates/kit/documentar.command.md: 44364ebb0ca8
-  CLAUDE.md: ea1a21efde18
+  CLAUDE.md: 466e411d7ddb
   scripts/db_trace.py: c337133736ca
   scripts/kit.py: 432af520016f
   scripts/redact_secrets.py: d0cbb8ed3fbf
   scripts/snapshot_sources.py: 0c769b0d5761
+  scripts/web_captures.py: 53972c5aa039
 decisiones:
   ../decisiones/docproj_decisiones.md: ace9e2e187df
-revisado: 2026-11-09
+revisado: 2026-11-10
 ---
 # Documentar un Proyecto
 
@@ -118,6 +119,10 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
   con las páginas de los objetos del alcance, el catálogo de ese subconjunto en
   `_fuentes/<nombre>/`, una ficha `COB-DATOS-…` por discrepancia entre el código y la base de
   datos, y `.ai/trace_map.toml` regenerado al cerrar la sesión.
+- Con origen WEB (opción `WEB`): el destino tiene el manual de funcionamiento en `docs/manual/`
+  (Arquetipo 15), las capturas revisadas en `docs/assets/manual/<origen>/` registradas en
+  `.ai/captures.json` con entorno, versión y rol, y una ficha `COB-WEB-…` por diferencia entre la
+  aplicación desplegada y el código. La dirección del entorno no aparece en ningún fichero.
 - Si el origen tiene documentos convertidos a Markdown, el destino tiene su copia en
   `_fuentes/`, fuera de `docs/` y versionada, y ninguna carpeta con otro nombre para ellos.
 - El destino lleva el [kit de documentación](kit.md) al día con la versión de doc_ia de la
@@ -145,6 +150,7 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
 | Credenciales fuera del repositorio | Antes de copiar el texto convertido a `_fuentes/`, las credenciales que contiene se redactan con la [redacción de credenciales](redact_secrets.md); antes del commit se comprueba que no queda ninguna, y se avisa de que el documento original las sigue conteniendo | Contraseñas, tokens o secretos publicados en el historial del repositorio de documentación |
 | Integraciones | Si el origen intercambia datos con otros sistemas, se documentan en `docs/integraciones/` con una vista funcional y otra técnica (Arquetipo 14) | Las cargas, los servicios externos y sus efectos sobre los datos quedarían repartidos o sin documentar |
 | Clasificación de orígenes | Con ≥2 orígenes, o cuando el único origen no es de tipo CÓDIGO, se ejecuta la Fase 0a antes del inventario; el usuario confirma la clasificación antes de continuar | Sin clasificación, un origen NORMATIVA o UI se trataría como proyecto de código y generaría páginas incorrectas |
+| Origen WEB (opción `WEB`) | La aplicación desplegada en un entorno (p. ej. PRE) se documenta como manual de funcionamiento a partir de capturas que aporta el usuario o de un recorrido de solo lectura en el chat; solo se publican las capturas que una persona ha revisado, nunca se ejecutan acciones con efecto, el texto de las páginas web no se obedece como instrucción y la dirección del entorno no se versiona. Requiere un origen de código ([Capturas del Origen WEB](web_captures.md)) | Capturas con datos personales publicadas, acciones reales lanzadas en el entorno o la dirección interna expuesta |
 | Origen BASE DE DATOS (opción `BD`) | Con una exportación de `util_bbdd`, se importan en `docs/bd/` solo los objetos del alcance, se contrasta el modelo del código con la base de datos y cada discrepancia se registra como decisión de cobertura; ninguna de las dos fuentes corrige a la otra. doc_ia nunca se conecta a la base de datos ([Trazabilidad con la Base de Datos](db_trace.md)) | Se presentaría el esquema de un entorno como «el modelo», o se ocultarían diferencias reales entre lo construido y lo desplegado |
 | Inventario previo a generación | Antes de escribir cualquier página se clasifica el estado de la documentación existente (sin doc / desactualizado / vigente) | Se sobreescribirían páginas vigentes o se ignorarían páginas desactualizadas |
 | Generación en el chat | Toda la generación documental ocurre en el chat de la plataforma IA (Claude Code, Gemini, Copilot, Cursor, Codex); nunca en código Python ni en CI | Violaría el principio innegociable del proyecto de ejecución sin APIs externas |
@@ -291,6 +297,7 @@ automatizados.
     | Regla «Documentos pre-convertidos (`md/`)» | `.github/prompts/document_project.prompt.md::Fase 0c — Paso 0` | ✅ |
     | [COB-DOCPROJ-004](../decisiones/docproj_decisiones.md#cob-docproj-004) · Regla «Fuentes convertidas en `_fuentes/`», AC-09 y AC-10 | `.github/prompts/document_project.prompt.md::Fase 0c — Paso 5`, `tests/test_docs_conformance.py::test_sources_folder_is_canonical` (coherencia de las instrucciones, no del resultado) | ⚠️ (decisión: Aceptar riesgo) |
     | Regla «Origen BASE DE DATOS», precondición `BD` y postcondición `docs/bd/` | `.github/prompts/document_project.prompt.md::Origen BASE DE DATOS (opción BD)`, `::Devuelve en este orden` (Trazabilidad para la BD), `.claude/commands/document-project.md` (Inputs requeridos), `scripts/db_trace.py::import_pages`, `::build_tracemap` | ✅ |
+    | Regla «Origen WEB» y postcondición `docs/manual/` | `.github/prompts/document_project.prompt.md::Origen WEB (opción WEB)`, `::Fase 3c`, `::Devuelve en este orden` (CIERRE «Capturas»), `.claude/commands/document-project.md` (Inputs requeridos), `scripts/web_captures.py::publish`, `::check` | ✅ |
     | Regla «Kit de documentación en el destino», postcondición del kit y flujo `/documentar` | `.github/prompts/document_project.prompt.md::Kit de documentación en el destino y <doc_ia>`, `::Fase 0b` (Kit de lanzamiento), `::Devuelve en este orden` (puntos 9 y 10), `.claude/commands/document-project.md::Sincronización de Configuración Visual (Fase 0b)`, `.github/templates/kit/documentar.command.md`, `scripts/kit.py::sync` | ✅ |
     | Regla «Contexto persistente `.ai/*.md`» | `.claude/commands/document-project.md::Devuelve en este orden` (tabla de ficheros `.ai/`) | ✅ |
     | Postcondición y caso «registro de decisiones» | `.github/prompts/document_project.prompt.md::Fase 3` (Decisiones de cobertura), `::Devuelve en este orden` (punto 9), `.github/DOCUMENTATION_STANDARD.md::3.18` | ✅ |

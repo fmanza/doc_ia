@@ -103,6 +103,7 @@ nav:
           - Redacción de Credenciales: functional/redact_secrets.md
           - Kit de Documentación: functional/kit.md
           - Trazabilidad con la Base de Datos: functional/db_trace.md
+          - Capturas del Origen WEB: functional/web_captures.md
       - Flujos IA:
           - Documentar un Proyecto: functional/document_project.md
           - Catálogo de Tipos de Origen: functional/origin_types.md
@@ -136,6 +137,7 @@ nav:
           - redact_secrets: api/redact_secrets.md
           - kit: api/kit.md
           - db_trace: api/db_trace.md
+          - web_captures: api/web_captures.md
 
   # ── Audiencia: usuarios y operadores del tooling (Arquetipo 12) ───────────
   - Referencia del Sistema: reference/index.md
@@ -155,6 +157,7 @@ nav:
           - Redactar Credenciales: examples/redact_secrets_usage.md
           - Kit de Documentación en un Destino: examples/kit_usage.md
           - Origen Base de Datos con db_trace: examples/db_trace_usage.md
+          - Publicar Capturas del Origen WEB: examples/web_captures_usage.md
 
   # ── Guías de uso y operación ───────────────────────────────────────────────
   - Guías:
@@ -173,6 +176,7 @@ nav:
       - ADR-002 — Arquetipos con evidencia verificable: adr/ADR-002-arquetipos-con-evidencia.md
       - ADR-003 — Zensical por defecto (propuesto): adr/ADR-003-zensical-por-defecto.md
       - ADR-004 — Registro de decisiones de cobertura: adr/ADR-004-registro-decisiones-cobertura.md
+      - ADR-005 — Origen WEB desplegada y manual de funcionamiento: adr/ADR-005-origen-web-desplegada.md
 
   # ── Mantenimiento: configuración de agentes IA, cambios y contribución ─────
   - Proyecto:

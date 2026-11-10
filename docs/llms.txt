@@ -24,6 +24,7 @@
 - [Tooling Determinista › Redacción de Credenciales](https://fmanza.github.io/doc_ia/functional/redact_secrets.html)
 - [Tooling Determinista › Kit de Documentación](https://fmanza.github.io/doc_ia/functional/kit.html)
 - [Tooling Determinista › Trazabilidad con la Base de Datos](https://fmanza.github.io/doc_ia/functional/db_trace.html)
+- [Tooling Determinista › Capturas del Origen WEB](https://fmanza.github.io/doc_ia/functional/web_captures.html)
 - [Flujos IA › Documentar un Proyecto](https://fmanza.github.io/doc_ia/functional/document_project.html)
 - [Flujos IA › Catálogo de Tipos de Origen](https://fmanza.github.io/doc_ia/functional/origin_types.html)
 - [Flujos IA › Arquetipos Formales](https://fmanza.github.io/doc_ia/functional/archetypes.html)
@@ -54,6 +55,7 @@
 - [Tooling Determinista › redact_secrets](https://fmanza.github.io/doc_ia/api/redact_secrets.html)
 - [Tooling Determinista › kit](https://fmanza.github.io/doc_ia/api/kit.html)
 - [Tooling Determinista › db_trace](https://fmanza.github.io/doc_ia/api/db_trace.html)
+- [Tooling Determinista › web_captures](https://fmanza.github.io/doc_ia/api/web_captures.html)
 
 ## Ejemplos
 
@@ -68,6 +70,7 @@
 - [Tooling Determinista › Redactar Credenciales](https://fmanza.github.io/doc_ia/examples/redact_secrets_usage.html)
 - [Tooling Determinista › Kit de Documentación en un Destino](https://fmanza.github.io/doc_ia/examples/kit_usage.html)
 - [Tooling Determinista › Origen Base de Datos con db_trace](https://fmanza.github.io/doc_ia/examples/db_trace_usage.html)
+- [Tooling Determinista › Publicar Capturas del Origen WEB](https://fmanza.github.io/doc_ia/examples/web_captures_usage.html)
 
 ## Guías
 
@@ -83,6 +86,7 @@
 - [ADR-002 — Arquetipos con evidencia verificable](https://fmanza.github.io/doc_ia/adr/ADR-002-arquetipos-con-evidencia.html)
 - [ADR-003 — Zensical por defecto (propuesto)](https://fmanza.github.io/doc_ia/adr/ADR-003-zensical-por-defecto.html)
 - [ADR-004 — Registro de decisiones de cobertura](https://fmanza.github.io/doc_ia/adr/ADR-004-registro-decisiones-cobertura.html)
+- [ADR-005 — Origen WEB desplegada y manual de funcionamiento](https://fmanza.github.io/doc_ia/adr/ADR-005-origen-web-desplegada.html)
 
 ## Proyecto
 

@@ -1,11 +1,11 @@
 ---
 arquetipo: ""
 fuentes:
-  .github/kit/MANIFEST.txt: 6a6e0bbca848
-  .github/prompts/document_project.prompt.md: c4e92f40f097
+  .github/kit/MANIFEST.txt: ba84851d379a
+  .github/prompts/document_project.prompt.md: 03e2d68949a7
   scripts/db_trace.py: c337133736ca
   tests/test_db_trace.py: 34b0d703cff9
-revisado: 2026-11-09
+revisado: 2026-11-10
 ---
 # db_trace
 

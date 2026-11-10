@@ -2,13 +2,13 @@
 arquetipo: "12"
 fuentes:
   .claude/settings.json.example: e1c10842aa20
-  .github/kit/MANIFEST.txt: 6a6e0bbca848
-  .github/prompts/document_project.prompt.md: c4e92f40f097
+  .github/kit/MANIFEST.txt: ba84851d379a
+  .github/prompts/document_project.prompt.md: 03e2d68949a7
   .github/templates/kit/documentar.prompt.template.md: 332acf5a5cc7
   .github/workflows/docs-zip-release.yml: bd807d444ea2
-  CLAUDE.md: ea1a21efde18
+  CLAUDE.md: 466e411d7ddb
   hooks/sync_root_docs.py: ef5e576436c6
-  mkdocs.yml: 6b0f556ef76d
+  mkdocs.yml: ab0e72d492ad
   mkdocs_hooks.py: 31259b7911a3
   scripts/build_docs_zip.py: 5f972ee674c8
   scripts/check_env.py: c9105c709663
@@ -19,7 +19,8 @@ fuentes:
   scripts/redact_secrets.py: d0cbb8ed3fbf
   scripts/snapshot_sources.py: 0c769b0d5761
   scripts/start-server.py: a12209ac8507
-revisado: 2026-11-09
+  scripts/web_captures.py: 53972c5aa039
+revisado: 2026-11-10
 ---
 # Referencia — doc_ia
 
@@ -32,7 +33,7 @@ línea de comandos, códigos de salida y eventos de build. La API interna de cad
 | Clave | Origen | Tipo | Por defecto | Descripción |
 |---|---|---|---|---|
 | `CUDA_VISIBLE_DEVICES` | `env` | cadena | `""` (lo fija `convert_to_md.py` al importarse si no existe) | Visibilidad de GPU para docling. `--device cpu` la fija a `""`; `--device cuda` la elimina; `--device auto` respeta un valor exportado por el usuario e ignora el que fija el propio módulo |
-| `project.version` | fichero `pyproject.toml` | cadena SemVer | `0.10.0` (valor actual) | Versión usada en el nombre del ZIP (`doc_ia-docs-{versión}.zip`) y en la release `docs-v{versión}` |
+| `project.version` | fichero `pyproject.toml` | cadena SemVer | `0.11.0` (valor actual) | Versión usada en el nombre del ZIP (`doc_ia-docs-{versión}.zip`) y en la release `docs-v{versión}` |
 | `site_dir` | fichero `mkdocs.yml` | ruta | `site` | Directorio de salida del build; `mkdocs_hooks.py` lo lee de la configuración. `build_docs_zip.py` usa `site/` fijo |
 | `use_directory_urls` | fichero `mkdocs.yml` | booleano | `false` | URLs `*.html`: el sitio y el ZIP se abren con doble clic en `index.html` (el plugin `offline` lo fuerza igualmente) |
 | `plugins: offline` | fichero `mkdocs.yml` | plugin | activo | Escribe el índice de búsqueda como JS (`search/search_index.js`; Zensical: `search.js`) para buscar desde `file://` |
@@ -218,6 +219,27 @@ Detecta credenciales en ficheros `.md` (recorrido recursivo en carpetas) y susti
 | `<ruta>` | ruta (obligatorio, repetible) | — | Fichero `.md` o carpeta |
 | `--check` | flag | desactivado | Informa sin modificar (CIERRE: sobre `_fuentes/`) |
 
+### web_captures.py
+
+```bash
+python scripts/web_captures.py --root DIR publish ORIGEN CAPTURA [CAPTURA …] --env ENTORNO --version VERSIÓN [--role ROL] [--date YYYY-MM-DD]
+python scripts/web_captures.py --root DIR check
+```
+
+Origen WEB (Arquetipo 15): copia a `<--root>/docs/assets/manual/<origen>/` solo las capturas
+revisadas de `<--root>/_staging/<origen>/`, las registra en `<--root>/.ai/captures.json` y
+comprueba imágenes, registro y citas del manual. No accede a la red ni abre un navegador.
+
+| Opción / Argumento | Tipo | Por defecto | Descripción |
+|---|---|---|---|
+| `--root` | ruta (obligatorio) | — | Raíz del destino (carpeta con `mkdocs.yml`); global, antes del subcomando |
+| `publish <origen>` | cadena (obligatorio) | — | Nombre del origen (`[\w.-]+`, no solo puntos): carpeta en `_staging/` |
+| `publish <captura>…` | rutas (obligatorio) | — | Capturas revisadas, relativas a `_staging/<origen>/` (`.png`, `.jpg`, `.jpeg`, `.webp`, `.gif`) |
+| `publish --env` / `--version` | cadenas (obligatorio) | — | Entorno (p. ej. `PRE`) y versión desplegada; nunca una URL |
+| `publish --role` | cadena | — | Rol con el que se tomaron las capturas |
+| `publish --date` | `YYYY-MM-DD` | hoy | Fecha de publicación |
+| `check` | — | — | Hallazgos `sin_registrar`, `modificada`, `falta`, `rota`, `sin_alt`, `huerfana`, `url` |
+
 ### start-server.py
 
 ```bash
@@ -278,6 +300,9 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 | `0` | `redact_secrets.py` | Sin credenciales | — |
 | `1` | `redact_secrets.py` | Credenciales redactadas (o pendientes con `--check`) | Con `--check` sobre `_fuentes/`: redactar antes del commit; avisar de que el documento original sigue conteniéndolas |
 | `2` | `redact_secrets.py` | Ruta inexistente, UTF-8 inválido u `OSError` | Corregir la ruta |
+| `0` | `web_captures.py` | `publish` correcto; `check` sin hallazgos | — |
+| `1` | `web_captures.py check` | Imagen sin registrar o modificada, captura que falta o huérfana, cita rota o sin texto alternativo, URL en el manifiesto | Publicar con `publish` (tras la revisión), retirar la imagen, citarla o corregir la cita antes del commit |
+| `2` | `web_captures.py` | Origen inválido, entorno, versión o rol vacíos o con URL, captura fuera del origen, inexistente o que no es imagen (antes de copiar nada), manifiesto inválido, `OSError`; argparse | Ver `[captures] ERROR: …` por stderr |
 | `2` | `snapshot_sources.py replace` | Origen no declarado, mismo origen que el declarado («usa `sync`») o documento nuevo inexistente; la declaración anterior se conserva | Corregir la ruta o usar `sync` para una versión nueva del mismo documento |
 | `2` | `snapshot_sources.py` | Origen inexistente o ilegible, patrón sin coincidencias, nombre inválido, `--include` con `{ver}`, origen no declarado, manifiesto inválido u `OSError`; un origen caído no impide sincronizar los demás | Ver `[snapshot] ERROR…` por stderr; corregir la ruta o reconectar la unidad |
 | `0` | `db_trace.py` | `info` y `tracemap` correctos; `select`, `compare` o `changes` sin cambios ni discrepancias | — |
@@ -301,7 +326,7 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 | `on_post_build` | MkDocs | `mkdocs_hooks.py` | Configuración MkDocs (`site_dir`); genera `site/doc_ia-docs-latest.zip` + `.sha256`, con prioridad -200: después del plugin `offline`, para incluir el índice de búsqueda en JS |
 | Pre/post-build sin hooks | `build_docs_zip.py --builder zensical` | `sync_root_docs.main()` / `mkdocs_hooks.on_post_build({"site_dir": ...})` | Mismo efecto que los dos eventos anteriores; el post-build solo si el build termina con `0` |
 | `PostToolUse` (`Edit\|Write`) | Claude Code | Comandos de `.claude/settings.json` | Ejecuta `sync_root_docs.py`, ruff, mypy y pytest `--collect-only`; salida truncada a 5–15 líneas |
-| Prefijos de log `[build_docs_zip]`, `[ZIP]`, `[OK]`, `[sync_root_docs]`, `[doc_ia-docs]`, `[doc_trace]`, `[snapshot]`, `[kit]`, `[db_trace]` | Scripts y hooks | Usuario / CI | Texto libre por stdout; sin contrato estable más allá del prefijo |
+| Prefijos de log `[build_docs_zip]`, `[ZIP]`, `[OK]`, `[sync_root_docs]`, `[doc_ia-docs]`, `[doc_trace]`, `[snapshot]`, `[kit]`, `[db_trace]`, `[redact]`, `[captures]` | Scripts y hooks | Usuario / CI | Texto libre por stdout; sin contrato estable más allá del prefijo |
 
 ## 5. Interfaces Publicadas
 
@@ -326,6 +351,8 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 | `docs/bd/` | Sección generada del destino (versionada) | `scripts/db_trace.py::import_pages`, `::_index_page` | Una página por objeto del alcance, con la ruta de la exportación, e `index.md` con entorno, base de datos, motor, fecha y frontera; no se edita a mano |
 | `_fuentes/<bd>/catalog.json` y `manifest.json` | Catálogo del subconjunto y cabecera (JSON, versionados) | `scripts/db_trace.py::import_pages` | El catálogo con solo los objetos del alcance y `doc_ia_alcance` (patrones); la cabecera con `doc_ia_entorno`, `database`, `engine`, `format`, `format_version`, `generated_at`, `schema`, `util_bbdd_version` |
 | `.ai/trace_map.toml` | Mapa de trazabilidad para `util_bbdd` (TOML, versionado) | `scripts/db_trace.py::build_tracemap` | `[tables."NOMBRE"]` / `[views."NOMBRE"]` con `code`, `functional` y `technical`; lo lee `util_bbdd` (`markdown.trace_map`) en la siguiente exportación |
+| `.ai/captures.json` | Registro de capturas del origen WEB (JSON, versionado) | `scripts/web_captures.py::write_manifest` | `format: doc_ia.web_captures` (versión 1), `doc_ia` y `origenes.<nombre>`: `entorno`, `version` y `capturas.<ruta>` con `sha256`, `version`, `publicada` y `rol`; nunca una URL |
+| `docs/assets/manual/<origen>/` | Capturas publicadas del manual (versionadas) | `scripts/web_captures.py::publish` | Misma ruta relativa que en `_staging/<origen>/`; solo entran con `publish` |
 | Registro de decisiones de cobertura | Fichero de entrada editado por personas (`docs/decisiones/<ámbito>_decisiones.md`) | `scripts/doc_trace.py::parse_registers` | Fichas bajo encabezados con el ID y tabla `Campo` / `Valor` (ver §6) |
 | Informe de decisiones | Fichero de salida (Markdown) | `scripts/doc_trace.py::format_decisions` | Resumen por registro, pendientes de decisión y tabla de hallazgos |
 
@@ -417,6 +444,7 @@ decisiones se publica con el sitio y el ZIP (`DOCUMENTATION_STANDARD.md` §3.18)
     | Códigos de `snapshot_sources.py` | `scripts/snapshot_sources.py::_cmd_sync`, `::main` | ✅ |
     | `snapshot_sources.py replace` | `scripts/snapshot_sources.py::replace_source`, `::_cmd_replace`, `::_parser` | ✅ |
     | CLI y códigos de `redact_secrets.py` | `scripts/redact_secrets.py::main`, `::redact_tree` | ✅ |
+    | CLI, códigos, `.ai/captures.json` y `docs/assets/manual/` de `web_captures.py` | `scripts/web_captures.py::_parser`, `::main`, `::publish`, `::check`, `::write_manifest` | ✅ |
     | `.ai/sources.json` y `_staging/` | `scripts/snapshot_sources.py::write_manifest`, `::sync_source`, `::STAGING_DIR`, `::MANIFEST` | ✅ |
     | Opciones de `db_trace.py` | `scripts/db_trace.py::_parser` | ✅ |
     | Códigos de `db_trace.py` | `scripts/db_trace.py::_cmd_select`, `::_cmd_compare`, `::_cmd_changes`, `::_cmd_tracemap`, `::main` | ✅ |

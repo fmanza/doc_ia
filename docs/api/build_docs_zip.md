@@ -1,15 +1,15 @@
 ---
 arquetipo: "2"
 fuentes:
-  mkdocs.yml: 6b0f556ef76d
+  mkdocs.yml: ab0e72d492ad
   mkdocs_hooks.py: 31259b7911a3
-  pyproject.toml: 5081f2a91202
+  pyproject.toml: 4a9c3822780c
   scripts/build_docs_zip.py: 5f972ee674c8
   tests/test_build_docs_zip.py: 82a1d595e6f4
   tests/test_offline_assets.py: 7e632c37987d
 decisiones:
   ../decisiones/buildzip_decisiones.md: e610c12daad7
-revisado: 2026-11-09
+revisado: 2026-11-10
 ---
 # build_docs_zip
 
