@@ -65,7 +65,7 @@ citas de las páginas) y devuelve los hallazgos en orden determinista.
 {
   "format": "doc_ia.web_captures",
   "format_version": 1,
-  "doc_ia": "0.11.1",
+  "doc_ia": "0.11.2",
   "origenes": {
     "kuniv": {
       "entorno": "PRE",

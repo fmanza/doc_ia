@@ -6,7 +6,7 @@ fuentes:
   .github/prompts/document_project.prompt.md: 03e2d68949a7
   .github/templates/kit/documentar.command.md: 44364ebb0ca8
   CLAUDE.md: 466e411d7ddb
-  scripts/db_trace.py: c337133736ca
+  scripts/db_trace.py: 2df471e18403
   scripts/kit.py: 432af520016f
   scripts/redact_secrets.py: d0cbb8ed3fbf
   scripts/snapshot_sources.py: f9dd29bea432

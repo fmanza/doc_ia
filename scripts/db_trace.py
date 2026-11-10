@@ -54,6 +54,7 @@ SUPPORTED_CATALOG = frozenset({1})
 REQUIRED_KEYS = ("id", "kind", "name", "path")
 SCHEMA_KINDS = frozenset({"table", "view"})  # lo que modela el código; las rutinas no
 LINK_RE = re.compile(r"(?<!!)\[([^\]]+)\]\(([^)\s]+)\)")  # enlaces, no imágenes
+NAME_RE = re.compile(r"^(?!\.+$)[\w.-]+$")  # nombre de _fuentes/<nombre>/: nunca «.» ni «..»
 GENERATED_NOTE = (
     "<!-- Generado por doc_ia scripts/db_trace.py select desde util_bbdd: no editar a mano. -->\n"
 )
@@ -217,6 +218,14 @@ def _write_if_changed(path: Path, text: str, report: ImportReport, rel: str) -> 
     path.write_text(text, encoding="utf-8", newline="\n")
 
 
+def _inside(rel: str) -> bool:
+    """Ruta relativa que no sale de su carpeta ni es la carpeta misma (sin ``..``, ni absoluta)."""
+    norm = posixpath.normpath(rel.replace("\\", "/"))
+    return not (
+        norm in {".", ".."} or norm.startswith(("../", "/")) or re.match(r"^[A-Za-z]:", norm)
+    )
+
+
 def import_pages(
     export: Path,
     root: Path,
@@ -228,11 +237,18 @@ def import_pages(
     """Importa al destino las páginas del alcance y guarda el catálogo del subconjunto."""
     if not env.strip():
         raise DbTraceError("indica el entorno que representa la exportación (--env)")
+    if not NAME_RE.fullmatch(name):
+        raise DbTraceError(f"--name «{name}» saldría fuera de _fuentes/ (letras, dígitos, . _ -)")
+    if not _inside(subdir):
+        raise DbTraceError(f"--subdir «{subdir}» saldría fuera de docs/ (o sería docs/ entero)")
     manifest = load_manifest(export)
     catalog = load_catalog(export / "docs" / "catalog.json")
     selected = select_objects(catalog, patterns)
     if not selected:
         raise DbTraceError(f"ningún objeto encaja con {list(patterns)}")
+    outside = [str(o["path"]) for o in selected if not _inside(str(o["path"]))]
+    if outside:  # antes de escribir nada
+        raise DbTraceError(f"el catálogo cita páginas fuera de docs/: {', '.join(outside)}")
     missing = [str(o["path"]) for o in selected if not (export / "docs" / str(o["path"])).is_file()]
     if missing:  # antes de escribir nada: el destino no queda a medias
         raise DbTraceError(f"el catálogo cita páginas inexistentes: {', '.join(missing)}")

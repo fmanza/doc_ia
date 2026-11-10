@@ -5,6 +5,15 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+## [0.11.2] — 2026-11-10
+
+### Fixed
+
+- `db_trace.py select`: `--subdir ..` (o `.`) hacía que la retirada de páginas obsoletas
+  borrase los `.md` de la raíz del destino (o de `docs/`); `--name` solo de puntos o con `/` y
+  las páginas del catálogo con `../` escribían fuera de `_fuentes/` y `docs/`. Ahora se rechazan
+  con exit 2 antes de escribir; `--subdir bd/<base>` sigue funcionando.
+
 ## [0.11.1] — 2026-11-10
 
 ### Fixed
@@ -476,7 +485,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - Restauración de `config-reviewer.agent.md` y creación de `docs.instructions.md`
   tras corrupción del bootstrap.
 
-[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.11.1...HEAD
+[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.11.2...HEAD
+[0.11.2]: https://github.com/fmanza/doc_ia/compare/v0.11.1...v0.11.2
 [0.11.1]: https://github.com/fmanza/doc_ia/compare/v0.11.0...v0.11.1
 [0.11.0]: https://github.com/fmanza/doc_ia/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/fmanza/doc_ia/compare/v0.9.0...v0.10.0

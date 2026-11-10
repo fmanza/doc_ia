@@ -6,7 +6,7 @@ fuentes:
   docs/functional/build_docs_zip.md: 6ceab8a1e98d
   docs/functional/check_env.md: e6c1d275492a
   docs/functional/convert_to_md.md: 7328fd37ca63
-  docs/functional/db_trace.md: d67a1a3e3195
+  docs/functional/db_trace.md: a35b8bb8bdc3
   docs/functional/doc_trace.md: 781689742230
   docs/functional/document_project.md: 6531e49f8a76
   docs/functional/kit.md: 44d24d2a910e
@@ -33,7 +33,7 @@ y qué términos comparten. Cada capacidad enlaza a su página funcional detalla
 | Traer a una zona de trabajo local, con versión e historial, los documentos de origen que viven en carpetas de red, SharePoint sincronizado o carpetas de solo lectura | Tooling determinista | [Adquisición de Orígenes Documentales](snapshot_sources.md) | AC-01 – AC-19 | 19/19 |
 | Retirar las credenciales de los documentos convertidos antes de versionarlos en `_fuentes/` | Tooling determinista | [Redacción de Credenciales](redact_secrets.md) | AC-01 – AC-10 | 10/10 |
 | Llevar a cada destino la metodología, los lanzadores `/documentar` y una guía para relanzar su documentación sin abrir doc_ia | Tooling determinista | [Kit de Documentación en el Destino](kit.md) | AC-01 – AC-15 | 15/15 |
-| Incorporar el esquema real de la base de datos de un entorno, contrastarlo con el modelo del código y devolver a `util_bbdd` el mapa de páginas y código de cada tabla | Tooling determinista | [Trazabilidad con la Base de Datos](db_trace.md) | AC-01 – AC-16 | 16/16 |
+| Incorporar el esquema real de la base de datos de un entorno, contrastarlo con el modelo del código y devolver a `util_bbdd` el mapa de páginas y código de cada tabla | Tooling determinista | [Trazabilidad con la Base de Datos](db_trace.md) | AC-01 – AC-19 | 19/19 |
 | Publicar en el manual de funcionamiento solo las capturas revisadas de la aplicación desplegada y comprobar que imágenes, registro y citas coinciden | Tooling determinista | [Capturas del Origen WEB](web_captures.md) | AC-01 – AC-11 | 11/11 |
 | Detectar documentación desactualizada respecto al código, cruzar criterios con tests y comprobar que las decisiones de cobertura se reflejan | Tooling determinista | [Trazabilidad Docs ↔ Código](doc_trace.md) | AC-01 – AC-33 | 33/33 |
 | Documentar un proyecto completo desde una única operación de entrada | Flujos IA | [Documentar un Proyecto](document_project.md) | AC-01 – AC-12 | 1/12 |
@@ -41,7 +41,7 @@ y qué términos comparten. Cada capacidad enlaza a su página funcional detalla
 | Producir documentación con estructura fija, evidencia verificable y decisiones humanas citadas | Flujos IA | [Arquetipos Formales](archetypes.md) | AC-01 – AC-17 | 17/17 |
 | Trasladar el sistema de instrucciones IA a otro proyecto | Flujos IA | [Bootstrap de Configuración IA](bootstrap.md) | AC-01 – AC-05 | 1/5 |
 
-**Cobertura de pruebas**: 156 de 181 criterios tienen un test automatizado. Los flujos IA se
+**Cobertura de pruebas**: 159 de 184 criterios tienen un test automatizado. Los flujos IA se
 ejecutan en el chat de la plataforma IA: de ellos solo se comprueba la estructura de la
 documentación resultante (Arquetipos) ⚠️.
 
@@ -116,7 +116,7 @@ acceso al repositorio y a una plataforma IA puede usar todas las capacidades.
     | Capacidad «Adquisición de orígenes» y 19/19 tests | `docs/functional/snapshot_sources.md::§7` | ✅ |
     | Capacidad «Redacción de credenciales» y 10/10 tests | `docs/functional/redact_secrets.md::§7` | ✅ |
     | Capacidad «Kit de documentación» y 15/15 tests | `docs/functional/kit.md::§7` | ✅ |
-    | Capacidad «Trazabilidad con la Base de Datos» y 16/16 tests | `docs/functional/db_trace.md::§7` | ✅ |
+    | Capacidad «Trazabilidad con la Base de Datos» y 19/19 tests | `docs/functional/db_trace.md::§7` | ✅ |
     | Capacidad «Capturas del Origen WEB» y 11/11 tests | `docs/functional/web_captures.md::§7` | ✅ |
     | Capacidad «Trazabilidad» y 33/33 tests | `docs/functional/doc_trace.md::§7` | ✅ |
     | Capacidad «Documentar un Proyecto» y 1/12 tests | `docs/functional/document_project.md::§7` | ✅ |
