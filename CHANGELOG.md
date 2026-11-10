@@ -5,6 +5,13 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+### Fixed
+
+- `db_trace.py select`: `--subdir ..` (o `.`) hacía que la retirada de páginas obsoletas
+  borrase los `.md` de la raíz del destino (o de `docs/`); `--name` solo de puntos o con `/` y
+  las páginas del catálogo con `../` escribían fuera de `_fuentes/` y `docs/`. Ahora se rechazan
+  con exit 2 antes de escribir; `--subdir bd/<base>` sigue funcionando.
+
 ## [0.11.1] — 2026-11-10
 
 ### Fixed

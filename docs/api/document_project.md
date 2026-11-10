@@ -7,7 +7,7 @@ fuentes:
   .github/templates/kit/AGENTS.md: f9b80f0f102b
   .github/templates/kit/documentar.command.md: 44364ebb0ca8
   mkdocs.yml: ab0e72d492ad
-  scripts/db_trace.py: c337133736ca
+  scripts/db_trace.py: 2df471e18403
   scripts/kit.py: 432af520016f
   scripts/snapshot_sources.py: f9dd29bea432
   scripts/web_captures.py: 53972c5aa039

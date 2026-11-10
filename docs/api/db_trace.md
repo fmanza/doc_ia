@@ -3,8 +3,8 @@ arquetipo: ""
 fuentes:
   .github/kit/MANIFEST.txt: ba84851d379a
   .github/prompts/document_project.prompt.md: 03e2d68949a7
-  scripts/db_trace.py: c337133736ca
-  tests/test_db_trace.py: 34b0d703cff9
+  scripts/db_trace.py: 2df471e18403
+  tests/test_db_trace.py: ac4e474ecfd7
 revisado: 2026-11-10
 ---
 # db_trace
@@ -87,9 +87,9 @@ salida de `git -c core.quotepath=off ls-files -z`.
 | `info --export` | `Path` | Carpeta de la exportación | Obligatorio; con `manifest.json` y `docs/catalog.json` |
 | `select --export` | `Path` | Carpeta de la exportación | Obligatorio |
 | `select --root` | `Path` | Raíz del destino | Obligatorio; se crea lo que falte |
-| `select --name` | `str` | Nombre del origen en `_fuentes/` | Obligatorio; no se valida el formato |
+| `select --name` | `str` | Nombre del origen en `_fuentes/` | Obligatorio; letras, dígitos, `.`, `_`, `-`, nunca solo puntos (`NAME_RE`) |
 | `select --env` | `str` | Entorno que representa la exportación (p. ej. `Calidad`) | Obligatorio; en blanco → error |
-| `select` / `changes` / `tracemap --subdir` | `str` | Sección importada dentro de `docs/` | Por defecto `bd`; en `changes` y `tracemap`, carpeta que no cuenta como evidencia |
+| `select` / `changes` / `tracemap --subdir` | `str` | Sección importada dentro de `docs/` | Por defecto `bd`; admite subcarpetas (`bd/<base>`); en `select`, ruta relativa sin `..` y distinta de `.`; en `changes` y `tracemap`, carpeta que no cuenta como evidencia |
 | `compare --catalog` | `Path` | Catálogo (normalmente `_fuentes/<nombre>/catalog.json`) | Obligatorio |
 | `compare --entities` | `Path` | Modelo del código `entities.xml` | Obligatorio; XML válido |
 | `compare --output` | `Path` | Informe Markdown además de stdout | Opcional |
@@ -140,6 +140,7 @@ Tipos de discrepancia de `compare`:
 
 | Caso | Comportamiento |
 |---|---|
+| `select` con `--name` solo de puntos o con `/`, `--subdir` `.`/`..`/absoluto o una página del catálogo con `../` | `DbTraceError` (exit 2) antes de escribir nada |
 | Manifiesto o catálogo inexistente, JSON inválido o no objeto | `DbTraceError`; `[db_trace] ERROR: …` por stderr y código `2` |
 | `format` distinto o `format_version` no admitida | `DbTraceError` («no es una exportación…», «… no soportada»); código `2` |
 | Catálogo sin lista `objects` | `DbTraceError`; código `2` |
@@ -200,6 +201,8 @@ El script se distribuye en el kit de cada destino (`.doc_ia/scripts/db_trace.py`
 | `test_entity_code_and_page_classification` | `is_entity_code` (clase, interfaz, carpeta; no otra entidad) e `is_functional` | unitario |
 | `test_tracemap_finds_pages_by_entity_name` | Página que cita una clase de la entidad, no la de una entidad más larga | integración |
 | `test_select_requires_env_and_does_not_write_partially` | Entorno en blanco y página inexistente → error sin crear la sección | integración |
+| `test_select_rejects_name_or_subdir_outside_their_folder` (5 casos), `test_select_rejects_catalog_paths_outside_the_section`, `test_select_cli_rejects_dot_dot_name` | `--name`/`--subdir`/rutas del catálogo fuera de su carpeta → error (exit 2) sin escribir; la raíz intacta | integración |
+| `test_select_accepts_nested_subdir` | `--subdir bd/<base>` sigue funcionando | integración |
 | `test_rewrite_links_leaves_images_alone` | Las imágenes no se reescriben | unitario |
 | `test_catalog_with_incomplete_object_is_an_error` | Objeto sin `name` ni `path` → `DbTraceError` | unitario |
 | `test_compare_ignores_routines` | Una rutina del alcance no genera discrepancia | unitario |

@@ -13,7 +13,7 @@ fuentes:
   scripts/build_docs_zip.py: 5f972ee674c8
   scripts/check_env.py: c9105c709663
   scripts/convert_to_md.py: e7e60518d96f
-  scripts/db_trace.py: c337133736ca
+  scripts/db_trace.py: 2df471e18403
   scripts/doc_trace.py: 3631c07d7fc3
   scripts/kit.py: 432af520016f
   scripts/redact_secrets.py: d0cbb8ed3fbf
@@ -117,7 +117,7 @@ y genera el `trace_map.toml` de `util_bbdd`. No se conecta a ninguna base de dat
 |---|---|---|---|
 | `info --export` / `select --export` | ruta (obligatorio) | — | Carpeta de la exportación |
 | `select --root` | ruta (obligatorio) | — | Raíz del destino |
-| `select --name` | cadena (obligatorio) | — | Nombre del origen: carpeta `_fuentes/<nombre>/` |
+| `select --name` | cadena (obligatorio) | — | Nombre del origen: carpeta `_fuentes/<nombre>/` (letras, dígitos, `.`, `_`, `-`; no solo puntos) |
 | `select --env` | cadena (obligatorio) | — | Entorno que representa la exportación (p. ej. `Calidad`); en blanco, error |
 | `--subdir` | cadena | `bd` | Sección importada dentro de `docs/` del destino (`select`); en `changes` y `tracemap`, carpeta que no cuenta como evidencia |
 | `--include` | glob (repetible) | todos los objetos | Alcance por nombre, sin distinguir mayúsculas (`select`, `compare`, `changes`, `tracemap`) |
@@ -309,7 +309,7 @@ Sin opciones. Copia `CHANGELOG.md` → `docs/changelog.md` y `CONTRIBUTING.md` �
 | `1` | `db_trace.py select` | Páginas, índice o `_fuentes/` creados, actualizados o retirados | Revisar e incluir en el commit `docs/bd/` y `_fuentes/<nombre>/` |
 | `1` | `db_trace.py compare` | Discrepancias código ↔ BD | Una ficha `COB-DATOS-…` por discrepancia; decide una persona |
 | `1` | `db_trace.py changes` | Objetos del alcance con alta, baja o huella distinta | Revisar las páginas que los citan (candidatas a estado B) |
-| `2` | `db_trace.py` | Exportación o catálogo inexistente, JSON inválido, `format`/`format_version` no admitidos, objeto del catálogo sin `id`/`kind`/`name`/`path`, `select` sin `--env` o con él en blanco, alcance sin coincidencias, páginas citadas inexistentes (antes de escribir nada), `entities.xml` inexistente o mal formado, `OSError`; argparse | Ver `[db_trace] ERROR: …` por stderr |
+| `2` | `db_trace.py` | Exportación o catálogo inexistente, JSON inválido, `format`/`format_version` no admitidos, objeto del catálogo sin `id`/`kind`/`name`/`path`, `select` sin `--env` o con él en blanco, `--name`/`--subdir` o páginas del catálogo fuera de su carpeta, alcance sin coincidencias, páginas citadas inexistentes (antes de escribir nada), `entities.xml` inexistente o mal formado, `OSError`; argparse | Ver `[db_trace] ERROR: …` por stderr |
 | `0` | `kit.py install`/`sync` | Kit al día: nada que copiar, crear ni retirar | — |
 | `1` | `kit.py install`/`sync` | Ficheros creados, actualizados o retirados (también con `--dry-run`) | Revisar e incluir en el commit `.doc_ia/`, los lanzadores y `DOCUMENTAR.md` |
 | `2` | `kit.py install`/`sync` | Conflicto: fichero del kit editado en el destino, fichero ajeno con el nombre de un lanzador o fichero retirado y editado | Revisar el fichero; `--force` solo si los cambios locales sobran |

@@ -289,6 +289,48 @@ def test_select_requires_env_and_does_not_write_partially(tmp_path: Path) -> Non
     assert not (root / "docs/bd").exists()
 
 
+@pytest.mark.parametrize(
+    ("name", "subdir"), [("..", "bd"), (".", "bd"), ("a/b", "bd"), ("bd", ".."), ("bd", ".")]
+)
+def test_select_rejects_name_or_subdir_outside_their_folder(
+    tmp_path: Path, name: str, subdir: str
+) -> None:
+    """`--subdir ..` retiraba como «obsoletos» los .md de la raíz del destino."""
+    exp, root = _export(tmp_path), tmp_path / "VG"
+    keep = root / "README.md"
+    keep.parent.mkdir(parents=True)
+    keep.write_text("# no se borra\n", encoding="utf-8")
+    with pytest.raises(DbTraceError, match="fuera de"):
+        import_pages(exp, root, name, ("MOD_*",), subdir=subdir, env="Calidad")
+    assert keep.is_file()
+    assert sorted(p.name for p in root.iterdir()) == ["README.md"]
+
+
+def test_select_accepts_nested_subdir(tmp_path: Path) -> None:
+    """Uso real (varias bases en un destino): `--subdir bd/<base>`."""
+    exp, root = _export(tmp_path), tmp_path / "VG"
+    import_pages(exp, root, "bd_calidad", ("MOD_*",), subdir="bd/calidad", env="Calidad")
+    assert (root / "docs/bd/calidad/tables/mod-exp.md").is_file()
+
+
+def test_select_rejects_catalog_paths_outside_the_section(tmp_path: Path) -> None:
+    exp, root = _export(tmp_path), tmp_path / "VG"
+    data = json.loads((exp / "docs/catalog.json").read_text(encoding="utf-8"))
+    data["objects"][0]["path"] = "../fuera.md"
+    (exp / "docs/catalog.json").write_text(json.dumps(data), encoding="utf-8")
+    (exp / "fuera.md").write_text("# fuera\n", encoding="utf-8")
+    with pytest.raises(DbTraceError, match="fuera de"):
+        import_pages(exp, root, "bd", ("MOD_*",), env="Calidad")
+    assert not root.exists()
+
+
+def test_select_cli_rejects_dot_dot_name(tmp_path: Path) -> None:
+    exp, root = _export(tmp_path), tmp_path / "VG"
+    args = ["select", "--export", str(exp), "--root", str(root), "--name", ".."]
+    assert main([*args, "--env", "Calidad", "--include", "MOD_*"]) == 2
+    assert not root.exists()
+
+
 def test_rewrite_links_leaves_images_alone() -> None:
     text = "![diagrama](img/er.png) [BASE](base.md)"
     assert rewrite_links(text, "tables/a.md", set()) == "![diagrama](img/er.png) `BASE`"

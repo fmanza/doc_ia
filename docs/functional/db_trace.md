@@ -3,8 +3,8 @@ arquetipo: ""
 fuentes:
   .claude/commands/document-project.md: f82478174881
   .github/prompts/document_project.prompt.md: 03e2d68949a7
-  scripts/db_trace.py: c337133736ca
-  tests/test_db_trace.py: 34b0d703cff9
+  scripts/db_trace.py: 2df471e18403
+  tests/test_db_trace.py: ac4e474ecfd7
 revisado: 2026-11-10
 ---
 # Trazabilidad con la Base de Datos
@@ -114,6 +114,7 @@ documentación.
 |---|---|---|
 | Sin conexión a la base de datos | doc_ia solo lee la exportación; las credenciales y la conexión son de `util_bbdd`, fuera de doc_ia | doc_ia manejaría credenciales y accesos a sistemas de terceros |
 | Contrato versionado | Solo se aceptan las versiones conocidas del formato del manifiesto y del catálogo; cualquier otra se rechaza | Se importaría una exportación con otra estructura y se documentarían datos mal leídos |
+| Importar sin salir de su sitio | El nombre del origen, la sección (que puede tener subcarpetas, como `bd/<base>`) y cada página del catálogo deben quedar dentro de `_fuentes/` y de `docs/`; si no, se rechaza antes de escribir nada | Con una sección `..`, la retirada de páginas obsoletas borraría los `.md` de la raíz del destino |
 | Foto de un entorno | La exportación describe lo desplegado en un entorno y una fecha concretos; importar exige indicar el entorno, que el índice de la sección muestra junto con base de datos, motor y fecha y que queda guardado con el catálogo | Se presentaría como «el modelo» un esquema que puede diferir entre entornos |
 | Solo el alcance | Se importan, contrastan y comparan solo los objetos cuyos nombres encajan con los patrones (sin distinguir mayúsculas); un alcance sin coincidencias al importar es un error | La documentación del módulo arrastraría cientos de tablas ajenas, o quedaría vacía sin aviso |
 | Sin enlaces rotos | Un enlace a un objeto no importado se convierte en texto | El build estricto del sitio fallaría por enlaces a páginas inexistentes |
@@ -190,6 +191,9 @@ documentación.
 | AC-14 | Un catálogo con un objeto sin nombre ni página | Se lee | Error que indica qué falta | `tests/test_db_trace.py::test_catalog_with_incomplete_object_is_an_error` |
 | AC-15 | Una rutina cuyo nombre encaja en el alcance | Se contrasta | No genera discrepancia | `tests/test_db_trace.py::test_compare_ignores_routines` |
 | AC-16 | El catálogo completo de una exportación y el subconjunto guardado | Se comparan con y sin alcance | Sin alcance, los objetos de fuera salen como alta; con alcance, no hay cambios | `tests/test_db_trace.py::test_changes_limited_to_scope` |
+| AC-17 | Un nombre `.`, `..` o con `/`, o una sección `..` o `.` | Se importa | Error antes de escribir y la raíz del destino queda intacta | `tests/test_db_trace.py::test_select_rejects_name_or_subdir_outside_their_folder` |
+| AC-18 | Un catálogo que cita una página con `../` | Se importa | Error antes de escribir nada | `tests/test_db_trace.py::test_select_rejects_catalog_paths_outside_the_section` |
+| AC-19 | Una sección anidada `bd/<base>` (varias bases en un destino) | Se importa | Las páginas quedan en `docs/bd/<base>/` | `tests/test_db_trace.py::test_select_accepts_nested_subdir` |
 
 Verificación: `python -m pytest tests/test_db_trace.py -q`.
 
@@ -230,4 +234,5 @@ Verificación: `python -m pytest tests/test_db_trace.py -q`.
     | Rutas con espacios o acentos | `scripts/db_trace.py::build_tracemap` (`core.quotepath=off`, `ls-files -z`) | ✅ |
     | Mapa en el CIERRE | `.github/prompts/document_project.prompt.md::Devuelve en este orden` (Trazabilidad para la BD) | ✅ |
     | Resultados 0, 1 y 2 | `scripts/db_trace.py::_cmd_select`, `::_cmd_compare`, `::_cmd_changes`, `::main` | ✅ |
-    | AC-01 – AC-16 | `tests/test_db_trace.py` | ✅ |
+    | Regla «Importar sin salir de su sitio» | `scripts/db_trace.py::import_pages`, `::_inside`, `::NAME_RE` | ✅ |
+    | AC-01 – AC-19 | `tests/test_db_trace.py` | ✅ |

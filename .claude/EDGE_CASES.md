@@ -376,6 +376,8 @@
   (exit 2, sin tocar nada). Tests `test_add_rejects_names_that_leave_staging` y
   `test_hand_edited_manifest_name_never_deletes_the_destination`. Detectado en el AUDIT_CODE de
   `web_captures.py` (mismo fallo, C1).
-- **Pendiente**: `db_trace.py select --name ..` escribiría `catalog.json` y `manifest.json` en la
-  raíz del destino (sin borrar); propuesto como hotfix aparte.
+- **Relacionado**: `db_trace.py select` tenía el mismo fallo con `--name` y, peor, con
+  `--subdir ..`, que retiraba como obsoletos los `.md` de la raíz del destino (RESUELTO en
+  .ai/sessions/2026-11-10c_hotfix_db_trace_rutas/: `NAME_RE`, `_inside` y rutas del catálogo
+  validadas antes de escribir).
 - **Sesión**: .ai/sessions/2026-11-10b_hotfix_nombre_origen/
