@@ -64,7 +64,7 @@ salida se abrevia y el número de ficheros depende de la lista blanca de la vers
 
 ```bash
 python <doc_ia>/scripts/kit.py sync --root mi_modulo_docs --dry-run
-# [kit] doc_ia 0.10.0 → …\mi_modulo_docs: 51 cambio(s)
+# [kit] doc_ia 0.11.0 → …\mi_modulo_docs: 53 cambio(s)
 #   CREADO           .doc_ia/pyproject.toml
 #   …
 #   CREADO           .doc_ia/scripts/kit.py
@@ -78,12 +78,12 @@ python <doc_ia>/scripts/kit.py sync --root mi_modulo_docs --dry-run
 ```
 
 La misma orden sin `--dry-run` instala el kit (código `1`); repetida, termina con código `0`
-(`[kit] doc_ia 0.10.0 → …\mi_modulo_docs: sin cambios`). El registro queda así (huellas
+(`[kit] doc_ia 0.11.0 → …\mi_modulo_docs: sin cambios`). El registro queda así (huellas
 abreviadas):
 
 ```json
 {
-  "doc_ia": "0.10.0",
+  "doc_ia": "0.11.0",
   "fecha": "2026-11-07",
   "ficheros": {
     ".claude/commands/documentar.md": "44364ebb0ca8…",
@@ -98,7 +98,7 @@ la primera sesión escribe el prompt de instancia):
 
 ```bash
 python mi_modulo_docs/.doc_ia/scripts/kit.py check --root mi_modulo_docs
-# [kit] kit doc_ia 0.10.0 en …\mi_modulo_docs
+# [kit] kit doc_ia 0.11.0 en …\mi_modulo_docs
 #   CONFLICTO        .ai/prompts/documentar.prompt.md — falta (lo crea /documentar o el CIERRE)
 ```
 

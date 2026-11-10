@@ -5,6 +5,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+## [0.11.0] — 2026-11-10
+
 ### Added
 
 - **Origen WEB (opción `WEB`)**: la aplicación **desplegada** en un entorno (p. ej. PRE) se
@@ -466,7 +468,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - Restauración de `config-reviewer.agent.md` y creación de `docs.instructions.md`
   tras corrupción del bootstrap.
 
-[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.11.0...HEAD
+[0.11.0]: https://github.com/fmanza/doc_ia/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/fmanza/doc_ia/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/fmanza/doc_ia/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/fmanza/doc_ia/compare/v0.7.0...v0.8.0
