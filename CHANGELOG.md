@@ -5,6 +5,12 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+### Fixed
+
+- `doc_trace.py stamp`: al sellar una página con otras claves en el frontmatter (el `ambito` de un
+  registro de decisiones, los metadatos MADR de un ADR) las eliminaba, y si no tenía fuentes ni
+  registros sellados dejaba el arquetipo vacío. Ahora se conservan.
+
 ## [0.11.2] — 2026-11-10
 
 ### Fixed

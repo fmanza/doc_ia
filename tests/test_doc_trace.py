@@ -713,6 +713,21 @@ def test_stamp_page_that_only_links_registers(tmp_path: Path) -> None:
     assert check_drift(root / "docs", root) == []
 
 
+def test_stamp_keeps_unmanaged_keys_and_archetype(tmp_path: Path) -> None:
+    """Un registro (`ambito`) u otra página con claves propias no las pierde al sellarse."""
+    root, page, _ = _register_repo(
+        tmp_path, 'arquetipo: "13"\nambito: WEB\ntags:\n  - manual\n  - pre'
+    )
+    meta = stamp_page(page, root)
+    text = page.read_text(encoding="utf-8")
+    assert meta.archetype == "13"
+    assert text.startswith('---\narquetipo: "13"\nambito: WEB\ntags:\n  - manual\n  - pre\n')
+    assert "decisiones:\n  ../decisiones/rgpd_decisiones.md:" in text
+    stamp_page(page, root)  # idempotente: no duplica las claves
+    assert page.read_text(encoding="utf-8").count("ambito: WEB") == 1
+    assert check_drift(root / "docs", root) == []
+
+
 def test_drift_seals_registers_of_external_destination(tmp_path: Path) -> None:
     """Destino en otro repositorio: el registro se resuelve desde la página, no desde --root."""
     origin = _repo(tmp_path / "origen")

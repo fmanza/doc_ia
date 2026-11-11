@@ -14,13 +14,13 @@ fuentes:
   scripts/check_env.py: c9105c709663
   scripts/convert_to_md.py: e7e60518d96f
   scripts/db_trace.py: 2df471e18403
-  scripts/doc_trace.py: 3631c07d7fc3
+  scripts/doc_trace.py: 4679f991c61a
   scripts/kit.py: 432af520016f
   scripts/redact_secrets.py: d0cbb8ed3fbf
   scripts/snapshot_sources.py: f9dd29bea432
   scripts/start-server.py: a12209ac8507
   scripts/web_captures.py: 53972c5aa039
-revisado: 2026-11-10
+revisado: 2026-11-11
 ---
 # Referencia — doc_ia
 

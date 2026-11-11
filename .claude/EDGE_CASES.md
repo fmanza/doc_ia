@@ -381,3 +381,15 @@
   .ai/sessions/2026-11-10c_hotfix_db_trace_rutas/: `NAME_RE`, `_inside` y rutas del catálogo
   validadas antes de escribir).
 - **Sesión**: .ai/sessions/2026-11-10b_hotfix_nombre_origen/
+
+## [doc_trace stamp] — Sellar un registro de decisiones borraba `ambito` y el arquetipo (RESUELTO)
+
+- **Síntoma**: en el destino UFV, `stamp` sobre `docs/decisiones/web_decisiones.md` (que enlaza
+  fichas de otro registro) dejó `arquetipo: ""` y eliminó `ambito: WEB`.
+- **Causa**: `stamp_page` reescribía el frontmatter entero con las cuatro claves que gestiona
+  (`arquetipo`, `fuentes`, `decisiones`, `revisado`); sin `fuentes` ni `decisiones` previos,
+  `read_page_meta` devolvía `None` y el arquetipo salía vacío.
+- **Tratamiento**: `_unmanaged_frontmatter` conserva literalmente las demás claves (también los
+  metadatos MADR de los ADR) y recupera el arquetipo. Test
+  `test_stamp_keeps_unmanaged_keys_and_archetype`.
+- **Sesión**: .ai/sessions/2026-11-11_hotfix_stamp_frontmatter/
