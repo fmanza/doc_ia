@@ -14,13 +14,13 @@ fuentes:
   scripts/check_env.py: c9105c709663
   scripts/convert_to_md.py: e7e60518d96f
   scripts/db_trace.py: 2df471e18403
-  scripts/doc_trace.py: 3631c07d7fc3
+  scripts/doc_trace.py: 4679f991c61a
   scripts/kit.py: 432af520016f
   scripts/redact_secrets.py: d0cbb8ed3fbf
   scripts/snapshot_sources.py: f9dd29bea432
   scripts/start-server.py: a12209ac8507
   scripts/web_captures.py: 53972c5aa039
-revisado: 2026-11-10
+revisado: 2026-11-11
 ---
 # Referencia — doc_ia
 
@@ -33,7 +33,7 @@ línea de comandos, códigos de salida y eventos de build. La API interna de cad
 | Clave | Origen | Tipo | Por defecto | Descripción |
 |---|---|---|---|---|
 | `CUDA_VISIBLE_DEVICES` | `env` | cadena | `""` (lo fija `convert_to_md.py` al importarse si no existe) | Visibilidad de GPU para docling. `--device cpu` la fija a `""`; `--device cuda` la elimina; `--device auto` respeta un valor exportado por el usuario e ignora el que fija el propio módulo |
-| `project.version` | fichero `pyproject.toml` | cadena SemVer | `0.11.2` (valor actual) | Versión usada en el nombre del ZIP (`doc_ia-docs-{versión}.zip`) y en la release `docs-v{versión}` |
+| `project.version` | fichero `pyproject.toml` | cadena SemVer | `0.11.3` (valor actual) | Versión usada en el nombre del ZIP (`doc_ia-docs-{versión}.zip`) y en la release `docs-v{versión}` |
 | `site_dir` | fichero `mkdocs.yml` | ruta | `site` | Directorio de salida del build; `mkdocs_hooks.py` lo lee de la configuración. `build_docs_zip.py` usa `site/` fijo |
 | `use_directory_urls` | fichero `mkdocs.yml` | booleano | `false` | URLs `*.html`: el sitio y el ZIP se abren con doble clic en `index.html` (el plugin `offline` lo fuerza igualmente) |
 | `plugins: offline` | fichero `mkdocs.yml` | plugin | activo | Escribe el índice de búsqueda como JS (`search/search_index.js`; Zensical: `search.js`) para buscar desde `file://` |

@@ -3,13 +3,13 @@ arquetipo: "2"
 fuentes:
   mkdocs.yml: ab0e72d492ad
   mkdocs_hooks.py: 31259b7911a3
-  pyproject.toml: cbcf218f709e
+  pyproject.toml: f41737d7fc2c
   scripts/build_docs_zip.py: 5f972ee674c8
   tests/test_build_docs_zip.py: 82a1d595e6f4
   tests/test_offline_assets.py: 7e632c37987d
 decisiones:
   ../decisiones/buildzip_decisiones.md: e610c12daad7
-revisado: 2026-11-10
+revisado: 2026-11-11
 ---
 # build_docs_zip
 

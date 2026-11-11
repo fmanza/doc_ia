@@ -1,9 +1,9 @@
 ---
 arquetipo: "2"
 fuentes:
-  scripts/doc_trace.py: 3631c07d7fc3
-  tests/test_doc_trace.py: 359233b2f669
-revisado: 2026-11-05
+  scripts/doc_trace.py: 4679f991c61a
+  tests/test_doc_trace.py: 8fbb81ad8d40
+revisado: 2026-11-11
 ---
 # doc_trace
 
@@ -97,8 +97,8 @@ documentación puede mostrar el formato sin generar hallazgos. Nunca escribe en 
 | `fingerprint` | `fingerprint(path) -> str` | SHA256 truncado a `HASH_LENGTH` (12) con CRLF→LF; en `.md` excluye el frontmatter | Huella hex |
 | `read_page_meta` | `read_page_meta(page) -> PageMeta \| None` | Lee el frontmatter; `None` si no hay o no declara `fuentes` ni `decisiones` | `PageMeta` o `None` |
 | `linked_registers` | `linked_registers(page) -> list[str]` | Registros que la página enlaza desde IDs `COB-…` fuera de código, con la ruta del enlace normalizada | Rutas relativas a la página |
-| `format_frontmatter` | `format_frontmatter(meta) -> str` | Serializa el frontmatter con fuentes y registros ordenados (omite la clave vacía) | Bloque `---…---\n` |
-| `stamp_page` | `stamp_page(page, repo_root, *, sources=None, archetype=None, reviewed=None) -> PageMeta` | Recalcula huellas de fuentes y de registros enlazados y reescribe el frontmatter conservando el cuerpo; sin `--source` basta con que enlace un registro | `PageMeta` escrito |
+| `format_frontmatter` | `format_frontmatter(meta, extra=None) -> str` | Serializa el frontmatter con fuentes y registros ordenados (omite la clave vacía); `extra`, líneas de otras claves tras `arquetipo` | Bloque `---…---\n` |
+| `stamp_page` | `stamp_page(page, repo_root, *, sources=None, archetype=None, reviewed=None) -> PageMeta` | Recalcula huellas de fuentes y de registros enlazados y reescribe el frontmatter conservando el cuerpo y las claves que no gestiona (`ambito`, metadatos MADR…) con su arquetipo; sin `--source` basta con que enlace un registro | `PageMeta` escrito |
 | `check_drift` | `check_drift(docs_dir, repo_root) -> list[DriftFinding]` | Recorre `docs_dir/**/*.md`: compara huellas de fuentes (desde `repo_root`) y de registros (desde la página) y detecta registros enlazados sin sellar | Hallazgos en orden estable |
 | `collect_test_ids` | `collect_test_ids(tests_dir, repo_root) -> set[str]` | Ids `tests/x.py::test_y` y `::Clase::test_y` vía `ast` (sin importar los tests) | Conjunto de ids |
 | `collect_criteria` | `collect_criteria(functional_dir) -> list[CriterionRow]` | Filas `\| AC-xx \|` de `functional_dir/*.md`; tests de la última celda si la fila tiene ≥5 celdas | Filas |
@@ -223,6 +223,7 @@ documentación puede mostrar el formato sin generar hallazgos. Nunca escribe en 
 | `test_drift_*` (4) | Hallazgos `stale`, `missing` y `outside_repo`; páginas sin sellar ignoradas | unitario |
 | `test_stamp_seals_linked_register_and_drift_detects_its_edit`, `test_drift_reports_unsealed_register_link`, `test_stamp_page_that_only_links_registers`, `test_drift_seals_registers_of_external_destination`, `test_register_links_inside_code_are_not_sealed` (5) | Sellado de registros en `decisiones:`, `stale` al editar un registro, `unsealed`, página solo con registros, destino en otro repositorio y enlaces en código ignorados | unitario |
 | `test_stamp_rejects_source_outside_repo`, `test_stamp_requires_sources` (2) | Errores de `stamp_page` | unitario |
+| `test_stamp_keeps_unmanaged_keys_and_archetype` | Claves propias y arquetipo conservados; idempotente | unitario |
 | `test_collect_test_ids_includes_class_methods`, `test_matrix_reports_unknown_and_uncited` (2) | Ids de tests (incluidos métodos de clase), inexistentes y sin citar | unitario |
 | `test_main_matrix_exit_code_on_unknown_test` (1) | `matrix` devuelve `1` con un test inexistente | integración (CLI) |
 | `test_build_llms_txt_tolerates_python_tags` (1) | Etiquetas `!!python/name:`, URLs con `site_url` y omisión de enlaces externos | unitario |
@@ -257,6 +258,7 @@ python -m pytest tests/test_doc_trace.py -q
     | Huella de 12 hex, CRLF→LF y sin frontmatter en `.md` | `scripts/doc_trace.py::fingerprint`, `::HASH_LENGTH` | ✅ |
     | Lectura del frontmatter | `scripts/doc_trace.py::read_page_meta`, `::FRONTMATTER_RE` | ✅ |
     | Serialización ordenada | `scripts/doc_trace.py::format_frontmatter` | ✅ |
+    | Claves propias conservadas | `scripts/doc_trace.py::_unmanaged_frontmatter`, `::STAMP_KEYS` | ✅ |
     | `stamp_page` y sus errores | `scripts/doc_trace.py::stamp_page` | ✅ |
     | Guarda fuera del repositorio | `scripts/doc_trace.py::_resolve_source` | ✅ |
     | `check_drift` y orden estable | `scripts/doc_trace.py::check_drift` | ✅ |

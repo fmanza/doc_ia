@@ -5,6 +5,14 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+## [0.11.3] — 2026-11-11
+
+### Fixed
+
+- `doc_trace.py stamp`: al sellar una página con otras claves en el frontmatter (el `ambito` de un
+  registro de decisiones, los metadatos MADR de un ADR) las eliminaba, y si no tenía fuentes ni
+  registros sellados dejaba el arquetipo vacío. Ahora se conservan.
+
 ## [0.11.2] — 2026-11-10
 
 ### Fixed
@@ -485,7 +493,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - Restauración de `config-reviewer.agent.md` y creación de `docs.instructions.md`
   tras corrupción del bootstrap.
 
-[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.11.2...HEAD
+[Unreleased]: https://github.com/fmanza/doc_ia/compare/v0.11.3...HEAD
+[0.11.3]: https://github.com/fmanza/doc_ia/compare/v0.11.2...v0.11.3
 [0.11.2]: https://github.com/fmanza/doc_ia/compare/v0.11.1...v0.11.2
 [0.11.1]: https://github.com/fmanza/doc_ia/compare/v0.11.0...v0.11.1
 [0.11.0]: https://github.com/fmanza/doc_ia/compare/v0.10.0...v0.11.0

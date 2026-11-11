@@ -61,6 +61,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 HASH_LENGTH = 12
 FRONTMATTER_RE = re.compile(r"\A---\r?\n(.*?)\r?\n---\r?\n", re.S)
+STAMP_KEYS = frozenset({"arquetipo", "fuentes", "decisiones", "revisado"})  # las reescribe stamp
 AC_ROW_RE = re.compile(r"^\|\s*(AC-\d+)\s*\|")
 TEST_ID_RE = re.compile(r"tests/[\w/]+\.py::[\w:]+")
 
@@ -176,9 +177,32 @@ def _resolve_source(source: str, repo_root: Path) -> Path | None:
     return resolved if resolved.is_relative_to(repo_root.resolve()) else None
 
 
-def format_frontmatter(meta: PageMeta) -> str:
-    """Serializa el frontmatter de trazabilidad con orden estable de fuentes y registros."""
-    lines = ["---", f'arquetipo: "{meta.archetype}"']
+def _unmanaged_frontmatter(text: str) -> tuple[str, list[str]]:
+    """(arquetipo, líneas literales de las claves que ``stamp`` no gestiona) del frontmatter.
+
+    Las claves propias de la página (``ambito`` de un registro, etiquetas…) se conservan tal cual.
+    """
+    match = FRONTMATTER_RE.match(text)
+    if match is None:
+        return "", []
+    data = _load_yaml(match.group(1))
+    archetype = str(data.get("arquetipo", "")) if isinstance(data, dict) else ""
+    kept: list[str] = []
+    keep = False
+    for line in match.group(1).splitlines():
+        if line and not line[0].isspace():
+            keep = line.split(":", 1)[0].strip() not in STAMP_KEYS
+        if keep:
+            kept.append(line)
+    return archetype, kept
+
+
+def format_frontmatter(meta: PageMeta, extra: list[str] | None = None) -> str:
+    """Serializa el frontmatter de trazabilidad con orden estable de fuentes y registros.
+
+    ``extra``: líneas de otras claves de la página, que se escriben tras ``arquetipo``.
+    """
+    lines = ["---", f'arquetipo: "{meta.archetype}"', *(extra or [])]
     if meta.sources:
         lines.append("fuentes:")
         lines += [f"  {src}: {digest}" for src, digest in sorted(meta.sources.items())]
@@ -220,16 +244,17 @@ def stamp_page(
         if not resolved.is_file():
             raise ValueError(f"{page}: la fuente {name} no existe")
         digests[name] = fingerprint(resolved)
+    text = page.read_text(encoding="utf-8")
+    old_archetype, extra = _unmanaged_frontmatter(text)
     meta = PageMeta(
         page=page,
-        archetype=archetype or (current.archetype if current else ""),
+        archetype=archetype or (current.archetype if current else "") or old_archetype,
         sources=digests,
         reviewed=reviewed or date.today().isoformat(),
         registers=registers,
     )
-    text = page.read_text(encoding="utf-8")
     body = FRONTMATTER_RE.sub("", text, count=1)
-    page.write_text(format_frontmatter(meta) + body, encoding="utf-8", newline="\n")
+    page.write_text(format_frontmatter(meta, extra) + body, encoding="utf-8", newline="\n")
     return meta
 
 
