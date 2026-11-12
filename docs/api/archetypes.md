@@ -1,15 +1,15 @@
 ---
 arquetipo: "2"
 fuentes:
-  .github/DOCUMENTATION_STANDARD.md: 015af37230ba
-  .github/agents/documentation-generator.agent.md: 6d6fda2b5f18
+  .github/DOCUMENTATION_STANDARD.md: fdc027f24550
+  .github/agents/documentation-generator.agent.md: c803b76cbce4
   .github/prompts/example_doc.prompt.md: 6041f616e0c3
   .github/prompts/user_manual_doc.prompt.md: 3ae26288bdb1
-  mkdocs.yml: ab0e72d492ad
-  tests/test_docs_conformance.py: bf9f28524195
+  mkdocs.yml: 28b6b25a031d
+  tests/test_docs_conformance.py: 7416646e6217
 decisiones:
   ../decisiones/archetypes_decisiones.md: 1a6976ff3ff3
-revisado: 2026-11-10
+revisado: 2026-11-13
 ---
 # archetypes
 
@@ -82,7 +82,7 @@ Cada arquetipo produce un archivo Markdown con las secciones numeradas obligator
 | Arquetipo 15 sin la opción `WEB` o sin origen CÓDIGO | No se genera `docs/manual/`; con `WEB`, solo capturas publicadas con `web_captures.py publish` y `web_captures.py check` con exit 0 |
 | Arquetipo 13 con un registro ya editado por personas | Modo aplicación antes que generación: se reflejan las decisiones y se añaden fichas nuevas sin tocar los campos de persona |
 | Identificador `COB-…` citado sin ficha, o ficha decidida sin reflejar | `doc_trace decisions` lo informa (`orphan_ref`, `unreflected`) y termina con código `1` |
-| Cita de evidencia a código fuera de `docs/` | Se escribe como código inline (`ruta::símbolo`), nunca como enlace: un enlace rompería `mkdocs build --strict` |
+| Cita de evidencia a código fuera de `docs/` | Se escribe como código inline (`ruta::símbolo`), nunca como enlace: un enlace rompería el build `--strict` |
 | Arquetipo 4 sin archivo `.py` de soporte | Para flujos de chat (no Python): usar bloques inline; no se requiere `.py` |
 
 ## 3. Componentes y Clases
@@ -93,7 +93,7 @@ Cada arquetipo produce un archivo Markdown con las secciones numeradas obligator
 | Prompts de arquetipos | `.github/prompts/*_doc.prompt.md` | Instrucciones de generación por arquetipo; uno por arquetipo |
 | Trazabilidad determinista | `scripts/doc_trace.py` | Sella el frontmatter `fuentes` de las páginas con Evidencia y detecta drift, tests citados inexistentes y `llms.txt` desactualizado (§3.16); comprueba los registros de decisiones (`decisions`, §3.18) |
 | Plantilla del registro de decisiones | `.github/templates/DECISIONES_COBERTURA.template.md` | Estructura de 4 secciones y ficha de 8 campos fijos del Arquetipo 13 |
-| Reglas operativas | `.github/instructions/docs.instructions.md` | Resumen de Mermaid (reglas completas en §3.17 del estándar), snippets `--8<--`, MkDocs, reglas de sección vacía |
+| Reglas operativas | `.github/instructions/docs.instructions.md` | Resumen de Mermaid (reglas completas en §3.17 del estándar), snippets `--8<--`, navegación del sitio (`mkdocs.yml`), reglas de sección vacía |
 
 ## 4. Dependencias y Requisitos
 

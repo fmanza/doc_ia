@@ -88,7 +88,7 @@ Comandos equivalentes detectados:
   python -m pytest   → jest / vitest
   python -m ruff     → eslint
   python -m mypy     → tsc --noEmit
-  mkdocs build       → docusaurus build
+  zensical build     → docusaurus build
 ```
 
 Tras IMPLEMENT + auditoría con Config Reviewer, el destino tiene los entry points IA

@@ -3,13 +3,13 @@
 
 Usage:
     python scripts/build_docs_zip.py
-    python scripts/build_docs_zip.py --builder zensical
     python scripts/build_docs_zip.py --no-build          # only zip an existing site/
     python scripts/build_docs_zip.py --output-dir /tmp
 
-Zensical ignores the ``hooks:`` key of mkdocs.yml, so for that builder this script runs the
-hooks itself: ``hooks/sync_root_docs.py`` before the build and ``mkdocs_hooks.py`` (latest
-ZIP in site/) after a successful build.
+Zensical is the only documentation generator (ADR-003); MkDocs is no longer supported.
+Zensical has no ``hooks:``, so this script is the build pipeline: ``hooks/sync_root_docs.py``
+before ``zensical build`` and ``mkdocs_hooks.py`` (latest ZIP in site/) after a successful
+build. ``mkdocs.yml`` keeps its name: Zensical reads it natively.
 
 Before packaging, site/ must be browsable from file:// (double click on index.html, no server):
 search index inlined as JS by the ``offline`` plugin, no remote scripts and no links to folders.
@@ -37,10 +37,12 @@ ZIP_PREFIX = "doc_ia-docs"
 # Files outside site/ shipped at the ZIP root: local server and viewing instructions.
 EXTRA_FILES = ("scripts/start-server.py", "VER_DOCUMENTACION.md")
 
-# Builders that do not execute the `hooks:` declared in mkdocs.yml.
-HOOKLESS_BUILDERS: frozenset[str] = frozenset({"zensical"})
+BUILDER = "zensical"
+# Accepted for one version so existing calls keep working; any other value is rejected.
+LEGACY_BUILDER_FLAG = "--builder"
 
-# Search index inlined as JS by the `offline` plugin: MkDocs Material, Zensical.
+# Search index inlined as JS by the `offline` plugin: Zensical (search.js); the MkDocs Material
+# layout is still accepted for sites built before the switch (ADR-003).
 OFFLINE_SEARCH_INDEXES = ("search/search_index.js", "search.js")
 MAX_REPORTED_PROBLEMS = 20
 _SCRIPT_SRC_RE = re.compile(r'<script\b[^>]*\bsrc="([^"]+)"')
@@ -75,23 +77,31 @@ def _post_build() -> None:
     _load_hook("mkdocs_hooks.py").on_post_build({"site_dir": str(SITE_DIR)})
 
 
-def _build(builder: str, strict: bool) -> None:
-    hookless = builder in HOOKLESS_BUILDERS
-    cmd = [sys.executable, "-m", builder, "build"]
+def _build(strict: bool) -> None:
+    cmd = [sys.executable, "-m", BUILDER, "build"]
     if strict:
         cmd.append("--strict")
-    if hookless:
-        _pre_build()
+    _pre_build()
     print(f"[build_docs_zip] Building with: {' '.join(cmd)}")
     result = subprocess.run(cmd, cwd=ROOT)
     if result.returncode != 0:
         sys.exit(result.returncode)
-    if hookless:
-        _post_build()
+    _post_build()
 
 
 def _is_remote(url: str) -> bool:
     return url.startswith("//") or _SCHEME_RE.match(url) is not None
+
+
+def _is_folder(url: str) -> bool:
+    """Local URL naming a folder (`a/`, `.`, `..`, `./..`): from file:// it opens a listing.
+
+    An empty path (`""`, `#top`) is the page itself and is fine.
+    """
+    if _is_remote(url):
+        return False
+    path = url.split("#", 1)[0].split("?", 1)[0]
+    return path.endswith("/") or path.rsplit("/", 1)[-1] in {".", ".."}
 
 
 def _offline_problems(site_dir: Path) -> list[str]:
@@ -109,8 +119,7 @@ def _offline_problems(site_dir: Path) -> list[str]:
             if _is_remote(src):
                 problems.append(f"{name}: remote script {src}")
         for url in _URL_ATTR_RE.findall(html):
-            path = url.split("#", 1)[0].split("?", 1)[0]
-            if path.endswith("/") and not _is_remote(url):
+            if _is_folder(url):
                 problems.append(f"{name}: link to a folder {url}")
     return problems
 
@@ -182,10 +191,10 @@ def _create_checksum_files(archive: Path) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Build docs and package as offline ZIP.")
     parser.add_argument(
-        "--builder",
-        choices=["mkdocs", "zensical"],
-        default="mkdocs",
-        help="Doc builder to use (default: mkdocs)",
+        LEGACY_BUILDER_FLAG,
+        default=BUILDER,
+        metavar="zensical",
+        help="Deprecated: Zensical is the only builder; any other value exits with code 2",
     )
     parser.add_argument(
         "--no-strict",
@@ -207,9 +216,14 @@ def main() -> None:
         help="Directory for the output ZIP (default: dist/)",
     )
     args = parser.parse_args()
+    if args.builder != BUILDER:
+        parser.error(
+            f"builder {args.builder!r} is no longer supported: Zensical is the only "
+            "documentation generator (ADR-003). Drop --builder."
+        )
 
     if not args.no_build:
-        _build(args.builder, args.strict)
+        _build(args.strict)
     elif not SITE_DIR.exists():
         print(
             f"[build_docs_zip] ERROR: {SITE_DIR} does not exist. Run without --no-build first.",

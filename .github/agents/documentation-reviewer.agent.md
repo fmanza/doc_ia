@@ -33,7 +33,7 @@ Lee antes de revisar:
 5. **Documentación de APIs**: type hints, parameters, return values, exceptions
 6. **Compatibilidad e instalación**: setup instructions, requirements, herramientas soportadas
 7. **Changelog y releases**: claridad, linkability, impacto comunicado
-8. **MkDocs**: `nav`, páginas huérfanas, páginas referenciadas inexistentes, Mermaid, extensiones
+8. **Navegación (`mkdocs.yml`, Zensical)**: `nav`, páginas huérfanas, páginas referenciadas inexistentes, Mermaid, extensiones
 9. **Prompts e instrucciones IA**: calidad, no duplicación, no invención, separación funcional/técnica
 10. **Normativa (condicional)**: leer `.ai/product.md` y `README.md`:
     - Si el proyecto referencia leyes, decretos o normativas de obligado cumplimiento:
@@ -118,9 +118,9 @@ Cuando se pida revisar todo el proyecto, sigue estas fases:
 - `mkdocs.yml` desactualizado o con páginas inexistentes
 - Guías de troubleshooting ausentes
 - Tipos de error no documentados
-- Incompatibilidades entre generadores de documentación no aclaradas (con Zensical: `hooks:` sin
-  pipeline en el script de build, o plugins fuera de `https://zensical.org/compatibility/plugins/`,
-  que se ignoran en silencio)
+- Incompatibilidades con Zensical (único generador, ADR-003) no aclaradas: `hooks:` sin pipeline
+  en el script de build, plugins fuera de `ZENSICAL_SUPPORTED_PLUGINS` (se ignoran en silencio) o
+  un destino todavía en MkDocs sin migrar
 
 ### Nivel 3: Recomendado (mejora experiencia)
 - Ejemplos avanzados no cubiertos
@@ -147,7 +147,7 @@ Formato esperado definido en `.github/prompts/documentation_review.prompt.md`.
   ### Public API Documentation
   ### Examples & Tutorials
   ### Architecture & Design Guides
-  ### MkDocs Navigation & Rendering
+  ### Navigation & Rendering (`mkdocs.yml`, Zensical)
   ### AI Prompts & Documentation Instructions
   ### Installation & Setup
   ### Compatibility & Engines

@@ -3,7 +3,7 @@
 ## 1. Contexto del Ejemplo
 
 Antes de generar documentación o ejecutar las puertas de calidad conviene confirmar que
-el entorno tiene instaladas las cuatro herramientas del tooling (`mkdocs`, `ruff`, `mypy`,
+el entorno tiene instaladas las cuatro herramientas del tooling (`zensical`, `ruff`, `mypy`,
 `pytest`). Este ejemplo muestra las dos formas de hacerlo: ejecutar el script CLI tal
 cual, o importar `missing_tools` desde código propio (mismo patrón que usan los tests
 del proyecto).

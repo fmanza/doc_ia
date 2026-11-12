@@ -19,10 +19,12 @@ Documentar un proyecto (origen → destino) orquestando los arquetipos formales.
 - [ ] **Destino de la documentación**: Ruta donde se escribe (ej. `c:\repos\mi_api\docs`). La
   **raíz del destino** es la carpeta con (o que tendrá) `mkdocs.yml`: el padre de `docs/` si se da
   `…\docs`, o la propia carpeta si está vacía. `.ai/`, `_fuentes/` y `_staging/` van en la raíz
-- [ ] **Generador**: `mkdocs-material` (por defecto) | `zensical` — con `zensical` aplicar
-  `.github/prompts/document_project.prompt.md` § *Reglas por generador: Zensical* (no ejecuta
-  `hooks:`; señal `TIENE_PIPELINE_SIN_HOOKS`, Gap A4, plugins soportados, build vía script)
 - [ ] **Idioma**: `es` | `en` | otro
+- **Generador**: siempre **Zensical** (ADR-003); no se pregunta. Si el usuario pide MkDocs,
+  responder que doc_ia ya no lo soporta y ofrecer la migración. Un destino en MkDocs se migra en
+  la Fase 0b con guarda de plugins (`document_project.prompt.md` § *Generador: Zensical y
+  migración de destinos MkDocs*: sin `hooks:`, señal `TIENE_PIPELINE_SIN_HOOKS`, Gap A4, build
+  vía `scripts/build_docs_zip.py`)
 - [ ] **Tipo de cada origen** (opcional): `CÓDIGO` | `NORMATIVA` | `ESPECIFICACIÓN` | `UI/PANTALLAS` | `CONTRATO` | `INFRAESTRUCTURA` | `MANUAL` | `REFERENCIA` — autodetectado si se omite; el usuario confirma antes de continuar
 - [ ] **Estrategia** (solo con ≥2 orígenes CÓDIGO): `federado` | `hub+satélite` | `monorepo` — preguntar al usuario, nunca autodetectar
 - [ ] **Alcance** (opcional): módulos o subconjunto; por defecto proyecto completo. Módulo funcional
@@ -47,10 +49,11 @@ Documentar un proyecto (origen → destino) orquestando los arquetipos formales.
 
 ### ⚠️ VALIDACIÓN
 
-Si **alguno** de los 4 campos obligatorios (Origen, Destino, Generador, Idioma) está vacío,
+Si **alguno** de los 3 campos obligatorios (Origen, Destino, Idioma) está vacío,
 es ambiguo o no es verificable en disco, **DETENTE AHORA**. Pide los datos al usuario antes
-de continuar. No inventes rutas ni elijas generador o idioma por el usuario. No emitas
-INVENTARIO hasta que los 4 estén completos (mismo patrón de validación que `/new-feature`).
+de continuar. No inventes rutas ni elijas idioma por el usuario. No emitas
+INVENTARIO hasta que los 3 estén completos (mismo patrón de validación que `/new-feature`).
+El generador no es un campo: siempre Zensical.
 
 Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs/` del origen o en un repositorio aparte?"
 
@@ -95,8 +98,9 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 
 **Recomendado**:
 - Iterar módulo a módulo dentro de cada fase; nunca un único prompt masivo
-- Cerrar con `python -m mkdocs build --strict` (o `--verify-build`) antes de publicar; con
-  Zensical, `python scripts/build_docs_zip.py --builder zensical` (ejecuta los hooks que Zensical ignora)
+- Cerrar con `python scripts/build_docs_zip.py` (o `--verify-build`) antes de publicar: es el
+  pipeline (sincroniza los ficheros raíz, `zensical build --strict` y ZIP latest; Zensical no
+  ejecuta `hooks:`)
 
 ## Sincronización de Configuración Visual (Fase 0b) ← OBLIGATORIO
 
@@ -115,7 +119,7 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 - [ ] `.gitignore` presente en la raíz del destino con los patrones estándar (primera sesión: crear si no existe; ver tabla abajo), sin ignorar `_fuentes/`
 - [ ] **Kit de lanzamiento** (toda sesión, también en destinos ya creados): `python <repositorio doc_ia>/scripts/kit.py sync --root <raíz destino>` → `.doc_ia/` (metodología + scripts, `kit.lock.json`), lanzadores `/documentar` y `DOCUMENTAR.md` si falta; conflicto (exit 2) → informar, nunca `--force` sin pedirlo el usuario (`document_project.prompt.md` § Kit de documentación)
 - [ ] `.gitattributes` en la raíz del destino: `* text=auto eol=lf`, binarios (`*.zip`, `*.png`, `*.jpg`) como `binary` y `docs/assets/vendor/** -text` (la huella de los ficheros de terceros no cambia entre Windows y Linux)
-- [ ] `theme.features` verificado — sin `navigation.sections` si `nav.css` presente; con `navigation.indexes`
+- [ ] `theme.features` verificado — sin `navigation.sections` si `nav.css` presente; con `navigation.indexes` y, con ella, `extra.homepage: index.html` (sin él, el logo enlaza a una carpeta y sin servidor abre un listado)
 - [ ] `nav` con **≤ 9 entradas de primer nivel**: Inicio/Quick Start/Instalación/Descargas en la sección «Inicio», Configuración IA/Changelog/Contribuir en «Proyecto» (las pestañas no tienen desplegables; con más se corta la barra)
 - [ ] `extra_css` incluye `assets/css/nav.css` y `assets/css/mermaid.css`
 - [ ] `extra_javascript` incluye, en este orden, `assets/js/sidebar-toggle.js`, `assets/vendor/mermaid/mermaid-12.2.0.min.js` y `assets/js/mermaid-theme.js`, y **no** incluye el CDN de Mermaid ni `assets/js/mermaid.js` (si están, retirarlos: duplican el render — ver `.claude/EDGE_CASES.md § Mermaid`)
@@ -123,8 +127,14 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 - [ ] ZIP sin servidor: `use_directory_urls: false`, plugin `offline` y `extra.polyfills: [assets/vendor/iframe-worker/iframe-worker-shim-1.0.4.min.js]` (sin él, el tema descarga el shim de unpkg y la búsqueda por `file://` falla sin red — ver `.claude/EDGE_CASES.md § offline`); `docs/assets/vendor/iframe-worker/` (shim de la misma versión que doc_ia, `LICENSE`, `SOURCE.txt`) existe en disco
 - [ ] `pymdownx.superfences` con `custom_fences` para `mermaid` (`format: !!python/name:pymdownx.superfences.fence_code_format`): sin él los diagramas salen como código
 - [ ] `markdown_extensions` incluye los universales (ver tabla abajo)
+- [ ] **Generador Zensical**: sin `hooks:` en `mkdocs.yml` y build por `scripts/build_docs_zip.py`.
+  Destino aún en MkDocs (`hooks:`, build o serve de MkDocs en scripts/CI, paquetes de MkDocs o de
+  su tema Material en requisitos) → anunciar y **migrar**; primero la **guarda de plugins** contra
+  `ZENSICAL_SUPPORTED_PLUGINS` (`tests/test_zensical_compat.py`): un plugin no soportado
+  **detiene la migración** y se informa en RESUMEN (nunca se degrada en silencio). La migración
+  queda registrada en RESUMEN y en el commit de CIERRE; `mkdocs.yml` conserva el nombre
 
-**Qué sincronizar** (universal, aplicable a todos los proyectos MkDocs):
+**Qué sincronizar** (universal, aplicable a todos los destinos; Zensical lee `mkdocs.yml`):
 - `theme.features` — Ver tabla de compatibilidad más abajo; algunas requieren decisión
 - `markdown_extensions` críticas — `pymdownx.snippets` (para `--8<--`), `pymdownx.superfences` (Mermaid), `pymdownx.emoji`, `pymdownx.highlight`, `pymdownx.inlinehilite`, `attr_list`, `md_in_html`
 - `extra_javascript` y `extra_css` — Assets personalizados (`sidebar-toggle.js`, `nav.css`, `mermaid.css`, Mermaid local y `mermaid-theme.js`); el tema renderiza con la copia local de Mermaid
@@ -136,7 +146,7 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 | Feature | Acción | Razón |
 |---|---|---|
 | `navigation.tabs`, `navigation.tabs.sticky` | ✅ Copiar | Universal |
-| `navigation.indexes` | ✅ Copiar | La pestaña «Inicio» abre `index.md` (sección «Inicio» de §4.1) |
+| `navigation.indexes` | ✅ Copiar | La pestaña «Inicio» abre `index.md` (sección «Inicio» de §4.1). Exige `extra.homepage: index.html` |
 | `navigation.top`, `navigation.footer` | ✅ Copiar | Universal |
 | `search.suggest`, `search.highlight` | ✅ Copiar | Universal |
 | `content.code.copy`, `content.code.annotate`, `content.tabs.link` | ✅ Copiar | Universal |
@@ -291,8 +301,9 @@ _staging/
    - `VER_DOCUMENTACION.md` creado / actualizado / vigente, en la raíz del destino (fuera de `docs/`)
    - Tabla: | Marcador | Valor | Fuente verificada | — sin valores inventados
    - Ruta A (web publicada) solo si hay `site_url` y publicación verificada; si no, "No aplica"
-   - Gap V1 (falta `requirements-docs.txt` → crearlo), Gap V2 (`EXTRA_FILES` en hook/script) y
-     Gap V3 (hook sin `on_post_build.mkdocs_priority = -200`: el ZIP latest sale sin búsqueda)
+   - Gap V1 (falta `requirements-docs.txt` → crearlo) y Gap V2 (`EXTRA_FILES` en el módulo
+     post-build o en el script). Gap V3 (`mkdocs_priority`) ya no aplica: el pipeline ejecuta el
+     post-build cuando Zensical ha terminado
    - Ruta B: extraer el ZIP completo y doble clic en `index.html` (Fase 0b: `offline` + shim
      local); `start-server.py` como alternativa. Prohibido indicar flags del navegador
      (`--allow-file-access-from-files`)
@@ -323,7 +334,7 @@ _staging/
     `<raíz del destino>/.ai/sessions/YYYY-MM-DD/` (la carpeta con `mkdocs.yml`; nunca por
     encima de ella) con tres ficheros:
 
-    - `00_REQUEST.md` — inputs recibidos (origen, destino, generador, idioma, alcance,
+    - `00_REQUEST.md` — inputs recibidos (origen, destino, idioma, alcance,
       arquetipos, verificación) + objetivo operativo de la sesión
     - `00_CONTEXT_SNAPSHOT.md` — ficheros leídos antes de la primera fase, estado git
       (rama, cambios pre-existentes, último commit), estado de build (si se ejecutó).
@@ -375,7 +386,6 @@ _staging/
 ```
 Origen(es): c:\Desarrollo\python\libs\doc_ia
 Destino: c:\Desarrollo\python\libs\doc_ia\docs
-Generador: mkdocs-material
 Idioma: es
 Alcance: scripts/ completo (check_env.py, build_docs_zip.py)
 Arquetipos: funcional, técnica, ejemplos
@@ -390,7 +400,6 @@ Origen(es):
   - c:\docs\normativa\ley_39.pdf     (ley de referencia)
   - c:\docs\pantallas\mockups\       (capturas de pantalla)
 Destino: c:\repos\mi_api\docs
-Generador: mkdocs-material
 Idioma: es
 Tipo de cada origen: mi_api=CÓDIGO, ley_39.pdf=NORMATIVA, mockups=UI/PANTALLAS
 ```
@@ -402,7 +411,6 @@ Origen(es):
   - c:\repos\mi_api    (backend Python)
   - c:\repos\mi_web    (frontend React)
 Destino: c:\repos\mi_api\docs
-Generador: mkdocs-material
 Idioma: es
 Estrategia: hub+satélite  (mi_api es el hub)
 ```
@@ -417,7 +425,6 @@ Origen(es):
   - ESPECIFICACIÓN  https://<tenant>.sharepoint.com/sites/<sitio>/<biblioteca>/<ruta>  (copia sincronizada con OneDrive)
   - NORMATIVA       \\servidor\Normativa\Modulo\   --include "*.pdf"
 Destino: c:\documentacion\modulo        (raíz; vacía → git init con confirmación, sin remoto)
-Generador: mkdocs-material
 Idioma: es
 ```
 
@@ -430,7 +437,7 @@ Idioma: es
 |---|---|---|
 | Origen(es) | c:\Desarrollo\python\libs\doc_ia | ✅ existe y es legible |
 | Destino | c:\Desarrollo\python\libs\doc_ia\docs | ✅ existe |
-| Generador | mkdocs-material | ✅ mkdocs.yml presente |
+| Generador | zensical (único; ADR-003) | ✅ mkdocs.yml presente, sin `hooks:` |
 | Idioma | es | ✅ |
 
 ## CLASIFICACIÓN DE ORÍGENES
@@ -442,7 +449,7 @@ Idioma: es
 | Módulo / Página | Estado | Acción | Arquetipos / Secciones |
 |---|---|---|---|
 | scripts/check_env.py | A — sin doc | CREAR | funcional + técnica + ejemplo |
-| scripts/build_docs_zip.py | B — desactualizado | ACTUALIZAR §3 §5 | técnica (firma `--builder` cambiada) |
+| scripts/build_docs_zip.py | B — desactualizado | ACTUALIZAR §3 §5 | técnica (opción `--output-dir` cambiada) |
 | docs/index.md | C — vigente | OMITIR | — |
 
 Normativa de referencia: no detectada → Arquetipo 8 omitido.
@@ -451,8 +458,9 @@ Normativa de referencia: no detectada → Arquetipo 8 omitido.
 ## Qué hacer si falla
 
 - **"Origen no legible o fuera del workspace"** → pedir al usuario que añada el directorio como working dir adicional o confirme la ruta
-- **"mkdocs build advierte sobre assets CSS/JS no encontrados"** → Verificar que `extra_javascript` y `extra_css` en `mkdocs.yml` referencian archivos existentes en `docs/assets/`. Si faltan, sincronizarlos desde origen o crearlos vacíos.
-- **"mkdocs build --strict falla tras SYNC NAV"** → ver `.claude/TESTING_GUIDE.md`; revisar páginas huérfanas o rotas en `nav:`
+- **"El build (`zensical build`) advierte sobre assets CSS/JS no encontrados"** → Verificar que `extra_javascript` y `extra_css` en `mkdocs.yml` referencian archivos existentes en `docs/assets/`. Si faltan, sincronizarlos desde origen o crearlos vacíos.
+- **"El build `--strict` falla tras SYNC NAV"** → ver `.claude/TESTING_GUIDE.md`; revisar páginas huérfanas o rotas en `nav:`
+- **"La migración a Zensical se detiene por un plugin no soportado"**: no cambiar el generador; informar en RESUMEN del plugin y de las opciones (sustituirlo, retirarlo o esperar a que Zensical lo soporte) y seguir con el resto de fases sin build
 - **"Contexto perdido entre fases"** → ver `.claude/EDGE_CASES.md`; retomar desde el RESUMEN parcial de la última fase completada
 - **"El usuario pide generar vía API externa"** → rechazar: principio innegociable (SHARED_INSTRUCTIONS § Principios)
 - **"`snapshot_sources.py sync` sale con 2"** → origen inexistente o patrón `{ver}` sin coincidencias: mostrar el error y pedir la ruta correcta; no inventar ficheros

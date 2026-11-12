@@ -6,7 +6,7 @@ applyTo: "CHANGELOG.md,CONTRIBUTING.md,docs/**,COMPATIBILITY.md,.ai/**,hooks/**"
 > **TL;DR** — Los ficheros Markdown de la raíz (`CHANGELOG.md`, `CONTRIBUTING.md`, …) son la
 > fuente de verdad. Sus copias en `docs/` son **artefactos generados** por
 > `hooks/sync_root_docs.py`; **nunca se editan directamente en `docs/`**.
-> Antes de cerrar una versión, verifica también COMPATIBILITY.md y ejecuta `mkdocs build --strict`.
+> Antes de cerrar una versión, verifica también COMPATIBILITY.md y ejecuta `python scripts/build_docs_zip.py` (build `--strict`).
 
 ---
 
@@ -26,8 +26,9 @@ se registra en `hooks/sync_root_docs.py` → `PAIRS` y nunca se edita en `docs/`
 
 - **Automático tras Edit/Write**: el hook `PostToolUse` de Claude Code ejecuta
   `python hooks/sync_root_docs.py` tras cada `Edit` o `Write`, sin acción manual.
-- **MkDocs build**: el hook `on_pre_build` del propio MkDocs ejecuta el mismo script
-  antes de compilar el sitio.
+- **Build**: `python scripts/build_docs_zip.py` ejecuta el mismo script antes de
+  `zensical build` (Zensical no ejecuta `hooks:`). `python -m zensical serve` **no** sincroniza:
+  tras editar un fichero raíz fuera de Claude Code, ejecutar el sync manual.
 - **Manual**: `python hooks/sync_root_docs.py` desde la raíz del proyecto.
 
 ### Añadir un nuevo fichero al sync
@@ -40,7 +41,7 @@ Para que un nuevo fichero raíz aparezca automáticamente en `docs/`:
    ```
 2. Añadir la entrada en `nav:` de `mkdocs.yml`.
 3. Nunca crear el fichero en `docs/` manualmente — el sync lo escribe en el siguiente build.
-4. Si el fichero raíz usa enlaces relativos incompatibles con MkDocs (p.ej. a rutas fuera
+4. Si el fichero raíz usa enlaces relativos incompatibles con el sitio (p.ej. a rutas fuera
    de `docs/`), añadir la sustitución al diccionario `_LINK_FIXES` del mismo script.
 
 ### Restricciones críticas
@@ -92,9 +93,9 @@ Aplica este checklist en la fase **VERSION** de cualquier flujo:
 - [ ] `version = "X.Y.Z"` actualizado y coincide con el CHANGELOG.md
 - [ ] `requires-python = ">=3.12"` sin modificar (no incrementar sin decisión explícita)
 
-### 5. MkDocs
+### 5. Build de la documentación (Zensical)
 
-- [ ] `mkdocs build` pasa sin errores ni warnings de links rotos
+- [ ] `python scripts/build_docs_zip.py` pasa sin errores ni warnings de links rotos
 - [ ] Si se crearon páginas nuevas, están en `mkdocs.yml` bajo `nav:`
 - [ ] Si se eliminaron páginas, se retiraron de `mkdocs.yml`
 
@@ -139,7 +140,7 @@ Aplica este checklist en la fase **VERSION** de cualquier flujo:
 ## Comando de validación final
 
 ```bash
-mkdocs build --strict
+python scripts/build_docs_zip.py     # sync + zensical build --strict + ZIP
 ```
 
 El flag `--strict` convierte warnings en errores, garantizando que no queden links rotos

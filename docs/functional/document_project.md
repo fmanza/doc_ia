@@ -1,11 +1,11 @@
 ---
 arquetipo: "1"
 fuentes:
-  .claude/commands/document-project.md: f82478174881
-  .github/DOCUMENTATION_STANDARD.md: 015af37230ba
-  .github/prompts/document_project.prompt.md: 03e2d68949a7
-  .github/templates/kit/documentar.command.md: 44364ebb0ca8
-  CLAUDE.md: 466e411d7ddb
+  .claude/commands/document-project.md: bcf7a03630c4
+  .github/DOCUMENTATION_STANDARD.md: fdc027f24550
+  .github/prompts/document_project.prompt.md: 9ebb31d05a58
+  .github/templates/kit/documentar.command.md: dd9b8ba79deb
+  CLAUDE.md: 7701cd5d0ee1
   scripts/db_trace.py: 2df471e18403
   scripts/kit.py: 432af520016f
   scripts/redact_secrets.py: d0cbb8ed3fbf
@@ -13,7 +13,7 @@ fuentes:
   scripts/web_captures.py: 53972c5aa039
 decisiones:
   ../decisiones/docproj_decisiones.md: ace9e2e187df
-revisado: 2026-11-10
+revisado: 2026-11-13
 ---
 # Documentar un Proyecto
 
@@ -21,7 +21,8 @@ revisado: 2026-11-10
 
 La documentación de un proyecto con doc_ia parte de una única operación de entrada:
 indicar el origen (o los orígenes) a documentar, el destino donde se escribirá la
-documentación, el generador de sitio y el idioma. A partir de estos cuatro parámetros,
+documentación y el idioma. El generador del sitio es siempre Zensical. A partir de estos tres
+parámetros,
 el flujo de trabajo clasifica los orígenes según su naturaleza (código fuente, normativa,
 especificación, pantallas…), orquesta el inventario del proyecto, la generación de
 documentación por arquetipos formales y la sincronización de la navegación del sitio.
@@ -42,8 +43,8 @@ decidir manualmente qué arquetipo aplicar a cada módulo.
   o Gemini, Copilot, Cursor y Codex (prompt `document_project.prompt.md`). En un destino que ya
   tiene el [kit de documentación](kit.md), basta con abrirlo y lanzar `/documentar`: la
   metodología está en su carpeta `.doc_ia/` y los parámetros en su prompt de instancia.
-- Los cuatro parámetros obligatorios: **origen(es)**, **destino**, **generador**
-  (`mkdocs-material` por defecto, o `zensical`) e **idioma**.
+- Los tres parámetros obligatorios: **origen(es)**, **destino** e **idioma**. El generador no se
+  pregunta: es siempre Zensical (ADR-003).
 - Cada origen indicado existe y es legible. Además de una carpeta local, un origen puede ser
   un fichero con la versión en el nombre (patrón con `{ver}`), una carpeta de red, una
   biblioteca de SharePoint sincronizada con OneDrive o un repositorio remoto con su rama,
@@ -53,19 +54,19 @@ decidir manualmente qué arquetipo aplicar a cada módulo.
   exportación de la base de datos (`BD`, ver [Trazabilidad con la Base de Datos](db_trace.md)),
   subconjunto de arquetipos, verificación (`--verify-tools`, `--verify-build`) y modo
   (`incremental` por defecto si el destino ya se documentó con baseline; `completo`).
-- Para la verificación de build: el generador elegido instalado en el entorno.
+- Para la verificación de build: Zensical instalado en el entorno.
 
 ## 3. Flujo Principal
 
 ```mermaid
 sequenceDiagram
     accTitle: Documentar un proyecto desde el chat
-    accDescr: El usuario invoca el flujo con cuatro parámetros; el agente valida, pide confirmar la clasificación si hay varios orígenes o ninguno es código, inventaría el origen frente a la documentación existente, genera las páginas en el destino y devuelve un resumen con la trazabilidad y una propuesta de commit.
+    accDescr: El usuario invoca el flujo con tres parámetros; el agente valida, pide confirmar la clasificación si hay varios orígenes o ninguno es código, inventaría el origen frente a la documentación existente, genera las páginas en el destino y devuelve un resumen con la trazabilidad y una propuesta de commit.
     actor U as Usuario
     participant A as Agente
     participant O as Origen
     participant D as Destino
-    U->>A: Origen(es), destino, generador e idioma
+    U->>A: Origen(es), destino e idioma
     alt Falta algún parámetro
         A-->>U: Se detiene y pregunta
     end
@@ -81,9 +82,10 @@ sequenceDiagram
     A-->>U: Resumen, trazabilidad de la sesión y propuesta de commit
 ```
 
-El usuario invoca el flujo con los cuatro parámetros; si falta alguno, el flujo se detiene y
+El usuario invoca el flujo con los tres parámetros; si falta alguno, el flujo se detiene y
 pregunta. Con varios orígenes, o si el único no es código, se clasifican primero y el usuario
-confirma la clasificación. Después se sincroniza la configuración visual del destino y se
+confirma la clasificación. Después se sincroniza la configuración visual del destino (y, si
+aún construye con MkDocs, se migra a Zensical) y se
 inventaría el origen: cada módulo y página recibe un estado (A sin documentación, B
 desactualizada, C vigente) que decide la acción del plan (crear, actualizar u omitir). La
 generación recorre los arquetipos módulo a módulo —funcional y mapa funcional, técnica,
@@ -102,7 +104,7 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
   personas han tomado ya se reflejan en las páginas, enlazadas a su ficha; los apartados nuevos
   parciales, sin cubrir o por verificar tienen ficha pendiente, y el resumen lista las
   preguntas concretas para quien decide.
-- La navegación del generador en el destino (`mkdocs.yml`) incluye todas las páginas nuevas
+- La navegación del sitio en el destino (`mkdocs.yml`, que Zensical lee) incluye todas las páginas nuevas
   en 9 pestañas como máximo (descargas dentro de «Inicio») y la configuración estándar
   verificada (tema, assets, Mermaid).
 - `docs/downloads.md` existe en el destino (variante A o B) y los huecos de distribución
@@ -144,7 +146,7 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
 
 | Regla | Descripción | Impacto si se viola |
 |---|---|---|
-| Cuatro parámetros obligatorios | Origen(es), Destino, Generador e Idioma son requeridos; el flujo se detiene y pregunta si falta alguno | Se documentaría un proyecto equivocado, en la ruta incorrecta o con el generador inadecuado |
+| Tres parámetros obligatorios | Origen(es), Destino e Idioma son requeridos; el flujo se detiene y pregunta si falta alguno. El generador no es un parámetro: siempre Zensical | Se documentaría un proyecto equivocado, en la ruta incorrecta o en otro idioma |
 | Adquisición de orígenes (Fase 0-pre) | El origen nunca se escribe. Lo que no es una carpeta local de trabajo se copia antes a `_staging/<nombre>/` del destino, ignorada por git: los documentos (fichero, patrón con `{ver}`, carpeta de red, SharePoint sincronizado) con la [adquisición de orígenes](snapshot_sources.md), que elige la versión más alta y la copia con un nombre estable; los repositorios remotos se obtienen con git o glab en un `git worktree` desacoplado en la ref pedida. Las fases siguientes trabajan sobre esa copia | Conversiones y ficheros ajenos escritos en carpetas compartidas, o rutas de `_fuentes/` y de la evidencia que cambian con cada versión del manual |
 | Versión vigente de un documento | La versión que manda la indica el usuario. Un documento reestructurado (otro nombre u otra ubicación) sustituye al anterior aunque su número de versión sea menor; las versiones solo se comparan dentro de un mismo documento | Se documentaría con un documento antiguo porque su número de versión es mayor |
 | Credenciales fuera del repositorio | Antes de copiar el texto convertido a `_fuentes/`, las credenciales que contiene se redactan con la [redacción de credenciales](redact_secrets.md); antes del commit se comprueba que no queda ninguna, y se avisa de que el documento original las sigue conteniendo | Contraseñas, tokens o secretos publicados en el historial del repositorio de documentación |
@@ -160,7 +162,7 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
 | Instrucciones de visualización siempre | Cada sesión genera o actualiza `VER_DOCUMENTACION.md` en la raíz del destino (Fase 7c) desde una plantilla con secciones fijas: qué ruta seguir (web, ZIP, código fuente), cómo abrir el ZIP con doble clic tras extraerlo, el servidor local como alternativa, cómo instalar Python para la ruta de código fuente y problemas frecuentes; los valores (versión de Python, dependencias, nombre del ZIP, publicación) salen del destino | Quien recibe la documentación sin conocimientos técnicos no sabría verla |
 | Relanzar solo sobre lo cambiado | Al cerrar cada sesión se guarda el punto del historial de cada proyecto documentado; al relanzar, el inventario parte de los ficheros cambiados desde ese punto y de las páginas que los citan, y el resto se da por vigente sin releerlo. Si no hay punto guardado, el proyecto no usa Git, el punto ya no existe o cambió la versión de doc_ia, la sesión es completa | Releer todo el proyecto en cada actualización, o dar por vigente una página cuyo código cambió |
 | [COB-DOCPROJ-001](../decisiones/docproj_decisiones.md#cob-docproj-001) · Sincronización visual obligatoria (Fase 0b) | Al inicio de toda sesión se verifican: assets CSS/JS en `docs/assets/`, configuración de `mkdocs.yml` (sin `navigation.sections` si `nav.css` presente), `.gitignore` con patrones estándar (`site/`, `*.pdf`, `*.doc`, `*.docx`). Aplica tanto en creación como en actualización ✅ | El destino tendría assets desincronizados, menú lateral sin colapso o binarios versionados por error |
-| Zensical sin pérdidas silenciosas | Con generador Zensical, que no ejecuta `hooks:` ni los plugins que no soporta, el flujo detecta si el script de build del destino ejecuta él mismo esos pasos (`TIENE_PIPELINE_SIN_HOOKS`), reporta el Gap A4 si no lo hace y señala los plugins no soportados; nunca crea `zensical.toml` | El destino perdería sin aviso la sincronización de ficheros raíz, el ZIP "latest" o la función de un plugin |
+| Zensical sin pérdidas silenciosas | Zensical, el único generador, no ejecuta `hooks:` ni los plugins que no soporta: el flujo detecta si el script de build del destino ejecuta él mismo esos pasos (`TIENE_PIPELINE_SIN_HOOKS`), reporta el Gap A4 si no lo hace y señala los plugins no soportados; nunca crea `zensical.toml` | El destino perdería sin aviso la sincronización de ficheros raíz, el ZIP "latest" o la función de un plugin |
 | Documentos pre-convertidos (`md/`) | Si el origen contiene carpetas `md/` (generadas por `convert_to_md.py`), se usan como contexto de primera clase en Fases 2-4 sin re-conversión; no generan páginas propias ni reciben estado A/B/C | Se perdería contexto valioso de documentos binarios o se intentaría re-convertir innecesariamente |
 | Fuentes convertidas en `_fuentes/` | El destino recibe siempre una copia de los documentos convertidos en `_fuentes/<origen>/…`, con la misma ruta que en el origen, aunque origen y destino sean el mismo repositorio. Es el único nombre válido: otro nombre existente se migra a `_fuentes/` con confirmación, y nada se borra sin confirmar. Su texto se versiona en el destino; los binarios, no | Cada sesión elegiría un nombre distinto (`.fuentes/`, `_fuentes/`), la evidencia apuntaría a rutas fuera del repositorio y la trazabilidad no detectaría cambios en esos documentos |
 | Independencia entre proyectos | Todo lo que se escribe en el destino se deriva de doc_ia (scripts, plantillas, recursos) y de los orígenes del propio proyecto. Otro proyecto documentado con doc_ia no es plantilla ni fuente de decisiones: su clasificación de orígenes, su alcance, sus fichas de cobertura o sus ADR no se aplican aquí, aunque el stack coincida. Lo que otro proyecto resolvió y el estándar no cubría se incorpora primero a doc_ia | Un proyecto heredaría decisiones que nadie tomó para él, y cada destino copiado de otro acumularía sus errores y versiones antiguas de los scripts |
@@ -202,10 +204,13 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
   informa que `/document-project` requiere al menos un origen de tipo CÓDIGO.
 - **Verificación de build**: paso opcional (`--verify-build`) que construye el sitio en
   modo estricto al final y confirma que compila sin errores.
-- **Generador Zensical**: la configuración y los assets son los mismos (Zensical lee el mismo
-  `mkdocs.yml`). Cambian el build, que se hace a través del script del destino para que se
-  ejecuten los pasos que Zensical ignora, la comprobación de plugins soportados y la señal
-  adicional del pipeline en la página de descargas.
+- **Destino que construye con MkDocs**: se migra a Zensical en la sincronización visual,
+  anunciándolo antes de escribir. Primero se comprueba que todos sus plugins los soporta Zensical:
+  si alguno no lo está, la migración se detiene y se informa (nunca se pierde una función sin
+  aviso). Si se migra, `mkdocs.yml` conserva el nombre y la configuración y los assets son los
+  mismos; cambian el build, que pasa por el script del destino (ejecuta los pasos que Zensical
+  ignora), las dependencias y los comandos. La migración queda en el resumen y en el commit.
+- **El usuario pide MkDocs**: se le indica que doc_ia ya no lo soporta y se ofrece la migración.
 
 - **Relanzamiento desde el destino con `/documentar`**: el lanzador lee el prompt de instancia
   y aplica la metodología de `.doc_ia/` con esos parámetros; modos opcionales `incremental`
@@ -233,21 +238,22 @@ la sesión con su artefacto de trazabilidad y una propuesta de commit.
 
 | ID | Dado | Cuando | Entonces | Test |
 |---|---|---|---|---|
-| AC-01 | Un proyecto con código fuente sin documentación previa | Se invoca el flujo con los cuatro parámetros completos | Se genera documentación para cada módulo detectado, el sitio compila sin errores, la navegación está actualizada y existe el artefacto `.ai/sessions/YYYY-MM-DD/` en el destino | Sin test |
+| AC-01 | Un proyecto con código fuente sin documentación previa | Se invoca el flujo con los tres parámetros completos | Se genera documentación para cada módulo detectado, el sitio compila sin errores, la navegación está actualizada y existe el artefacto `.ai/sessions/YYYY-MM-DD/` en el destino | Sin test |
 | AC-02 | Un proyecto con documentación existente, parte vigente y parte desactualizada | Se invoca el flujo | Se actualiza solo lo desactualizado; lo vigente se conserva verbatim; no se crea contenido duplicado | Sin test |
 | AC-03 | Un flujo invocado con el parámetro Destino vacío | Se inicia la ejecución | El flujo se detiene, informa del campo faltante y pide al usuario que lo complete antes de continuar | Sin test |
 | AC-04 | Un proyecto con un módulo ya documentado que no ha cambiado | Se ejecuta el inventario | El módulo recibe estado C (vigente) y no se genera ni modifica ninguna página para él | Sin test |
 | AC-05 | Dos orígenes: un proyecto Python y un PDF de normativa | Se invoca el flujo | La Fase 0a presenta una tabla con los tipos detectados (CÓDIGO y NORMATIVA), el usuario confirma, y el PDF enriquece las reglas de negocio de la documentación funcional sin generar página propia | Sin test |
 | AC-06 | Todos los orígenes indicados son MATERIAL (sin ningún proyecto de código) | Se inicia la ejecución | El flujo se detiene con un mensaje que informa que se requiere al menos un origen de tipo CÓDIGO y orienta al prompt de arquetipo directo | Sin test |
 | AC-07 | Cualquier sesión de `/document-project` completada | El flujo llega al RESUMEN | Existe el artefacto `.ai/sessions/YYYY-MM-DD/` con los tres ficheros obligatorios (`00_REQUEST.md`, `00_CONTEXT_SNAPSHOT.md`, `TRACEABILITY.md`) y se propone un commit Conventional Commits | Sin test |
-| AC-08 | Un destino con generador Zensical, `hooks:` en `mkdocs.yml` y un script de build que no ejecuta esos hooks | Se ejecuta el flujo | El inventario y DOWNLOADS reportan `TIENE_PIPELINE_SIN_HOOKS = false` y el Gap A4 con la acción de actualizar el script; los plugins no soportados aparecen como hallazgo en RESUMEN; no se crea `zensical.toml` | Sin test |
+| AC-08 | Un destino con `hooks:` en `mkdocs.yml` y un script de build que no ejecuta esos pasos | Se ejecuta el flujo | El inventario y DOWNLOADS reportan `TIENE_PIPELINE_SIN_HOOKS = false` y el Gap A4 con la acción de actualizar el script; los plugins no soportados aparecen como hallazgo en RESUMEN; no se crea `zensical.toml` | Sin test |
 | AC-09 | Un origen con PDFs convertidos en `md/`, documentado en su propio repositorio o en uno aparte | Se ejecuta el flujo | Los `.md` convertidos quedan copiados en `_fuentes/<origen>/…` de la raíz del destino, fuera de `docs/`; el inventario los lista y el commit propuesto los incluye | Sin test |
 | AC-10 | Un destino que ya guarda fuentes convertidas en `.fuentes/` | Se ejecuta el flujo y el usuario confirma la migración | Las fuentes pasan a `_fuentes/`, las páginas que las citaban apuntan a la nueva ruta y no queda ninguna carpeta `.fuentes/` | Sin test |
-| AC-11 | Un destino documentado con el generador por defecto, sin publicación web | Se completa el flujo | Existe `VER_DOCUMENTACION.md` en la raíz del destino con las secciones fijas 0-7, sin marcadores por rellenar, con la ruta web marcada "No aplica" y los comandos para Windows, macOS y Linux | `tests/test_docs_conformance.py::test_view_instructions_filled_for_doc_ia` |
+| AC-11 | Un destino documentado, sin publicación web | Se completa el flujo | Existe `VER_DOCUMENTACION.md` en la raíz del destino con las secciones fijas 0-7, sin marcadores por rellenar, con la ruta web marcada "No aplica" y los comandos para Windows, macOS y Linux | `tests/test_docs_conformance.py::test_view_instructions_filled_for_doc_ia` |
 | AC-12 | Un destino ya documentado, con su punto de historial guardado, cuyo proyecto cambia en un solo módulo | Se relanza el flujo sin indicar modo | El inventario se limita a los ficheros cambiados y a las páginas que los citan (más sus ejemplos), el resto queda vigente sin leerse, y el cierre guarda el nuevo punto en `.ai/doc_state.json` | Sin test |
+| AC-13 | Un destino que construye con MkDocs y usa un plugin que Zensical no soporta, o un usuario que pide MkDocs | Se ejecuta el flujo | El generador no se pregunta; la petición de MkDocs se responde con la migración; la migración se detiene por el plugin no soportado, se informa en RESUMEN y el generador del destino no cambia | `tests/test_docs_conformance.py::test_document_project_zensical_only_and_guarded_migration` (instrucciones; el flujo se ejecuta en el chat) |
 
 Verificación: ejecutar `/document-project` (Claude Code) o
-`Lee y aplica .github/prompts/document_project.prompt.md` con los cuatro parámetros en
+`Lee y aplica .github/prompts/document_project.prompt.md` con los tres parámetros en
 cualquier plataforma IA soportada. El flujo se ejecuta en el chat y no tiene tests
 automatizados.
 
@@ -261,7 +267,7 @@ automatizados.
 | Estado B | Módulo con página existente pero desactualizada respecto al código actual; acción derivada: ACTUALIZAR |
 | Estado C | Módulo con página existente y vigente; acción derivada: OMITIR |
 | Arquetipo formal | Plantilla de documentación con estructura fija y audiencia definida (ver [Arquetipos Formales](archetypes.md)) |
-| Generador | Herramienta de sitio estático que construye el HTML a partir de los archivos Markdown (`mkdocs-material` por defecto) |
+| Generador | Herramienta de sitio estático que construye el HTML a partir de los archivos Markdown: siempre Zensical (ADR-003), que lee `mkdocs.yml` |
 | Tipo de origen | Naturaleza del origen; determina el tratamiento documental. Nueve tipos: `CÓDIGO`, `NORMATIVA`, `ESPECIFICACIÓN`, `UI/PANTALLAS`, `REFERENCIA`, `CONTRATO`, `INFRAESTRUCTURA`, `MANUAL`, `BASE DE DATOS`. Catálogo completo: [Tipos de Origen](origin_types.md) |
 | MATERIAL | Término colectivo para orígenes que no son de tipo CÓDIGO; su contenido enriquece secciones de los arquetipos del proyecto CÓDIGO principal sin generar páginas propias |
 | `CONTRATO` | Especificaciones machine-readable de las APIs y modelos de datos del propio proyecto (OpenAPI, AsyncAPI, GraphQL, Protobuf, SQL DDL, DBML…); enriquece Arquetipo 2 §1 y §2 y Arquetipo 12 §5 |
@@ -282,7 +288,7 @@ automatizados.
 
     | Elemento | Fuente | Confianza |
     |---|---|---|
-    | Regla «Cuatro parámetros obligatorios» | `.github/prompts/document_project.prompt.md::VALIDACIÓN (bloqueante)` | ✅ |
+    | Regla «Tres parámetros obligatorios» | `.github/prompts/document_project.prompt.md::VALIDACIÓN (bloqueante)`, `::Contexto a completar` (generador fijo) | ✅ |
     | Regla «Adquisición de orígenes (Fase 0-pre)», precondición de formas de origen y postcondición de `_staging/` | `.github/prompts/document_project.prompt.md::Fase 0-pre`, `scripts/snapshot_sources.py::sync_source`, `::resolve` | ✅ |
     | Regla «Clasificación de orígenes» | `.github/prompts/document_project.prompt.md::Fase 0a` | ✅ |
     | Regla «Inventario previo a generación» | `.github/prompts/document_project.prompt.md::Fase 1` | ✅ |
@@ -310,4 +316,5 @@ automatizados.
     | AC-05 | `.github/prompts/document_project.prompt.md::Fase 0a` | ✅ |
     | AC-06 | `.github/DOCUMENTATION_STANDARD.md::3.10 Documentación con Múltiples Orígenes` (caso degenerado) | ✅ |
     | AC-07 | `.github/prompts/document_project.prompt.md::Devuelve en este orden` (punto 10) | ✅ |
-    | Regla «Zensical sin pérdidas silenciosas» y AC-08 | `.github/prompts/document_project.prompt.md::Reglas por generador: Zensical` | ✅ |
+    | Destino en MkDocs: migración con guarda de plugins y AC-13 | `.github/prompts/document_project.prompt.md::Generador: Zensical y migración de destinos MkDocs`, `::Fase 0b`, `tests/test_zensical_compat.py::ZENSICAL_SUPPORTED_PLUGINS` | ✅ |
+    | Regla «Zensical sin pérdidas silenciosas» y AC-08 | `.github/prompts/document_project.prompt.md::Generador: Zensical y migración de destinos MkDocs` | ✅ |

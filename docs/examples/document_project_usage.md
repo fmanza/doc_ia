@@ -27,7 +27,6 @@ Invocación desde Claude Code (código inline — el flujo ocurre en el chat, no
 
 Origen:    c:\Desarrollo\python\libs\mi_libreria
 Destino:   c:\Desarrollo\python\libs\mi_libreria\docs
-Generador: mkdocs-material
 Idioma:    es
 ```
 
@@ -38,7 +37,6 @@ Idioma:    es
 
 Origen:    c:\Desarrollo\python\libs\mi_libreria
 Destino:   c:\Desarrollo\python\libs\mi_libreria\docs
-Generador: mkdocs-material
 Idioma:    es
 Alcance:   scripts/conversor.py  (solo este módulo)
 ```
@@ -50,7 +48,6 @@ Alcance:   scripts/conversor.py  (solo este módulo)
 
 Origen:    c:\Desarrollo\python\libs\mi_libreria
 Destino:   c:\Desarrollo\python\libs\mi_libreria\docs
-Generador: mkdocs-material
 Idioma:    es
 Flags:     --verify-build
 ```
@@ -65,7 +62,6 @@ Origen(es):
   - c:\docs\normativa\ley_39.pdf          (ley de referencia)
   - c:\docs\pantallas\mockups\            (capturas de pantalla del flujo)
 Destino:    c:\repos\mi_api\docs
-Generador:  mkdocs-material
 Idioma:     es
 Tipo de cada origen: mi_api=CÓDIGO, ley_39.pdf=NORMATIVA, mockups=UI/PANTALLAS
 ```
@@ -80,7 +76,6 @@ hay que pedirlos explícitamente en el parámetro `Arquetipos`:
 
 Origen:    c:\Desarrollo\python\libs\mi_libreria
 Destino:   c:\Desarrollo\python\libs\mi_libreria\docs
-Generador: mkdocs-material
 Idioma:    es
 Arquetipos: changelog
 ```
@@ -92,7 +87,6 @@ O solo el de contribución:
 
 Origen:    c:\Desarrollo\python\libs\mi_libreria
 Destino:   c:\Desarrollo\python\libs\mi_libreria\docs
-Generador: mkdocs-material
 Idioma:    es
 Arquetipos: contribución
 ```
@@ -104,7 +98,6 @@ O ambos a la vez junto al resto del ciclo estándar:
 
 Origen:    c:\Desarrollo\python\libs\mi_libreria
 Destino:   c:\Desarrollo\python\libs\mi_libreria\docs
-Generador: mkdocs-material
 Idioma:    es
 Arquetipos: changelog, contribución
 ```
@@ -123,7 +116,6 @@ Origen(es):
   - c:\repos\mi_api\api\openapi.yaml  (especificación OpenAPI del propio proyecto)
   - c:\repos\mi_api\infra\          (ficheros Terraform)
 Destino:    c:\repos\mi_api\docs
-Generador:  mkdocs-material
 Idioma:     es
 Tipo de cada origen: src=CÓDIGO, openapi.yaml=CONTRATO, infra=INFRAESTRUCTURA
 ```
@@ -144,14 +136,17 @@ CLASIFICACIÓN DE ORÍGENES
 
 ## 3. Explicación del Código
 
-- Los cuatro parámetros (`Origen`, `Destino`, `Generador`, `Idioma`) son **obligatorios**.
+- Los tres parámetros (`Origen`, `Destino`, `Idioma`) son **obligatorios**.
   Si falta alguno, el flujo se detiene antes del inventario y pide que se complete.
+- El generador no se indica: es siempre Zensical (ADR-003). Si el destino aún construye con
+  MkDocs, la sincronización visual lo migra tras comprobar que Zensical soporta todos sus
+  plugins; si alguno no lo está, la migración se detiene y se informa en el resumen.
 - `Alcance` es opcional: restringe el inventario a un subconjunto de módulos.
   Sin él, se inventarían todos los módulos detectados en `Origen`.
 - `Arquetipos` es opcional: lista los arquetipos a generar en esta ejecución. Por defecto
   se aplican todos los arquetipos aplicables **excepto Changelog (9) y Contribución (11)**,
   que son opt-in y deben solicitarse explícitamente (ver Escenario 5).
-- `--verify-build` ejecuta `python -m mkdocs build --strict` al final de la sesión y
+- `--verify-build` ejecuta `python scripts/build_docs_zip.py` (`zensical build --strict`) al final de la sesión y
   reporta errores de compilación (enlaces rotos, snippets faltantes, Mermaid inválido).
 - `Tipo de cada origen` activa la **Fase 0a** antes del inventario. Si se omite con
   múltiples orígenes, el flujo autodetecta el tipo y pide confirmación antes de continuar.
@@ -182,12 +177,12 @@ CLASIFICACIÓN DE ORÍGENES
 
 ---
 
-**Fase VALIDACIÓN** — el agente confirma los cuatro parámetros antes de continuar:
+**Fase VALIDACIÓN** — el agente confirma los tres parámetros antes de continuar:
 
 ```
 ✔ Origen:    c:\Desarrollo\python\libs\mi_libreria  (accesible)
 ✔ Destino:   c:\Desarrollo\python\libs\mi_libreria\docs
-✔ Generador: mkdocs-material
+✔ Generador: zensical (único; no se pregunta)
 ✔ Idioma:    es
 ```
 
@@ -235,8 +230,8 @@ RESUMEN
 Con `--verify-build`, la fase final ejecuta el build estricto:
 
 ```bash
-python -m mkdocs build --strict
-# INFO - Documentation built in X.Xs
+python scripts/build_docs_zip.py
+# [build_docs_zip] Building with: <python> -m zensical build --strict
 # ✔ Build completado sin errores
 ```
 

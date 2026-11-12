@@ -2,10 +2,10 @@
 arquetipo: ""
 fuentes:
   .github/kit/MANIFEST.txt: ba84851d379a
-  .github/prompts/document_project.prompt.md: 03e2d68949a7
+  .github/prompts/document_project.prompt.md: 9ebb31d05a58
   scripts/db_trace.py: 2df471e18403
   tests/test_db_trace.py: ac4e474ecfd7
-revisado: 2026-11-10
+revisado: 2026-11-13
 ---
 # db_trace
 

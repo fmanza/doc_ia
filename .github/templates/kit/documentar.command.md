@@ -7,7 +7,7 @@ vive en `.doc_ia/`. Comando del **kit de documentación**: lo instala y lo actua
 ## Qué hace
 
 1. Lee el prompt de instancia `.ai/prompts/documentar.prompt.md` (parámetros y decisiones de
-   ESTE proyecto: orígenes, alcance, generador, idioma, prioridades).
+   ESTE proyecto: orígenes, alcance, idioma, prioridades).
 2. Aplica `.doc_ia/.github/prompts/document_project.prompt.md` con esos parámetros, siguiendo
    `.doc_ia/.claude/commands/document-project.md` y el agente
    `.doc_ia/.github/agents/documentation-generator.agent.md`.
@@ -28,7 +28,7 @@ Sin argumentos: modo por defecto con los parámetros del prompt de instancia, de
 
 - Si falta `.ai/prompts/documentar.prompt.md`, crearlo desde
   `.doc_ia/.github/templates/kit/documentar.prompt.template.md` con los parámetros que dé el
-  usuario (orígenes, destino, generador e idioma son obligatorios) y continuar.
+  usuario (orígenes, destino e idioma son obligatorios; el generador es siempre Zensical) y continuar.
 - Plantillas y decisiones solo de `.doc_ia/` y de los orígenes de este proyecto: otros destinos
   documentados con doc_ia no son plantilla ni fuente de decisiones.
 - Guía para personas: `DOCUMENTAR.md` en la raíz.

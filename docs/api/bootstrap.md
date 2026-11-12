@@ -1,11 +1,11 @@
 ---
 arquetipo: "2"
 fuentes:
-  .github/agents/config-reviewer.agent.md: 376360c404e4
-  .github/prompts/bootstrap_ai_config.prompt.md: fdf4648ffdbe
+  .github/agents/config-reviewer.agent.md: 27a0e1c64b85
+  .github/prompts/bootstrap_ai_config.prompt.md: 2c724546f2bb
 decisiones:
   ../decisiones/bootstrap_decisiones.md: 254ead9347ae
-revisado: 2026-11-07
+revisado: 2026-11-13
 ---
 # bootstrap
 
@@ -44,7 +44,7 @@ flowchart TD
 | `Lenguaje y framework` + `Arquitectura destino` | string | Stack real del destino (ej. TypeScript + NestJS) y su patrón (capas, hexagonal, MVC…) | Obligatorios (dos campos); determinan la matriz de equivalencias de comandos |
 | `Plataformas IA activas` | lista | Plataformas a configurar (Claude Code, Gemini, Copilot, Cursor, Codex) | Obligatorio; determina qué entry points se crean |
 | `Herramientas de calidad` | lista | Linter, formateador, type-checker y test runner del destino | Obligatorio; sustituye `ruff`/`mypy`/`pytest` en la Capa A |
-| `Generador de documentación` | string | `mkdocs-material`, `Docusaurus`, `Hugo`, `ninguno`… | Obligatorio (admite `ninguno`); determina si `mkdocs.yml` se copia o se adapta |
+| `Generador de documentación` | string | `zensical`, `Docusaurus`, `Hugo`, `ninguno`… | Obligatorio (admite `ninguno`); determina si `mkdocs.yml` se copia o se adapta |
 | `Gestor de paquetes / build` | string | Comando de instalación y build del destino | Obligatorio |
 | `Fase` | string | `PLAN y AUDIT_PLAN únicamente` o `completa` | Opcional; por defecto flujo completo |
 

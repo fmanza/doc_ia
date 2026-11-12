@@ -19,7 +19,7 @@
 
 * **NUNCA** escribas código Python extenso directamente dentro de los archivos Markdown de la documentación (`.md`).
 * Todo ejemplo de código funcional debe residir en un archivo `.py` real dentro de `docs/examples/` para permitir su posterior testeo automatizado.
-* En el Markdown, el código se incluye exclusivamente mediante la sintaxis de snippets de MkDocs:
+* En el Markdown, el código se incluye exclusivamente mediante la sintaxis de snippets (`pymdownx.snippets`):
   ```python
   --8<-- "examples/categoria/nombre_ejemplo.py"
   ```
@@ -64,12 +64,12 @@ Cada archivo `.py` debe:
 - [ ] ¿Tiene docstring de módulo?
 - [ ] ¿NO contiene credenciales ni rutas absolutas locales?
 - [ ] ¿La referencia `--8<-- "examples/..."` usa la ruta relativa correcta (sin prefijo `docs/`)?
-- [ ] ¿`python -m mkdocs build --strict` completa sin ERROR?
+- [ ] ¿`python scripts/build_docs_zip.py` (build `--strict`) completa sin ERROR?
 
 **Validación rápida antes de commit**:
 ```bash
 python -m compileall docs/examples/
-python -m mkdocs build --strict
+python scripts/build_docs_zip.py
 ```
 
 ### 6. Evitar Duplicación de Código — SSOT
@@ -83,7 +83,7 @@ python -m mkdocs build --strict
 Siempre que añadas o actualices referencias `--8<--`:
 
 ```bash
-python -m mkdocs build --strict
+python scripts/build_docs_zip.py
 ```
 
 Debe completar **sin ERROR**.
@@ -99,7 +99,7 @@ Cuando un `.py` de ejemplo se mueve o renombra:
 
 1. Encontrar referencias: `grep -r "nombre_antiguo.py" docs/`
 2. Actualizar cada referencia con la nueva ruta relativa
-3. Validar con `python -m mkdocs build --strict`
+3. Validar con `python scripts/build_docs_zip.py`
 
 ### 10. Documentar un proyecto completo
 
@@ -108,7 +108,7 @@ usa el prompt unificado como punto de entrada:
 
 ```
 Lee y aplica `.github/prompts/document_project.prompt.md` con los parámetros:
-Origen(es): <ruta>   Destino: <ruta>   Generador: mkdocs-material   Idioma: es
+Origen(es): <ruta>   Destino: <ruta>   Idioma: es
 ```
 
 El prompt orquesta inventario (A sin doc / B desactualizado / C vigente) → arquetipos → nav sync → revisión.

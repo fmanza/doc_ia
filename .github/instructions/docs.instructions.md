@@ -5,7 +5,7 @@ applyTo: "docs/**"
 
 > **TL;DR** — Las estructuras obligatorias de los **arquetipos (1–12)** viven en
 > [`DOCUMENTATION_STANDARD.md`](../DOCUMENTATION_STANDARD.md) y **no se duplican aquí**.
-> Este fichero contiene las reglas operativas: Mermaid.js para diagramas, MkDocs Material
+> Este fichero contiene las reglas operativas: Mermaid.js para diagramas, Zensical
 > como generador estático, reglas Markdown críticas, snippets `--8<--`, autodoc y
 > verificación de build. No inventar nada. Si una sección de arquetipo queda vacía,
 > escribe `*No aplica para este módulo.*` — nunca la omitas.
@@ -43,12 +43,13 @@ en `.github/prompts/*_doc.prompt.md`. Este fichero no las repite (DRY).
 
 ---
 
-## Generador estático: MkDocs con Material for MkDocs
+## Generador estático: Zensical
 
-El proyecto usa **MkDocs** con el tema **Material for MkDocs** como generador estático
-(Zensical es recíprocamente compatible; ver `scripts/build_docs_zip.py --builder`).
+El proyecto usa **Zensical** como único generador estático (ADR-003; MkDocs ya no se soporta).
+La configuración sigue en `mkdocs.yml` (nombre heredado; Zensical lo lee de forma nativa).
 Zensical no ejecuta `hooks:` ni los plugins que no soporta, y no avisa. Construir con
-`python scripts/build_docs_zip.py --builder zensical`; para destinos, ver
+`python scripts/build_docs_zip.py` (pipeline: sync de ficheros raíz + `zensical build --strict` +
+ZIP `latest`); `python -m zensical serve` no sincroniza los ficheros raíz. Para destinos, ver
 `document_project.prompt.md` § *Reglas por generador: Zensical*.
 
 - Toda documentación generada debe tener su entrada en `mkdocs.yml` bajo `nav:`.
@@ -175,7 +176,7 @@ extra_css:
 ```
 
 **Notas críticas:**
-- `!!python/name:` genera advertencias en linters YAML estándar; es válido para MkDocs (falso positivo).
+- `!!python/name:` genera advertencias en linters YAML estándar; Zensical lo acepta (falso positivo).
 - Sin `custom_fences` de `mermaid` en `pymdownx.superfences`, los bloques mermaid salen como código resaltado y **no se renderizan**. Con él, el tema renderiza con la copia local de Mermaid (usa `window.mermaid` si existe y no descarga nada, así que los diagramas se ven sin conexión). **No** añadir el CDN de Mermaid ni un `mermaid.run()` propio: duplican el render (`.claude/EDGE_CASES.md § Mermaid`).
 - `pymdownx.snippets.base_path: [docs]` → las rutas en `--8<--` son **relativas a `docs/`** (no a la raíz del repo). Ejemplo: `--8<-- "examples/mi_snippet.py"`, no `--8<-- "docs/examples/mi_snippet.py"`.
 - Los seis recursos se copian íntegros desde `doc_ia/docs/assets/` sin modificación:
@@ -269,7 +270,7 @@ escalares, no como clases: los métodos no se expanden y el API queda sin docume
 2. Usar la ruta completa hasta esa definición: `modulo.submodulo.NombreClase`.
 3. Verificar que no es un alias (`NombreAlias = NombreClase`); si lo es, usar `NombreClase`.
 4. Si la clase vive en un subpaquete privado (`_internal/`), usar su ruta completa incluyendo el guión bajo.
-5. Ejecutar `mkdocs build --strict` y confirmar que la sección muestra los métodos expandidos.
+5. Ejecutar `python -m zensical build --strict` y confirmar que la sección muestra los métodos expandidos.
 
 **Señales de alias incorrecto en el build:** la sección autodoc aparece sin métodos, solo
 muestra el docstring de clase, o parece vacía o truncada.
@@ -299,7 +300,7 @@ duplican aquí**. Recordatorio de lo que rompe el render o la conformidad:
 
 - **Nunca uses texto en negrita como pseudo-subheading antes de listas** (`**Componente:**
 - item`).
-  En MkDocs y VSCode preview los bloques se mezclan visualmente. Usa `####` para subsecciones
+  En el sitio (Zensical) y VSCode preview los bloques se mezclan visualmente. Usa `####` para subsecciones
   reales, o un diagrama Mermaid si los componentes tienen relación entre sí. Cuando hay tres o
   más componentes con responsabilidades distintas y flujo entre ellos, un `flowchart TD` con
   subgraphs es siempre más claro que listas de bullets independientes.
@@ -383,14 +384,14 @@ Activar cuando el usuario solicite comprobar compatibilidad de versiones o plugi
 
 | Herramienta | URL de referencia |
 |---|---|
-| MkDocs | `https://www.mkdocs.org/about/release-notes/` |
-| Material for MkDocs | `https://squidfunk.github.io/mkdocs-material/plugins/` |
-| Zensical | `https://zensical.org/` |
+| Zensical | `https://zensical.org/docs/` |
+| Zensical — compatibilidad de plugins | `https://zensical.org/docs/compatibility/mkdocs/plugins/` |
+| Zensical — releases | `https://github.com/zensical/zensical/releases` |
 
 #### Procedimiento
 
-1. Fetch la documentación oficial según el generador activo (`mkdocs.yml` → `theme.name`, o `zensical.toml`).
-   Con Zensical, contrastar además cada plugin con `https://zensical.org/compatibility/plugins/`.
+1. Fetch la documentación oficial de Zensical (configuración en `mkdocs.yml`, o `zensical.toml` si existe).
+   Contrastar además cada plugin con la página de compatibilidad de plugins.
 2. Contrasta las directivas del fichero de configuración con la documentación oficial.
 3. Reporta discrepancias con severidad:
    - **Nivel 1** — plugin o directiva inexistente en la versión instalada (build roto).
@@ -406,7 +407,7 @@ renderizado (alias bug, snippets sin resolver, autodoc vacío).
 #### Modo A — build (por defecto)
 
 ```bash
-python -m mkdocs build --strict
+python -m zensical build --strict   # en doc_ia: python scripts/build_docs_zip.py (sincroniza antes)
 ```
 
 Leer páginas clave de `site/`. Priorizar páginas con directivas `:::`, bloques Mermaid o snippets `--8<--`.
@@ -423,7 +424,7 @@ Leer páginas clave de `site/`. Priorizar páginas con directivas `:::`, bloques
 #### Modo B — serve (activar con `--verify-build --serve`)
 
 ```bash
-python -m mkdocs serve   # confirmar con el usuario antes de arrancar
+python -m zensical serve   # confirmar con el usuario antes de arrancar
 ```
 
 Verificar sobre `http://localhost:8000/` las mismas señales que el Modo A. El servidor ejecuta
@@ -456,7 +457,7 @@ No modifica ningún fichero basándose solo en hallazgos del HTML. Propone corre
   como `**Parameters:**` o `**Fields:**`.
 - **Deja siempre una línea en blanco antes de cada lista**, aunque el párrafo anterior
   termine en dos puntos (`:`). Sin ella, la frase introductoria y la lista se fusionan
-  visualmente en MkDocs y VS Code preview.
+  visualmente en el sitio (Zensical) y VS Code preview.
 - **Mantén las celdas de tabla cortas** (máx. ~80 caracteres de contenido por celda).
   Si necesitas aclarar una excepción o nota, añádela como párrafo o lista debajo de
   la tabla, no dentro de la celda. Evita notaciones de pie de página inline (`No¹`,
@@ -469,9 +470,9 @@ No modifica ningún fichero basándose solo en hallazgos del HTML. Propone corre
 
 ## Inclusión de código en documentación (CRÍTICO)
 
-### Estándar de Snippets MkDocs (`--8<--`)
+### Estándar de Snippets (`--8<--`)
 
-Usa la sintaxis de snippets de MkDocs (`--8<--`, extensión `pymdownx.snippets` ya activa en
+Usa la sintaxis de snippets (`--8<--`, extensión `pymdownx.snippets` ya activa en
 `mkdocs.yml`) para las referencias a archivos `.py` ejecutables en `docs/examples/`.
 
 **Regla principal:** la directiva `--8<--` debe ser el **ÚNICO contenido** dentro del bloque
@@ -521,7 +522,7 @@ Antes de referenciar `--8<-- "..."` en un `.md`:
 - [ ] ¿No contiene hardcoded credentials/secrets?
 - [ ] ¿Se actualiza `mkdocs.yml` si es un archivo nuevo?
 
-Ejecuta `python -m mkdocs build --strict` para validar que la referencia se resuelve sin ERROR.
+Ejecuta `python scripts/build_docs_zip.py` (build `--strict`) para validar que la referencia se resuelve sin ERROR.
 
 ---
 

@@ -5,6 +5,49 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+## [0.12.0] — 2026-11-13
+
+### Changed
+
+- **BREAKING** — Zensical es el único generador de documentación (ADR-003 aceptado; ADR-001
+  reemplazado). `scripts/build_docs_zip.py` es el pipeline de build: siempre sincroniza los
+  ficheros raíz, construye con `zensical build --strict` y genera el ZIP `latest`.
+  `--builder mkdocs` termina con código 2; `--builder zensical` se acepta sin efecto durante
+  esta versión. `check_env.py` exige `zensical` en lugar de `mkdocs`.
+- CI: el build de Zensical es bloqueante; desaparecen el build MkDocs y la paridad. Los
+  workflows de release construyen con `build_docs_zip.py`.
+- **BREAKING** — `/document-project`: el generador deja de ser un campo (siempre Zensical) y
+  los campos obligatorios pasan a tres (origen(es), destino, idioma). Un destino que construye
+  con MkDocs se migra en su Fase 0b de forma explícita (sin `hooks:`, build por pipeline,
+  registro en el RESUMEN), y la migración se detiene si usa un plugin que Zensical no soporta.
+  Agentes, prompts, estándar, plantillas y kit alineados; el Gap V3 ya no aplica.
+- Instrucciones de las plataformas IA y documentación propia con los comandos de Zensical
+  (`build_docs_zip.py`, `zensical serve`). Nueva guarda `tests/test_no_mkdocs.py`.
+
+### Removed
+
+- MkDocs, Material for MkDocs y sus dependencias propias de los ficheros de requisitos; la
+  clave `hooks:` de `mkdocs.yml` (Zensical no la ejecuta), `on_pre_build` de
+  `hooks/sync_root_docs.py` y la prioridad MkDocs de `mkdocs_hooks.py`. `mkdocs.yml` y
+  `mkdocs_hooks.py` conservan el nombre.
+
+## [0.11.4] — 2026-11-12
+
+### Changed
+
+- Zensical 0.1.1 (beta) para la build de paridad, con su nuevo paquete de tema `zensical-ui`
+  0.0.42 (versiones exactas). Sin cambios de rutas ni de contenido; `hooks:` de `mkdocs.yml` sigue
+  sin ejecutarse con Zensical y el build pasa por `build_docs_zip.py`. Lista de plugins
+  soportados con `optimize` y `meta-descriptions`.
+
+### Fixed
+
+- ZIP sin servidor: desde v0.7.0 el logo enlazaba a una carpeta (`.`, `..`) en todas las páginas
+  (con `navigation.indexes`) y, al abrir el ZIP con doble clic, mostraba un listado de ficheros.
+  `extra.homepage: index.html` en `mkdocs.yml`, la plantilla y el estándar. `build_docs_zip.py`
+  rechaza también los enlaces `.` y `..`, que antes dejaba pasar. La build de paridad con
+  Zensical vuelve a pasar.
+
 ## [0.11.3] — 2026-11-11
 
 ### Fixed

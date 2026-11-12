@@ -17,7 +17,9 @@ from scripts.doc_trace import _load_yaml
 ROOT = Path(__file__).resolve().parents[1]
 
 # Plugins de mkdocs.yml que Zensical ejecuta o sustituye por un módulo nativo.
-# Fuente: https://zensical.org/compatibility/plugins/ (consultada el 2026-10-28, Zensical 0.0.73).
+# Fuente: https://zensical.org/docs/compatibility/mkdocs/plugins/ (consultada el 2026-10-28 con
+# Zensical 0.0.73; revisada el 2026-11-12 con las notas de 0.0.74-0.1.1: + optimize y
+# meta-descriptions).
 # Revisar al actualizar Zensical.
 ZENSICAL_SUPPORTED_PLUGINS = frozenset(
     {
@@ -38,11 +40,13 @@ ZENSICAL_SUPPORTED_PLUGINS = frozenset(
         "markdown-exec",
         "markdownextradata",
         "meta",
+        "meta-descriptions",
         "mike",
         "minify",
         "mkdocstrings",
         "nav-weight",
         "offline",
+        "optimize",
         "privacy",
         "redirects",
         "rss",

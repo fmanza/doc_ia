@@ -1,17 +1,17 @@
 ---
 arquetipo: "1"
 fuentes:
-  mkdocs.yml: ab0e72d492ad
-  mkdocs_hooks.py: 31259b7911a3
-  scripts/build_docs_zip.py: 5f972ee674c8
-  tests/test_build_docs_zip.py: 82a1d595e6f4
-  tests/test_docs_conformance.py: bf9f28524195
-  tests/test_mermaid_assets.py: e49f4b5a3361
-  tests/test_offline_assets.py: 7e632c37987d
-  tests/test_zensical_compat.py: d62c11ebe8cd
+  mkdocs.yml: 28b6b25a031d
+  mkdocs_hooks.py: 7a5c8e6cc233
+  scripts/build_docs_zip.py: 7387f722a727
+  tests/test_build_docs_zip.py: 2082276d1c66
+  tests/test_docs_conformance.py: 7416646e6217
+  tests/test_mermaid_assets.py: 8aa97921d45f
+  tests/test_offline_assets.py: 43bbc625fb8e
+  tests/test_zensical_compat.py: e206b407ff8c
 decisiones:
-  ../decisiones/buildzip_decisiones.md: e610c12daad7
-revisado: 2026-11-10
+  ../decisiones/buildzip_decisiones.md: c7b5670214ba
+revisado: 2026-11-13
 ---
 # ZIP de Documentación Offline
 
@@ -27,7 +27,7 @@ Existen **dos mecanismos complementarios**, no alternativos:
 
 | Mecanismo | Activación | Resultado |
 |---|---|---|
-| **Empaquetado automático en cada build** | Cada vez que se construye o se sirve el sitio | Un ZIP "latest" dentro del sitio, con su huella, listo para descarga desde la propia documentación |
+| **Empaquetado automático en cada build** | Cada vez que se construye el sitio con el empaquetado (el pipeline de build) | Un ZIP "latest" dentro del sitio, con su huella, listo para descarga desde la propia documentación |
 | **Empaquetado versionado** | Manual, o por el flujo de publicación del repositorio | Un ZIP con la versión del proyecto en el nombre, su huella y un registro histórico de huellas |
 
 El empaquetado automático garantiza que siempre haya un ZIP "latest" disponible para
@@ -41,13 +41,13 @@ corruptas o manipuladas).
 
 ## 2. Precondiciones
 
-- Generador de documentación instalado (MkDocs por defecto; Zensical solo si se elige como
-  alternativa y está instalado).
+- Generador de documentación Zensical instalado (es el único generador; versión fijada en los
+  requisitos del proyecto).
 - La versión del proyecto declarada en el manifiesto del proyecto (empaquetado versionado).
 - Para empaquetar sin reconstruir: un sitio generado previamente.
-- Para el empaquetado automático: el hook de empaquetado declarado en la configuración del
-  sitio. No requiere instalar el proyecto como paquete. Con Zensical, que no ejecuta hooks,
-  el empaquetado automático solo ocurre si se construye mediante el empaquetado versionado.
+- Para el empaquetado automático: construir mediante el empaquetado, que es el pipeline de
+  build. Zensical no ejecuta hooks, así que construir con Zensical directamente no lo produce.
+  No requiere instalar el proyecto como paquete.
 
 ## 3. Flujo Principal
 
@@ -62,8 +62,8 @@ sequenceDiagram
     participant Hook as Empaquetado automático
     participant Site as Sitio generado
 
-    Dev->>Gen: Construye el sitio
-    Gen->>Hook: Build terminado
+    Dev->>Gen: Construye el sitio (pipeline de build)
+    Gen->>Hook: Build terminado sin errores
     Hook->>Site: Genera ZIP "latest" (incluye servidor local)
     Hook->>Site: Escribe su huella SHA256
     Hook-->>Dev: Tamaño y huella por pantalla
@@ -106,10 +106,10 @@ proyecto en el nombre, su huella y una nueva línea en el registro histórico de
 - El sitio generado se sobrescribe cuando el empaquetado versionado reconstruye.
 - Los dos ZIP se abren con doble clic en `index.html` tras extraerlos, con navegación,
   búsqueda y diagramas, sin servidor ni red. El servidor local va incluido como alternativa.
-- El ZIP automático se genera después de que el generador escriba el índice de búsqueda para
-  ficheros locales, así que también lo incluye.
+- El ZIP automático se genera cuando el generador ya ha terminado y escrito el índice de
+  búsqueda para ficheros locales, así que también lo incluye.
 - Los diagramas se dibujan sin conexión: el sitio lleva su propia copia de Mermaid con versión
-  fija, la misma con los dos generadores. Las fuentes tipográficas siguen descargándose de
+  fija. Las fuentes tipográficas siguen descargándose de
   internet; sin conexión se usan las del sistema.
 
 ## 5. Reglas de Negocio
@@ -121,7 +121,7 @@ proyecto en el nombre, su huella y una nueva línea en el registro histórico de
 | Siempre "latest" | El empaquetado automático sobrescribe el ZIP "latest" en cada build; no mantiene histórico | El ZIP "latest" podría no corresponder al build más reciente si no se ejecutó |
 | Build exitoso antes del ZIP | El ZIP se genera solo tras un build sin errores; nunca a partir de un sitio corrupto | Se distribuiría documentación con enlaces rotos o páginas huérfanas |
 | Sin servicios IA | El empaquetado es tooling determinista local; nunca invoca servicios IA | Violaría el principio innegociable del proyecto |
-| Sin instalación | El empaquetado automático funciona con cualquier Python que tenga el generador; no requiere instalar el proyecto como paquete | Dependencia frágil del entorno; falla si no está activo el entorno correcto |
+| Sin instalación | El empaquetado funciona con cualquier Python que tenga el generador; carga sus pasos por ruta y no requiere instalar el proyecto como paquete | Dependencia frágil del entorno; falla si no está activo el entorno correcto |
 | Diagramas sin conexión | El sitio sirve su propia copia de Mermaid, con versión exacta y huella fija, coherente con la configuración y con la validación de CI | Sin conexión, los diagramas aparecerían como bloques de código |
 | Abrir sin servidor | Antes de empaquetar se comprueba que el sitio se puede abrir desde ficheros locales: índice de búsqueda en JS, ningún script descargado de internet y ningún enlace a carpeta. Si no, no se crea el ZIP | Quien recibe el ZIP necesitaría Python y un servidor, o vería listados de carpetas y una búsqueda que no responde |
 | Enlaces de descarga coherentes | Los enlaces de la página de descargas resuelven, desde la URL publicada de esa página, al ZIP "latest" y a su huella tal como los genera el empaquetado automático | El modo estricto no revisa enlaces en HTML: la descarga quedaría rota sin aviso |
@@ -143,16 +143,19 @@ proyecto en el nombre, su huella y una nueva línea en el registro histórico de
 - **Build no estricto**: puede reconstruirse sin modo estricto, aceptando avisos.
 - **Carpeta de salida alternativa**: el destino del ZIP versionado puede cambiarse; la carpeta
   se crea si no existe.
-- **Generador alternativo**: puede construirse con Zensical si está instalado. Como Zensical
-  no ejecuta los hooks de la configuración del sitio, el empaquetado versionado los ejecuta
-  él mismo: copia los ficheros raíz a la documentación antes del build y, solo si el build
-  termina sin errores, genera el ZIP "latest". Construir con Zensical directamente, fuera del
-  empaquetado, no produce el ZIP "latest" ni actualiza las copias, y Zensical no avisa.
+- **Construir con Zensical directamente**: Zensical no ejecuta hooks, así que el empaquetado
+  hace él mismo los pasos previo y posterior: copia los ficheros raíz a la documentación antes
+  del build y, solo si el build termina sin errores, genera el ZIP "latest". Construir con
+  Zensical fuera del empaquetado no produce el ZIP "latest" ni actualiza las copias, y Zensical
+  no avisa.
+- **Generador MkDocs**: ya no se soporta. Pedirlo al empaquetado termina con código 2 sin
+  construir nada; la opción de elegir generador se mantiene una versión solo para aceptar
+  Zensical en llamadas existentes.
 
 ### Casos especiales
 
-- **Build fallido en el flujo automático**: el generador no ejecuta el paso posterior al build
-  cuando este falla, por lo que no se genera ZIP a partir de un sitio corrupto.
+- **Build fallido en el flujo automático**: el empaquetado no ejecuta el paso posterior al
+  build cuando este falla, por lo que no se genera ZIP a partir de un sitio corrupto.
 - **Sitio inexistente en el flujo automático**: se muestra un aviso y no se genera ZIP.
 - **Servidor local ausente**: si el servidor local no existe en el repositorio, el ZIP
   automático se genera sin él.
@@ -173,25 +176,25 @@ proyecto en el nombre, su huella y una nueva línea en el registro histórico de
 | AC-02 | Ningún sitio generado previamente | Se solicita empaquetar sin reconstruir | Se informa de un error explicativo y el proceso termina con fallo (código 1) sin crear ningún ZIP | `tests/test_build_docs_zip.py::test_main_no_build_without_site_exits_1` |
 | AC-03 | Documentación con un enlace roto o página huérfana | Se solicita el empaquetado versionado estándar (build estricto) | El proceso se detiene con el código de error del generador y no se crea ningún ZIP | `tests/test_build_docs_zip.py::test_main_build_failure_propagates_exit_code` |
 | AC-04 | Un ZIP ya generado con su huella `.sha256` | Se valida la integridad de la descarga | La huella calculada coincide con la registrada (`sha256sum -c` → OK) | `tests/test_build_docs_zip.py::test_sha256_file_matches_archive` |
-| AC-05 | El empaquetado automático declarado en la configuración del sitio | Se construye el sitio | Se genera `site/doc_ia-docs-latest.zip` y su `.sha256` sin ningún comando adicional ni instalación de paquetes | `tests/test_build_docs_zip.py::test_post_build_hook_creates_latest_zip` |
-| AC-06 | Un Python con el generador instalado pero sin activar el entorno de doc_ia | Se construye el sitio desde la raíz del proyecto | El empaquetado automático funciona (no requiere instalar el proyecto como paquete) | Sin test |
-| AC-07 | Zensical como generador y un `CHANGELOG.md` en la raíz | Se solicita el empaquetado versionado con Zensical | La copia de `CHANGELOG.md` en la documentación se actualiza antes del build y, tras el build, existen `site/doc_ia-docs-latest.zip` y su `.sha256` | `tests/test_build_docs_zip.py::test_zensical_with_real_hooks_syncs_and_creates_latest_zip` |
-| AC-08 | Zensical como generador y documentación con un error que hace fallar el build estricto | Se solicita el empaquetado versionado con Zensical | El proceso termina con el código de error del generador y no se genera ni el ZIP "latest" ni el versionado | `tests/test_build_docs_zip.py::test_zensical_build_failure_skips_post_build` |
+| AC-05 | El paso posterior del empaquetado | Se construye el sitio con el empaquetado | Se genera `site/doc_ia-docs-latest.zip` y su `.sha256` sin ningún comando adicional ni instalación de paquetes | `tests/test_build_docs_zip.py::test_post_build_hook_creates_latest_zip` |
+| AC-06 | Un Python con el generador instalado pero sin activar el entorno de doc_ia | Se construye el sitio con el empaquetado desde la raíz del proyecto | El empaquetado automático funciona (no requiere instalar el proyecto como paquete) | Sin test |
+| AC-07 | Un `CHANGELOG.md` en la raíz | Se solicita el empaquetado versionado | La copia de `CHANGELOG.md` en la documentación se actualiza antes del build y, tras el build, existen `site/doc_ia-docs-latest.zip` y su `.sha256` | `tests/test_build_docs_zip.py::test_zensical_with_real_hooks_syncs_and_creates_latest_zip` |
+| AC-08 | Documentación con un error que hace fallar el build estricto | Se solicita el empaquetado versionado | El proceso termina con el código de error del generador y no se genera ni el ZIP "latest" ni el versionado | `tests/test_build_docs_zip.py::test_zensical_build_failure_skips_post_build` |
 | AC-09 | La página de descargas y la configuración del sitio (estilo de URL) | Se comprueba la conformidad del repositorio | Cada enlace al ZIP "latest" o a su huella resuelve, desde la URL de la página de descargas, a un fichero que genera el empaquetado automático en la raíz del sitio | `tests/test_zensical_compat.py::test_downloads_links_point_to_latest_zip` |
-| AC-10 | El sitio construido con cualquiera de los dos generadores | Se abre una página con diagramas sin conexión a internet | Los diagramas se dibujan con la copia local de Mermaid, cuya versión coincide con la configuración del sitio y con la validación de CI | `tests/test_mermaid_assets.py::test_vendored_mermaid_is_pinned`, `tests/test_mermaid_assets.py::test_extra_javascript_loads_local_mermaid_then_theme`, `tests/test_mermaid_assets.py::test_ci_validates_the_vendored_version` |
+| AC-10 | El sitio construido | Se abre una página con diagramas sin conexión a internet | Los diagramas se dibujan con la copia local de Mermaid, cuya versión coincide con la configuración del sitio y con la validación de CI | `tests/test_mermaid_assets.py::test_vendored_mermaid_is_pinned`, `tests/test_mermaid_assets.py::test_extra_javascript_loads_local_mermaid_then_theme`, `tests/test_mermaid_assets.py::test_ci_validates_the_vendored_version` |
 | AC-11 | Un sitio generado que ya contiene el ZIP "latest" y su huella, y las instrucciones de visualización en la raíz del proyecto | Se solicita el empaquetado versionado | El ZIP versionado no contiene ningún ZIP ni huella anidados e incluye en su raíz el servidor local y `VER_DOCUMENTACION.md`, igual que el ZIP "latest" | `tests/test_build_docs_zip.py::test_versioned_zip_matches_latest_layout` |
 | AC-12 | La configuración del sitio y la plantilla para destinos | Se comprueba la conformidad del repositorio | Las dos declaran URLs `*.html`, el plugin `offline` y solo la copia local del shim de búsqueda, cuya huella está fijada | `tests/test_offline_assets.py::test_vendored_shim_is_pinned`, `tests/test_offline_assets.py::test_config_builds_a_site_that_opens_without_server` |
-| AC-13 | Un sitio con un enlace a carpeta, un script de internet o sin índice de búsqueda en JS | Se solicita el empaquetado versionado | El proceso termina con código 1, nombra la página y el problema, y no crea ningún ZIP; con el índice de MkDocs o el de Zensical y solo enlaces externos o a ficheros, el ZIP se crea | `tests/test_build_docs_zip.py::test_site_not_browsable_from_file_exits_1`, `tests/test_build_docs_zip.py::test_missing_search_index_js_exits_1`, `tests/test_build_docs_zip.py::test_zensical_search_index_layout_is_accepted`, `tests/test_build_docs_zip.py::test_external_and_file_links_are_not_folder_links` |
-| AC-14 | El empaquetado automático y el plugin `offline` en el mismo build | Se construye el sitio | El ZIP "latest" se genera después de que el plugin escriba el índice de búsqueda en JS, así que lo incluye | `tests/test_offline_assets.py::test_zip_hook_runs_after_offline_plugin` |
+| AC-13 | Un sitio con un enlace a carpeta, un script de internet o sin índice de búsqueda en JS | Se solicita el empaquetado versionado | El proceso termina con código 1, nombra la página y el problema, y no crea ningún ZIP; con el índice de Zensical (o el de un sitio MkDocs anterior) y solo enlaces externos o a ficheros, el ZIP se crea | `tests/test_build_docs_zip.py::test_site_not_browsable_from_file_exits_1`, `tests/test_build_docs_zip.py::test_missing_search_index_js_exits_1`, `tests/test_build_docs_zip.py::test_zensical_search_index_layout_is_accepted`, `tests/test_build_docs_zip.py::test_external_and_file_links_are_not_folder_links` |
+| AC-14 | El empaquetado automático y el plugin `offline` en el mismo build | Se construye el sitio con el empaquetado | El ZIP "latest" se genera cuando el generador ha terminado (con el índice de búsqueda en JS ya escrito), así que lo incluye | `tests/test_build_docs_zip.py::test_zensical_runs_hooks_around_build` |
 | AC-15 | Las páginas de descargas y las instrucciones de visualización (instancia y plantilla) | Se comprueba la conformidad del repositorio | Indican extraer el ZIP y abrir `index.html` con doble clic, mantienen el servidor local como alternativa y nunca piden opciones de seguridad del navegador | `tests/test_docs_conformance.py::test_zip_opens_with_double_click_after_extracting`, `tests/test_docs_conformance.py::test_browser_security_flags_only_to_forbid_them` |
+| AC-16 | Una llamada existente que elige generador | Se solicita el empaquetado con MkDocs, o con Zensical | Con MkDocs termina con código 2 y un mensaje que remite a ADR-003, sin construir nada; con Zensical funciona igual que sin elegir | `tests/test_build_docs_zip.py::test_mkdocs_builder_is_rejected`, `tests/test_build_docs_zip.py::test_legacy_builder_flag_zensical_is_accepted` |
 
 Verificación manual: `python scripts/build_docs_zip.py` (AC-01/AC-03),
 `python scripts/build_docs_zip.py --no-build` sin `site/` previo (AC-02),
-`sha256sum -c dist/*.sha256` (AC-04), `python -m mkdocs build` → comprobar
-`site/doc_ia-docs-latest.zip` (AC-05/AC-06),
-`python scripts/build_docs_zip.py --builder zensical` con Zensical instalado (AC-07/AC-08).
+`sha256sum -c dist/*.sha256` (AC-04), `python scripts/build_docs_zip.py` → comprobar
+`site/doc_ia-docs-latest.zip` y la copia de `CHANGELOG.md` en `docs/` (AC-05 a AC-08).
 Los tests simulan el generador; el build real lo ejecuta la CI. La apertura con doble clic se
-probó en navegador real, sin red, con los ZIP de los dos generadores en Edge, Chrome y Firefox:
+probó en navegador real, sin red, con los ZIP de MkDocs y Zensical en Edge, Chrome y Firefox:
 portada, navegación por enlaces, búsqueda con resultados y diagramas, sin peticiones locales
 fallidas (`.ai/sessions/2026-10-29d_zip_sin_servidor/smoke/`). No forma parte de la CI.
 
@@ -215,17 +218,17 @@ fallidas (`.ai/sessions/2026-10-29d_zip_sin_servidor/smoke/`). No forma parte de
     | Regla «Siempre latest» | `mkdocs_hooks.py::on_post_build` (`zip_path` fijo, modo `"w"`) | ✅ |
     | Regla «Build exitoso antes del ZIP» | `scripts/build_docs_zip.py::_build` (`sys.exit(returncode)`) | ✅ |
     | Regla «Sin servicios IA» | `scripts/build_docs_zip.py`, `mkdocs_hooks.py` (solo `shutil`, `zipfile`, `hashlib`, `subprocess` del generador) | ✅ |
-    | Regla «Sin instalación» | `mkdocs.yml::hooks` (`mkdocs_hooks.py` por ruta) | ✅ |
+    | Regla «Sin instalación» | `scripts/build_docs_zip.py::_load_hook` (`mkdocs_hooks.py` y `hooks/sync_root_docs.py` por ruta) | ✅ |
     | Regla «Enlaces de descarga coherentes» | `docs/downloads.md` (enlaces `href`), `mkdocs.yml::use_directory_urls`, `mkdocs_hooks.py::on_post_build` | ✅ |
     | ZIP automático excluye `.zip`/`.sha256` e incluye el servidor local | `mkdocs_hooks.py::on_post_build` | ✅ |
-    | Generador alternativo Zensical con hooks ejecutados por el script | `scripts/build_docs_zip.py::main` (`--builder`), `::_build`, `::HOOKLESS_BUILDERS` | ✅ |
-    | [COB-BUILDZIP-002](../decisiones/buildzip_decisiones.md#cob-buildzip-002) · Zensical no ejecuta `hooks:` y no avisa | zensical.org/compatibility/configuration (Zensical 0.0.73) | ⚠️ (decisión: Aceptar riesgo) |
+    | Zensical como único generador; pasos previo y posterior ejecutados por el script; MkDocs rechazado | `scripts/build_docs_zip.py::main` (`--builder`), `::_build`, `::BUILDER` | ✅ |
+    | [COB-BUILDZIP-002](../decisiones/buildzip_decisiones.md#cob-buildzip-002) · Zensical no ejecuta `hooks:` y no avisa | zensical.org/compatibility/configuration (Zensical 0.0.73; re-verificado con 0.1.1) | ⚠️ (decisión: Aceptar riesgo) |
     | AC-01 | `scripts/build_docs_zip.py::main`, `::_create_checksum_files` | ✅ |
     | AC-02 | `scripts/build_docs_zip.py::main` (`--no-build` + `SITE_DIR` inexistente → `sys.exit(1)`) | ✅ |
     | AC-03 | `scripts/build_docs_zip.py::_build` | ✅ |
     | AC-04 | `scripts/build_docs_zip.py::_create_checksum_files` (formato `<hash>  <fichero>`) | ✅ |
-    | AC-05 | `mkdocs_hooks.py::on_post_build` | ✅ |
-    | AC-06 | `mkdocs.yml::hooks` | ✅ |
+    | AC-05 | `mkdocs_hooks.py::on_post_build`, `scripts/build_docs_zip.py::_post_build` | ✅ |
+    | AC-06 | `scripts/build_docs_zip.py::_load_hook` | ✅ |
     | AC-07 | `scripts/build_docs_zip.py::_pre_build`, `::_post_build` | ✅ |
     | AC-08 | `scripts/build_docs_zip.py::_build` (`sys.exit` antes de `_post_build`) | ✅ |
     | AC-09 | `tests/test_zensical_compat.py::test_downloads_links_point_to_latest_zip` | ✅ |
@@ -233,8 +236,9 @@ fallidas (`.ai/sessions/2026-10-29d_zip_sin_servidor/smoke/`). No forma parte de
     | AC-11 | `scripts/build_docs_zip.py::_zip`, `::EXTRA_FILES` | ✅ |
     | Regla «Abrir sin servidor», AC-13 | `scripts/build_docs_zip.py::_offline_problems`, `::_check_offline`, `::OFFLINE_SEARCH_INDEXES` | ✅ |
     | AC-12 | `mkdocs.yml::use_directory_urls`, `::plugins`, `::extra` (`polyfills`), `.github/templates/TEMPLATE_mkdocs.yml`, `docs/assets/vendor/iframe-worker/SOURCE.txt` | ✅ |
-    | Shim descargado de unpkg si falta la copia local | `material/plugins/offline/plugin.py::OfflinePlugin.on_config`, `zensical/config.py::_apply_offline_plugin` (Material 9.8.0, Zensical 0.0.73) | ✅ |
-    | AC-14 | `mkdocs_hooks.py::on_post_build` (`mkdocs_priority = -200`) | ✅ |
+    | Shim descargado de unpkg si falta la copia local | `zensical/config.py::_apply_offline_plugin` (Zensical 0.0.73 y 0.1.1) | ✅ |
+    | AC-14 | `scripts/build_docs_zip.py::_build` (`_post_build` tras el build) | ✅ |
+    | AC-16 | `scripts/build_docs_zip.py::main` (`parser.error`) | ✅ |
     | AC-15 | `docs/downloads.md`, `VER_DOCUMENTACION.md`, `.github/templates/VER_DOCUMENTACION.template.md` | ✅ |
     | Navegación, búsqueda y diagramas por `file://`, sin red, en Edge y Chrome | `.ai/sessions/2026-10-29d_zip_sin_servidor/smoke/RESULTADOS.txt` (prueba con navegador sin ventana, fuera de la CI) | ✅ |
     | [COB-BUILDZIP-004](../decisiones/buildzip_decisiones.md#cob-buildzip-004) · Ídem en Firefox | Mismo fichero; sin ventana, Firefox no abre la búsqueda al enfocar el campo y la prueba la abre como el icono | ⚠️ (decisión: Aceptar riesgo) |

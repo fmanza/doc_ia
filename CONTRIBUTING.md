@@ -52,7 +52,7 @@ canónica del sistema y los cambios tienen impacto transversal.
 7. Abre un PR contra la rama `develop` del repositorio original con:
    - Descripción del cambio y motivación.
    - Output de `python -m pytest` sin errores.
-   - Si afecta a `docs/`: output de `python -m mkdocs build --strict` sin warnings.
+   - Si afecta a `docs/`: output de `python scripts/build_docs_zip.py` (build `--strict` con Zensical) sin warnings.
 
 ## 4. Convenciones de Código y Commits
 
@@ -81,19 +81,18 @@ python -m pytest                                 # Tests (incluye conformidad de
 python scripts/doc_trace.py drift                # Páginas desactualizadas respecto al código
 python scripts/doc_trace.py matrix               # Criterios de aceptación ↔ tests
 python scripts/doc_trace.py llms --check         # docs/llms.txt al día
-python -m mkdocs build --strict                  # Build de docs
-python scripts/build_docs_zip.py --builder zensical --output-dir <tmp>  # Paridad Zensical (no bloqueante)
+python scripts/build_docs_zip.py --output-dir <tmp>   # Build Zensical --strict + ZIP navegable sin servidor
 ```
 
 El workflow `.github/workflows/ci.yml` ejecuta estos mismos comandos (Python 3.12 y 3.14) en cada
-push y PR a `develop` y `main`. Un PR que falle en cualquiera de ellos no será mergeado, salvo
-el build de paridad con Zensical, que es informativo mientras Zensical esté en alfa. Si
+push y PR a `develop` y `main`. Un PR que falle en cualquiera de ellos no será mergeado
+(Zensical es el único generador, ADR-003, y su build es bloqueante). Si
 `drift` falla, revisa la página contra el cambio de la fuente y re-séllala con
 `python scripts/doc_trace.py stamp <página>`.
 
 El job `mermaid` del mismo workflow pasa cada página de `docs/` con diagramas por el parser real
 de Mermaid (`@mermaid-js/mermaid-cli`) con la misma versión que sirve el sitio;
-`mkdocs build --strict` no detecta esos errores. Las reglas deterministas de los diagramas
+`zensical build --strict` no detecta esos errores. Las reglas deterministas de los diagramas
 (accesibilidad, ≤12 nodos, comillas, sin entidades HTML) las comprueba
 `tests/test_docs_conformance.py`.
 
@@ -169,7 +168,7 @@ Cuando documentes un nuevo proyecto con `/document-project`, verifica:
   ls docs/assets/css/nav.css docs/assets/css/mermaid.css
   ls docs/assets/vendor/mermaid/   # mermaid-<versión>.min.js, LICENSE, SOURCE.txt
   ```
-- [ ] **Build válido**: `python -m mkdocs build --strict` sin warnings
+- [ ] **Build válido**: `python scripts/build_docs_zip.py` (build `--strict`) sin warnings
 - [ ] **Navegación funcional**: Verificar que sidebar toggle y estilos de nav funcionan
 
 #### Si Faltan Assets Personalizados

@@ -80,17 +80,27 @@ def test_theme_script_fixes_startup_and_theme() -> None:
     assert 'theme: "default"' in script
 
 
-@pytest.mark.parametrize("package", ["material", "zensical"])
-def test_theme_bundle_uses_global_mermaid(package: str) -> None:
+@pytest.mark.parametrize(
+    "packages",
+    # Desde Zensical 0.0.74 el tema vive en zensical-ui; antes, en el propio paquete.
+    [("zensical_ui", "zensical")],
+    ids=["zensical"],
+)
+def test_theme_bundle_uses_global_mermaid(packages: tuple[str, ...]) -> None:
     """El tema instalado solo descarga Mermaid si `window.mermaid` no existe y llama a `initialize`.
 
     Si una actualización del tema cambia su cargador, el fichero local dejaría de usarse.
     """
-    spec = importlib.util.find_spec(package)
-    if spec is None or spec.origin is None:
-        pytest.skip(f"{package} no instalado")
-    bundles = list(Path(spec.origin).parent.glob("templates/assets/javascripts/bundle.*.min.js"))
-    assert bundles, package
+    roots = [
+        Path(spec.origin).parent
+        for spec in map(importlib.util.find_spec, packages)
+        if spec is not None and spec.origin is not None
+    ]
+    if not roots:
+        pytest.skip(f"{packages[-1]} no instalado")
+    pattern = "templates/assets/javascripts/bundle.*.min.js"
+    bundles = [bundle for root in roots for bundle in root.glob(pattern)]
+    assert bundles, packages
     text = bundles[0].read_text(encoding="utf-8")
     assert 'typeof mermaid=="undefined"' in text
     assert "mermaid.initialize(" in text

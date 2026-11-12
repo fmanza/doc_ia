@@ -30,8 +30,8 @@
 | **Canónico** | `.github/SHARED_INSTRUCTIONS.md`: fuente única de reglas comunes; los entry points solo añaden especialización (regla DRY). |
 | **MADR 4.0** | Formato para Architecture Decision Records: frontmatter YAML con status/date/deciders + título "Use X for Y". Usado en Arquetipo 5. |
 | **ZIP offline** | Paquete distribuible del sitio de docs con checksum SHA256. Mecanismo dual: `scripts/build_docs_zip.py` (versionado en `dist/`) y `mkdocs_hooks.py` (latest en `site/`). |
-| **Hook MkDocs** | `mkdocs_hooks.py` en la raíz del proyecto: genera `{nombre}-docs-latest.zip` en `site/` en cada build. Sin instalación (no requiere pip install). |
-| **sync_root_docs** | `hooks/sync_root_docs.py`: copia CHANGELOG.md y CONTRIBUTING.md de la raíz a `docs/`. Funciona como hook MkDocs y PostToolUse. |
+| **Post-build (`mkdocs_hooks.py`)** | Paso post-build del pipeline `scripts/build_docs_zip.py`: genera `{nombre}-docs-latest.zip` en `site/` tras cada build correcto. Nombre heredado de la etapa MkDocs (Zensical no ejecuta `hooks:`). Sin instalación (no requiere pip install). |
+| **sync_root_docs** | `hooks/sync_root_docs.py`: copia CHANGELOG.md y CONTRIBUTING.md de la raíz a `docs/`. Se ejecuta como pre-build del pipeline y como hook PostToolUse. |
 | **Enlace bidireccional** | Obligación de los arquetipos 2 (Técnica §5) y 4 (Ejemplos §5) de enlazarse mutuamente. |
 | **Dogfooding** | El sitio `docs/` de doc_ia se genera aplicando sus propios arquetipos, incluido el 13 (registros de decisiones en `docs/decisiones/`); solo el 8 no aplica (sin normativa). |
 | **Sesión** | Unidad de trabajo registrada en `.ai/sessions/<fecha>/` con REQUEST, CONTEXT_SNAPSHOT y TRACEABILITY (plantilla en `.ai/sessions/TEMPLATE/`). |

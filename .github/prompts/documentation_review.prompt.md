@@ -76,7 +76,7 @@
 
 Incluye estas subsecciones dentro de `AUDIT_CODE`:
 
-### MkDocs y navegación
+### Navegación (`mkdocs.yml`, Zensical)
 - Estado de `mkdocs.yml`
 - Páginas huérfanas o rotas
 - Secciones funcional/técnica/ejemplos
@@ -115,7 +115,7 @@ Incluye las subsecciones:
 - Ejemplos existentes: ubicación, completitud, reproducibilidad
 - Módulos principales sin ejemplo verificable
 
-#### MkDocs y navegación
+#### Navegación (`mkdocs.yml`, Zensical)
 - Estado de `mkdocs.yml` (separación funcional/técnica/ejemplos)
 - Páginas huérfanas (en disco, no en nav)
 - Páginas rotas (en nav, no en disco)

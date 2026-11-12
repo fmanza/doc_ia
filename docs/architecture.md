@@ -47,8 +47,8 @@ del sitio (`--strict`), trazabilidad de sesiones (`.ai/sessions/`).
 | Carpeta | Responsabilidad |
 |---|---|
 | `scripts/` | Tooling determinista standalone: `check_env.py`, `build_docs_zip.py`, `convert_to_md.py`, `doc_trace.py`, `start-server.py` |
-| `hooks/` | `sync_root_docs.py`: copia CHANGELOG.md / CONTRIBUTING.md a docs/ (hook MkDocs + PostToolUse) |
-| `mkdocs_hooks.py` | Hook MkDocs nativo: genera `doc_ia-docs-latest.zip` + SHA256 en `site/` en cada build |
+| `hooks/` | `sync_root_docs.py`: copia CHANGELOG.md / CONTRIBUTING.md a docs/ (pre-build del pipeline + PostToolUse) |
+| `mkdocs_hooks.py` | Post-build del pipeline `build_docs_zip.py` (nombre heredado): genera `doc_ia-docs-latest.zip` + SHA256 en `site/` tras cada build correcto |
 | `tests/` | Tests pytest del tooling (importan `scripts/` vía `sys.path`) |
 | `docs/` + `mkdocs.yml` | Sitio MkDocs Material (este sitio, 33 páginas); `mkdocs.yml` es fuente única de navegación |
 | `.github/` | Canónico (`SHARED_INSTRUCTIONS.md`), 12 agentes, 27 prompts, 3 instructions, 2 workflows CI |
@@ -91,7 +91,7 @@ flowchart LR
     accDescr: En local, el chat y los scripts generan site/ y el ZIP; un push a main dispara docs-zip-release.yml, que publica la release docs-vX.Y.Z, y un tag v* dispara docs-release.yml, que publica la release vX.Y.Z.
     subgraph Local[Equipo del desarrollador]
         CHAT[Chat IA + instrucciones]
-        SCR[scripts/ + mkdocs build]
+        SCR[scripts/build_docs_zip.py<br/>+ zensical build]
         SITE[site/ + doc_ia-docs-latest.zip]
     end
     subgraph GHA[GitHub Actions · ubuntu-latest · Python 3.12]
@@ -110,8 +110,8 @@ flowchart LR
 | Entorno | Infraestructura | Componentes / artefactos | Fuente |
 |---|---|---|---|
 | Local | Python ≥ 3.12 + venv; chat de plataforma IA | `site/`, `site/doc_ia-docs-latest.zip` + `.sha256`, `dist/doc_ia-docs-{versión}.zip` | `mkdocs_hooks.py::on_post_build`, `scripts/build_docs_zip.py::main` |
-| CI — calidad | GitHub Actions `ubuntu-latest`, Python 3.12 y 3.14 | ruff, mypy, pytest, `doc_trace` (drift bloqueante, matrix, llms), build `--strict` con MkDocs y build de paridad con Zensical (no bloqueante) en cada push/PR a `develop` y `main` | `.github/workflows/ci.yml::quality` |
-| CI — ZIP de docs | GitHub Actions `ubuntu-latest`, Python 3.12 | Build `--strict`, artifact de 30 días, release `docs-v{versión}` | `.github/workflows/docs-zip-release.yml::build-and-publish` |
+| CI — calidad | GitHub Actions `ubuntu-latest`, Python 3.12 y 3.14 | ruff, mypy, pytest, `doc_trace` (drift bloqueante, matrix, llms), pipeline `build_docs_zip.py` con Zensical `--strict` (bloqueante) y ZIP navegable sin servidor, en cada push/PR a `develop` y `main` | `.github/workflows/ci.yml::quality` |
+| CI — ZIP de docs | GitHub Actions `ubuntu-latest`, Python 3.12 | Pipeline `build_docs_zip.py` (Zensical `--strict`), artifact de 30 días, release `docs-v{versión}` | `.github/workflows/docs-zip-release.yml::build-and-publish` |
 | CI — release de versión | GitHub Actions `ubuntu-latest`, Python 3.12 | ZIP adjunto a la release del tag `v*` | `.github/workflows/docs-release.yml::build-and-upload` |
 | Sitio web | No se publica (decisión 2026-10-28) | `site_url` solo da la URL canónica del sitemap y de los enlaces de `llms.txt`; la distribución oficial es el ZIP offline | `mkdocs.yml::site_url` |
 
@@ -121,8 +121,8 @@ flowchart LR
 |---|---|
 | Seguridad | Sin API keys ni credenciales (`.gitignore` bloquea `.env`, `*.key`); el código nunca invoca servicios IA |
 | Observabilidad | Salida por stdout con prefijos + códigos de retorno (`0`/`≠0`) aptos para CI y hooks |
-| Rendimiento | Build incremental de MkDocs; ZIP por `shutil.make_archive`; sin servicios pesados |
-| Compatibilidad | MkDocs Material por defecto; Zensical recíproco sobre el mismo `mkdocs.yml` (ver ADR-001), con build de paridad en CI y propuesta de pasar a ser el defecto (ADR-003) |
+| Rendimiento | Build con Zensical; ZIP con `zipfile` (stdlib); sin servicios pesados |
+| Compatibilidad | Zensical como único generador (ADR-003, reemplaza a ADR-001); configuración en `mkdocs.yml`, que Zensical lee de forma nativa; versión exacta en `requirements-docs.txt` |
 | Robustez/Errores | Fail-fast con `sys.exit` y mensajes explícitos; build estricto bloquea docs rotas |
 | Tipado/Calidad | `mypy --strict` sobre `scripts/`, `ruff` lint+format, pytest determinista, hooks PostToolUse |
 
@@ -130,7 +130,7 @@ flowchart LR
 
 | Objetivo | Estímulo | Respuesta esperada | Mecanismo / evidencia |
 |---|---|---|---|
-| Validación estricta | Un enlace roto en `docs/` llega a `main` | El build termina con código ≠ 0 y no se publica release | `docs-zip-release.yml` (paso `mkdocs build --strict`) |
+| Validación estricta | Un enlace roto en `docs/` llega a `main` | El build termina con código ≠ 0 y no se publica release | `docs-zip-release.yml` (paso `build_docs_zip.py`, build `--strict` con Zensical) |
 | Determinismo del tooling | Falta una herramienta obligatoria en el entorno | `check_env.py` imprime las ausentes y devuelve `1` | `scripts/check_env.py::main` |
 | Cero credenciales | Se crea un `.env` o un `*.key` en el repositorio | Git lo ignora; no llega al remoto | `.gitignore` (`.env`, `.env.*`, `*.key`) |
 | Integridad de la distribución | Un usuario descarga el ZIP offline | `sha256sum -c` coincide con el `.sha256` publicado | `scripts/build_docs_zip.py::_create_checksum_files` |
@@ -138,9 +138,9 @@ flowchart LR
 
 ## 5. Decisiones, Extensión y Límites
 
-- **Registro de decisiones**: [ADR-001 — MkDocs Material por defecto](adr/ADR-001-mkdocs-material-por-defecto.md) ·
+- **Registro de decisiones**: [ADR-001 — MkDocs Material por defecto (reemplazado)](adr/ADR-001-mkdocs-material-por-defecto.md) ·
   [ADR-002 — Arquetipos con evidencia verificable](adr/ADR-002-arquetipos-con-evidencia.md) ·
-  [ADR-003 — Zensical por defecto (propuesto)](adr/ADR-003-zensical-por-defecto.md).
+  [ADR-003 — Zensical como único generador](adr/ADR-003-zensical-por-defecto.md).
 - **Extensión soportada**: añadir un arquetipo (prompt nuevo en `.github/prompts/` +
   registro en `DOCUMENTATION_STANDARD.md`), un agente (`.github/agents/` + `AGENTS.md`),
   un slash command (`.claude/commands/` + tabla en `CLAUDE.md`) o un script determinista

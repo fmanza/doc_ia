@@ -1,4 +1,8 @@
-# PLANTILLA: mkdocs.yml — Configuración Estándar MkDocs Material
+# PLANTILLA: mkdocs.yml — Configuración Estándar (Zensical, tema Material)
+#
+# Zensical es el único generador (ADR-003) y lee este mkdocs.yml de forma nativa.
+# Sin `hooks:`: Zensical no los ejecuta. El build pasa por scripts/build_docs_zip.py
+# (pre-build: sincronizar ficheros raíz; zensical build --strict; post-build: ZIP latest).
 # 
 # Uso: Copiar este archivo como mkdocs.yml en el destino y personalizar
 # los campos marcados con [REEMPLAZAR].
@@ -29,7 +33,7 @@ site_dir: site
 use_directory_urls: false
 
 # ────────────────────────────────────────────────────────────────────────────
-# THEME: Material for MkDocs [REUTILIZABLE]
+# THEME: Material (tema de Zensical) [REUTILIZABLE]
 # ────────────────────────────────────────────────────────────────────────────
 
 theme:
@@ -126,13 +130,9 @@ markdown_extensions:
   - attr_list
   - md_in_html
 
-# ────────────────────────────────────────────────────────────────────────────
-# HOOKS: Sincronización automática [REUTILIZABLE]
-# ────────────────────────────────────────────────────────────────────────────
-
-# [OPCIONAL] Descomentar si el proyecto tiene un hook para sincronizar docs raíz
-# hooks:
-#   - hooks/sync_root_docs.py
+# Sin `hooks:`: Zensical no los ejecuta. La sincronización de ficheros raíz
+# (hooks/sync_root_docs.py) y el ZIP latest (mkdocs_hooks.py) los ejecuta el pipeline
+# scripts/build_docs_zip.py antes y después del build.
 
 # ────────────────────────────────────────────────────────────────────────────
 # NAV: Estructura de Navegación [PERSONALIZAR POR PROYECTO]
@@ -156,6 +156,9 @@ extra:
   # [OPCIONAL] Descomentar para versionado multi-versión (requiere: pip install mike)
   # version:
   #   provider: mike
+  # Logo → index.html: con navigation.indexes el tema lo enlaza a «.»/«..» (una carpeta) y sin
+  # servidor abre un listado de ficheros.
+  homepage: index.html
   # Búsqueda por file://: con una ruta que contenga «iframe-worker», Material y Zensical no
   # añaden https://unpkg.com/iframe-worker/shim. Copia local desde doc_ia/docs/assets/vendor/.
   polyfills:
@@ -205,9 +208,9 @@ extra_css:
 #    - Verificar que docs/assets/css/nav.css existe
 #    - Copiar desde origen si es proyecto hermano: cp -r {origen}/docs/assets/* docs/assets/
 #
-# 4. HOOKS:
-#    - Descomentar si el proyecto tiene hooks/sync_root_docs.py
-#    - Copiar desde origen: cp {origen}/hooks/sync_root_docs.py hooks/
+# 4. PRE/POST-BUILD (no `hooks:`):
+#    - hooks/sync_root_docs.py y mkdocs_hooks.py los llama scripts/build_docs_zip.py
+#    - Copiar desde doc_ia: hooks/sync_root_docs.py, mkdocs_hooks.py, scripts/build_docs_zip.py
 #
 # 5. VERSIONADO:
 #    - Descomentar extra.version si usas versionado multi-versión (mike)
@@ -215,6 +218,6 @@ extra_css:
 #    - Uso: mike deploy {version} --push
 #
 # 6. VALIDACIÓN:
-#    - python -m mkdocs build --strict
-#    - python -m mkdocs serve (para inspeccionar localmente)
+#    - python scripts/build_docs_zip.py (zensical build --strict + ZIP)
+#    - python -m zensical serve (para inspeccionar localmente; no sincroniza ni genera ZIP)
 #

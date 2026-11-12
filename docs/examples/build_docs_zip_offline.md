@@ -3,35 +3,22 @@
 ## 1. Contexto del Ejemplo
 
 Para distribuir la documentación a entornos sin conexión (o adjuntarla a una release)
-existen dos mecanismos complementarios:
+existen dos ZIP complementarios, y los dos salen del mismo comando:
 
-- **Hook automático** (`mkdocs_hooks.py`): genera `site/doc_ia-docs-latest.zip` en cada
-  `mkdocs build`, sin ningún comando adicional. Es el ZIP que sirve la página de descargas.
-- **Script manual** (`scripts/build_docs_zip.py`): genera `dist/doc_ia-docs-<versión>.zip`
-  versionado con SHA256 acumulativo. Es el artefacto para releases.
+- **ZIP "latest"** (`mkdocs_hooks.py`, paso posterior al build): `site/doc_ia-docs-latest.zip`.
+  Es el ZIP que sirve la página de descargas.
+- **ZIP versionado** (`scripts/build_docs_zip.py`): `dist/doc_ia-docs-<versión>.zip` con SHA256
+  acumulativo. Es el artefacto para releases.
 
-Este ejemplo muestra ambos mecanismos y cómo validar la integridad del resultado.
+Zensical es el único generador (ADR-003) y no ejecuta `hooks:`, así que
+`scripts/build_docs_zip.py` es el pipeline de build: sincroniza los ficheros raíz, construye,
+genera el ZIP "latest" y después el versionado. Este ejemplo muestra el pipeline y cómo validar
+la integridad del resultado.
 
 ## 2. Implementación de Referencia
 
-### Hook automático — ZIP "latest" (sin comandos adicionales)
-
-El hook se activa con cualquier build. No requiere instalación:
-
 ```bash
-# ZIP latest generado automáticamente junto al build
-python -m mkdocs build
-
-# También durante el servidor local (on_post_build se invoca al arrancar)
-python -m mkdocs serve
-```
-
-Salida: `site/doc_ia-docs-latest.zip` + `site/doc_ia-docs-latest.zip.sha256`.
-
-### Script manual — ZIP versionado
-
-```bash
-# Build estricto con MkDocs + ZIP + SHA256 (caso normal)
+# Build estricto con Zensical + ZIP latest + ZIP versionado + SHA256 (caso normal)
 python scripts/build_docs_zip.py
 
 # Empaquetar el site/ existente sin reconstruir
@@ -40,48 +27,45 @@ python scripts/build_docs_zip.py --no-build
 # Carpeta de salida alternativa
 python scripts/build_docs_zip.py --output-dir /tmp/releases
 
-# Builder alternativo (requiere zensical instalado). El script ejecuta los hooks que
-# Zensical ignora: sincroniza CHANGELOG/CONTRIBUTING antes y genera el ZIP latest después
-python scripts/build_docs_zip.py --builder zensical
+# Vista previa local mientras se escribe (no genera ZIP ni sincroniza CHANGELOG/CONTRIBUTING)
+python -m zensical serve
 ```
+
+Salida: `site/doc_ia-docs-latest.zip` + `.sha256`, y `dist/doc_ia-docs-<versión>.zip` + `.sha256`
++ `dist/CHECKSUMS.txt`.
 
 ## 3. Explicación del Código
 
-**Hook (`mkdocs_hooks.py`)**:
-- `on_post_build(config)` recibe `config["site_dir"]` directamente de MkDocs; nunca asume `site/` por nombre.
+**Paso posterior (`mkdocs_hooks.py`)**:
+- `on_post_build(config)` recibe `config["site_dir"]` del pipeline; nunca asume `site/` por nombre.
+- Se ejecuta solo si `zensical build` termina con `0`, con el sitio ya completo: el ZIP lleva el
+  índice de búsqueda `search.js`.
 - Excluye `.zip` y `.sha256` del propio ZIP para evitar recursividad.
 - Incluye `scripts/start-server.py` en la raíz del ZIP (alternativa: `python start-server.py` tras descomprimir).
-- Se ejecuta después del plugin `offline` (`on_post_build.mkdocs_priority = -200`), así que el ZIP lleva `search/search_index.js`.
 - Sobreescribe el ZIP "latest" en cada build; no acumula histórico (sin versión en el nombre).
 
 **Script (`build_docs_zip.py`)**:
+- Antes del build copia `CHANGELOG.md` y `CONTRIBUTING.md` a `docs/` (`hooks/sync_root_docs.py`).
 - El nombre del ZIP toma la versión de `pyproject.toml`: con `version = "0.1.0"` el resultado es `dist/doc_ia-docs-0.1.0.zip`.
 - El build es **estricto por defecto** (`--strict`): cualquier warning detiene el proceso antes de empaquetar. `--no-strict` lo desactiva.
 - `--no-build` falla con código `1` si no existe `site/` previo — evita empaquetar nada silenciosamente.
 - Antes de empaquetar comprueba que `site/` se abre con doble clic en `index.html`; si no, código `1` (ver §4).
 - `dist/CHECKSUMS.txt` es acumulativo: conserva el histórico de hashes con timestamp.
+- `--builder mkdocs` (llamadas antiguas) termina con código `2`; `--builder zensical` se acepta sin efecto.
 
 ## 4. Ejecución y Pruebas
 
-**Hook — output del build:**
-
-```bash
-python -m mkdocs build
-# INFO    -  Cleaning site directory
-# INFO    -  Building documentation to directory: ...\site
-# ...
-# [ZIP] Generando descarga de documentacion: ...\site\doc_ia-docs-latest.zip
-# [ZIP] Incluyendo servidor local: start-server.py
-# [OK] ZIP creado: doc_ia-docs-latest.zip (X.XX MB)
-# [OK] SHA256: <hash de 64 caracteres>
-# [OK] Checksum guardado: doc_ia-docs-latest.zip.sha256
-```
-
-**Script — output del empaquetado versionado:**
+**Output del pipeline:**
 
 ```bash
 python scripts/build_docs_zip.py
-# [build_docs_zip] Building with: <python> -m mkdocs build --strict
+# [build_docs_zip] Pre-build: hooks/sync_root_docs.py
+# [sync_root_docs] CHANGELOG.md -> ...\docs\changelog.md
+# [build_docs_zip] Building with: <python> -m zensical build --strict
+# [build_docs_zip] Post-build: mkdocs_hooks.py
+# [ZIP] Generando descarga de documentacion: ...\site\doc_ia-docs-latest.zip
+# [OK] ZIP creado: doc_ia-docs-latest.zip (X.XX MB)
+# [OK] SHA256: <hash de 64 caracteres>
 # [build_docs_zip] Created: ...\dist\doc_ia-docs-0.1.0.zip
 # [build_docs_zip] ZIP created: doc_ia-docs-0.1.0.zip (X.XX MB)
 # [build_docs_zip] SHA256: <hash de 64 caracteres>
@@ -92,8 +76,8 @@ python scripts/build_docs_zip.py
 Validar la integridad de una descarga:
 
 ```bash
-sha256sum -c dist/doc_ia-docs-0.1.0.zip.sha256        # Linux/Mac (script)
-sha256sum -c site/doc_ia-docs-latest.zip.sha256        # Linux/Mac (hook)
+sha256sum -c dist/doc_ia-docs-0.1.0.zip.sha256        # Linux/Mac (versionado)
+sha256sum -c site/doc_ia-docs-latest.zip.sha256        # Linux/Mac (latest)
 # doc_ia-docs-0.1.0.zip: OK
 ```
 
@@ -129,6 +113,14 @@ python scripts/build_docs_zip.py --no-build
 #   ...
 #   ... and N more
 echo $?   # 1 — no se crea ningún ZIP
+```
+
+**Generador MkDocs pedido por una llamada antigua:**
+
+```bash
+python scripts/build_docs_zip.py --builder mkdocs
+# build_docs_zip.py: error: builder 'mkdocs' is no longer supported: Zensical is the only documentation generator (ADR-003). Drop --builder.
+echo $?   # 2 — no se construye nada
 ```
 
 ## 5. Referencias Relacionadas

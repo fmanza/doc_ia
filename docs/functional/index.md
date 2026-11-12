@@ -1,14 +1,14 @@
 ---
 arquetipo: "1-I"
 fuentes:
-  docs/functional/archetypes.md: 356e64344661
+  docs/functional/archetypes.md: 9aac6004a611
   docs/functional/bootstrap.md: 64112e3c9247
-  docs/functional/build_docs_zip.md: 6ceab8a1e98d
-  docs/functional/check_env.md: e6c1d275492a
+  docs/functional/build_docs_zip.md: f9d16761c998
+  docs/functional/check_env.md: 15e6ca51e9e7
   docs/functional/convert_to_md.md: 7328fd37ca63
   docs/functional/db_trace.md: a35b8bb8bdc3
   docs/functional/doc_trace.md: 69be7a997c15
-  docs/functional/document_project.md: 6531e49f8a76
+  docs/functional/document_project.md: f792b0a765c8
   docs/functional/kit.md: 44d24d2a910e
   docs/functional/origin_types.md: 73f314558634
   docs/functional/redact_secrets.md: 726e1a747d56
@@ -16,7 +16,7 @@ fuentes:
   docs/functional/web_captures.md: 64bbe948d414
 decisiones:
   ../decisiones/sistema_decisiones.md: d03d67f5fae5
-revisado: 2026-11-11
+revisado: 2026-11-13
 ---
 # Mapa Funcional — doc_ia
 

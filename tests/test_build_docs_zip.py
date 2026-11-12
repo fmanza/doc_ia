@@ -45,6 +45,7 @@ def _sha256(path: Path) -> str:
 
 def test_main_builds_strict_and_packages_versioned_zip(tmp_path: Path) -> None:
     root = _project(tmp_path)
+    _fake_hooks(root)
     ok = subprocess.CompletedProcess(args=[], returncode=0)
     with patch.object(build_docs_zip.subprocess, "run", return_value=ok) as run:
         _run_main(root)
@@ -83,6 +84,7 @@ def test_versioned_zip_matches_latest_layout(tmp_path: Path) -> None:
 
 def test_main_no_strict_omits_flag(tmp_path: Path) -> None:
     root = _project(tmp_path)
+    _fake_hooks(root)
     ok = subprocess.CompletedProcess(args=[], returncode=0)
     with patch.object(build_docs_zip.subprocess, "run", return_value=ok) as run:
         _run_main(root, "--no-strict")
@@ -100,6 +102,7 @@ def test_main_no_build_without_site_exits_1(tmp_path: Path) -> None:
 
 def test_main_build_failure_propagates_exit_code(tmp_path: Path) -> None:
     root = _project(tmp_path)
+    _fake_hooks(root)
     failed = subprocess.CompletedProcess(args=[], returncode=3)
     with (
         patch.object(build_docs_zip.subprocess, "run", return_value=failed),
@@ -162,7 +165,7 @@ def test_zensical_runs_hooks_around_build(tmp_path: Path) -> None:
     root = _project(tmp_path)
     log = _fake_hooks(root)
     with patch.object(build_docs_zip.subprocess, "run", side_effect=_logging_run(log)) as run:
-        _run_main(root, "--builder", "zensical")
+        _run_main(root)
     assert run.call_args.args[0] == [sys.executable, "-m", "zensical", "build", "--strict"]
     assert log.read_text().splitlines() == ["pre", "build", f"post {root / 'site'}"]
     assert (root / "dist" / "doc_ia-docs-0.1.0.zip").is_file()
@@ -175,19 +178,35 @@ def test_zensical_build_failure_skips_post_build(tmp_path: Path) -> None:
         patch.object(build_docs_zip.subprocess, "run", side_effect=_logging_run(log, 2)),
         pytest.raises(SystemExit) as exc,
     ):
-        _run_main(root, "--builder", "zensical")
+        _run_main(root)
     assert exc.value.code == 2
     assert log.read_text().splitlines() == ["pre", "build"]
     assert not (root / "dist").exists()
 
 
-def test_mkdocs_builder_leaves_hooks_to_mkdocs(tmp_path: Path) -> None:
+def test_legacy_builder_flag_zensical_is_accepted(tmp_path: Path) -> None:
+    """`--builder zensical` sigue funcionando una versión (llamadas existentes)."""
     root = _project(tmp_path)
     log = _fake_hooks(root)
     with patch.object(build_docs_zip.subprocess, "run", side_effect=_logging_run(log)) as run:
-        _run_main(root)
-    assert run.call_args.args[0][:3] == [sys.executable, "-m", "mkdocs"]
-    assert log.read_text().splitlines() == ["build"]
+        _run_main(root, "--builder", "zensical")
+    assert run.call_args.args[0][:3] == [sys.executable, "-m", "zensical"]
+    assert log.read_text().splitlines() == ["pre", "build", f"post {root / 'site'}"]
+
+
+def test_mkdocs_builder_is_rejected(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    """MkDocs ya no se soporta (ADR-003): exit 2 antes de construir nada."""
+    root = _project(tmp_path)
+    log = _fake_hooks(root)
+    with (
+        patch.object(build_docs_zip.subprocess, "run", side_effect=_logging_run(log)) as run,
+        pytest.raises(SystemExit) as exc,
+    ):
+        _run_main(root, "--builder", "mkdocs")
+    assert exc.value.code == 2
+    assert "no longer supported" in capsys.readouterr().err
+    run.assert_not_called()
+    assert not log.exists()
 
 
 def test_zensical_with_real_hooks_syncs_and_creates_latest_zip(tmp_path: Path) -> None:
@@ -199,7 +218,7 @@ def test_zensical_with_real_hooks_syncs_and_creates_latest_zip(tmp_path: Path) -
     (root / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
     ok = subprocess.CompletedProcess(args=[], returncode=0)
     with patch.object(build_docs_zip.subprocess, "run", return_value=ok):
-        _run_main(root, "--builder", "zensical")
+        _run_main(root)
     assert (root / "docs" / "changelog.md").read_text(encoding="utf-8") == "# Changelog\n"
     assert (root / "site" / "doc_ia-docs-latest.zip").is_file()
     assert (root / "site" / "doc_ia-docs-latest.zip.sha256").is_file()
@@ -237,7 +256,8 @@ def test_external_and_file_links_are_not_folder_links(tmp_path: Path) -> None:
     root = _project(tmp_path)
     (root / "site" / "index.html").write_text(
         '<a href="https://github.com/fmanza/doc_ia/">repo</a> <a href="mailto:a@b.c/">m</a>'
-        '<a href="api/x.html#a/">x</a> <a href="#top">top</a>'
+        '<a href="api/x.html#a/">x</a> <a href="#top">top</a> <a href="">logo</a>'
+        '<a href="../index.html">home</a> <a href="..x.html">x</a>'
         '<script src="assets/vendor/iframe-worker/shim.js"></script>',
         encoding="utf-8",
     )
@@ -251,6 +271,10 @@ def test_external_and_file_links_are_not_folder_links(tmp_path: Path) -> None:
         ('<a href="api/archetypes/">API</a>', "link to a folder api/archetypes/"),
         ('<a href="../#intro">Inicio</a>', "link to a folder ../#intro"),
         ('<img src="./">', "link to a folder ./"),
+        ('<a href="..">logo</a>', "link to a folder .."),
+        ('<a href="./..">logo</a>', "link to a folder ./.."),
+        ('<a href=".">logo</a>', "link to a folder ."),
+        ('<a href="/doc_ia/.">logo</a>', "link to a folder /doc_ia/."),
         (
             '<script src="https://unpkg.com/iframe-worker/shim"></script>',
             "remote script https://unpkg.com/iframe-worker/shim",
@@ -285,6 +309,7 @@ def test_missing_search_index_js_exits_1(
 def test_offline_check_runs_after_build(tmp_path: Path) -> None:
     """El build (que crea el índice JS) va antes de la comprobación."""
     root = _project(tmp_path)
+    _fake_hooks(root)
     shutil.rmtree(root / "site" / "search")
 
     def build(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess[bytes]:

@@ -36,7 +36,7 @@ y `tests/` sus tests unitarios.
 - ✅ `print()` permitido: los scripts son CLIs, no librería.
 
 ### Dependencias
-- Solo las de `requirements.txt` (mkdocs-material, ruff, mypy, pytest) y stdlib.
+- Solo las de `requirements.txt` (zensical, ruff, mypy, pytest) y stdlib.
 - Añadir una dependencia nueva exige actualizar `requirements.txt` + README + justificación en PR.
 
 ## Tests

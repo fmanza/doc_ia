@@ -82,7 +82,7 @@ y 1 interno (`workflow-director`).
 | Aspecto | util_bbdd (origen) | doc_ia |
 |---|---|---|
 | Workflows IA en CI (`doc_agents.yml`) | Sí (Anthropic/OpenAI) | ❌ Excluido — prohibido por principio "sin API keys" |
-| Builder por defecto | Zensical | MkDocs Material (Zensical opcional) |
+| Builder por defecto | Zensical | Zensical, único (ADR-003; antes MkDocs Material, ADR-001) |
 | Código de negocio | Librería `src/util_bbdd/` | Solo tooling `scripts/` |
 | Empaquetado PyPI | Sí (`python -m build`) | No aplica |
 

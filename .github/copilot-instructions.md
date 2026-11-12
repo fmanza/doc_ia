@@ -102,7 +102,6 @@ Lee y aplica .github/prompts/document_project.prompt.md con los siguientes pará
 
 Origen(es): <ruta raíz del proyecto a documentar>
 Destino: <ruta donde se escribe la documentación>
-Generador: mkdocs-material
 Idioma: es
 ```
 
@@ -125,7 +124,7 @@ Guarda en docs/api/[nombre].md y actualiza mkdocs.yml.
 ```
 
 Regla crítica: no inventar. Lee el código fuente antes de generar cualquier sección.
-Criterio de completitud: `python -m mkdocs build --strict` sin errores + todos los
+Criterio de completitud: `python scripts/build_docs_zip.py` (build `--strict`) sin errores + todos los
 scripts de `scripts/` documentados.
 
 **Para auditar documentación sin editar**, usa **Documentation Reviewer** con
@@ -176,7 +175,7 @@ Ver `.github/SHARED_INSTRUCTIONS.md` § "Validación de Markdown en documentaci�
 
 - ✅ Listas: `- item` o `1. item`, NUNCA dos espacios al final de línea
 - ✅ Enlaces a archivos estáticos: rutas relativas reales, NO placeholders `#`
-- ✅ Validar: `python -m mkdocs build --strict` sin errores
+- ✅ Validar: `python scripts/build_docs_zip.py` (build `--strict`) sin errores
 
 ---
 
@@ -186,8 +185,7 @@ doc_ia proporciona **documentación en ZIP offline** con SHA256 checksums y auto
 en GitHub Releases.
 
 ```bash
-python -m mkdocs build --strict
-python scripts/build_docs_zip.py
+python scripts/build_docs_zip.py     # Build Zensical estricto + ZIP + SHA256
 sha256sum -c dist/*.sha256
 ```
 

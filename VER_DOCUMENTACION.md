@@ -10,7 +10,7 @@ programar ni tener nada instalado. Hay instrucciones para **Windows, macOS y Lin
 
 | Tienes… | Ruta | Necesitas instalar |
 |---|---|---|
-| Un fichero ZIP (`doc_ia-docs-0.11.3.zip`) | Ruta B (§4) | Nada |
+| Un fichero ZIP (`doc_ia-docs-0.12.0.zip`) | Ruta B (§4) | Nada |
 | El repositorio o la carpeta del proyecto | Ruta C (§5) | Python 3.12 o superior + dependencias |
 
 Si dudas, usa la **Ruta B**: es la más sencilla y funciona sin conexión a Internet.
@@ -79,28 +79,28 @@ repositorios de tu distribución.
 ## 3. Ruta A — Documentación publicada en web
 
 No aplica: `mkdocs.yml` declara `site_url` (`https://fmanza.github.io/doc_ia/`), pero ningún
-workflow del repositorio publica el sitio (ni GitHub Pages ni `mkdocs gh-deploy`). Usa la Ruta B
+workflow del repositorio publica el sitio (ni GitHub Pages ni otro hosting). Usa la Ruta B
 o la Ruta C.
 
 ## 4. Ruta B — ZIP sin conexión
 
-1. **Descarga** `doc_ia-docs-0.11.3.zip` desde la sección **Assets** de la release más reciente en <https://github.com/fmanza/doc_ia/releases>. Si tu fichero lleva otra versión en el
+1. **Descarga** `doc_ia-docs-0.12.0.zip` desde la sección **Assets** de la release más reciente en <https://github.com/fmanza/doc_ia/releases>. Si tu fichero lleva otra versión en el
    nombre, usa ese nombre en los comandos siguientes.
 2. **(Opcional) Comprueba su integridad** si te facilitan el fichero `.sha256`:
 
     | Sistema | Comando (el resultado debe coincidir con el `.sha256`; mayúsculas y minúsculas dan igual) |
     |---|---|
-    | Windows | `Get-FileHash .\doc_ia-docs-0.11.3.zip -Algorithm SHA256` |
-    | macOS | `shasum -a 256 doc_ia-docs-0.11.3.zip` |
-    | Linux | `sha256sum -c doc_ia-docs-0.11.3.zip.sha256` |
+    | Windows | `Get-FileHash .\doc_ia-docs-0.12.0.zip -Algorithm SHA256` |
+    | macOS | `shasum -a 256 doc_ia-docs-0.12.0.zip` |
+    | Linux | `sha256sum -c doc_ia-docs-0.12.0.zip.sha256` |
 
 3. **Extrae** el ZIP en una carpeta (no lo abras sin extraer):
 
     | Sistema | Gráfico | Terminal |
     |---|---|---|
-    | Windows | Clic derecho → **Extraer todo…** | `Expand-Archive .\doc_ia-docs-0.11.3.zip -DestinationPath .\doc_ia-docs` |
-    | macOS | Doble clic en el ZIP | `unzip doc_ia-docs-0.11.3.zip -d doc_ia-docs` |
-    | Linux | Clic derecho → **Extraer aquí** | `unzip doc_ia-docs-0.11.3.zip -d doc_ia-docs` |
+    | Windows | Clic derecho → **Extraer todo…** | `Expand-Archive .\doc_ia-docs-0.12.0.zip -DestinationPath .\doc_ia-docs` |
+    | macOS | Doble clic en el ZIP | `unzip doc_ia-docs-0.12.0.zip -d doc_ia-docs` |
+    | Linux | Clic derecho → **Extraer aquí** | `unzip doc_ia-docs-0.12.0.zip -d doc_ia-docs` |
 
 4. **Abre la documentación**: entra en la carpeta extraída y haz **doble clic en `index.html`**.
    Se abre en tu navegador con menú, búsqueda y diagramas, sin servidor y sin conexión.
@@ -149,7 +149,7 @@ Requiere Python 3.12 o superior (§2) y conexión a Internet para instalar depen
     ```powershell
     py -m venv .venv
     .venv\Scripts\python -m pip install -r requirements-docs.txt
-    .venv\Scripts\python -m mkdocs serve
+    .venv\Scripts\python -m zensical serve
     ```
 
     **macOS / Linux**:
@@ -157,7 +157,7 @@ Requiere Python 3.12 o superior (§2) y conexión a Internet para instalar depen
     ```bash
     python3 -m venv .venv
     .venv/bin/python -m pip install -r requirements-docs.txt
-    .venv/bin/python -m mkdocs serve
+    .venv/bin/python -m zensical serve
     ```
 
 3. Abre <http://127.0.0.1:8000>. La página se recarga sola si editas la documentación.
@@ -178,7 +178,7 @@ Requiere Python 3.12 o superior (§2) y conexión a Internet para instalar depen
 | `No module named venv` / `ensurepip is not available` | Debian/Ubuntu sin `python3-venv` | `sudo apt install python3-venv` |
 | `unzip: command not found` | Linux sin `unzip` | `sudo apt install unzip` / `sudo dnf install unzip` |
 | `pip` no conecta (red corporativa) | Proxy | Añade `--proxy http://proxy:puerto` al comando `pip install` |
-| `No module named mkdocs` | Dependencias no instaladas en `.venv` | Repite la Ruta C, paso 2 |
+| `No module named zensical` | Dependencias no instaladas en `.venv` | Repite la Ruta C, paso 2 |
 
 ## 7. Detener y limpiar
 

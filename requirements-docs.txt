@@ -1,9 +1,10 @@
 # Dependencias mínimas para construir la documentación (CI y workflows de release).
 # Versiones alineadas con requirements.txt (entorno local completo, incluye docling/torch).
 # Si cambias una versión aquí, cámbiala también en requirements.txt.
-mkdocs==1.6.1
-mkdocs-material==9.8.0
-mkdocs-material-extensions==1.3.1
+# Generador único: Zensical (ADR-003). Versión exacta: está en beta (0.1.x) y el tema vive en
+# zensical-ui. PyYAML lo importa scripts/doc_trace.py.
+zensical==0.1.1
+zensical-ui==0.0.42
 pymdown-extensions==12.3
 Markdown==3.11.2
 Pygments==2.21.0

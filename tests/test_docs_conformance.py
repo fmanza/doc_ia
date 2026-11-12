@@ -665,6 +665,8 @@ def test_top_navigation_fits_in_nine_tabs() -> None:
     assert _nav_pages(tabs["Proyecto"]) == PROJECT_PAGES
     assert "navigation.indexes" in config["theme"]["features"]
     assert "navigation.sections" not in config["theme"]["features"]
+    # Con navigation.indexes el logo enlazaría a una carpeta (listado sin servidor).
+    assert config["extra"]["homepage"] == "index.html"
 
 
 def test_standard_nav_template_groups_home_and_project() -> None:
@@ -676,6 +678,9 @@ def test_standard_nav_template_groups_home_and_project() -> None:
     assert tabs[0] == "Inicio" and tabs[-1] == "Proyecto", tabs
     assert re.search(r"^ {6}- Descargas: downloads\.md", block, re.M)
     assert "    - navigation.indexes" in text
+    assert re.search(r"^extra:\n  homepage: index\.html", text, re.M)
+    template = (ROOT / ".github" / "templates" / "TEMPLATE_mkdocs.yml").read_text(encoding="utf-8")
+    assert re.search(r"^  homepage: index\.html$", template, re.M)
 
 
 @pytest.mark.parametrize("path", NAV_RULE_FILES)
@@ -800,3 +805,22 @@ def test_kit_instance_template_has_fixed_sections() -> None:
     text = path.read_text(encoding="utf-8")
     assert re.findall(r"^## (\d+)\. ", text, re.M) == [str(n) for n in range(1, 8)]
     assert "no son plantilla" in text.lower() or "nada copiado de otros" in text.lower()
+
+
+ZENSICAL_ONLY_FILES = (
+    ".github/prompts/document_project.prompt.md",
+    ".claude/commands/document-project.md",
+)
+
+
+@pytest.mark.parametrize("path", ZENSICAL_ONLY_FILES)
+def test_document_project_zensical_only_and_guarded_migration(path: str) -> None:
+    """ADR-003: el generador no se pregunta y un destino MkDocs se migra con guarda de plugins."""
+    text = (ROOT / path).read_text(encoding="utf-8")
+    assert re.search(r"siempre \*\*Zensical\*\*", text), path
+    assert "no se pregunta" in text, path
+    assert "ya no lo soporta" in text, path  # respuesta si el usuario pide MkDocs
+    assert "ZENSICAL_SUPPORTED_PLUGINS" in text, path
+    assert re.search(r"(?i)(se detiene|detiene la migración)", text), path
+    assert not re.search(r"\*\*Generador\*\*: `mkdocs-", text), path
+    assert not re.search(r"4 campos obligatorios", text), path

@@ -113,7 +113,7 @@ Clasifica **cada** activo IA del origen en una de estas cuatro capas:
   configuración del generador del propio destino. Sin esta carpeta, esas referencias quedan rotas.
 
 > ⚠️ **No es verbatim puro**: estos ficheros contienen comandos embebidos del origen
-> (p.ej. `python -m pytest`, `mkdocs build`, rutas `src/<paquete>/...`). Revisa y sustituye
+> (p.ej. `python -m pytest`, `python scripts/build_docs_zip.py`, rutas `src/<paquete>/...`). Revisa y sustituye
 > por los equivalentes del destino usando la matriz de equivalencias del ANÁLISIS.
 
 ### Capa B — Copiar y reescribir dominio
@@ -146,7 +146,7 @@ Clasifica **cada** activo IA del origen en una de estas cuatro capas:
   y rutas del destino; las 11 secciones del núcleo son idénticas en todos los proyectos
 - **OPCIONAL**: `scripts/doc_trace.py` + `tests/test_doc_trace.py` (trazabilidad determinista
   docs ↔ código: `stamp`, `drift`, `matrix`, `llms`; DOCUMENTATION_STANDARD.md §3.16) si el
-  destino es Python y publica documentación MkDocs. En otros lenguajes, portar el contrato
+  destino es Python y publica documentación con Zensical (`mkdocs.yml`). En otros lenguajes, portar el contrato
   (frontmatter `fuentes` + huella SHA256 de 12 hex con saltos LF) o dejar las huellas como
   `pendiente`
 
@@ -276,16 +276,17 @@ Este enlace facilita navegación y retroalimentación de IA (agentes pueden vali
 
 2. **`scripts/build_docs_zip.py`** — Script de generación
    - **Copiar y adaptar**:
-     - Línea 23: `PYPROJECT = ROOT / "pyproject.toml"` → archivo de versión del destino
+     - `PYPROJECT = ROOT / "pyproject.toml"` → archivo de versión del destino
        - Python: `pyproject.toml`
        - Node.js: `package.json`
        - Go: `go.mod` (extraer versión del tag o var)
        - Java: `pom.xml`
-     - Línea 43: `[builder, "build"]` → comando build del destino
-       - Python: `zensical build` / `mkdocs build`
+     - `BUILDER` y `_build` (`python -m zensical build`) → comando build del destino
+       - Python: `zensical build` (único generador de doc_ia, ADR-003)
        - Node.js: `docusaurus build` / `npm run build:docs`
        - Go: `hugo` / `make docs`
-     - Línea 21: builder default (`zensical`) → el del destino (`mkdocs`, `docusaurus`, etc.)
+     - `_pre_build` / `_post_build` → pasos del destino alrededor del build (sincronización de
+       ficheros raíz, ZIP latest); el generador no ejecuta `hooks:`
 
 3. **`.github/workflows/docs-zip-release.yml`** — Workflow CI/CD
    - **Copiar y adaptar**:
@@ -312,10 +313,10 @@ Este enlace facilita navegación y retroalimentación de IA (agentes pueden vali
 
 ### Matriz de equivalencias (Capa A → Capa B)
 
-| Componente | Python + MkDocs | Node.js + Docusaurus | Go + Hugo |
+| Componente | Python + Zensical | Node.js + Docusaurus | Go + Hugo |
 |---|---|---|---|
 | Versión desde | `pyproject.toml` | `package.json` | `git describe` o var |
-| Builder | `zensical` / `mkdocs` | `docusaurus` | `hugo` |
+| Builder | `zensical` | `docusaurus` | `hugo` |
 | Build cmd | `zensical build --strict` | `docusaurus build` | `hugo` |
 | Output dir | `site/` | `build/` | `public/` |
 | ZIP script | `python scripts/build_docs_zip.py` | `node scripts/build-docs-zip.js` | `./scripts/build-docs-zip.sh` |

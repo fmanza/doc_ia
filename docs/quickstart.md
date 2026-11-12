@@ -51,12 +51,11 @@ Documenta tu proyecto con el comando `/document-project` en tu plataforma IA:
 
 Origen(es): c:\ruta\a\tu_proyecto
 Destino:    c:\ruta\a\tu_proyecto\docs
-Generador:  mkdocs-material
 Idioma:     es
 ```
 
 El flujo valida los inputs, inventaría el código, genera la documentación por fases
-y sincroniza `mkdocs.yml`. Finaliza con `python -m mkdocs build --strict` para
+y sincroniza `mkdocs.yml`. Finaliza con `python -m zensical build --strict` para
 verificar que el sitio compila sin errores.
 
 Para una instalación detallada del entorno (Python, plataformas IA, variables de

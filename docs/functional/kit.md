@@ -2,14 +2,14 @@
 arquetipo: "1"
 fuentes:
   .github/kit/MANIFEST.txt: ba84851d379a
-  .github/prompts/bootstrap_ai_config.prompt.md: fdf4648ffdbe
-  .github/prompts/document_project.prompt.md: 03e2d68949a7
+  .github/prompts/bootstrap_ai_config.prompt.md: 2c724546f2bb
+  .github/prompts/document_project.prompt.md: 9ebb31d05a58
   .github/templates/kit/AGENTS.md: f9b80f0f102b
-  .github/templates/kit/documentar.command.md: 44364ebb0ca8
+  .github/templates/kit/documentar.command.md: dd9b8ba79deb
   scripts/kit.py: 432af520016f
-  tests/test_docs_conformance.py: bf9f28524195
+  tests/test_docs_conformance.py: 7416646e6217
   tests/test_kit.py: 544e2eb38aba
-revisado: 2026-11-10
+revisado: 2026-11-13
 ---
 # Kit de Documentación en el Destino
 

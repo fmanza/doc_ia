@@ -13,7 +13,7 @@ Revisar ficheros de instrucciones actuales (`.github/copilot-instructions.md`, `
 - Mantenga cada fichero funcional sin dependencias cruzadas (o con referencias explícitas)
 - Clasifique reglas en categorías: `shared`, `copilot-only`, `claude-only`, `duplicado`
 - Justifique estrategia elegida (Opción A: fichero compartido + especializaciones vs Opción B: ficheros separados autosuficientes)
-- Alinee prompts/agentes de documentación con MkDocs Material, Mermaid, separación funcional/técnica, ejemplos verificables y actualización de proyecto completo.
+- Alinee prompts/agentes de documentación con Zensical (único generador; tema Material), Mermaid, separación funcional/técnica, ejemplos verificables y actualización de proyecto completo.
 - Excluya por el momento instrucciones de generación vía APIs externas.
 
 ### Alcance
@@ -51,7 +51,7 @@ Restricciones: [romper contratos públicos: sí/no]
    - Porcentaje estimado de contenido compartido
    - Ejemplos de duplicación encontrada
    - Volumetría: líneas por categoría
-   - Gaps de documentación IA: instrucciones de MkDocs, Mermaid, ejemplos, no invención, API externa
+   - Gaps de documentación IA: instrucciones del generador (Zensical), Mermaid, ejemplos, no invención, API externa
 
 2. **PLAN**
    - Estrategia elegida y justificación (DRY, mantenibilidad, extensibilidad)

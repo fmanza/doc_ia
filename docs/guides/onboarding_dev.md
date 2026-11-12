@@ -35,12 +35,12 @@ Personalización local opcional de Claude Code en `.claude/settings.local.json` 
 ## 4. Primera Compilación/Instalación
 
 ```bash
-python -m mkdocs build --strict
+python scripts/build_docs_zip.py     # sync + zensical build --strict + ZIP offline
 ```
 
 | Error frecuente | Causa probable | Solución |
 |---|---|---|
-| `No module named mkdocs` | venv sin activar o dependencias sin instalar | Activar venv y repetir `pip install -r requirements.txt` |
+| `No module named zensical` | venv sin activar o dependencias sin instalar | Activar venv y repetir `pip install -r requirements.txt` |
 | Warning con `--strict` | Página huérfana o enlace roto en `docs/` | Revisar `nav:` en `mkdocs.yml` y los enlaces relativos |
 
 ## 5. Infraestructura Local
@@ -54,7 +54,7 @@ doc_ia no tiene servidor propio; lo ejecutable es el tooling y el sitio de docum
 
 ```bash
 python scripts/check_env.py     # verificación del entorno
-python -m mkdocs serve          # sitio de docs en http://127.0.0.1:8000/
+python -m zensical serve        # sitio de docs en http://127.0.0.1:8000/ (no sincroniza CHANGELOG/CONTRIBUTING)
 python scripts/convert_to_md.py <ruta>  # convertir documentos binarios a Markdown
 ```
 
@@ -64,9 +64,9 @@ python scripts/convert_to_md.py <ruta>  # convertir documentos binarios a Markdo
 doc_ia/
   scripts/          # Tooling determinista: check_env.py, build_docs_zip.py, convert_to_md.py, start-server.py
   hooks/            # sync_root_docs.py: copia CHANGELOG.md/CONTRIBUTING.md a docs/
-  mkdocs_hooks.py   # Hook MkDocs: genera ZIP offline en site/ en cada build
+  mkdocs_hooks.py   # Post-build del pipeline: genera ZIP offline en site/ (nombre heredado)
   tests/            # Tests pytest (importan scripts/ vía sys.path)
-  docs/             # Sitio MkDocs Material (este sitio, 33 páginas)
+  docs/             # Sitio Zensical (este sitio, 33 páginas)
   .github/          # Canónico, 12 agentes, 25 prompts, 3 instructions, 2 workflows
   .claude/          # 9 slash commands, hooks PostToolUse, plantillas
   .ai/              # Contexto persistente para agentes IA + sesiones trazadas
@@ -103,7 +103,7 @@ APIs de IA desde código. Fuente completa: `.github/SHARED_INSTRUCTIONS.md`.
 | Lint | `python -m ruff check scripts tests hooks` | `All checks passed!` |
 | Tipos | `python -m mypy scripts` | `Success: no issues found` |
 | Tests | `python -m pytest -q` | Todos los tests en verde |
-| Docs | `python -m mkdocs build --strict` | `Documentation built` sin warnings |
+| Docs | `python scripts/build_docs_zip.py` | `ZIP created` sin warnings (build `--strict`) |
 
 ## 11. Recursos y Referencias
 

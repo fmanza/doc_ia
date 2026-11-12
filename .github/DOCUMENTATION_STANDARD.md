@@ -18,14 +18,18 @@ Estandarizar instrucciones de documentación para asegurar:
 
 ## 2. Estado Actual
 
-### 2.1 Estructura MkDocs
-- **Site**: `mkdocs.yml` (v1.5+, Material theme) — fuente única; no se usa `zensical.toml`
+### 2.1 Estructura del sitio (Zensical)
+- **Generador**: Zensical, único generador de doc_ia y de los destinos (ADR-003); MkDocs no se
+  soporta y un destino en MkDocs se migra (`document_project.prompt.md` § *Generador: Zensical y
+  migración de destinos MkDocs*).
+- **Site**: `mkdocs.yml` (tema Material, que Zensical lee de forma nativa) — fuente única; no se
+  usa `zensical.toml`. Sin `hooks:`: Zensical no los ejecuta; el build pasa por
+  `scripts/build_docs_zip.py` (pre-build, `zensical build --strict`, post-build).
 - **Webs de referencia oficial** (consultar con `--verify-tools` para validar versiones y plugins):
-  - MkDocs: `https://www.mkdocs.org/about/release-notes/`
-  - Material for MkDocs: `https://squidfunk.github.io/mkdocs-material/plugins/`
-  - Zensical: `https://zensical.org/` — lee el mismo `mkdocs.yml`, pero no ejecuta `hooks:` ni
-    los plugins que no soporta (`https://zensical.org/compatibility/plugins/`). Reglas para
-    destinos con Zensical: `document_project.prompt.md` § *Reglas por generador: Zensical*.
+  - Zensical: `https://zensical.org/` — plugins soportados en
+    `https://zensical.org/docs/compatibility/mkdocs/plugins/`; los demás se ignoran en silencio
+    (guarda: `ZENSICAL_SUPPORTED_PLUGINS` en `tests/test_zensical_compat.py`). Notas de versión:
+    `https://github.com/zensical/zensical/releases`.
 - **Secciones existentes**:
   - ✅ Guías (DUPLICATE_PROJECT_GUIDE, NEXT_STEPS, README_DUPLICADOR, ARCHITECTURE_VISUAL)
   - ✅ Funcional (`docs/functional/`) — 8 módulos
@@ -489,7 +493,7 @@ con su ficha del **Registro de Decisiones de Cobertura** (Arquetipo 13, §3.18),
 siempre junto a este arquetipo. Una vez existe la ficha, el ID de la fila es un enlace a ella y
 la cobertura refleja la decisión humana tomada (§3.18 «Aplicar decisiones»).
 
-**Sección MkDocs** (solo si el arquetipo aplica):
+**Sección en `mkdocs.yml`** (solo si el arquetipo aplica):
 
 ```yaml
 - Normativa:                                                     # Entre "Funcional" y "Arquitectura"
@@ -724,7 +728,7 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 - No documentar cada commit; solo cambios con impacto para el usuario o integrador.
 - Actualizar en sincronía con `pyproject.toml` / `package.json` (ver `.github/instructions/sync.instructions.md`).
 
-**Sección MkDocs** (siempre presente si el proyecto tiene CHANGELOG.md):
+**Sección en `mkdocs.yml`** (siempre presente si el proyecto tiene CHANGELOG.md):
 
 ```yaml
 - Proyecto:                     # Sección de mantenimiento al final del nav (§4.1)
@@ -783,7 +787,7 @@ Si no hay: "No aplica para esta configuración."
 - Actualizar cuando cambie el fichero fuente o se añadan hooks.
 - La sección §4 debe reflejar el estado real de `settings.json` o equivalente.
 
-**Sección MkDocs** (solo si el proyecto tiene ≥1 plataforma IA configurada):
+**Sección en `mkdocs.yml`** (solo si el proyecto tiene ≥1 plataforma IA configurada):
 
 ```yaml
 - Proyecto:                     # Sección de mantenimiento al final del nav (§4.1)
@@ -849,7 +853,7 @@ Referencia a SemVer. Quién tiene permisos de release. Enlace a CHANGELOG.md.
 - Mantener actualizado cuando cambien las herramientas de calidad.
 - Si el proyecto no acepta contribuciones externas: indicarlo explícitamente en §1.
 
-**Sección MkDocs**:
+**Sección en `mkdocs.yml`**:
 
 ```yaml
 - Proyecto:                     # Sección de mantenimiento al final del nav (§4.1)
@@ -916,7 +920,7 @@ ADR-002).
 **ejecuta u opera** el sistema → Arquetipo 12; si lo consulta quien **integra o mantiene código**
 de un módulo → Arquetipo 2.
 
-**Sección MkDocs** (solo si el arquetipo aplica):
+**Sección en `mkdocs.yml`** (solo si el arquetipo aplica):
 
 ```yaml
 - Referencia del Sistema: reference/index.md   # Tras "Referencia Técnica" (api/), antes de "Ejemplos"
@@ -964,7 +968,7 @@ la numeración de los arquetipos):
 1. Formato por defecto `ruta::símbolo` (función, clase, clave de configuración, job de CI);
    `ruta:línea` solo cuando no haya símbolo estable. Las líneas caducan con cualquier edición.
 2. Siempre como **código inline**, nunca como enlace Markdown: las rutas fuera de `docs/`
-   rompen `mkdocs build --strict` y no existen en el sitio publicado.
+   rompen el build `--strict` y no existen en el sitio publicado.
 3. Citar la **ubicación**, nunca el contenido de secretos, tokens ni URLs internas.
 4. Rutas relativas a la raíz del origen documentado; con varios orígenes CÓDIGO, prefijar con
    el nombre del proyecto (`api_core/src/x.py::f`). Los documentos convertidos a Markdown se
@@ -1053,7 +1057,7 @@ ELK. No se añade CDN propio ni `mermaid.run()` (§4).
 
 OBLIGATORIO: la sección del arquetipo exige un diagrama y será de uno de estos tipos.
 RECOMENDADO: úsalo cuando el patrón del módulo lo justifique. OPCIONAL: solo si aporta valor
-demostrable. "Colores del tema" = MkDocs Material (y Zensical) adaptan el diagrama al modo claro u
+demostrable. "Colores del tema" = el tema de Zensical adapta el diagrama al modo claro u
 oscuro; los tipos ❌ funcionan pero sin esa adaptación y se ven mal en móvil. Excluidos por
 experimentales: C4, `kanban`, `sankey`, `radar`, `venn`, `ishikawa`, `wardley`, `treemap`,
 `treeview`, `packet`, `block`, `event modeling`.
@@ -1117,7 +1121,7 @@ flowchart LR
 
 #### Validación
 
-`mkdocs build --strict` no valida Mermaid. Si el destino tiene tests de conformidad, cubren las
+`zensical build --strict` no valida Mermaid. Si el destino tiene tests de conformidad, cubren las
 reglas deterministas (entidades, comillas, accesibilidad, tamaño) y un job de CI con
 `@mermaid-js/mermaid-cli` valida la sintaxis con el parser real. En doc_ia:
 `tests/test_docs_conformance.py::test_mermaid_*` y el job `mermaid` de `.github/workflows/ci.yml`.
@@ -1244,7 +1248,7 @@ se listan, pero no son hallazgo):
 
 Los IDs dentro de bloques de código o de código inline no cuentan (permite documentar el formato).
 
-**Sección MkDocs** (tras «Funcional»; si existe «Normativa», como subsección **dentro** de ella para
+**Sección en `mkdocs.yml`** (tras «Funcional»; si existe «Normativa», como subsección **dentro** de ella para
 no superar el máximo de 9 pestañas de §4.1):
 
 ```yaml
@@ -1351,7 +1355,7 @@ ellos se documenta en `internas.md` del hub.
 
 **Prompt**: `.github/prompts/integration_doc.prompt.md`
 
-**Sección MkDocs** (pestaña propia si quedan pestañas libres en §4.1; si no, sección dentro de
+**Sección en `mkdocs.yml`** (pestaña propia si quedan pestañas libres en §4.1; si no, sección dentro de
 «Técnica»):
 
 ```yaml
@@ -1425,7 +1429,7 @@ a pantalla para quien la usa, y enlaza a ambos en lugar de repetirlos.
 
 **Prompt**: `.github/prompts/user_manual_doc.prompt.md`
 
-**Sección MkDocs** (pestaña propia si quedan pestañas libres en §4.1; si no, sección dentro de
+**Sección en `mkdocs.yml`** (pestaña propia si quedan pestañas libres en §4.1; si no, sección dentro de
 «Guías»):
 
 ```yaml
@@ -1586,6 +1590,7 @@ nav:
       - Contribuir: contributing.md   # Arquetipo 11, opt-in
 
 extra:
+  homepage: index.html  # ← logo a index.html; con navigation.indexes iría a una carpeta (sin servidor: listado)
   polyfills:
     - assets/vendor/iframe-worker/iframe-worker-shim-1.0.4.min.js  # ← copia desde doc_ia/docs/assets/; evita unpkg
   social:
@@ -1607,7 +1612,7 @@ extra_css:
 ```
 
 **Notas críticas:**
-- `!!python/name:` genera advertencias en linters YAML estándar — falso positivo; válido para MkDocs.
+- `!!python/name:` genera advertencias en linters YAML estándar — falso positivo; válido para Zensical.
 - Sin `custom_fences` de `mermaid` en `pymdownx.superfences`, los diagramas salen como bloque de código aunque el build pase. Con él, el tema (Material o Zensical) renderiza con la copia local de Mermaid (§3.17) y los colores del esquema claro/oscuro, también sin conexión. **No** añadir el CDN de Mermaid ni un `mermaid.run()` propio: el render se duplica y deja SVG de error ocultos (`.claude/EDGE_CASES.md § Mermaid`).
 - `navigation.sections` y `navigation.tabs` son compatibles técnicamente, pero con tabs activados los grupos de área se muestran en la sidebar del tab activo; `navigation.sections` no aporta valor adicional. No incluir ambos.
 - Los seis recursos (`assets/js/sidebar-toggle.js`, `assets/css/mermaid.css`, `assets/css/nav.css`, `assets/vendor/mermaid/`, `assets/js/mermaid-theme.js` y `assets/vendor/iframe-worker/`) deben copiarse desde `doc_ia/docs/assets/` sin modificación; una librería Mermaid o un shim de otra versión se sustituye.
@@ -1686,8 +1691,8 @@ para evitar copias desactualizadas). Sigue la estructura de §4.1 con estas conc
 
 ### Restricciones Generales
 
-- ✅ **MkDocs v1.5+** — No usar versiones antiguas, usar Material theme
-- ✅ **Diagramas Mermaid** — Agnóstico a Graphviz, integrado en mkdocs
+- ✅ **Zensical** (versión exacta fijada) — único generador (ADR-003); tema Material sobre `mkdocs.yml`
+- ✅ **Diagramas Mermaid** — Agnóstico a Graphviz, integrado en el tema (copia local, §3.17)
 - ✅ **Lenguaje agnóstico** — Ejemplos Python en carpetas separadas si hay múltiples lenguajes
 - ✅ **NO inventar código** — Todos los ejemplos deben validarse contra `scripts/` y el árbol real
 - ✅ **Encoding UTF-8** — Todos los archivos markdown
@@ -1711,7 +1716,7 @@ para evitar copias desactualizadas). Sigue la estructura de §4.1 con estas conc
 
 3. **Actualización de mkdocs.yml**: Automatizada con `mkdocstrings` + agente `documentation-generator`
 
-4. **Build CI/CD**: `mkdocs build` validado en cada PR, detecta links rotos
+4. **Build CI/CD**: `python scripts/build_docs_zip.py` (`zensical build --strict`) validado en cada PR, detecta links rotos
 
 5. **Versionamiento**: Sincronizar CHANGELOG.md según `.github/instructions/sync.instructions.md`
 
@@ -1758,7 +1763,7 @@ Reportar mejoras.
 ### Paso 6: Integración y Build (15 min)
 ```text
 @Code Auditor
-Ejecutar mkdocs build. Verificar links. Reportar errores de build.
+Ejecutar python scripts/build_docs_zip.py. Verificar links. Reportar errores de build.
 ```
 
 ### Paso 7: Sincronizar Versión (20 min)
@@ -1772,7 +1777,7 @@ Generar release notes.
 
 La estandarización se considera **completa** cuando:
 
-- [ ] `mkdocs build --strict` finaliza sin errores ni warnings de links rotos
+- [ ] `python scripts/build_docs_zip.py` (`zensical build --strict`) finaliza sin errores ni warnings de links rotos
 - [ ] Todos los módulos en `scripts/` tienen doc funcional (`docs/functional/`) y técnica (`docs/api/`)
 - [ ] Todos los archivos referenciados en `docs/examples/` existen en disco
 - [ ] `CHANGELOG.md` (cuando exista) refleja la versión actual de `pyproject.toml`

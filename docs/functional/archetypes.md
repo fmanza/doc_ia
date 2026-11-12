@@ -1,15 +1,15 @@
 ---
 arquetipo: "1"
 fuentes:
-  .claude/commands/document-project.md: f82478174881
-  .github/DOCUMENTATION_STANDARD.md: 015af37230ba
+  .claude/commands/document-project.md: bcf7a03630c4
+  .github/DOCUMENTATION_STANDARD.md: fdc027f24550
   .github/prompts/integration_doc.prompt.md: 8abca1d50c8e
   .github/prompts/user_manual_doc.prompt.md: 3ae26288bdb1
-  hooks/sync_root_docs.py: ef5e576436c6
-  tests/test_docs_conformance.py: bf9f28524195
+  hooks/sync_root_docs.py: 361a88369b99
+  tests/test_docs_conformance.py: 7416646e6217
 decisiones:
   ../decisiones/archetypes_decisiones.md: 1a6976ff3ff3
-revisado: 2026-11-10
+revisado: 2026-11-13
 ---
 # Arquetipos Formales de Documentación
 
@@ -42,7 +42,7 @@ aplicar de forma individual a un único módulo o sección, sin invocar el flujo
   `.github/prompts/`).
 - **Aplicación individual**: el módulo o componente a documentar (legible en el workspace),
   la ruta de destino dentro de la carpeta canónica del arquetipo y el idioma.
-- **Aplicación orquestada**: los cuatro parámetros de [Documentar un Proyecto](document_project.md).
+- **Aplicación orquestada**: los tres parámetros de [Documentar un Proyecto](document_project.md).
 - **Arquetipos 9 y 11**: petición explícita en el parámetro `Arquetipos`.
 - **Arquetipos 8 y 12**: que el origen cumpla su condición de activación (normativa de
   referencia; configuración, comandos, códigos de salida, eventos o interfaces publicadas).
@@ -197,7 +197,7 @@ condición, y los opt-in (9 y 11) solo cuando el usuario los pide. La condición
 | AC-16 | Un proyecto que intercambia datos con otros sistemas, y doc_ia, que no lo hace | Se aplica el flujo de documentación | Las instrucciones registran el Arquetipo 14 en la norma, el orquestador, el agente, la tabla de arquetipos y el kit, con vista funcional, vista técnica con inventario y credenciales solo por nombre; doc_ia no tiene `docs/integraciones/` | `tests/test_docs_conformance.py::test_integrations_archetype_is_registered_everywhere`, `tests/test_docs_conformance.py::test_integrations_prompt_has_fixed_structure`, `tests/test_docs_conformance.py::test_no_integrations_archetype_without_signals` |
 | AC-17 | Una aplicación desplegada en un entorno, y doc_ia, que no tiene | Se aplica el flujo de documentación con la opción `WEB` | Las instrucciones registran el Arquetipo 15 en la norma, el orquestador, el agente, la tabla de arquetipos y el kit, con portada y páginas por área de secciones fijas, recorrido de solo lectura, capturas revisadas y sin la dirección del entorno; doc_ia no tiene `docs/manual/` | `tests/test_docs_conformance.py::test_user_manual_archetype_is_registered_everywhere`, `tests/test_docs_conformance.py::test_user_manual_prompt_has_fixed_structure`, `tests/test_docs_conformance.py::test_web_origin_rules_in_the_orchestrator`, `tests/test_docs_conformance.py::test_no_user_manual_archetype_without_web_origin` |
 
-Verificación: `python -m mkdocs build --strict` sin warnings tras generar cualquier arquetipo.
+Verificación: `python scripts/build_docs_zip.py` (`zensical build --strict`) sin warnings tras generar cualquier arquetipo.
 Los arquetipos se aplican en el chat y no tienen tests automatizados.
 
 Los tests verifican el **resultado** sobre la documentación de doc_ia (dogfooding): comprueban que un proyecto documentado con los arquetipos cumple cada criterio, no ejecutan el flujo `/document-project`, que ocurre en el chat ⚠️.
@@ -247,7 +247,7 @@ Los tests verifican el **resultado** sobre la documentación de doc_ia (dogfoodi
     | AC-06 | `.github/DOCUMENTATION_STANDARD.md::3.13` (7 secciones) | ✅ |
     | AC-07 | `.github/DOCUMENTATION_STANDARD.md::3.14` (6 secciones) + `.claude/commands/document-project.md::Inputs requeridos` | ✅ |
     | AC-08 | `.github/DOCUMENTATION_STANDARD.md::3.11` (Reglas, nombre de fichero) | ✅ |
-    | AC-09 | `.github/DOCUMENTATION_STANDARD.md::3.15` (6 secciones, sección MkDocs) | ✅ |
+    | AC-09 | `.github/DOCUMENTATION_STANDARD.md::3.15` (6 secciones, sección en `mkdocs.yml`) | ✅ |
     | AC-10 | `.github/DOCUMENTATION_STANDARD.md::3.16` (Revisión) | ✅ |
     | AC-11 | `.github/DOCUMENTATION_STANDARD.md::3.17` (Etiquetas) | ✅ |
     | AC-12 | `.github/DOCUMENTATION_STANDARD.md::3.17` (Tamaño) | ✅ |
