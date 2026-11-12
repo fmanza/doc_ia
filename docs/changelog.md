@@ -5,6 +5,13 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+### Changed
+
+- Zensical 0.1.1 (beta) para la build de paridad, con su nuevo paquete de tema `zensical-ui`
+  0.0.42 (versiones exactas). Sin cambios de rutas ni de contenido; `hooks:` de `mkdocs.yml` sigue
+  sin ejecutarse con Zensical y el build pasa por `build_docs_zip.py`. Lista de plugins
+  soportados con `optimize` y `meta-descriptions`.
+
 ### Fixed
 
 - ZIP sin servidor: desde v0.7.0 el logo enlazaba a una carpeta (`.`, `..`) en todas las páginas

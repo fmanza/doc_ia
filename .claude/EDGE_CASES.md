@@ -99,7 +99,7 @@
 - **Síntoma**: `zensical build --strict` falla con `changelog.md: page does not exist` en un
   checkout limpio, o termina bien pero `site/` no contiene `doc_ia-docs-latest.zip` y los enlaces
   de `docs/downloads.md` al ZIP quedan rotos (ningún `--strict` valida `<a href>` en HTML crudo).
-- **Causa**: Zensical (0.0.73) no soporta la clave `hooks:` ni la API de plugins de MkDocs y no
+- **Causa**: Zensical (0.0.73; sigue igual en 0.1.1) no soporta la clave `hooks:` ni la API de plugins de MkDocs y no
   emite ningún aviso (zensical.org/compatibility/configuration). Los plugins no soportados
   también se ignoran en silencio.
 - **Tratamiento**: construir siempre con `python scripts/build_docs_zip.py --builder zensical`,

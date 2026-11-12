@@ -8,7 +8,7 @@ fuentes:
   tests/test_build_docs_zip.py: 6910dcf30fe7
   tests/test_offline_assets.py: 7e632c37987d
 decisiones:
-  ../decisiones/buildzip_decisiones.md: e610c12daad7
+  ../decisiones/buildzip_decisiones.md: c8b51d158464
 revisado: 2026-11-12
 ---
 # build_docs_zip
@@ -220,8 +220,8 @@ ejecuta el build real y `build_docs_zip.py --no-build` sobre él (paso «ZIP nav
     | `zensical` como builder alternativo, invocado con `python -m` | `scripts/build_docs_zip.py::_build` | ✅ |
     | Pre/post-build para generadores sin hooks; post solo con build OK | `scripts/build_docs_zip.py::HOOKLESS_BUILDERS`, `::_build`, `::_pre_build`, `::_post_build` | ✅ |
     | Carga de hooks por ruta desde la raíz | `scripts/build_docs_zip.py::_load_hook` | ✅ |
-    | [COB-BUILDZIP-002](../decisiones/buildzip_decisiones.md#cob-buildzip-002) · Zensical ignora `hooks:` de `mkdocs.yml` | zensical.org/compatibility/configuration (Zensical 0.0.73) | ⚠️ (decisión: Aceptar riesgo) |
+    | [COB-BUILDZIP-002](../decisiones/buildzip_decisiones.md#cob-buildzip-002) · Zensical ignora `hooks:` de `mkdocs.yml` | zensical.org/compatibility/configuration (Zensical 0.0.73; re-verificado con 0.1.1) | ⚠️ (decisión: Aceptar riesgo) |
     | Comprobación «se abre sin servidor», sus cuatro motivos y el límite de 20 | `scripts/build_docs_zip.py::_offline_problems`, `::_check_offline`, `::_is_remote`, `::OFFLINE_SEARCH_INDEXES`, `::MAX_REPORTED_PROBLEMS` | ✅ |
     | Hook después del plugin `offline` (prioridad -200 frente a -100) | `mkdocs_hooks.py::on_post_build`, `material/plugins/offline/plugin.py::OfflinePlugin.on_post_build` (Material 9.8.0) | ✅ |
-    | [COB-BUILDZIP-003](../decisiones/buildzip_decisiones.md#cob-buildzip-003) · Índice JS de Zensical en `search.js` | Build real con Zensical 0.0.73 (sesión 2026-10-29d) | ⚠️ (decisión: Aceptar riesgo) |
+    | [COB-BUILDZIP-003](../decisiones/buildzip_decisiones.md#cob-buildzip-003) · Índice JS de Zensical en `search.js` | Build real con Zensical 0.0.73 (sesión 2026-10-29d) y 0.1.1 (sesión 2026-11-12) | ⚠️ (decisión: Aceptar riesgo) |
     | `EXTRA_FILES` opcionales en el ZIP | `mkdocs_hooks.py::on_post_build` (`if extra_path.exists()`), `scripts/build_docs_zip.py::_zip` (`if extra_path.is_file()`) | ✅ |

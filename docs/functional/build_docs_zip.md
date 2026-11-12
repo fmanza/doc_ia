@@ -6,11 +6,11 @@ fuentes:
   scripts/build_docs_zip.py: 44fbfe1dd0c7
   tests/test_build_docs_zip.py: 6910dcf30fe7
   tests/test_docs_conformance.py: b72790261adc
-  tests/test_mermaid_assets.py: e49f4b5a3361
+  tests/test_mermaid_assets.py: 3578c12b02b6
   tests/test_offline_assets.py: 7e632c37987d
-  tests/test_zensical_compat.py: d62c11ebe8cd
+  tests/test_zensical_compat.py: e206b407ff8c
 decisiones:
-  ../decisiones/buildzip_decisiones.md: e610c12daad7
+  ../decisiones/buildzip_decisiones.md: c8b51d158464
 revisado: 2026-11-12
 ---
 # ZIP de Documentación Offline
@@ -219,7 +219,7 @@ fallidas (`.ai/sessions/2026-10-29d_zip_sin_servidor/smoke/`). No forma parte de
     | Regla «Enlaces de descarga coherentes» | `docs/downloads.md` (enlaces `href`), `mkdocs.yml::use_directory_urls`, `mkdocs_hooks.py::on_post_build` | ✅ |
     | ZIP automático excluye `.zip`/`.sha256` e incluye el servidor local | `mkdocs_hooks.py::on_post_build` | ✅ |
     | Generador alternativo Zensical con hooks ejecutados por el script | `scripts/build_docs_zip.py::main` (`--builder`), `::_build`, `::HOOKLESS_BUILDERS` | ✅ |
-    | [COB-BUILDZIP-002](../decisiones/buildzip_decisiones.md#cob-buildzip-002) · Zensical no ejecuta `hooks:` y no avisa | zensical.org/compatibility/configuration (Zensical 0.0.73) | ⚠️ (decisión: Aceptar riesgo) |
+    | [COB-BUILDZIP-002](../decisiones/buildzip_decisiones.md#cob-buildzip-002) · Zensical no ejecuta `hooks:` y no avisa | zensical.org/compatibility/configuration (Zensical 0.0.73; re-verificado con 0.1.1) | ⚠️ (decisión: Aceptar riesgo) |
     | AC-01 | `scripts/build_docs_zip.py::main`, `::_create_checksum_files` | ✅ |
     | AC-02 | `scripts/build_docs_zip.py::main` (`--no-build` + `SITE_DIR` inexistente → `sys.exit(1)`) | ✅ |
     | AC-03 | `scripts/build_docs_zip.py::_build` | ✅ |
@@ -233,7 +233,7 @@ fallidas (`.ai/sessions/2026-10-29d_zip_sin_servidor/smoke/`). No forma parte de
     | AC-11 | `scripts/build_docs_zip.py::_zip`, `::EXTRA_FILES` | ✅ |
     | Regla «Abrir sin servidor», AC-13 | `scripts/build_docs_zip.py::_offline_problems`, `::_check_offline`, `::OFFLINE_SEARCH_INDEXES` | ✅ |
     | AC-12 | `mkdocs.yml::use_directory_urls`, `::plugins`, `::extra` (`polyfills`), `.github/templates/TEMPLATE_mkdocs.yml`, `docs/assets/vendor/iframe-worker/SOURCE.txt` | ✅ |
-    | Shim descargado de unpkg si falta la copia local | `material/plugins/offline/plugin.py::OfflinePlugin.on_config`, `zensical/config.py::_apply_offline_plugin` (Material 9.8.0, Zensical 0.0.73) | ✅ |
+    | Shim descargado de unpkg si falta la copia local | `material/plugins/offline/plugin.py::OfflinePlugin.on_config`, `zensical/config.py::_apply_offline_plugin` (Material 9.8.0, Zensical 0.0.73 y 0.1.1) | ✅ |
     | AC-14 | `mkdocs_hooks.py::on_post_build` (`mkdocs_priority = -200`) | ✅ |
     | AC-15 | `docs/downloads.md`, `VER_DOCUMENTACION.md`, `.github/templates/VER_DOCUMENTACION.template.md` | ✅ |
     | Navegación, búsqueda y diagramas por `file://`, sin red, en Edge y Chrome | `.ai/sessions/2026-10-29d_zip_sin_servidor/smoke/RESULTADOS.txt` (prueba con navegador sin ventana, fuera de la CI) | ✅ |

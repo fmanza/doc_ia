@@ -67,7 +67,7 @@ está el acta o la evidencia, no su contenido.
 |---|---|
 | Página | [functional/build_docs_zip.md](../functional/build_docs_zip.md), [api/build_docs_zip.md](../api/build_docs_zip.md) |
 | Estado detectado | ⚠️ |
-| Evidencia | Fuente externa: zensical.org/compatibility/configuration (Zensical 0.0.73, en alfa). Sin test en doc_ia; puede cambiar en versiones posteriores |
+| Evidencia | Fuente externa: zensical.org/compatibility/configuration (Zensical 0.0.73, en alfa); re-verificado el 2026-11-12 con Zensical 0.1.1 (beta): `hooks:` sigue sin soporte (zensical.org/docs/compatibility/mkdocs/migration/ y build mínimo). Sin test en doc_ia; puede cambiar en versiones posteriores |
 | **Decisión** | Aceptar riesgo |
 | **Contexto aportado** | Zensical está en alfa (0.0.73); revisar al actualizar Zensical (propuesta del agente aceptada en el chat) |
 | **Responsable** | Paco Manzano |
@@ -80,7 +80,7 @@ está el acta o la evidencia, no su contenido.
 |---|---|
 | Página | [api/build_docs_zip.md](../api/build_docs_zip.md) |
 | Estado detectado | ⚠️ |
-| Evidencia | Verificado con un build real de Zensical 0.0.73 (sesión 2026-10-29d); depende de detalles internos de Zensical y no tiene test |
+| Evidencia | Verificado con un build real de Zensical 0.0.73 (sesión 2026-10-29d) y de nuevo con 0.1.1 (sesión 2026-11-12: `search.js` en la raíz); depende de detalles internos de Zensical y no tiene test |
 | **Decisión** | Aceptar riesgo |
 | **Contexto aportado** | Detalle interno de Zensical 0.0.73 (alfa); revisar al actualizar Zensical (propuesta del agente aceptada en el chat) |
 | **Responsable** | Paco Manzano |

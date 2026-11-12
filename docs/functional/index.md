@@ -3,7 +3,7 @@ arquetipo: "1-I"
 fuentes:
   docs/functional/archetypes.md: 356e64344661
   docs/functional/bootstrap.md: 64112e3c9247
-  docs/functional/build_docs_zip.md: 6ceab8a1e98d
+  docs/functional/build_docs_zip.md: 22ad6550f049
   docs/functional/check_env.md: e6c1d275492a
   docs/functional/convert_to_md.md: 7328fd37ca63
   docs/functional/db_trace.md: a35b8bb8bdc3
@@ -16,7 +16,7 @@ fuentes:
   docs/functional/web_captures.md: 64bbe948d414
 decisiones:
   ../decisiones/sistema_decisiones.md: d03d67f5fae5
-revisado: 2026-11-11
+revisado: 2026-11-12
 ---
 # Mapa Funcional — doc_ia
 
