@@ -237,7 +237,8 @@ def test_external_and_file_links_are_not_folder_links(tmp_path: Path) -> None:
     root = _project(tmp_path)
     (root / "site" / "index.html").write_text(
         '<a href="https://github.com/fmanza/doc_ia/">repo</a> <a href="mailto:a@b.c/">m</a>'
-        '<a href="api/x.html#a/">x</a> <a href="#top">top</a>'
+        '<a href="api/x.html#a/">x</a> <a href="#top">top</a> <a href="">logo</a>'
+        '<a href="../index.html">home</a> <a href="..x.html">x</a>'
         '<script src="assets/vendor/iframe-worker/shim.js"></script>',
         encoding="utf-8",
     )
@@ -251,6 +252,10 @@ def test_external_and_file_links_are_not_folder_links(tmp_path: Path) -> None:
         ('<a href="api/archetypes/">API</a>', "link to a folder api/archetypes/"),
         ('<a href="../#intro">Inicio</a>', "link to a folder ../#intro"),
         ('<img src="./">', "link to a folder ./"),
+        ('<a href="..">logo</a>', "link to a folder .."),
+        ('<a href="./..">logo</a>', "link to a folder ./.."),
+        ('<a href=".">logo</a>', "link to a folder ."),
+        ('<a href="/doc_ia/.">logo</a>', "link to a folder /doc_ia/."),
         (
             '<script src="https://unpkg.com/iframe-worker/shim"></script>',
             "remote script https://unpkg.com/iframe-worker/shim",

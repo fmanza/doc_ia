@@ -94,6 +94,17 @@ def _is_remote(url: str) -> bool:
     return url.startswith("//") or _SCHEME_RE.match(url) is not None
 
 
+def _is_folder(url: str) -> bool:
+    """Local URL naming a folder (`a/`, `.`, `..`, `./..`): from file:// it opens a listing.
+
+    An empty path (`""`, `#top`) is the page itself and is fine.
+    """
+    if _is_remote(url):
+        return False
+    path = url.split("#", 1)[0].split("?", 1)[0]
+    return path.endswith("/") or path.rsplit("/", 1)[-1] in {".", ".."}
+
+
 def _offline_problems(site_dir: Path) -> list[str]:
     """Reasons why site_dir cannot be browsed from file:// (empty list: ready)."""
     problems: list[str] = []
@@ -109,8 +120,7 @@ def _offline_problems(site_dir: Path) -> list[str]:
             if _is_remote(src):
                 problems.append(f"{name}: remote script {src}")
         for url in _URL_ATTR_RE.findall(html):
-            path = url.split("#", 1)[0].split("?", 1)[0]
-            if path.endswith("/") and not _is_remote(url):
+            if _is_folder(url):
                 problems.append(f"{name}: link to a folder {url}")
     return problems
 

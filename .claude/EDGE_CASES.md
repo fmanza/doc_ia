@@ -271,6 +271,22 @@
   `build_docs_zip.py` rechaza un `site/` con enlaces a carpetas o scripts remotos.
 - **Sesión**: .ai/sessions/2026-10-29b_ver_documentacion/, .ai/sessions/2026-10-29d_zip_sin_servidor/
 
+## [mkdocs.yml] — `navigation.indexes` deja el logo enlazando a una carpeta (RESUELTO)
+
+- **Síntoma**: desde v0.7.0, el logo (cabecera y menú lateral) enlaza a `.`/`..` con MkDocs y a
+  `""`/`./..` con Zensical, en todas las páginas, y a `/doc_ia/` en el `404.html`. Con el ZIP
+  abierto por `file://`, pulsar el logo muestra un listado de carpeta. La paridad Zensical falló en
+  CI ocho días sin verse: el paso no es bloqueante y el run salía `success`.
+- **Causa**: con `navigation.indexes` y `index.md` dentro de la sección «Inicio», el tema calcula
+  el enlace del logo como URL de carpeta. El validador de `build_docs_zip.py` solo detectaba las
+  URL terminadas en `/` y dejaba pasar `.` y `..`.
+- **Tratamiento**: `extra.homepage: index.html` en `mkdocs.yml`, en la plantilla y en el estándar
+  §4, y en la Fase 0b. El validador trata como carpeta cualquier URL local cuyo último segmento
+  sea `.` o `..`. `""` es la propia página y es válida.
+  `test_top_navigation_fits_in_nine_tabs` y `test_standard_nav_template_groups_home_and_project`
+  exigen `homepage`.
+- **Sesión**: .ai/sessions/2026-11-12_zensical_paridad_f7/
+
 ## [offline] — Material y Zensical descargan el shim iframe-worker de unpkg
 
 - **Síntoma**: con el plugin `offline`, cada página carga

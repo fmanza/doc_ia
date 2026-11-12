@@ -665,6 +665,8 @@ def test_top_navigation_fits_in_nine_tabs() -> None:
     assert _nav_pages(tabs["Proyecto"]) == PROJECT_PAGES
     assert "navigation.indexes" in config["theme"]["features"]
     assert "navigation.sections" not in config["theme"]["features"]
+    # Con navigation.indexes el logo enlazaría a una carpeta (listado sin servidor).
+    assert config["extra"]["homepage"] == "index.html"
 
 
 def test_standard_nav_template_groups_home_and_project() -> None:
@@ -676,6 +678,9 @@ def test_standard_nav_template_groups_home_and_project() -> None:
     assert tabs[0] == "Inicio" and tabs[-1] == "Proyecto", tabs
     assert re.search(r"^ {6}- Descargas: downloads\.md", block, re.M)
     assert "    - navigation.indexes" in text
+    assert re.search(r"^extra:\n  homepage: index\.html", text, re.M)
+    template = (ROOT / ".github" / "templates" / "TEMPLATE_mkdocs.yml").read_text(encoding="utf-8")
+    assert re.search(r"^  homepage: index\.html$", template, re.M)
 
 
 @pytest.mark.parametrize("path", NAV_RULE_FILES)

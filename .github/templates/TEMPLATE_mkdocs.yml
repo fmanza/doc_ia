@@ -156,6 +156,9 @@ extra:
   # [OPCIONAL] Descomentar para versionado multi-versión (requiere: pip install mike)
   # version:
   #   provider: mike
+  # Logo → index.html: con navigation.indexes el tema lo enlaza a «.»/«..» (una carpeta) y sin
+  # servidor abre un listado de ficheros.
+  homepage: index.html
   # Búsqueda por file://: con una ruta que contenga «iframe-worker», Material y Zensical no
   # añaden https://unpkg.com/iframe-worker/shim. Copia local desde doc_ia/docs/assets/vendor/.
   polyfills:

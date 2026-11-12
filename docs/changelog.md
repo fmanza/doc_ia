@@ -5,6 +5,14 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+### Fixed
+
+- ZIP sin servidor: desde v0.7.0 el logo enlazaba a una carpeta (`.`, `..`) en todas las páginas
+  (con `navigation.indexes`) y, al abrir el ZIP con doble clic, mostraba un listado de ficheros.
+  `extra.homepage: index.html` en `mkdocs.yml`, la plantilla y el estándar. `build_docs_zip.py`
+  rechaza también los enlaces `.` y `..`, que antes dejaba pasar. La build de paridad con
+  Zensical vuelve a pasar.
+
 ## [0.11.3] — 2026-11-11
 
 ### Fixed

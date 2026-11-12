@@ -1,10 +1,10 @@
 ---
 arquetipo: "1"
 fuentes:
-  .github/prompts/document_project.prompt.md: 03e2d68949a7
+  .github/prompts/document_project.prompt.md: e632644bde55
   scripts/web_captures.py: 53972c5aa039
   tests/test_web_captures.py: 1a50628c7f78
-revisado: 2026-11-10
+revisado: 2026-11-12
 ---
 # Capturas del Origen WEB
 

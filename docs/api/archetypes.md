@@ -1,15 +1,15 @@
 ---
 arquetipo: "2"
 fuentes:
-  .github/DOCUMENTATION_STANDARD.md: 015af37230ba
+  .github/DOCUMENTATION_STANDARD.md: f06ee8be86cd
   .github/agents/documentation-generator.agent.md: 6d6fda2b5f18
   .github/prompts/example_doc.prompt.md: 6041f616e0c3
   .github/prompts/user_manual_doc.prompt.md: 3ae26288bdb1
-  mkdocs.yml: ab0e72d492ad
-  tests/test_docs_conformance.py: bf9f28524195
+  mkdocs.yml: 7256541114b0
+  tests/test_docs_conformance.py: b72790261adc
 decisiones:
   ../decisiones/archetypes_decisiones.md: 1a6976ff3ff3
-revisado: 2026-11-10
+revisado: 2026-11-12
 ---
 # archetypes
 

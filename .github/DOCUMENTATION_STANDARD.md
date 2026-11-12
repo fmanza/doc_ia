@@ -1586,6 +1586,7 @@ nav:
       - Contribuir: contributing.md   # Arquetipo 11, opt-in
 
 extra:
+  homepage: index.html  # ← logo a index.html; con navigation.indexes iría a una carpeta (sin servidor: listado)
   polyfills:
     - assets/vendor/iframe-worker/iframe-worker-shim-1.0.4.min.js  # ← copia desde doc_ia/docs/assets/; evita unpkg
   social:

@@ -186,6 +186,9 @@ nav:
       - Contribuir: contributing.md
 
 extra:
+  # Logo → index.html. Con navigation.indexes el tema enlaza el logo a «.»/«..» (una carpeta): sin
+  # servidor abre un listado de ficheros (ver EDGE_CASES § navigation.indexes y ZIP sin servidor).
+  homepage: index.html
   # Búsqueda por file://: con una ruta que contenga «iframe-worker», Material y Zensical no
   # añaden https://unpkg.com/iframe-worker/shim (ver EDGE_CASES § offline).
   polyfills:

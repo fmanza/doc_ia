@@ -1,9 +1,9 @@
 ---
 arquetipo: "1"
 fuentes:
-  .claude/commands/document-project.md: f82478174881
-  .github/DOCUMENTATION_STANDARD.md: 015af37230ba
-  .github/prompts/document_project.prompt.md: 03e2d68949a7
+  .claude/commands/document-project.md: 4173c0948b39
+  .github/DOCUMENTATION_STANDARD.md: f06ee8be86cd
+  .github/prompts/document_project.prompt.md: e632644bde55
   .github/templates/kit/documentar.command.md: 44364ebb0ca8
   CLAUDE.md: 466e411d7ddb
   scripts/db_trace.py: 2df471e18403
@@ -13,7 +13,7 @@ fuentes:
   scripts/web_captures.py: 53972c5aa039
 decisiones:
   ../decisiones/docproj_decisiones.md: ace9e2e187df
-revisado: 2026-11-10
+revisado: 2026-11-12
 ---
 # Documentar un Proyecto
 

@@ -1,15 +1,15 @@
 ---
 arquetipo: "2"
 fuentes:
-  mkdocs.yml: ab0e72d492ad
+  mkdocs.yml: 7256541114b0
   mkdocs_hooks.py: 31259b7911a3
   pyproject.toml: f41737d7fc2c
-  scripts/build_docs_zip.py: 5f972ee674c8
-  tests/test_build_docs_zip.py: 82a1d595e6f4
+  scripts/build_docs_zip.py: 44fbfe1dd0c7
+  tests/test_build_docs_zip.py: 6910dcf30fe7
   tests/test_offline_assets.py: 7e632c37987d
 decisiones:
   ../decisiones/buildzip_decisiones.md: e610c12daad7
-revisado: 2026-11-11
+revisado: 2026-11-12
 ---
 # build_docs_zip
 
@@ -53,8 +53,9 @@ clic en `index.html`). `_offline_problems` devuelve la lista de motivos, vacía 
 falta `index.html`; no existe ninguno de `OFFLINE_SEARCH_INDEXES` (`search/search_index.js` de
 MkDocs, `search.js` de Zensical), que escribe el plugin `offline`; alguna página tiene un
 `<script src>` remoto (con esquema o `//`), como el shim de unpkg que añaden los temas sin la
-copia local; o algún `href`/`src` relativo termina en `/` (ignorando `?` y `#`), es decir, enlaza
-a una carpeta. Se informan hasta `MAX_REPORTED_PROBLEMS` (20) y el número de los restantes.
+copia local; o algún `href`/`src` local enlaza a una carpeta (`_is_folder`: ignorando `?` y `#`,
+la ruta termina en `/` o su último segmento es `.` o `..`, como el logo con `navigation.indexes`
+sin `extra.homepage`; una ruta vacía es la propia página). Se informan hasta `MAX_REPORTED_PROBLEMS` (20) y el número de los restantes.
 
 ### Hook (`mkdocs_hooks.py`)
 
@@ -185,8 +186,8 @@ canónico de referencia para otros proyectos: copiar y cambiar únicamente `zip_
 | `test_zensical_with_real_hooks_syncs_and_creates_latest_zip` | Con los hooks reales: copia `CHANGELOG.md` a `docs/` y genera el ZIP `latest` + `.sha256` | integración (CLI, build simulado) |
 | `test_post_build_hook_creates_latest_zip` | `mkdocs_hooks.on_post_build`: ZIP `latest` + `.sha256`, incluye `start-server.py` y `VER_DOCUMENTACION.md`, excluye `.zip`/`.sha256` | unitario |
 | `test_zensical_search_index_layout_is_accepted` | Índice `search.js` en la raíz (Zensical) válido | integración (CLI) |
-| `test_external_and_file_links_are_not_folder_links` | Enlaces externos, `mailto:`, a ficheros con `#…/` y anclas no son enlaces a carpeta | integración (CLI) |
-| `test_site_not_browsable_from_file_exits_1` | Enlace a carpeta (`api/x/`, `../#a`, `./`) o script remoto (`https:`, `//`) → código `1`, página y problema en stderr, sin `dist/` | integración (CLI, 5 casos) |
+| `test_external_and_file_links_are_not_folder_links` | Enlaces externos, `mailto:`, a ficheros con `#…/`, anclas y `href=""` no son enlaces a carpeta | integración (CLI) |
+| `test_site_not_browsable_from_file_exits_1` | Enlace a carpeta (`api/x/`, `../#a`, `./`, `..`, `./..`, `.`, `/doc_ia/.`) o script remoto (`https:`, `//`) → código `1`, página y problema en stderr, sin `dist/` | integración (CLI, 9 casos) |
 | `test_missing_search_index_js_exits_1` | Sin índice JS → código `1` y aviso del plugin `offline` | integración (CLI) |
 | `test_offline_check_runs_after_build` | La comprobación va después del build que crea el índice | integración (CLI, build simulado) |
 | `test_problem_report_is_truncated` | 25 problemas → 20 líneas + «... and 5 more» | integración (CLI) |

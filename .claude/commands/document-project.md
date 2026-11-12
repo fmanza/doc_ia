@@ -115,7 +115,7 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 - [ ] `.gitignore` presente en la raíz del destino con los patrones estándar (primera sesión: crear si no existe; ver tabla abajo), sin ignorar `_fuentes/`
 - [ ] **Kit de lanzamiento** (toda sesión, también en destinos ya creados): `python <repositorio doc_ia>/scripts/kit.py sync --root <raíz destino>` → `.doc_ia/` (metodología + scripts, `kit.lock.json`), lanzadores `/documentar` y `DOCUMENTAR.md` si falta; conflicto (exit 2) → informar, nunca `--force` sin pedirlo el usuario (`document_project.prompt.md` § Kit de documentación)
 - [ ] `.gitattributes` en la raíz del destino: `* text=auto eol=lf`, binarios (`*.zip`, `*.png`, `*.jpg`) como `binary` y `docs/assets/vendor/** -text` (la huella de los ficheros de terceros no cambia entre Windows y Linux)
-- [ ] `theme.features` verificado — sin `navigation.sections` si `nav.css` presente; con `navigation.indexes`
+- [ ] `theme.features` verificado — sin `navigation.sections` si `nav.css` presente; con `navigation.indexes` y, con ella, `extra.homepage: index.html` (sin él, el logo enlaza a una carpeta y sin servidor abre un listado)
 - [ ] `nav` con **≤ 9 entradas de primer nivel**: Inicio/Quick Start/Instalación/Descargas en la sección «Inicio», Configuración IA/Changelog/Contribuir en «Proyecto» (las pestañas no tienen desplegables; con más se corta la barra)
 - [ ] `extra_css` incluye `assets/css/nav.css` y `assets/css/mermaid.css`
 - [ ] `extra_javascript` incluye, en este orden, `assets/js/sidebar-toggle.js`, `assets/vendor/mermaid/mermaid-12.2.0.min.js` y `assets/js/mermaid-theme.js`, y **no** incluye el CDN de Mermaid ni `assets/js/mermaid.js` (si están, retirarlos: duplican el render — ver `.claude/EDGE_CASES.md § Mermaid`)
@@ -136,7 +136,7 @@ Ejemplo de detención: "Campo 'Destino' vacío → preguntar: ¿escribo en `docs
 | Feature | Acción | Razón |
 |---|---|---|
 | `navigation.tabs`, `navigation.tabs.sticky` | ✅ Copiar | Universal |
-| `navigation.indexes` | ✅ Copiar | La pestaña «Inicio» abre `index.md` (sección «Inicio» de §4.1) |
+| `navigation.indexes` | ✅ Copiar | La pestaña «Inicio» abre `index.md` (sección «Inicio» de §4.1). Exige `extra.homepage: index.html` |
 | `navigation.top`, `navigation.footer` | ✅ Copiar | Universal |
 | `search.suggest`, `search.highlight` | ✅ Copiar | Universal |
 | `content.code.copy`, `content.code.annotate`, `content.tabs.link` | ✅ Copiar | Universal |

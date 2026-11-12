@@ -1,15 +1,15 @@
 ---
 arquetipo: "1"
 fuentes:
-  .claude/commands/document-project.md: f82478174881
-  .github/DOCUMENTATION_STANDARD.md: 015af37230ba
+  .claude/commands/document-project.md: 4173c0948b39
+  .github/DOCUMENTATION_STANDARD.md: f06ee8be86cd
   .github/prompts/integration_doc.prompt.md: 8abca1d50c8e
   .github/prompts/user_manual_doc.prompt.md: 3ae26288bdb1
   hooks/sync_root_docs.py: ef5e576436c6
-  tests/test_docs_conformance.py: bf9f28524195
+  tests/test_docs_conformance.py: b72790261adc
 decisiones:
   ../decisiones/archetypes_decisiones.md: 1a6976ff3ff3
-revisado: 2026-11-10
+revisado: 2026-11-12
 ---
 # Arquetipos Formales de Documentación
 

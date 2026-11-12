@@ -546,7 +546,8 @@ Fase 5 — Sincronizar navegación y verificar configuración estándar del gene
             barra): Inicio, Quick Start, Instalación y Descargas dentro de la sección «Inicio»;
             Configuración IA, Changelog y Contribuir dentro de «Proyecto» (solo si existe alguna).
             Si ya están en el primer nivel (modo incremental) → moverlas, nunca duplicar.
-            theme.features con navigation.indexes (la pestaña «Inicio» abre index.md).
+            theme.features con navigation.indexes (la pestaña «Inicio» abre index.md) y
+            extra.homepage: index.html (sin él, el logo enlaza a una carpeta: listado sin servidor).
          b. Configuración estándar (DOCUMENTATION_STANDARD.md §4.1) — verificar y corregir si falta:
             · palette: dos entradas (light con media+toggle, dark con scheme:slate+media+toggle)
             · extra_javascript, en este orden: assets/js/sidebar-toggle.js,

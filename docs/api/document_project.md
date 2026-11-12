@@ -1,17 +1,17 @@
 ---
 arquetipo: "2"
 fuentes:
-  .claude/commands/document-project.md: f82478174881
+  .claude/commands/document-project.md: 4173c0948b39
   .github/agents/documentation-generator.agent.md: 6d6fda2b5f18
-  .github/prompts/document_project.prompt.md: 03e2d68949a7
+  .github/prompts/document_project.prompt.md: e632644bde55
   .github/templates/kit/AGENTS.md: f9b80f0f102b
   .github/templates/kit/documentar.command.md: 44364ebb0ca8
-  mkdocs.yml: ab0e72d492ad
+  mkdocs.yml: 7256541114b0
   scripts/db_trace.py: 2df471e18403
   scripts/kit.py: 432af520016f
   scripts/snapshot_sources.py: f9dd29bea432
   scripts/web_captures.py: 53972c5aa039
-revisado: 2026-11-10
+revisado: 2026-11-12
 ---
 # document_project
 

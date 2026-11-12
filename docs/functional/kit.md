@@ -3,13 +3,13 @@ arquetipo: "1"
 fuentes:
   .github/kit/MANIFEST.txt: ba84851d379a
   .github/prompts/bootstrap_ai_config.prompt.md: fdf4648ffdbe
-  .github/prompts/document_project.prompt.md: 03e2d68949a7
+  .github/prompts/document_project.prompt.md: e632644bde55
   .github/templates/kit/AGENTS.md: f9b80f0f102b
   .github/templates/kit/documentar.command.md: 44364ebb0ca8
   scripts/kit.py: 432af520016f
-  tests/test_docs_conformance.py: bf9f28524195
+  tests/test_docs_conformance.py: b72790261adc
   tests/test_kit.py: 544e2eb38aba
-revisado: 2026-11-10
+revisado: 2026-11-12
 ---
 # Kit de Documentación en el Destino
 
