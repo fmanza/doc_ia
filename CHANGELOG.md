@@ -5,6 +5,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+## [0.11.4] — 2026-11-12
+
 ### Changed
 
 - Zensical 0.1.1 (beta) para la build de paridad, con su nuevo paquete de tema `zensical-ui`

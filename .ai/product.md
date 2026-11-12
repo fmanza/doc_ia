@@ -57,4 +57,4 @@ Claude Code (`CLAUDE.md`), Gemini (`GEMINI.md`), Copilot Chat
 
 ## Versión
 
-`0.11.3` según `pyproject.toml` (verificar antes de cerrar releases).
+`0.11.4` según `pyproject.toml` (verificar antes de cerrar releases).

@@ -3,7 +3,7 @@ arquetipo: "2"
 fuentes:
   mkdocs.yml: 7256541114b0
   mkdocs_hooks.py: 31259b7911a3
-  pyproject.toml: f41737d7fc2c
+  pyproject.toml: fb147a289ce0
   scripts/build_docs_zip.py: 44fbfe1dd0c7
   tests/test_build_docs_zip.py: 6910dcf30fe7
   tests/test_offline_assets.py: 7e632c37987d
