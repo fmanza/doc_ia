@@ -1,10 +1,6 @@
 # Dependencias de desarrollo y CI: build de docs + calidad (sin docling/torch).
 # Uso: pip install -r requirements-dev.txt
 -r requirements-docs.txt
-# Build de paridad con Zensical (no bloqueante en CI). Versión exacta: Zensical está en beta
-# (0.1.x) y el tema vive en zensical-ui. Mantén las mismas versiones en requirements.txt.
-zensical==0.1.1
-zensical-ui==0.0.42
 pytest==9.2.0
 ruff==0.17.3
 mypy==2.4.0

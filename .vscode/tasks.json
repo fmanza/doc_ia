@@ -4,14 +4,14 @@
     {
       "label": "docs: build",
       "type": "shell",
-      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe -m mkdocs build --strict",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe ${workspaceFolder}\\scripts\\build_docs_zip.py",
       "group": "build",
       "problemMatcher": []
     },
     {
       "label": "docs: serve",
       "type": "shell",
-      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe -m mkdocs serve",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe -m zensical serve",
       "isBackground": true,
       "problemMatcher": []
     },

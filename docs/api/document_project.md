@@ -6,12 +6,12 @@ fuentes:
   .github/prompts/document_project.prompt.md: e632644bde55
   .github/templates/kit/AGENTS.md: f9b80f0f102b
   .github/templates/kit/documentar.command.md: 44364ebb0ca8
-  mkdocs.yml: 7256541114b0
+  mkdocs.yml: 28b6b25a031d
   scripts/db_trace.py: 2df471e18403
   scripts/kit.py: 432af520016f
   scripts/snapshot_sources.py: f9dd29bea432
   scripts/web_captures.py: 53972c5aa039
-revisado: 2026-11-12
+revisado: 2026-11-13
 ---
 # document_project
 

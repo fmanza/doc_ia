@@ -45,9 +45,9 @@ theme:
   icon:
     repo: fontawesome/brands/github
 
-hooks:
-  - hooks/sync_root_docs.py
-  - mkdocs_hooks.py
+# Sin `hooks:`: Zensical (generador único, ADR-003) no los ejecuta. El pipeline
+# scripts/build_docs_zip.py corre hooks/sync_root_docs.py antes del build y mkdocs_hooks.py
+# (ZIP latest) después. El fichero conserva el nombre mkdocs.yml: Zensical lo lee de forma nativa.
 
 plugins:
   - search:
@@ -172,9 +172,9 @@ nav:
   # ── Contexto del proyecto ──────────────────────────────────────────────────
   - Arquitectura:
       - Visión del Sistema: architecture.md
-      - ADR-001 — MkDocs Material por defecto: adr/ADR-001-mkdocs-material-por-defecto.md
+      - ADR-001 — MkDocs Material por defecto (reemplazado): adr/ADR-001-mkdocs-material-por-defecto.md
       - ADR-002 — Arquetipos con evidencia verificable: adr/ADR-002-arquetipos-con-evidencia.md
-      - ADR-003 — Zensical por defecto (propuesto): adr/ADR-003-zensical-por-defecto.md
+      - ADR-003 — Zensical como único generador: adr/ADR-003-zensical-por-defecto.md
       - ADR-004 — Registro de decisiones de cobertura: adr/ADR-004-registro-decisiones-cobertura.md
       - ADR-005 — Origen WEB desplegada y manual de funcionamiento: adr/ADR-005-origen-web-desplegada.md
 

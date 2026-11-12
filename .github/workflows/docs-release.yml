@@ -38,7 +38,7 @@ jobs:
         run: pip install -r requirements-docs.txt
 
       - name: Build docs & create ZIP
-        run: python scripts/build_docs_zip.py --builder mkdocs
+        run: python scripts/build_docs_zip.py
 
       - name: Upload ZIP to GitHub Release
         uses: softprops/action-gh-release@v3

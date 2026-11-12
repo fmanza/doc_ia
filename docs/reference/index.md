@@ -5,22 +5,22 @@ fuentes:
   .github/kit/MANIFEST.txt: ba84851d379a
   .github/prompts/document_project.prompt.md: e632644bde55
   .github/templates/kit/documentar.prompt.template.md: 332acf5a5cc7
-  .github/workflows/docs-zip-release.yml: bd807d444ea2
+  .github/workflows/docs-zip-release.yml: d81dbefb1a67
   CLAUDE.md: 466e411d7ddb
-  hooks/sync_root_docs.py: ef5e576436c6
-  mkdocs.yml: 7256541114b0
-  mkdocs_hooks.py: 31259b7911a3
-  scripts/build_docs_zip.py: 44fbfe1dd0c7
-  scripts/check_env.py: c9105c709663
+  hooks/sync_root_docs.py: 361a88369b99
+  mkdocs.yml: 28b6b25a031d
+  mkdocs_hooks.py: 7a5c8e6cc233
+  scripts/build_docs_zip.py: 7387f722a727
+  scripts/check_env.py: 43ef5cfdf4ae
   scripts/convert_to_md.py: e7e60518d96f
   scripts/db_trace.py: 2df471e18403
   scripts/doc_trace.py: 4679f991c61a
   scripts/kit.py: 432af520016f
   scripts/redact_secrets.py: d0cbb8ed3fbf
   scripts/snapshot_sources.py: f9dd29bea432
-  scripts/start-server.py: a12209ac8507
+  scripts/start-server.py: 5ffba28a39e0
   scripts/web_captures.py: 53972c5aa039
-revisado: 2026-11-12
+revisado: 2026-11-13
 ---
 # Referencia — doc_ia
 

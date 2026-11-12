@@ -5,11 +5,11 @@ fuentes:
   .github/agents/documentation-generator.agent.md: 6d6fda2b5f18
   .github/prompts/example_doc.prompt.md: 6041f616e0c3
   .github/prompts/user_manual_doc.prompt.md: 3ae26288bdb1
-  mkdocs.yml: 7256541114b0
+  mkdocs.yml: 28b6b25a031d
   tests/test_docs_conformance.py: b72790261adc
 decisiones:
   ../decisiones/archetypes_decisiones.md: 1a6976ff3ff3
-revisado: 2026-11-12
+revisado: 2026-11-13
 ---
 # archetypes
 

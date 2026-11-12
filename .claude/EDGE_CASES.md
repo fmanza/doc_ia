@@ -6,6 +6,8 @@
 ## Formato de registro
 
 ```markdown
+## Casos registrados
+
 ## [área] — Título breve
 
 - **Síntoma**: qué se observa
@@ -13,8 +15,6 @@
 - **Tratamiento**: cómo lo maneja el código o la instrucción IA
 - **Sesión**: .ai/sessions/<fecha>/ donde se descubrió
 ```
-
-## Casos registrados
 
 ## [mkdocs.yml] — `navigation.sections` impide colapsar el menú lateral
 
@@ -43,32 +43,6 @@
   Ver checklist en `.claude/commands/document-project.md`.
 - **Sesión**: `.ai/sessions/2026-06-12/` (dpss)
 
-## [plugin MkDocs] — Plugin ZIP no encontrado al ejecutar `mkdocs build`
-
-- **Síntoma**: `ERROR - Config value 'plugins': The "{nombre}_documentation_zip" plugin is not installed.`
-  El build falla aunque el plugin fue creado e instalado correctamente.
-- **Causa**: el entry point del plugin está registrado en un venv específico
-  (`doc_ia\.venv\Lib\site-packages\{nombre}_docs-{versión}.dist-info`). Cuando el terminal
-  no tiene ese venv activo, `mkdocs` resuelve a otro Python (p. ej.
-  `C:\Users\{user}\AppData\Roaming\Python\Python314\Scripts\mkdocs.exe`) que no conoce el plugin.
-  Hay múltiples `mkdocs` en el PATH del sistema; el que "gana" depende del orden del PATH
-  y del venv activo en el terminal concreto.
-- **Solución definitiva (2026-06-15)**: **no usar el sistema de plugins** para la generación del ZIP.
-  Migrar a un hook MkDocs nativo (`mkdocs_hooks.py`) cargado mediante la clave `hooks:` de `mkdocs.yml`.
-  El hook no requiere instalación, no usa entry points y funciona con cualquier Python que tenga `mkdocs`.
-  Patrón canónico: `doc_ia/mkdocs_hooks.py` (solo cambiar `zip_path` para otro proyecto).
-  ```yaml
-  # mkdocs.yml — añadir:
-  hooks:
-    - mkdocs_hooks.py
-  # y eliminar el plugin de la sección plugins:
-  ```
-- **Workaround temporal** (si no es posible migrar aún):
-  - Activar el venv antes del build: `doc_ia\.venv\Scripts\Activate.ps1`
-  - O invocar explícitamente: `python -m mkdocs build --strict`
-    (donde `python` = `doc_ia\.venv\Scripts\python.exe`)
-- **Sesión**: `.ai/sessions/2026-06-12/` (descubierto); `.ai/sessions/2026-06-15_hooks_migration/` (resuelto)
-
 ## [doc_trace] — `drift` marca páginas tras cambios triviales o tras editar `mkdocs.yml`/`CLAUDE.md`
 
 - **Síntoma**: `python scripts/doc_trace.py drift` lista una página como `stale` aunque su
@@ -84,16 +58,6 @@
   frontmatter de las fuentes `.md` se excluye de la huella.
 - **Sesión**: `.ai/sessions/2026-10-28_archetypes_v2/` (P3)
 
-## [mkdocs_hooks.py] — El ZIP `latest` se regenera aunque `mkdocs build --strict` falle
-
-- **Síntoma**: tras un build estricto que termina con `Aborted with N warnings in strict mode`,
-  `site/doc_ia-docs-latest.zip` y su `.sha256` tienen fecha nueva.
-- **Causa**: MkDocs 1.6 ejecuta `on_post_build` antes de comprobar los avisos del modo estricto.
-- **Decisión (2026-10-28)**: aceptado. El ZIP local de un build fallido no se distribuye: los
-  workflows solo publican si el build termina con 0. No usar `site/` tras un build fallido.
-  Con `build_docs_zip.py --builder zensical` no ocurre: el ZIP se genera solo tras un build OK.
-- **Sesión**: `.ai/sessions/2026-10-28c_quality_pending/`
-
 ## [Zensical] — `hooks:` de `mkdocs.yml` se ignora en silencio
 
 - **Síntoma**: `zensical build --strict` falla con `changelog.md: page does not exist` en un
@@ -102,15 +66,16 @@
 - **Causa**: Zensical (0.0.73; sigue igual en 0.1.1) no soporta la clave `hooks:` ni la API de plugins de MkDocs y no
   emite ningún aviso (zensical.org/compatibility/configuration). Los plugins no soportados
   también se ignoran en silencio.
-- **Tratamiento**: construir siempre con `python scripts/build_docs_zip.py --builder zensical`,
-  que ejecuta `hooks/sync_root_docs.py` antes y `mkdocs_hooks.py` después de un build OK.
+- **Tratamiento**: construir siempre con `python scripts/build_docs_zip.py` (el pipeline; desde
+  ADR-003 Zensical es el único generador y `mkdocs.yml` ya no declara `hooks:`), que ejecuta
+  `hooks/sync_root_docs.py` antes y `mkdocs_hooks.py` después de un build OK.
   `python -m zensical serve` no sincroniza: tras editar `CHANGELOG.md`/`CONTRIBUTING.md`, ejecutar
   `python hooks/sync_root_docs.py` (en Claude Code lo hace el PostToolUse).
 - **Guardas**: `tests/test_zensical_compat.py` falla si `mkdocs.yml` declara un plugin fuera de
   `ZENSICAL_SUPPORTED_PLUGINS` o si los enlaces al ZIP de `docs/downloads.md` no resuelven al
   ZIP `latest` (p. ej. al cambiar `use_directory_urls`). Al actualizar Zensical, revisar la lista
   contra zensical.org/compatibility/plugins.
-- **Sesión**: `.ai/sessions/2026-10-28d_zensical_migration/` (F1, F4)
+- **Sesión**: `.ai/sessions/2026-10-28d_zensical_migration/` (F1, F4), `.ai/sessions/2026-11-12_zensical_paridad_f7/` (Z1)
 
 ## [Mermaid] — CDN propio + `mermaid.run()` duplican el render del tema
 
@@ -168,21 +133,6 @@
   prueba con mermaid@12 los superpone; no es un fallo de la documentación. Verificar en el sitio
   construido o diagrama a diagrama con `mermaid.render()`.
 - **Sesión**: `.ai/sessions/2026-10-28e_mermaid_diagrams/` (M5)
-
-## [Mermaid] — Material + Mermaid 12: subgrafos ilegibles en modo oscuro
-
-- **Síntoma**: con Mermaid 12 cargado por Material, los `subgraph` de los flowchart salen con
-  fondos pastel claros y el texto de sus nodos casi no se lee en el esquema `slate`.
-- **Causa** (verificada con capturas en Edge headless): Mermaid 12 cambió el tema por defecto del
-  flowchart. Zensical inicializa Mermaid con `theme: "default"` y no lo sufre; Material no pasa
-  `theme` (su integración se diseñó para v11).
-- **Tratamiento**: `docs/assets/js/mermaid-theme.js`, cargado justo después de la librería, envuelve
-  `mermaid.initialize` y añade `theme: "default"` y `themeVariables.dropShadow: "none"` (lo mismo
-  que Zensical; la configuración del tema prevalece). También fija `startOnLoad: false` en cuanto
-  carga, para que la librería no procese los bloques por su cuenta en el evento `load` y duplique
-  el render (§ CDN propio + `mermaid.run()`).
-- **Verificado**: 24/24 diagramas sin conexión, 0 SVG de error, MkDocs y Zensical, claro y oscuro.
-- **Sesión**: `.ai/sessions/2026-10-28f_mermaid_local/` (L1)
 
 ## [document-project] — Fuentes convertidas copiadas al destino con nombres distintos
 
@@ -302,19 +252,6 @@
   `search/search_index.js` (MkDocs) y `search.js` en la raíz (Zensical); se aceptan los dos.
 - **Sesión**: .ai/sessions/2026-10-29d_zip_sin_servidor/
 
-## [mkdocs_hooks.py] — El ZIP `latest` salía sin el índice de búsqueda en JS
-
-- **Síntoma**: con MkDocs, `site/doc_ia-docs-latest.zip` (2,69 MB) no traía
-  `search/search_index.js` y el ZIP versionado (2,80 MB) sí: la búsqueda fallaba justo en el ZIP
-  que se descarga desde la web.
-- **Causa**: el plugin `offline` escribe el índice en su `on_post_build` con prioridad -100
-  («last»); el hook, con prioridad 0, empaquetaba antes.
-- **Tratamiento**: `on_post_build.mkdocs_priority = -200` en `mkdocs_hooks.py` (lo mismo que
-  `mkdocs.plugins.event_priority`, sin importar mkdocs: Zensical carga el hook sin él).
-  `test_zip_hook_runs_after_offline_plugin` compara con la prioridad real del plugin. El producto
-  lo exige en destinos con hook propio (Gap V3).
-- **Sesión**: .ai/sessions/2026-10-29d_zip_sin_servidor/
-
 ## [build_docs_zip.py] — El ZIP versionado anidaba el ZIP `latest` y no traía `start-server.py`
 
 - **Síntoma**: `dist/doc_ia-docs-0.3.0.zip` (el que suben las Releases) tenía 155 entradas, entre
@@ -409,3 +346,72 @@
   metadatos MADR de los ADR) y recupera el arquetipo. Test
   `test_stamp_keeps_unmanaged_keys_and_archetype`.
 - **Sesión**: .ai/sessions/2026-11-11_hotfix_stamp_frontmatter/
+
+## Histórico (MkDocs)
+
+Casos que solo se daban con MkDocs + Material. Desde el 2026-11-12 Zensical es el único generador
+(ADR-003) y no se reproducen; se conservan como registro y para destinos aún no migrados.
+
+### [plugin MkDocs] — Plugin ZIP no encontrado al ejecutar `mkdocs build`
+
+- **Síntoma**: `ERROR - Config value 'plugins': The "{nombre}_documentation_zip" plugin is not installed.`
+  El build falla aunque el plugin fue creado e instalado correctamente.
+- **Causa**: el entry point del plugin está registrado en un venv específico
+  (`doc_ia\.venv\Lib\site-packages\{nombre}_docs-{versión}.dist-info`). Cuando el terminal
+  no tiene ese venv activo, `mkdocs` resuelve a otro Python (p. ej.
+  `C:\Users\{user}\AppData\Roaming\Python\Python314\Scripts\mkdocs.exe`) que no conoce el plugin.
+  Hay múltiples `mkdocs` en el PATH del sistema; el que "gana" depende del orden del PATH
+  y del venv activo en el terminal concreto.
+- **Solución definitiva (2026-06-15)**: **no usar el sistema de plugins** para la generación del ZIP.
+  Migrar a un hook MkDocs nativo (`mkdocs_hooks.py`) cargado mediante la clave `hooks:` de `mkdocs.yml`.
+  El hook no requiere instalación, no usa entry points y funciona con cualquier Python que tenga `mkdocs`.
+  Patrón canónico: `doc_ia/mkdocs_hooks.py` (solo cambiar `zip_path` para otro proyecto).
+  ```yaml
+  # mkdocs.yml — añadir:
+  hooks:
+    - mkdocs_hooks.py
+  # y eliminar el plugin de la sección plugins:
+  ```
+- **Workaround temporal** (si no es posible migrar aún):
+  - Activar el venv antes del build: `doc_ia\.venv\Scripts\Activate.ps1`
+  - O invocar explícitamente: `python -m mkdocs build --strict`
+    (donde `python` = `doc_ia\.venv\Scripts\python.exe`)
+- **Sesión**: `.ai/sessions/2026-06-12/` (descubierto); `.ai/sessions/2026-06-15_hooks_migration/` (resuelto)
+
+### [mkdocs_hooks.py] — El ZIP `latest` se regenera aunque `mkdocs build --strict` falle
+
+- **Síntoma**: tras un build estricto que termina con `Aborted with N warnings in strict mode`,
+  `site/doc_ia-docs-latest.zip` y su `.sha256` tienen fecha nueva.
+- **Causa**: MkDocs 1.6 ejecuta `on_post_build` antes de comprobar los avisos del modo estricto.
+- **Decisión (2026-10-28)**: aceptado. El ZIP local de un build fallido no se distribuye: los
+  workflows solo publican si el build termina con 0. No usar `site/` tras un build fallido.
+  Con `build_docs_zip.py --builder zensical` no ocurre: el ZIP se genera solo tras un build OK.
+- **Sesión**: `.ai/sessions/2026-10-28c_quality_pending/`
+
+### [Mermaid] — Material + Mermaid 12: subgrafos ilegibles en modo oscuro
+
+- **Síntoma**: con Mermaid 12 cargado por Material, los `subgraph` de los flowchart salen con
+  fondos pastel claros y el texto de sus nodos casi no se lee en el esquema `slate`.
+- **Causa** (verificada con capturas en Edge headless): Mermaid 12 cambió el tema por defecto del
+  flowchart. Zensical inicializa Mermaid con `theme: "default"` y no lo sufre; Material no pasa
+  `theme` (su integración se diseñó para v11).
+- **Tratamiento**: `docs/assets/js/mermaid-theme.js`, cargado justo después de la librería, envuelve
+  `mermaid.initialize` y añade `theme: "default"` y `themeVariables.dropShadow: "none"` (lo mismo
+  que Zensical; la configuración del tema prevalece). También fija `startOnLoad: false` en cuanto
+  carga, para que la librería no procese los bloques por su cuenta en el evento `load` y duplique
+  el render (§ CDN propio + `mermaid.run()`).
+- **Verificado**: 24/24 diagramas sin conexión, 0 SVG de error, MkDocs y Zensical, claro y oscuro.
+- **Sesión**: `.ai/sessions/2026-10-28f_mermaid_local/` (L1)
+
+### [mkdocs_hooks.py] — El ZIP `latest` salía sin el índice de búsqueda en JS
+
+- **Síntoma**: con MkDocs, `site/doc_ia-docs-latest.zip` (2,69 MB) no traía
+  `search/search_index.js` y el ZIP versionado (2,80 MB) sí: la búsqueda fallaba justo en el ZIP
+  que se descarga desde la web.
+- **Causa**: el plugin `offline` escribe el índice en su `on_post_build` con prioridad -100
+  («last»); el hook, con prioridad 0, empaquetaba antes.
+- **Tratamiento**: `on_post_build.mkdocs_priority = -200` en `mkdocs_hooks.py` (lo mismo que
+  `mkdocs.plugins.event_priority`, sin importar mkdocs: Zensical carga el hook sin él).
+  `test_zip_hook_runs_after_offline_plugin` compara con la prioridad real del plugin. El producto
+  lo exige en destinos con hook propio (Gap V3).
+- **Sesión**: .ai/sessions/2026-10-29d_zip_sin_servidor/

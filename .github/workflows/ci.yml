@@ -1,7 +1,7 @@
 name: ✅ CI — Calidad y trazabilidad
 
 # Lint, tipos, tests, trazabilidad docs ↔ código y build estricto de la documentación.
-# Sin docling/torch: requirements-dev.txt solo incluye el stack de MkDocs y las herramientas.
+# Sin docling/torch: requirements-dev.txt solo incluye Zensical (docs) y las herramientas.
 
 on:
   push:
@@ -61,37 +61,16 @@ jobs:
       - name: Trazabilidad — llms.txt al día
         run: python scripts/doc_trace.py llms --check
 
-      - name: Build estricto de la documentación
-        run: python -m mkdocs build --strict
-
-      # El ZIP se abre con doble clic en index.html: build_docs_zip.py rechaza (exit 1) un site/ con
-      # enlaces a carpetas, scripts remotos o sin índice de búsqueda en JS (plugin `offline`).
-      - name: ZIP navegable sin servidor
-        run: python scripts/build_docs_zip.py --no-build --output-dir "$RUNNER_TEMP/dist"
-
-      # Paridad con Zensical (sucesor de Material for MkDocs). No bloqueante mientras Zensical
-      # esté en alfa: build_docs_zip.py ejecuta los hooks que Zensical ignora y el ZIP latest
-      # debe existir al terminar.
-      - name: Build Zensical (paridad, no bloqueante)
-        id: zensical
-        continue-on-error: true
+      # Zensical es el único generador (ADR-003). build_docs_zip.py es el pipeline: sincroniza los
+      # ficheros raíz, `zensical build --strict`, ZIP latest y rechaza (exit 1) un site/ que no se
+      # abra con doble clic en index.html (enlaces a carpetas, scripts remotos o sin índice JS).
+      - name: Build estricto de la documentación (Zensical) + ZIP navegable sin servidor
         run: |
-          python scripts/build_docs_zip.py --builder zensical --output-dir "$RUNNER_TEMP/zdist"
+          python scripts/build_docs_zip.py --output-dir "$RUNNER_TEMP/dist"
           test -f site/doc_ia-docs-latest.zip
           test -f site/doc_ia-docs-latest.zip.sha256
 
-      # Con continue-on-error el paso anterior figura como "success" aunque falle. El resultado real
-      # se publica como anotación (legible por la API pública) para medir la condición C2 de ADR-003.
-      - name: Resultado de la paridad Zensical
-        if: always()
-        run: |
-          if [ "${{ steps.zensical.outcome }}" = "success" ]; then
-            echo "::notice title=Paridad Zensical::OK (Python ${{ matrix.python-version }})"
-          else
-            echo "::warning title=Paridad Zensical::FALLO (Python ${{ matrix.python-version }}): ${{ steps.zensical.outcome }}"
-          fi
-
-  # `mkdocs build --strict` no valida Mermaid: el tema renderiza en el navegador. Este job pasa
+  # `zensical build --strict` no valida Mermaid: el tema renderiza en el navegador. Este job pasa
   # cada página con diagramas por el parser real, con la misma versión exacta que sirve el sitio
   # (docs/assets/vendor/mermaid/; tests/test_mermaid_assets.py exige que coincidan). Versiones
   # con al menos dos semanas de antigüedad; se usa el Node y el Chrome del runner (sin descarga

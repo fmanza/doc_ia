@@ -12,7 +12,6 @@ import hashlib
 import re
 from pathlib import Path
 
-import mkdocs_hooks
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -59,11 +58,3 @@ def test_config_builds_a_site_that_opens_without_server(config: Path) -> None:
     assert "offline" in _block(config, "plugins")
     polyfills = _block(config, "polyfills", indent="  ")
     assert polyfills == [f"assets/vendor/iframe-worker/{_vendored().name}"], polyfills
-
-
-def test_zip_hook_runs_after_offline_plugin() -> None:
-    """El índice JS lo escribe `offline` en su on_post_build: el ZIP latest va detrás."""
-    from material.plugins.offline.plugin import OfflinePlugin
-
-    offline = getattr(OfflinePlugin.on_post_build, "mkdocs_priority", 0)
-    assert getattr(mkdocs_hooks.on_post_build, "mkdocs_priority", 0) < offline

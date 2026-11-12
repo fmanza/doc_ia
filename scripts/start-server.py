@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Servidor HTTP local para navegar la documentación doc_ia offline.
 
-Incluido dentro del ZIP de documentación generado por mkdocs build. Solo usa la biblioteca
+Incluido dentro del ZIP de documentación generado por zensical build. Solo usa la biblioteca
 estándar: basta Python 3.7 o superior, sin instalar paquetes. Escucha únicamente en 127.0.0.1,
 así que la documentación no queda expuesta a la red local.
 

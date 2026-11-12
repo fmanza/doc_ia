@@ -21,20 +21,18 @@ def _only_missing(*absent: str) -> object:
     return fake
 
 
-def test_main_warns_when_zensical_missing(
+def test_zensical_is_required_and_mkdocs_is_not() -> None:
+    """Zensical es el único generador (ADR-003): sin él, el entorno está incompleto."""
+    assert "zensical" in check_env.REQUIRED_TOOLS
+    assert "mkdocs" not in check_env.REQUIRED_TOOLS
+
+
+def test_main_fails_when_zensical_missing(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
     monkeypatch.setattr(check_env, "missing_tools", _only_missing("zensical"))
-    assert check_env.main() == 0
-    assert "zensical no instalado (opcional)" in capsys.readouterr().out
-
-
-def test_main_no_zensical_warning_when_installed(
-    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
-) -> None:
-    monkeypatch.setattr(check_env, "missing_tools", _only_missing())
-    assert check_env.main() == 0
-    assert "zensical" not in capsys.readouterr().out
+    assert check_env.main() == 1
+    assert "Faltan herramientas: zensical" in capsys.readouterr().out
 
 
 def test_missing_tools_empty_when_tools_exist() -> None:

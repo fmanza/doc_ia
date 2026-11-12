@@ -36,15 +36,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements-docs.txt
 
-      - name: 🏗️ Build documentation (MkDocs Material)
+      # Zensical (generador único, ADR-003): build_docs_zip.py sincroniza los ficheros raíz,
+      # construye en strict, genera el ZIP latest y comprueba que se abre sin servidor.
+      - name: 🏗️ Build documentation (Zensical) + ZIP + Checksums
         run: |
-          python -m mkdocs build --strict
-          echo "✅ Documentation built successfully"
-
-      - name: 📚 Generate ZIP + Checksums
-        run: |
-          python scripts/build_docs_zip.py --no-build
-          echo "✅ ZIP and checksums generated"
+          python scripts/build_docs_zip.py
+          echo "✅ Documentation built, ZIP and checksums generated"
           ls -lh dist/
 
       - name: 🔐 Display checksums for verification

@@ -1,10 +1,7 @@
 """Sincroniza CHANGELOG.md y CONTRIBUTING.md de la raíz del repo a docs/.
 
-Uso como MkDocs hook (automático via mkdocs.yml):
-    hooks:
-      - hooks/sync_root_docs.py
-
-Uso como CLI independiente:
+Lo ejecutan `scripts/build_docs_zip.py` antes de `zensical build` y el hook PostToolUse de
+Claude Code tras cada edición. Uso como CLI independiente:
     python hooks/sync_root_docs.py
 """
 
@@ -13,7 +10,6 @@ from __future__ import annotations
 import shutil
 import sys
 from pathlib import Path
-from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -42,12 +38,6 @@ def _sync(src: Path, dst: Path) -> None:
             text = text.replace(old, new)
         dst.write_text(text, encoding="utf-8")
     print(f"[sync_root_docs] {src.name} -> {dst}")
-
-
-def on_pre_build(config: Any) -> None:
-    docs_dir = Path(config["docs_dir"])
-    for root_name, docs_name in PAIRS:
-        _sync(ROOT / root_name, docs_dir / docs_name)
 
 
 def main() -> int:

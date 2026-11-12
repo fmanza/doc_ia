@@ -5,6 +5,23 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING** — Zensical es el único generador de documentación (ADR-003 aceptado; ADR-001
+  reemplazado). `scripts/build_docs_zip.py` es el pipeline de build: siempre sincroniza los
+  ficheros raíz, construye con `zensical build --strict` y genera el ZIP `latest`.
+  `--builder mkdocs` termina con código 2; `--builder zensical` se acepta sin efecto durante
+  esta versión. `check_env.py` exige `zensical` en lugar de `mkdocs`.
+- CI: el build de Zensical es bloqueante; desaparecen el build MkDocs y la paridad. Los
+  workflows de release construyen con `build_docs_zip.py`.
+
+### Removed
+
+- MkDocs, Material for MkDocs y sus dependencias propias de los ficheros de requisitos; la
+  clave `hooks:` de `mkdocs.yml` (Zensical no la ejecuta), `on_pre_build` de
+  `hooks/sync_root_docs.py` y la prioridad MkDocs de `mkdocs_hooks.py`. `mkdocs.yml` y
+  `mkdocs_hooks.py` conservan el nombre.
+
 ## [0.11.4] — 2026-11-12
 
 ### Changed

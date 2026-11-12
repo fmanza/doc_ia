@@ -83,8 +83,8 @@ def test_theme_script_fixes_startup_and_theme() -> None:
 @pytest.mark.parametrize(
     "packages",
     # Desde Zensical 0.0.74 el tema vive en zensical-ui; antes, en el propio paquete.
-    [("material",), ("zensical_ui", "zensical")],
-    ids=["material", "zensical"],
+    [("zensical_ui", "zensical")],
+    ids=["zensical"],
 )
 def test_theme_bundle_uses_global_mermaid(packages: tuple[str, ...]) -> None:
     """El tema instalado solo descarga Mermaid si `window.mermaid` no existe y llama a `initialize`.

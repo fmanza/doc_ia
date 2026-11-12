@@ -1,11 +1,10 @@
 """Verificación determinista del entorno de tooling documental.
 
-Comprueba que las herramientas Python requeridas (mkdocs, ruff, mypy, pytest) y las
+Comprueba que las herramientas Python requeridas (zensical, ruff, mypy, pytest) y las
 herramientas de conversión están disponibles. No invoca ningún servicio IA.
 
-Generador de documentación opcional:
-  zensical   (Python, opcional) — sucesor de Material for MkDocs; build de paridad con
-             `python scripts/build_docs_zip.py --builder zensical`.
+Generador de documentación: zensical (único, ADR-003); build con
+`python scripts/build_docs_zip.py`.
 
 Herramientas de conversión:
   docling    (Python, principal; motor por defecto de convert_to_md.py) — PDF, DOCX, PPTX,
@@ -24,9 +23,7 @@ import importlib.util
 import shutil
 import sys
 
-REQUIRED_TOOLS: tuple[str, ...] = ("mkdocs", "ruff", "mypy", "pytest")
-
-OPTIONAL_DOC_BUILDERS: tuple[str, ...] = ("zensical",)
+REQUIRED_TOOLS: tuple[str, ...] = ("zensical", "ruff", "mypy", "pytest")
 
 OPTIONAL_PYTHON_TOOLS: tuple[str, ...] = ("markitdown", "docling")
 
@@ -48,7 +45,6 @@ _PANDOC_INSTALL = (
 _MARKITDOWN_INSTALL = "    pip install markitdown"
 _MARKITDOWN_PLUGINS_INSTALL = "    pip install pdfminer.six python-docx python-pptx openpyxl xlrd"
 _DOCLING_INSTALL = "    pip install docling"
-_ZENSICAL_INSTALL = "    pip install -r requirements-dev.txt   (versión fijada)"
 
 
 def missing_tools(tools: tuple[str, ...] = REQUIRED_TOOLS) -> list[str]:
@@ -82,13 +78,6 @@ def main() -> int:
 
     warnings: list[str] = []
     notes: list[str] = []  # informativas: no degradan el mensaje de entorno completo
-
-    if missing_tools(OPTIONAL_DOC_BUILDERS):
-        warnings.append(
-            "zensical no instalado (opcional): generador sucesor de Material for MkDocs, usado"
-            " en el build de paridad (build_docs_zip.py --builder zensical).\n"
-            f"   Instalar con:\n{_ZENSICAL_INSTALL}"
-        )
 
     has_docling = importlib.util.find_spec("docling") is not None
     if not has_docling:

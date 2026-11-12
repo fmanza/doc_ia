@@ -1,5 +1,5 @@
 ---
-status: "ACEPTADO"
+status: "REEMPLAZADO POR ADR-003"
 date: 2026-06-10
 deciders: [Paco Manzano]
 consulted: []
@@ -41,8 +41,8 @@ proyecto. `mkdocs.yml` es la fuente única de configuración (no existe `zensica
 
 ## Estado y Revisión
 
-Estado: **ACEPTADO** · Última revisión: 2026-10-28
+Estado: **REEMPLAZADO POR ADR-003** · Última revisión: 2026-11-12
 
-Propuesta de reemplazo: [ADR-003 — Use Zensical as the default documentation generator](ADR-003-zensical-por-defecto.md)
-(PROPUESTO). Material for MkDocs llega a fin de vida el 2027-05-05. Mientras ADR-003 no se
-acepte, esta decisión sigue vigente.
+Reemplazado por [ADR-003 — Use Zensical as the only documentation generator](ADR-003-zensical-por-defecto.md)
+(ACEPTADO el 2026-11-12): Zensical es el único generador y MkDocs queda fuera. Se conserva como
+registro histórico.

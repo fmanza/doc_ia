@@ -1,6 +1,7 @@
-"""Hook MkDocs: genera ZIP offline de la documentación doc_ia tras cada build.
+"""Paso post-build: genera el ZIP offline `latest` de la documentación doc_ia en site/.
 
-Cargado directamente por MkDocs mediante la clave `hooks:` de mkdocs.yml.
+Lo ejecuta `scripts/build_docs_zip.py` tras un `zensical build` correcto (Zensical no tiene
+`hooks:`). El nombre es heredado de la etapa MkDocs y se mantiene (ADR-003).
 No requiere instalación ni registro de paquete.
 
 Patrón de referencia para otros proyectos:
@@ -51,11 +52,6 @@ def on_post_build(config, **kwargs):
     print(f"[OK] SHA256: {sha256_hash}")
     print(f"[OK] Checksum guardado: {sha256_file.name}")
 
-
-# Ejecutar después del plugin `offline` (prioridad -100), que escribe search/search_index.js en
-# su on_post_build: sin él, el ZIP latest no tendría búsqueda por file://. Es lo que hace
-# mkdocs.plugins.event_priority, sin importar mkdocs (Zensical carga este hook sin MkDocs).
-on_post_build.mkdocs_priority = -200
 
 
 def _sha256(file_path: Path) -> str:
