@@ -5,7 +5,7 @@
 - fecha: 2026-11-12
 - rama: develop
 - skill: new_feature (fix + build(deps))
-- fase: PLAN + AUDIT_PLAN + IMPLEMENT
+- fase: PLAN + AUDIT_PLAN + IMPLEMENT + VERSION
 
 ## Prompt issued
 1. Revisión de lo pendiente de la migración a Zensical (F7, F8, F9, F10, F12): situación actual y
@@ -45,6 +45,15 @@
   verificadas con capturas por `file://` (búsqueda y móvil real pendientes de revisión humana).
   Z4 queda como decisión (`privacy`). Todo en `develop`, sin push.
 
+## Publicación (2026-11-13)
+- `release: v0.12.0` `556c26f` en `develop`; CI run 43329911066 verde (3.12, 3.14, Mermaid; build
+  Zensical bloqueante).
+- Merge `--no-ff` a `main` `f5d9b69` (padres `79b43ca`, `556c26f`), push con confirmación del
+  usuario; CI run 43330336383 verde; release `docs-v0.12.0` (run 43330336412) con ZIP, `.sha256`
+  y `CHECKSUMS.txt`.
+- Tag `v0.12.0` sobre `f5d9b69` → release `v0.12.0` con `doc_ia-docs-0.12.0.zip` (run 43330628793).
+- v0.11.4 no tiene release propia: va incluida en v0.12.0.
+
 ## Pendiente
-- Decidir COB-BUILDZIP-001 (¿reclasificar a `No aplica`?), Z4 (`privacy`) y revisión humana de C3.
-- VERSION v0.12.0 con `/version-closure` (merge, tag y push por separado, con confirmación).
+- Decidir COB-BUILDZIP-001 (¿reclasificar a `No aplica`?) y Z4 (`privacy`).
+- Revisión humana de C3 sobre el ZIP publicado: búsqueda por `file://` y móvil real.
