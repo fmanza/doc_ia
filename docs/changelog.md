@@ -5,6 +5,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+## [0.12.0] — 2026-11-13
+
 ### Changed
 
 - **BREAKING** — Zensical es el único generador de documentación (ADR-003 aceptado; ADR-001
