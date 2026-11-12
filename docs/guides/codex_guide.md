@@ -73,14 +73,14 @@ Guarda en docs/api/build_docs_zip.md y añade la entrada en mkdocs.yml.
 ## 4. Verificación
 
 ```bash
-# Validación estricta de enlaces y Markdown
-python -m mkdocs build --strict
+# Validación estricta de enlaces y Markdown (sync + zensical build --strict + ZIP)
+python scripts/build_docs_zip.py
 ```
 
 Si el build pasa sin errores, la documentación generada es válida. Revisar visualmente con:
 
 ```bash
-python -m mkdocs serve
+python -m zensical serve
 ```
 
 Navegar a `http://127.0.0.1:8000` y comprobar la nueva página.
@@ -91,5 +91,5 @@ Navegar a `http://127.0.0.1:8000` y comprobar la nueva página.
 |---|---|---|
 | Error de autenticación | Sesión expirada en la extensión | Renovar sesión en la configuración de VS Code (nunca versionar la credencial) |
 | Codex inventa módulos o APIs | Prompt sin contexto del código real | Incluir el contenido del archivo fuente en el prompt |
-| `mkdocs build` falla | Rutas incorrectas o links rotos | Revisar rutas relativas del `.md` generado |
+| El build (`build_docs_zip.py`) falla | Rutas incorrectas o links rotos | Revisar rutas relativas del `.md` generado |
 | Diagrama Mermaid no válido | Sintaxis incorrecta generada | Validar en [mermaid.live](https://mermaid.live); regenerar con restricciones explícitas |

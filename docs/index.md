@@ -16,7 +16,7 @@ código Python es tooling determinista) y **ejecución siempre en el chat** de l
 ## 2. Capacidades Principales
 
 - ✅ **Punto de entrada único para documentar**: `document_project.prompt.md`
-  (`/document-project` en Claude Code) — valida origen(es), destino, generador e idioma.
+  (`/document-project` en Claude Code) — valida origen(es), destino e idioma (el generador es siempre Zensical).
 - ✅ **12 arquetipos documentales formales** (funcional, técnica, how-to, tutorial, ejemplos,
   ADR/MADR 4.0, navegación, onboarding, normativa condicional, changelog, config IA,
   contribución, referencia del sistema) en `.github/prompts/`, con evidencia verificable
@@ -53,7 +53,6 @@ Para documentar un proyecto, en el chat de tu plataforma IA:
 
 Origen(es): c:\repos\mi_proyecto
 Destino: c:\repos\mi_proyecto\docs
-Generador: mkdocs-material
 Idioma: es
 ```
 
@@ -69,15 +68,15 @@ Idioma: es
 | Ejemplos | Casos ejecutables verificables ([verificar entorno](examples/check_env_usage.md), [ZIP offline](examples/build_docs_zip_offline.md)) |
 | Guías | [Onboarding](guides/onboarding_dev.md), [troubleshooting](guides/troubleshooting.md), [Codex](guides/codex_guide.md) |
 | Configuración IA | Configuración de agentes por plataforma ([Claude Code](ai-config/claude.md)) |
-| [Arquitectura](architecture.md) | Vista panorámica y de despliegue + ADR ([001](adr/ADR-001-mkdocs-material-por-defecto.md), [002](adr/ADR-002-arquetipos-con-evidencia.md), [003](adr/ADR-003-zensical-por-defecto.md)) |
+| [Arquitectura](architecture.md) | Vista panorámica y de despliegue + ADR ([001](adr/ADR-001-mkdocs-material-por-defecto.md) reemplazado, [002](adr/ADR-002-arquetipos-con-evidencia.md), [003](adr/ADR-003-zensical-por-defecto.md)) |
 | [Descargas](downloads.md) | Documentación offline (ZIP + SHA256) |
 | [Changelog](changelog.md) | Historial de cambios por versión |
 
 ## 5. Compatibilidad y Soporte
 
 - **Python**: ≥ 3.12 (`pyproject.toml`).
-- **Generador de docs**: MkDocs + Material (por defecto); Zensical recíprocamente
-  compatible sobre el mismo `mkdocs.yml` (no es dependencia).
+- **Generador de docs**: Zensical, único generador (ADR-003); la configuración sigue en
+  `mkdocs.yml`, que Zensical lee de forma nativa. MkDocs ya no se soporta.
 - **Plataformas IA**: las cinco de la tabla de §2; la generación documental ocurre en el
   chat, nunca en CI ni en código.
 - **Repositorio**: [github.com/fmanza/doc_ia](https://github.com/fmanza/doc_ia) —

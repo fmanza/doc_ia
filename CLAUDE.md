@@ -21,7 +21,7 @@ Usa estos comandos para activar flujos estructurados con automatización integra
 
 | Comando | Propósito | Entrada | Salida |
 |---|---|---|---|
-| `/document-project` | **Documentar un proyecto (producto doc_ia)** | Origen(es) + destino + generador + idioma (obligatorios; si faltan, se detiene) | VALIDACIÓN → INVENTARIO → PLAN_DOC → GENERACIÓN → SYNC NAV → REVISIÓN → RESUMEN → CIERRE (sesión `.ai/` + commit) |
+| `/document-project` | **Documentar un proyecto (producto doc_ia)** | Origen(es) + destino + idioma (obligatorios; si faltan, se detiene). Generador: siempre Zensical | VALIDACIÓN → INVENTARIO → PLAN_DOC → GENERACIÓN → SYNC NAV → REVISIÓN → RESUMEN → CIERRE (sesión `.ai/` + commit) |
 | `/new-feature` | Nueva funcionalidad | Descripción + módulos | PLAN → AUDIT_PLAN → IMPLEMENT → AUDIT_CODE → VERSION |
 | `/hotfix` | Bug P1/P2 mínimo | Descripción + impacto | RCA → FIX → AUDIT_CODE → VERSION |
 | `/refactor` | Refactor sin cambios funcionales | Área + objetivo | PLAN → AUDIT_PLAN → IMPLEMENT → AUDIT_CODE |
@@ -136,8 +136,8 @@ transversal de evidencia (§3.16) son las adiciones 2026.
 ## Documentación con Claude Code
 
 Usa **`/document-project`** como **comando de entrada único** para documentar un proyecto
-(origen externo o doc_ia mismo): valida los inputs obligatorios (origen(es), destino, generador,
-idioma) y orquesta internamente el flujo de fases del agente **Documentation Generator** y los
+(origen externo o doc_ia mismo): valida los inputs obligatorios (origen(es), destino e
+idioma; el generador es siempre Zensical, ADR-003) y orquesta internamente el flujo de fases del agente **Documentation Generator** y los
 arquetipos. No uses un único prompt masivo: trabaja siempre por fases separadas.
 
 ### Flujo por fases
@@ -150,7 +150,7 @@ Fase 3  — Documentación técnica: responsabilidad, Mermaid, API pública, con
 Fase 4  — Ejemplos verificables: código real, resultado determinista, sin credenciales
 Fase 5  — Sincronizar mkdocs.yml: añadir/mover/retirar entradas de navegación
 Fase 6  — Revisión final: validar Markdown, enlaces relativos y Mermaid (§3.17 del estándar)
-Fase 7  — Verificación de build (opt-in --verify-build): python -m mkdocs build --strict + leer site/
+Fase 7  — Verificación de build (opt-in --verify-build): python -m zensical build --strict + leer site/
 ```
 
 > **Fase 0b — Requisito OBLIGATORIO** (creación y actualización):
@@ -169,7 +169,7 @@ Fase 7  — Verificación de build (opt-in --verify-build): python -m mkdocs bui
 
 1. Revisar documentación existente antes de crear páginas nuevas.
 2. Separar siempre **funcional**, **técnico** y **ejemplos** en secciones diferenciadas.
-3. MkDocs Material como generador por defecto (Zensical recíprocamente compatible); Mermaid.js para diagramas.
+3. Zensical como único generador (ADR-003; MkDocs ya no se soporta); Mermaid.js para diagramas.
 4. Actualizar `mkdocs.yml` cuando se creen, muevan o eliminen páginas en `docs/`.
 5. No inventar capacidades, módulos, APIs, salidas, errores ni dependencias.
 6. **Prohibido** delegar la generación de contenido a APIs de IA externas (principio del proyecto:
@@ -187,7 +187,7 @@ que **deben existir siempre** (no son alternativos):
   release `docs-vX.Y.Z` en cada push a `main` con cambios en `docs/`.
 
 ```bash
-python scripts/build_docs_zip.py        # Build (mkdocs) + ZIP en dist/doc_ia-docs-{version}.zip
+python scripts/build_docs_zip.py        # Build (Zensical) + ZIP en dist/doc_ia-docs-{version}.zip
 cat dist/doc_ia-docs-*.zip.sha256       # Ver checksum
 sha256sum -c dist/*.sha256              # Validar (Linux/Mac)
 ```
@@ -240,10 +240,9 @@ python -m ruff check scripts tests   # Linting
 python -m ruff format scripts tests  # Formato
 python -m mypy scripts               # Type-checking (strict)
 python -m pytest                     # Tests
-python -m mkdocs build --strict      # Build de documentación
-python -m mkdocs serve               # Documentación local
-python scripts/check_env.py          # Verificación del entorno (Python + docling + markitdown + plugins + pandoc)
-python scripts/build_docs_zip.py     # ZIP offline con SHA256
+python scripts/build_docs_zip.py     # Build Zensical (--strict) + ZIP latest + ZIP offline con SHA256
+python -m zensical serve             # Vista previa local (no sincroniza CHANGELOG/CONTRIBUTING)
+python scripts/check_env.py          # Verificación del entorno (zensical + docling + markitdown + plugins + pandoc)
 python scripts/doc_trace.py drift    # Páginas cuyas fuentes de código han cambiado
 python scripts/doc_trace.py matrix   # Criterios de aceptación ↔ tests reales
 python scripts/doc_trace.py llms     # Regenera docs/llms.txt desde el nav

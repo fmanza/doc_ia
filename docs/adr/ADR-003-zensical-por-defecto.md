@@ -43,8 +43,8 @@ proyectos destino. MkDocs queda fuera** (decisión del usuario, 2026-11-12):
    `zensical build --strict`, ZIP `latest` (`mkdocs_hooks.py`) solo si el build termina con 0,
    y rechaza un `site/` que no se abra con doble clic en `index.html`. `--builder mkdocs` se
    rechaza con código 2; `--builder zensical` se acepta sin efecto durante una versión.
-2. **Dependencias**: `zensical` y `zensical-ui` con versión exacta; fuera `mkdocs`,
-   `mkdocs-material` y sus dependencias propias. `check_env.py` exige `zensical`.
+2. **Dependencias**: `zensical` y `zensical-ui` con versión exacta; fuera MkDocs,
+   Material for MkDocs y sus dependencias propias. `check_env.py` exige `zensical`.
 3. **CI**: el build de Zensical es **bloqueante**; desaparecen el build MkDocs y la paridad.
 4. **Configuración**: se mantiene `mkdocs.yml` como **fuente única**, sin la clave `hooks:`.
    Zensical lo lee de forma nativa y `scripts/doc_trace.py`, `kit.py`, los tests y los destinos

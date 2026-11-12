@@ -73,7 +73,7 @@ pip install 'doc_ia[all-engines]'  # docling + markitdown
 | 1 | `git clone https://github.com/fmanza/doc_ia.git && cd doc_ia` | Obtener el código |
 | 2 | `python -m venv .venv` | Entorno virtual aislado |
 | 3 | `.venv\Scripts\activate` (Windows) / `source .venv/bin/activate` (Linux/Mac) | Activar el venv |
-| 4 | `python -m pip install -r requirements-dev.txt` | Desarrollo y CI: mkdocs-material, zensical (build de paridad), ruff, mypy y pytest (sin docling ni torch) |
+| 4 | `python -m pip install -r requirements-dev.txt` | Desarrollo y CI: zensical (generador único), ruff, mypy y pytest (sin docling ni torch) |
 | 4b | `python -m pip install -r requirements.txt` | Opcional: entorno local completo con los motores de conversión (docling, markitdown, torch) |
 
 ## 3. Configuración por Plataforma IA
@@ -95,8 +95,9 @@ instalar aparte de abrir el proyecto:
 python scripts/check_env.py
 # Entorno de tooling documental completo.
 
-python -m mkdocs build --strict
-# INFO    -  Documentation built in X.XX seconds   (sin warnings)
+python scripts/build_docs_zip.py
+# [build_docs_zip] Building with: <python> -m zensical build --strict   (sin warnings)
+# [build_docs_zip] ZIP created: doc_ia-docs-<versión>.zip
 ```
 
 ## 5. Solución de Problemas
@@ -104,7 +105,7 @@ python -m mkdocs build --strict
 | Escenario/Error | Causa probable | Solución |
 |---|---|---|
 | `Faltan herramientas: …` | Dependencias sin instalar o venv inactivo | Paso 3 y 4 de §2 |
-| `No module named mkdocs` | venv equivocado | Activar el venv del proyecto |
+| `No module named zensical` | venv equivocado | Activar el venv del proyecto |
 | Warning con `--strict` | Enlace roto o página huérfana en `docs/` | Ver [Troubleshooting](guides/troubleshooting.md) |
 
 Más casos en la guía de [Troubleshooting](guides/troubleshooting.md).

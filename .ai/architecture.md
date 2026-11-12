@@ -13,22 +13,22 @@ scripts deterministas + documentación + sistema de instrucciones IA multiplataf
 ```text
 doc_ia/
   pyproject.toml          # Versión, ruff, mypy strict, pytest
-  requirements.txt        # mkdocs-material, ruff, mypy, pytest
+  requirements.txt        # zensical, ruff, mypy, pytest (+ motores de conversión)
   mkdocs.yml              # Config del sitio (Material, idioma es) — fuente única
-  mkdocs_hooks.py         # Hook MkDocs: genera ZIP offline en site/ en cada build
+  mkdocs_hooks.py         # Post-build del pipeline: ZIP latest en site/ (nombre heredado)
   README.md
   CHANGELOG.md            # Fuente de verdad → docs/changelog.md (sync automático)
   CONTRIBUTING.md         # Fuente de verdad → docs/contributing.md (sync automático)
   scripts/
-    check_env.py          # Verifica herramientas instaladas (mkdocs, ruff, mypy, pytest; opcionales zensical, docling, markitdown, pandoc)
-    build_docs_zip.py     # Build (mkdocs|zensical) + ZIP + SHA256 en dist/
+    check_env.py          # Verifica herramientas instaladas (zensical, ruff, mypy, pytest; opcionales docling, markitdown, pandoc)
+    build_docs_zip.py     # Pipeline: sync + zensical build + ZIP latest + ZIP + SHA256 en dist/
     convert_to_md.py      # Convierte documentos binarios a Markdown (--engine docling por defecto | markitdown | pandoc)
     start-server.py       # Servidor HTTP local para navegación offline (incluido en el ZIP)
   hooks/
-    sync_root_docs.py     # Copia CHANGELOG.md y CONTRIBUTING.md a docs/ (hook MkDocs + PostToolUse)
+    sync_root_docs.py     # Copia CHANGELOG.md y CONTRIBUTING.md a docs/ (pre-build del pipeline + PostToolUse)
   tests/
     test_check_env.py     # Tests unitarios del tooling
-  docs/                   # Sitio MkDocs Material (33 páginas, 12 arquetipos aplicados — dogfooding)
+  docs/                   # Sitio Zensical (33 páginas, 12 arquetipos aplicados — dogfooding)
     functional/           # Arquetipos 1 — 7 páginas funcionales
     api/                  # Arquetipos 2 — 6 páginas técnicas
     examples/             # Arquetipos 4 — 6 páginas de ejemplos
@@ -62,7 +62,7 @@ doc_ia/
 
 - `scripts/` no importa nada de `docs/` ni de `.github/`; cada script es standalone.
 - `hooks/` no importa de `scripts/`; `sync_root_docs.py` opera solo con `pathlib`/`shutil`.
-- `mkdocs_hooks.py` es independiente de `scripts/build_docs_zip.py` (mecanismo dual complementario).
+- `mkdocs_hooks.py` no importa de `scripts/`; `build_docs_zip.py` lo carga por ruta como paso post-build.
 - `tests/` importa funciones de `scripts/` vía `sys.path` (no hay paquete instalable).
 - Los entry points de plataforma (`CLAUDE.md`, `GEMINI.md`, …) dependen del canónico
   `.github/SHARED_INSTRUCTIONS.md`; nunca entre sí.
@@ -85,11 +85,12 @@ Usuario (chat IA) → /document-project (o document_project.prompt.md)
 
 ## Decisiones de diseño vigentes
 
-- **MkDocs Material por defecto**; Zensical compatible sobre el mismo `mkdocs.yml`
-  (no es dependencia; `--builder zensical` disponible en `build_docs_zip.py`).
-- **Hook MkDocs nativo** (`mkdocs_hooks.py`) para ZIP automático en cada build; sin
-  instalación (no requiere `pyproject.toml` ni `pip install -e .`).
+- **Zensical como único generador** (ADR-003, 2026-11-12; reemplaza a ADR-001): MkDocs ya no se
+  soporta. `mkdocs.yml` conserva el nombre (Zensical lo lee de forma nativa) y no declara `hooks:`.
+- **Pipeline de build** `scripts/build_docs_zip.py`: pre-build (`sync_root_docs.py`),
+  `zensical build --strict` y post-build (`mkdocs_hooks.py`, ZIP automático); sin instalación
+  (no requiere `pyproject.toml` ni `pip install -e .`).
 - **Sin workflows CI con APIs de IA**: prohibido por el principio "sin API keys".
 - **`pip + requirements.txt`** como gestión de dependencias (no hay paquete publicable).
 - **Sincronización automática raíz→docs/**: `CHANGELOG.md` y `CONTRIBUTING.md` se copian
-  a `docs/` vía `hooks/sync_root_docs.py` (hook MkDocs + PostToolUse).
+  a `docs/` vía `hooks/sync_root_docs.py` (pre-build del pipeline + PostToolUse).

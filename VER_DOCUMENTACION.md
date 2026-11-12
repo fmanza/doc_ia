@@ -79,7 +79,7 @@ repositorios de tu distribución.
 ## 3. Ruta A — Documentación publicada en web
 
 No aplica: `mkdocs.yml` declara `site_url` (`https://fmanza.github.io/doc_ia/`), pero ningún
-workflow del repositorio publica el sitio (ni GitHub Pages ni `mkdocs gh-deploy`). Usa la Ruta B
+workflow del repositorio publica el sitio (ni GitHub Pages ni otro hosting). Usa la Ruta B
 o la Ruta C.
 
 ## 4. Ruta B — ZIP sin conexión
@@ -149,7 +149,7 @@ Requiere Python 3.12 o superior (§2) y conexión a Internet para instalar depen
     ```powershell
     py -m venv .venv
     .venv\Scripts\python -m pip install -r requirements-docs.txt
-    .venv\Scripts\python -m mkdocs serve
+    .venv\Scripts\python -m zensical serve
     ```
 
     **macOS / Linux**:
@@ -157,7 +157,7 @@ Requiere Python 3.12 o superior (§2) y conexión a Internet para instalar depen
     ```bash
     python3 -m venv .venv
     .venv/bin/python -m pip install -r requirements-docs.txt
-    .venv/bin/python -m mkdocs serve
+    .venv/bin/python -m zensical serve
     ```
 
 3. Abre <http://127.0.0.1:8000>. La página se recarga sola si editas la documentación.
@@ -178,7 +178,7 @@ Requiere Python 3.12 o superior (§2) y conexión a Internet para instalar depen
 | `No module named venv` / `ensurepip is not available` | Debian/Ubuntu sin `python3-venv` | `sudo apt install python3-venv` |
 | `unzip: command not found` | Linux sin `unzip` | `sudo apt install unzip` / `sudo dnf install unzip` |
 | `pip` no conecta (red corporativa) | Proxy | Añade `--proxy http://proxy:puerto` al comando `pip install` |
-| `No module named mkdocs` | Dependencias no instaladas en `.venv` | Repite la Ruta C, paso 2 |
+| `No module named zensical` | Dependencias no instaladas en `.venv` | Repite la Ruta C, paso 2 |
 
 ## 7. Detener y limpiar
 

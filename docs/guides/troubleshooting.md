@@ -25,10 +25,12 @@ diagnóstico, no una explicación de arquitectura.
    python -m pip install -r requirements.txt
    ```
 
-3. Reproduce el build en modo estricto para localizar errores de documentación:
+3. Reproduce el build en modo estricto para localizar errores de documentación (sincroniza
+   antes los ficheros raíz para no confundir un `changelog.md` ausente con un error real):
 
    ```bash
-   python -m mkdocs build --strict
+   python hooks/sync_root_docs.py
+   python -m zensical build --strict
    ```
 
 4. Si el fallo es del empaquetado, ejecuta el script con build incluido (descarta un
@@ -44,8 +46,8 @@ diagnóstico, no una explicación de arquitectura.
 python scripts/check_env.py
 # Entorno de tooling documental completo.
 
-python -m mkdocs build --strict
-# INFO    -  Documentation built in X.XX seconds   (sin warnings)
+python scripts/build_docs_zip.py
+# [build_docs_zip] ZIP created: doc_ia-docs-<versión>.zip   (sin warnings)
 ```
 
 ## 5. Variantes y Solución de Problemas
@@ -53,12 +55,13 @@ python -m mkdocs build --strict
 | Escenario/Error | Causa probable | Solución |
 |---|---|---|
 | `Faltan herramientas: …` (exit 1) | Dependencias no instaladas o venv sin activar | Activar venv + `pip install -r requirements.txt` |
-| Warning de MkDocs con `--strict` | Página en `nav:` inexistente, huérfana o enlace relativo roto | Corregir `mkdocs.yml` o el enlace; re-ejecutar el build |
+| Warning de Zensical con `--strict` | Página en `nav:` inexistente, huérfana o enlace relativo roto | Corregir `mkdocs.yml` o el enlace; re-ejecutar el build |
 | `ERROR: …\site does not exist` (exit 1) | `--no-build` sin un `site/` generado previamente | Ejecutar sin `--no-build` al menos una vez |
 | `ERROR: …\site cannot be opened without a server` (exit 1) | `mkdocs.yml` sin `use_directory_urls: false`, sin el plugin `offline` o sin el shim local en `extra.polyfills` (el tema pide `https://unpkg.com/iframe-worker/shim`) | Restaurar las tres claves (ver [Referencia](../reference/index.md)); cada línea `- <página>: <problema>` dice qué falta |
 | `index.html` del ZIP abre la página sin estilos ni menú | Se abrió dentro del ZIP, sin extraerlo | Extraer el ZIP completo y abrir `index.html` de la carpeta extraída |
 | Con doble clic, la búsqueda no responde | El navegador o una política de empresa bloquea scripts de ficheros locales | Usar `python start-server.py` dentro de la carpeta extraída; no cambiar opciones de seguridad del navegador |
-| El build con `--builder zensical` falla al arrancar | Zensical no está instalado (no es dependencia del proyecto) | Instalarlo aparte o usar el builder por defecto (`mkdocs`) |
+| `build_docs_zip.py --builder mkdocs` termina con código 2 | MkDocs ya no se soporta (ADR-003) | Quitar `--builder`: Zensical es el único generador |
+| `zensical build --strict` falla con `changelog.md: page does not exist` | Zensical no ejecuta `hooks:` y no se sincronizaron los ficheros raíz | Construir con `python scripts/build_docs_zip.py` o ejecutar antes `python hooks/sync_root_docs.py` |
 | La cadena `--8<--` aparece literal en el sitio | Ruta del snippet incorrecta para `pymdownx.snippets` | Usar ruta relativa desde `docs/` (p. ej. `examples/foo.py`, NO `docs/examples/foo.py`) porque `base_path: [docs]` está activo en `mkdocs.yml` |
 | El hook PostToolUse falla tras editar un script | ruff/mypy/pytest detectan un problema real | Ejecutar el comando del hook manualmente y corregir el hallazgo |
 | `Motor 'docling' no disponible` | docling no instalado | `pip install docling` o usar `--engine markitdown` |

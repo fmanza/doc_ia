@@ -89,34 +89,29 @@ sha256sum -c doc_ia-docs-latest.zip.sha256
 
 ## 🛠️ Para Desarrolladores
 
-### ZIP automático (hook MkDocs)
+### Pipeline de build y ZIP automático
 
-El hook `mkdocs_hooks.py` genera `doc_ia-docs-latest.zip` automáticamente en `site/`
-en cada `mkdocs build`. No requiere instalación ni activar ningún venv específico:
-MkDocs lo carga directamente desde `mkdocs.yml` mediante la clave `hooks:`.
+Zensical es el único generador (ADR-003) y no ejecuta `hooks:`, así que
+`scripts/build_docs_zip.py` es el pipeline de build: copia `CHANGELOG.md` y `CONTRIBUTING.md` a
+`docs/`, ejecuta `zensical build --strict` y, si termina sin errores, el paso post-build
+`mkdocs_hooks.py` genera `doc_ia-docs-latest.zip` en `site/`. No requiere instalación ni activar
+ningún venv específico: el pipeline carga los dos pasos por ruta. El ZIP lleva el índice de
+búsqueda en JS porque se genera cuando el build ya ha terminado.
 
-```yaml
-# mkdocs.yml (extracto)
-hooks:
-  - hooks/sync_root_docs.py
-  - mkdocs_hooks.py
-```
-
-Este hook es también el patrón canónico para otros proyectos: copiar `mkdocs_hooks.py`
-al proyecto destino y cambiar únicamente la línea `zip_path`. Se ejecuta después del plugin
-`offline` (prioridad -200), para que el ZIP lleve el índice de búsqueda en JS.
+`mkdocs_hooks.py` es también el patrón canónico para otros proyectos: copiarlo al proyecto
+destino y cambiar únicamente la línea `zip_path`.
 
 ### Generar ZIP versionado
 
 ```bash
-# Build (MkDocs Material) + ZIP + SHA256
+# Build (Zensical, --strict) + ZIP latest + ZIP versionado + SHA256
 python scripts/build_docs_zip.py
 
 # ZIP de un site/ ya construido (sin build)
 python scripts/build_docs_zip.py --no-build
 
-# Con Zensical, si está instalado (recíprocamente compatible)
-python scripts/build_docs_zip.py --builder zensical
+# Vista previa local (no genera ZIP ni sincroniza CHANGELOG/CONTRIBUTING)
+python -m zensical serve
 ```
 
 Antes de empaquetar, el script comprueba que `site/` se puede abrir sin servidor (índice de
@@ -137,5 +132,5 @@ Releases publicadas: [github.com/fmanza/doc_ia/releases](https://github.com/fman
 ## 📝 Información de versión
 
 - **Versión de doc_ia**: 0.11.4
-- **Generador**: MkDocs + Material for MkDocs (Mermaid 12.2.0 incluido en el sitio, con la integración nativa del tema; plugin `offline` con iframe-worker 1.0.4 local)
+- **Generador**: Zensical 0.1.1 (Mermaid 12.2.0 incluido en el sitio, con la integración nativa del tema; plugin `offline` con iframe-worker 1.0.4 local)
 - **Actualización**: 2026-10-29

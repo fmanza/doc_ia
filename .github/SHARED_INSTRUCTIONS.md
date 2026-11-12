@@ -10,7 +10,7 @@ fuente común para arquitectura, calidad, pruebas y documentación.
 
 Actúa como senior de ingeniería especializado en:
 - Sistemas de instrucciones IA multiplataforma (Claude Code, Gemini, Copilot Chat, Cursor, Codex).
-- Documentación técnica de proyectos de desarrollo: arquetipos formales, MkDocs Material, Mermaid.
+- Documentación técnica de proyectos de desarrollo: arquetipos formales, Zensical, Mermaid.
 - Tooling Python determinista: scripts de build, validación de entorno, empaquetado de docs.
 - Testing determinista con `pytest` sin servicios externos.
 
@@ -46,7 +46,7 @@ trabaja sobre la copia local en `_staging/` (Fase 0-pre de `document_project.pro
 
 - **Punto de entrada único para documentar**: `.github/prompts/document_project.prompt.md`
   (en Claude Code: `/document-project`). Valida inputs obligatorios — **origen(es) a documentar,
-  destino de la documentación, generador e idioma** — y se detiene si faltan; después orquesta
+  destino de la documentación e idioma** (el generador es siempre Zensical, ADR-003) — y se detiene si faltan; después orquesta
   el flujo por fases del Documentation Generator y los arquetipos. **Cierre obligatorio**: crea
   artefacto `.ai/sessions/YYYY-MM-DD/` en el destino y propone commit `docs(<scope>):` antes
   de concluir la sesión.
@@ -69,9 +69,9 @@ trabaja sobre la copia local en `_staging/` (Fase 0-pre de `document_project.pro
 doc_ia/
   scripts/              # Tooling determinista: check_env.py, build_docs_zip.py, convert_to_md.py,
                         #   doc_trace.py, snapshot_sources.py, kit.py, db_trace.py, web_captures.py
-  hooks/                # Hooks MkDocs + PostToolUse: sync_root_docs.py
+  hooks/                # sync_root_docs.py: pre-build del pipeline + hook PostToolUse
   tests/                # Tests pytest del tooling
-  docs/                 # Sitio MkDocs Material (es): index, downloads, guides/
+  docs/                 # Sitio Zensical (es): index, downloads, guides/
                         #   ⚠️  docs/changelog.md y docs/contributing.md son ARTEFACTOS GENERADOS
                         #       por hooks/sync_root_docs.py — editar solo los ficheros raíz
   mkdocs.yml            # Fuente única de configuración del sitio
@@ -139,10 +139,9 @@ python -m ruff check scripts tests    # Linting
 python -m ruff format scripts tests   # Formato
 python -m mypy scripts                # Type-checking (strict)
 python -m pytest                      # Tests del tooling
-python -m mkdocs build --strict       # Build de documentación (por defecto)
-python -m mkdocs serve                # Documentación local
+python scripts/build_docs_zip.py      # Build Zensical (--strict) + ZIP offline en dist/doc_ia-docs-{version}.zip
+python -m zensical serve              # Vista previa local (no sincroniza CHANGELOG/CONTRIBUTING)
 python scripts/check_env.py           # Verificación del entorno de tooling
-python scripts/build_docs_zip.py      # Build + ZIP offline en dist/doc_ia-docs-{version}.zip
 python scripts/convert_to_md.py <ruta>                 # Valida + convierte a Markdown en <ruta>/md/ (docling por defecto; --engine markitdown | pandoc)
 python scripts/convert_to_md.py <ruta> --validate-only # Solo validación previa (motor instalado, integridad de ficheros)
 python scripts/db_trace.py select --export <util_bbdd> --root <destino> --name <bd> --include <patrón>  # Origen BD: docs/bd/
@@ -157,9 +156,10 @@ python scripts/doc_trace.py --root <destino> baseline --origin <repo> --path <ru
 # Onboarding: aplicar .github/prompts/onboarding_dev.prompt.md → docs/guides/onboarding_dev.md
 ```
 
-> **Generador de docs**: MkDocs Material es el builder por defecto (instalado vía
-> `requirements.txt`). Zensical es recíprocamente compatible sobre el mismo `mkdocs.yml`
-> (`python scripts/build_docs_zip.py --builder zensical`) pero no es una dependencia del proyecto.
+> **Generador de docs**: Zensical es el único generador (ADR-003; versión exacta en
+> `requirements-docs.txt`). MkDocs ya no se soporta. Zensical no ejecuta `hooks:`, así que
+> `python scripts/build_docs_zip.py` es el pipeline de build: sincroniza los ficheros raíz, construye
+> con `zensical build --strict` y genera el ZIP `latest` (`mkdocs_hooks.py`).
 
 ### Estrategia de tests
 - Tests unitarios deterministas en `tests/`; sin red, sin servicios externos, sin credenciales.
@@ -172,7 +172,7 @@ python scripts/doc_trace.py --root <destino> baseline --origin <repo> --path <ru
 
 - ✅ Nuevo script en `scripts/` → docstring de módulo + entrada en README y docs
 - ✅ Nuevo arquetipo o prompt → registrar en `.github/AGENTS.md` y `DOCUMENTATION_STANDARD.md`
-- ✅ Antes de cerrar versión → `python -m mkdocs build --strict` sin errores ni links rotos
+- ✅ Antes de cerrar versión → `python scripts/build_docs_zip.py` (build `--strict`) sin errores ni links rotos
 - ✅ Cambios en instrucciones IA → sincronizar todos los ficheros afectados (ver Gobernanza)
 - ✅ **Nueva versión (VERSION)** → revisar `.github/instructions/sync.instructions.md`
 
@@ -180,7 +180,8 @@ python scripts/doc_trace.py --root <destino> baseline --origin <repo> --path <ru
 
 `docs/changelog.md` y `docs/contributing.md` son **copias automáticas** generadas por
 `hooks/sync_root_docs.py`. Edita siempre los ficheros raíz (`CHANGELOG.md`, `CONTRIBUTING.md`);
-el hook propaga los cambios a `docs/` tras cada `Edit`/`Write` y antes de cada `mkdocs build`.
+el hook PostToolUse propaga los cambios a `docs/` tras cada `Edit`/`Write`, y
+`scripts/build_docs_zip.py` antes de cada build (`python -m zensical serve` no los sincroniza).
 
 Para añadir un nuevo fichero raíz al sync, registrar la tupla en `hooks/sync_root_docs.py → PAIRS`
 y la entrada de navegación en `mkdocs.yml`. Ver `.github/instructions/sync.instructions.md`.
@@ -192,10 +193,10 @@ El patrón completo consta de **tres señales independientes**; el flujo de
 1. `scripts/build_docs_zip.py` — build local + artefacto versionado en `dist/*.zip` + SHA256.
    `dist/*.zip`, `dist/*.sha256` y `dist/CHECKSUMS.txt` son artefactos generados: nunca editarlos
    a mano. La tabla en `docs/downloads.md` refleja estos artefactos: actualizarla tras el script.
-2. `mkdocs_hooks.py` en la raíz del proyecto + `hooks: [mkdocs_hooks.py]` en `mkdocs.yml` — hook
-   nativo MkDocs que genera automáticamente `{nombre}-docs-latest.zip` en `site/` en cada build.
-   **Sin instalación**: funciona con cualquier Python que tenga mkdocs. No requiere `pyproject.toml`,
-   `setup.py` ni `pip install -e .`. Patrón de referencia: `socyalpro/mkdocs_hooks.py`.
+2. `mkdocs_hooks.py` en la raíz del proyecto, ejecutado como paso post-build por el pipeline de
+   build (Zensical no ejecuta `hooks:`) — genera `{nombre}-docs-latest.zip` en `site/` tras cada
+   build correcto. **Sin instalación**: el pipeline lo carga por ruta. No requiere
+   `pyproject.toml`, `setup.py` ni `pip install -e .`. Patrón de referencia: `doc_ia/mkdocs_hooks.py`.
 3. `.github/workflows/docs-zip-release.yml` — auto-publicación en GitHub Releases en cada push
    a `main` con cambios en `docs/`.
 
@@ -211,12 +212,12 @@ como alternativa. Nunca se indican flags del navegador (`--allow-file-access-fro
 
 #### Configuración de documentación
 
-> **Fuente única**: `mkdocs.yml`. Lo consume MkDocs Material (por defecto) y, recíprocamente,
-> Zensical si está instalado. No se usa `zensical.toml`.
+> **Fuente única**: `mkdocs.yml` (nombre heredado; Zensical lo lee de forma nativa, ADR-003).
+> No se usa `zensical.toml` y no se declara `hooks:` (Zensical no los ejecuta).
 
 - ✅ Página nueva, movida o eliminada en `docs/` → actualizar `mkdocs.yml` bajo `nav:`
-- ✅ Ejecutar `python -m mkdocs serve` localmente antes de publicar
-- ✅ Verificar que `python -m mkdocs build --strict` pase sin warnings
+- ✅ Revisar con `python -m zensical serve` localmente antes de publicar
+- ✅ Verificar que `python scripts/build_docs_zip.py` (build `--strict`) pase sin warnings
 
 #### Convención de nombres en `docs/`
 
@@ -243,12 +244,12 @@ son complementarias, no alternativas:
 1. **Página de descargas** (`docs/downloads.md`) — tabla de versiones + instrucciones SHA256.
 2. **Script local** (`scripts/build_docs_zip.py`) — genera ZIP versionado + `.sha256` + `dist/CHECKSUMS.txt`.
    Permite empaquetar localmente sin depender de CI.
-3. **Hook MkDocs** (`mkdocs_hooks.py` en la raíz + `hooks: [mkdocs_hooks.py]` en `mkdocs.yml`) —
-   genera `{nombre}-docs-latest.zip` en `site/` automáticamente en cada build.
-   El ZIP incluye siempre `start-server.py` (desde `scripts/start-server.py` en la raíz del proyecto).
-   Se ejecuta después del plugin `offline` (`on_post_build.mkdocs_priority = -200`), para que el
-   ZIP lleve el índice de búsqueda en JS.
-   **Sin instalación**: cargado directamente por MkDocs; funciona con cualquier Python que tenga mkdocs.
+3. **Paso post-build** (`mkdocs_hooks.py` en la raíz, ejecutado por `scripts/build_docs_zip.py`) —
+   genera `{nombre}-docs-latest.zip` en `site/` tras cada build correcto (Zensical no ejecuta
+   `hooks:`). El ZIP incluye siempre `start-server.py` (desde `scripts/start-server.py` en la raíz
+   del proyecto). Se ejecuta cuando el build ha terminado, así que el ZIP lleva el índice de
+   búsqueda en JS.
+   **Sin instalación**: el pipeline lo carga por ruta; funciona con cualquier Python que tenga zensical.
    No requiere `pyproject.toml`, `setup.py`, `pip install -e .` ni activar ningún venv.
    Patrón de referencia: `doc_ia/mkdocs_hooks.py` (solo cambiar la línea `zip_path`).
 4. **Workflow CI** (`.github/workflows/docs-zip-release.yml` o job en `.gitlab-ci.yml`) —
@@ -260,7 +261,7 @@ acciones de remediación (Gap A1, A2, A3).
 
 **Comandos locales**:
 ```bash
-python scripts/build_docs_zip.py            # Build (mkdocs) + ZIP + SHA256
+python scripts/build_docs_zip.py            # Build (Zensical) + ZIP latest + ZIP + SHA256
 python scripts/build_docs_zip.py --no-build # ZIP sin build
 sha256sum -c dist/*.sha256                  # Validar checksums (Linux/Mac)
 ```
@@ -270,7 +271,7 @@ sha256sum -c dist/*.sha256                  # Validar checksums (Linux/Mac)
 - **Listas**: usar `- item` o `1. item`, NUNCA dos espacios al final de línea
   (renderizan `<br />` horizontales en lugar de `<ul><li>`).
 - **Enlaces a archivos estáticos**: rutas relativas reales, NO placeholders `#`.
-- **Validación**: `python -m mkdocs build --strict` sin errores.
+- **Validación**: `python scripts/build_docs_zip.py` (build `--strict`) sin errores.
 
 ### Formato de commits
 

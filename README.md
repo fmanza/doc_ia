@@ -44,6 +44,6 @@ python -m ruff check scripts tests   # Linting
 python -m ruff format scripts tests  # Formato
 python -m mypy scripts               # Type-checking
 python -m pytest                     # Tests del tooling
-python -m mkdocs build --strict      # Build de documentación
-python -m mkdocs serve               # Documentación local
+python scripts/build_docs_zip.py     # Build Zensical (--strict) + ZIP offline
+python -m zensical serve             # Documentación local (no sincroniza CHANGELOG/CONTRIBUTING)
 ```

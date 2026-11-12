@@ -21,23 +21,24 @@
 | Comando | Propósito | Salida |
 |---|---|---|
 | `python scripts/check_env.py` | Verificar herramientas del entorno (requeridas + opcionales) | exit 0 si completo; exit 1 + lista de faltantes |
-| `python scripts/build_docs_zip.py` | Build mkdocs + ZIP + SHA256 | `dist/doc_ia-docs-{version}.zip` + `.sha256` + `CHECKSUMS.txt` |
+| `python scripts/build_docs_zip.py` | Pipeline: sync ficheros raíz + `zensical build --strict` + ZIP latest + ZIP + SHA256 | `site/doc_ia-docs-latest.zip`, `dist/doc_ia-docs-{version}.zip` + `.sha256` + `CHECKSUMS.txt` |
 | `python scripts/build_docs_zip.py --no-build` | Solo ZIP de `site/` existente | ídem |
-| `python scripts/build_docs_zip.py --builder zensical` | Build con Zensical (si está instalado) | ídem |
 | `python scripts/convert_to_md.py <ruta>` | Convertir documentos binarios a Markdown | `<ruta>/md/*.md` (estructura espejo) |
 | `python scripts/convert_to_md.py <ruta> --dry-run` | Previsualizar conversiones sin ejecutar | Lista de ficheros que se convertirían |
 | `python scripts/start-server.py` | Servidor HTTP local desde el directorio del ZIP | http://localhost:8000 (auto-abre navegador) |
-| `python -m mkdocs serve` | Sitio docs en local | http://127.0.0.1:8000 |
-| `python -m mkdocs build --strict` | Build con validación estricta | `site/` + `site/doc_ia-docs-latest.zip` (vía hook) |
+| `python -m zensical serve` | Vista previa local (no sincroniza CHANGELOG/CONTRIBUTING) | http://127.0.0.1:8000 |
 
 ## Hooks
 
-### Hooks MkDocs (en `mkdocs.yml`)
+### Pasos del pipeline de build (`scripts/build_docs_zip.py`)
 
-| Hook | Evento | Propósito |
+Zensical (generador único, ADR-003) no ejecuta `hooks:`; `mkdocs.yml` no los declara. El
+pipeline ejecuta los pasos:
+
+| Paso | Cuándo | Propósito |
 |---|---|---|
-| `hooks/sync_root_docs.py` | `on_pre_build` | Copia CHANGELOG.md y CONTRIBUTING.md a docs/ |
-| `mkdocs_hooks.py` | `on_post_build` | Genera `doc_ia-docs-latest.zip` + `.sha256` en `site/` |
+| `hooks/sync_root_docs.py` (`main`) | Antes de `zensical build` | Copia CHANGELOG.md y CONTRIBUTING.md a docs/ |
+| `mkdocs_hooks.py` (`on_post_build`) | Tras un build con código 0 | Genera `doc_ia-docs-latest.zip` + `.sha256` en `site/` |
 
 ### Hooks PostToolUse (en `.claude/settings.json`)
 
@@ -59,8 +60,8 @@ Ejecutados automáticamente tras cada Edit/Write sobre código Python:
 
 ## VS Code Tasks (`.vscode/tasks.json`)
 
-- `docs: build` — mkdocs build --strict con el venv del workspace
-- `docs: serve` — mkdocs serve en background
+- `docs: build` — `scripts/build_docs_zip.py` con el venv del workspace
+- `docs: serve` — `zensical serve` en background
 - `calidad: ruff + mypy + pytest` — cadena completa de calidad
 
 ## CI/CD (GitHub Actions)

@@ -35,7 +35,7 @@ Claude Code lee estos ficheros antes de actuar en el proyecto:
 
 | Comando | Propósito | Inputs obligatorios | Outputs |
 |---|---|---|---|
-| `/document-project` | Documentar un proyecto origen completo | Origen(es), Destino, Generador, Idioma | VALIDACIÓN → INVENTARIO → PLAN_DOC → GENERACIÓN → SYNC NAV → REVISIÓN → RESUMEN → CIERRE |
+| `/document-project` | Documentar un proyecto origen completo | Origen(es), Destino, Idioma (generador: siempre Zensical) | VALIDACIÓN → INVENTARIO → PLAN_DOC → GENERACIÓN → SYNC NAV → REVISIÓN → RESUMEN → CIERRE |
 | `/new-feature` | Nueva funcionalidad | Descripción + módulos afectados | PLAN → AUDIT_PLAN → IMPLEMENT → AUDIT_CODE → VERSION |
 | `/hotfix` | Bug P1/P2 urgente | Descripción del bug + impacto | RCA → FIX → AUDIT_CODE → VERSION |
 | `/refactor` | Refactor sin cambios funcionales | Área + objetivo | PLAN → AUDIT_PLAN → IMPLEMENT → AUDIT_CODE |
@@ -74,12 +74,14 @@ Ejecutados automáticamente tras cada `Edit`/`Write` sobre código Python, en es
 | 3 | `python -m mypy scripts --no-error-summary 2>&1 \| head -10` | Type-checking strict |
 | 4 | `python -m pytest --collect-only -q tests 2>&1 \| head -10` | Validación de sintaxis de tests |
 
-### Hooks MkDocs (en `mkdocs.yml`)
+### Pasos del pipeline de build (`scripts/build_docs_zip.py`)
 
-| Hook | Evento | Propósito |
+Zensical (generador único, ADR-003) no ejecuta `hooks:`; el pipeline ejecuta los pasos:
+
+| Paso | Cuándo | Propósito |
 |---|---|---|
-| `hooks/sync_root_docs.py` | `on_pre_build` | Copia CHANGELOG.md / CONTRIBUTING.md a docs/ antes del build |
-| `mkdocs_hooks.py` | `on_post_build` | Genera `doc_ia-docs-latest.zip` + `.sha256` en `site/` |
+| `hooks/sync_root_docs.py` | Antes de `zensical build` | Copia CHANGELOG.md / CONTRIBUTING.md a docs/ antes del build |
+| `mkdocs_hooks.py` (`on_post_build`) | Tras un build correcto | Genera `doc_ia-docs-latest.zip` + `.sha256` en `site/` |
 
 Los hooks PostToolUse se ejecutan sobre `scripts/`, `tests/` y `hooks/`. No se ejecutan
 sobre `docs/`, `mkdocs.yml` ni otros ficheros no-Python.
@@ -108,7 +110,7 @@ El fichero `.claude/EDGE_CASES.md` registra los casos límite descubiertos en se
 | Caso | Síntoma | Sesión |
 |---|---|---|
 | `navigation.sections` impide colapsar el menú lateral | Submenús sin colapso; `nav.css` sin efecto; botón ◀/▶ ausente | `.ai/sessions/2026-06-12/` |
-| Plugin ZIP no encontrado al ejecutar `mkdocs build` | `ERROR - Config value 'plugins': The "…" plugin is not installed` — resuelto migrando a hook MkDocs | `.ai/sessions/2026-06-12/` |
+| Plugin ZIP no encontrado al construir con MkDocs (histórico) | `ERROR - Config value 'plugins': The "…" plugin is not installed` — resuelto migrando a hook MkDocs; hoy es el post-build del pipeline | `.ai/sessions/2026-06-12/` |
 
 Acción preventiva para ambos casos: ejecutar la **Fase 0b** (sincronización visual obligatoria) al inicio
 de toda sesión `/document-project`, y usar `mkdocs_hooks.py` en lugar de plugins para el ZIP offline.

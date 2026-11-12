@@ -33,7 +33,7 @@ Code Assist, GitHub Copilot Chat, Cursor, Codex). Los **orígenes a documentar**
 | Documentación de proyectos externos parametrizada | ✅ | `/document-project` con 4 parámetros obligatorios, Fase 0a de clasificación (8 tipos de origen), Fase 0b de sincronización visual, cierre de sesión con `.ai/sessions/` |
 | Bootstrap multiplataforma (modelo PULL) | ✅ | `.github/prompts/bootstrap_ai_config.prompt.md` (capas A/B/C/D) |
 | Verificación de entorno | ✅ | `scripts/check_env.py` + `tests/test_check_env.py` |
-| ZIP offline de docs con SHA256 | ✅ | Mecanismo dual: `scripts/build_docs_zip.py` (script) + `mkdocs_hooks.py` (hook nativo MkDocs); `.github/workflows/docs-zip-release.yml` (CI) |
+| ZIP offline de docs con SHA256 | ✅ | Mecanismo dual: `scripts/build_docs_zip.py` (pipeline y ZIP versionado) + `mkdocs_hooks.py` (post-build, ZIP latest); `.github/workflows/docs-zip-release.yml` (CI) |
 | Conversión de documentos a Markdown | ✅ | `scripts/convert_to_md.py` — docling por defecto (con OCR); markitdown para XLS y pandoc para DOC/ODT/RST con `--engine`; genera carpeta `md/` como contexto IA |
 | Sincronización raíz→docs/ | ✅ | `hooks/sync_root_docs.py` — copia CHANGELOG.md y CONTRIBUTING.md a docs/ automáticamente |
 | ZIP navegable sin servidor | ✅ | Doble clic en `index.html` tras extraer: `use_directory_urls: false` + plugin `offline` + shim iframe-worker local (`docs/assets/vendor/iframe-worker/`); `build_docs_zip.py` rechaza un `site/` que no se abra así |

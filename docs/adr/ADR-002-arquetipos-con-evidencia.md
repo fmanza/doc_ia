@@ -58,7 +58,7 @@ No se renumera ningún arquetipo ni sección existente.
 |---|---|---|---|
 | Adoptar arc42 completo (12 secciones) en 6C | Estándar reconocido | Muchas secciones vacías en proyectos pequeños; arc42 las declara opcionales | Coste alto sin información adicional proporcional |
 | Cinco arquetipos nuevos (Referencia, Modelo de datos, Mapa funcional, Runbook, Seguridad) | Cobertura explícita | Sin casos reales en doc_ia para validar Runbook y Seguridad; más numeración | Simplificado a uno (12); Modelo de datos → Arq. 12 §6 y Mapa funcional → variante del Arq. 1 (P2); Runbook y Seguridad aplazados |
-| Citas como enlaces Markdown al código | Navegables | Rompen `mkdocs build --strict` fuera de `docs/`; no existen en el sitio publicado | Incompatible con el build estricto |
+| Citas como enlaces Markdown al código | Navegables | Rompen el build estricto (`--strict`) fuera de `docs/`; no existen en el sitio publicado | Incompatible con el build estricto |
 | Bajar el prompt del Arquetipo 1 a 5 secciones | Sin migración | Pierde precondiciones, postcondiciones y límites | Contrario al objetivo de máxima información |
 
 ## Estado y Revisión

@@ -75,7 +75,7 @@ Registro de agentes especializados en `.github/agents/` para orquestación del f
 
 ### 10. **Version Closer** (`version-closer.agent.md`)
 - **Propósito**: Cierre de versión, resumir cambios, validar sincronización y handoff
-- **Validación requerida**: `.github/instructions/sync.instructions.md` + `python -m mkdocs build --strict` sin errores
+- **Validación requerida**: `.github/instructions/sync.instructions.md` + `python scripts/build_docs_zip.py` (build `--strict`) sin errores
 
 ### 11. **Explore** (`explore.agent.md`)
 - **Propósito**: Exploración rápida del repositorio, Q&A sin modificaciones

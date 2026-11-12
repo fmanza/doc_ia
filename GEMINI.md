@@ -75,11 +75,10 @@ Lee y aplica `.github/prompts/document_project.prompt.md` con los siguientes par
 
 Origen(es): <ruta raíz del proyecto a documentar>
 Destino: <ruta donde se escribe la documentación>
-Generador: mkdocs-material
 Idioma: es
 ```
 
-**Campos obligatorios**: Origen(es), Destino, Generador, Idioma — si falta alguno, el prompt se detiene
+**Campos obligatorios**: Origen(es), Destino, Idioma (el generador es siempre Zensical) — si falta alguno, el prompt se detiene
 y pide los datos antes de continuar.
 
 Para una página suelta usa directamente el prompt de arquetipo correspondiente
@@ -94,9 +93,8 @@ python -m ruff check scripts tests   # Linting
 python -m ruff format scripts tests  # Formato
 python -m mypy scripts               # Type-checking (strict)
 python -m pytest                     # Ejecución de tests
-python -m mkdocs serve               # Previsualizar documentación
-python -m mkdocs build --strict      # Build con validación estricta
-python scripts/build_docs_zip.py     # Generar ZIP offline con SHA256 checksums
+python -m zensical serve             # Previsualizar documentación (no sincroniza CHANGELOG/CONTRIBUTING)
+python scripts/build_docs_zip.py     # Build Zensical estricto + ZIP offline con SHA256 checksums
 ```
 
 ### Validación de Markdown — Checklist obligatorio
@@ -106,7 +104,7 @@ Ver `.github/SHARED_INSTRUCTIONS.md` § "Validación de Markdown en documentaci�
 **Puntos críticos**:
 - ✅ Listas: usar `- item` o `1. item`, NUNCA dos espacios al final de línea
 - ✅ Enlaces a archivos estáticos: rutas relativas reales, NO placeholders `#`
-- ✅ Validar: `python -m mkdocs build --strict` sin errores
+- ✅ Validar: `python scripts/build_docs_zip.py` (build `--strict`) sin errores
 
 ---
 

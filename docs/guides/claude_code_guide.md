@@ -18,7 +18,7 @@ a través de slash commands en el chat.
   VS Code de Claude Code activada
 - Cuenta de Anthropic con acceso a Claude Code
 - Repositorio `doc_ia` clonado localmente y abierto como directorio de trabajo
-- Python 3.11+ con `mkdocs-material`, `ruff`, `mypy` y `pytest` instalados
+- Python 3.11+ con `zensical`, `ruff`, `mypy` y `pytest` instalados
   (verificar con `python scripts/check_env.py`)
 
 ## 3. Pasos
@@ -42,7 +42,6 @@ La respuesta debe listar `/document-project`, `/new-feature`, `/hotfix`, `/refac
 
 Origen:    <ruta raíz del proyecto a documentar>
 Destino:   <ruta donde escribir la documentación>
-Generador: mkdocs-material
 Idioma:    es
 ```
 
@@ -92,9 +91,9 @@ claude --version
 python scripts/check_env.py
 # Entorno de tooling documental completo.
 
-# Confirmar que el sitio compila sin errores
-python -m mkdocs build --strict
-# INFO - Documentation built in X.Xs
+# Confirmar que el sitio compila sin errores (Zensical, --strict)
+python scripts/build_docs_zip.py
+# [build_docs_zip] ZIP created: doc_ia-docs-<versión>.zip
 ```
 
 El proyecto está listo cuando los tres comandos terminan sin errores.
@@ -106,5 +105,5 @@ El proyecto está listo cuando los tres comandos terminan sin errores.
 | Slash commands no disponibles | `CLAUDE.md` no se cargó | Asegurarse de abrir el directorio raíz del repo, no una subcarpeta |
 | Hooks de PostToolUse no se ejecutan | `.claude/settings.json` no existe o está mal configurado | Copiar `.claude/settings.json.example` a `.claude/settings.json` y revisar la sección `hooks` |
 | `CLAUDE.md` no carga instrucciones del proyecto | Claude Code usa configuración global en lugar del proyecto | Verificar que `--project` apunta al directorio correcto; revisar `.claude/settings.json` |
-| El flujo `/document-project` se detiene en VALIDACIÓN | Alguno de los 4 parámetros obligatorios falta o es ambiguo | Completar Origen, Destino, Generador e Idioma antes de continuar |
-| `mkdocs build --strict` falla tras generar docs | Enlace roto o página huérfana en `nav:` | Revisar que todas las entradas de `mkdocs.yml` apuntan a archivos existentes |
+| El flujo `/document-project` se detiene en VALIDACIÓN | Alguno de los 3 parámetros obligatorios falta o es ambiguo | Completar Origen, Destino e Idioma antes de continuar (el generador es siempre Zensical) |
+| El build `--strict` (`build_docs_zip.py`) falla tras generar docs | Enlace roto o página huérfana en `nav:` | Revisar que todas las entradas de `mkdocs.yml` apuntan a archivos existentes |
