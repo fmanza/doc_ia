@@ -1,10 +1,10 @@
 ---
 arquetipo: "1"
 fuentes:
-  .github/prompts/bootstrap_ai_config.prompt.md: fdf4648ffdbe
+  .github/prompts/bootstrap_ai_config.prompt.md: 2c724546f2bb
 decisiones:
   ../decisiones/bootstrap_decisiones.md: 254ead9347ae
-revisado: 2026-11-07
+revisado: 2026-11-13
 ---
 # Bootstrap de Configuración IA Multiplataforma
 

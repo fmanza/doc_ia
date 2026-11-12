@@ -132,9 +132,9 @@ Si no hay ningún origen de tipo `CÓDIGO`: **DETENER** con mensaje:
 
 Solo ejecutar cuando el usuario solicite verificar compatibilidad de versiones o plugins:
 
-- Fetch MkDocs release notes: `https://www.mkdocs.org/about/release-notes/`
-- Fetch Material for MkDocs plugins: `https://squidfunk.github.io/mkdocs-material/plugins/`
-- Fetch Zensical docs: `https://zensical.org/` (plugins soportados: `https://zensical.org/compatibility/plugins/`)
+- Fetch Zensical docs: `https://zensical.org/` (plugins soportados:
+  `https://zensical.org/docs/compatibility/mkdocs/plugins/`; notas de versión en
+  `https://github.com/zensical/zensical/releases`). Zensical es el único generador (ADR-003).
 
 **Propósito**: verificar que las directivas en `mkdocs.yml` son válidas para la versión instalada.
 
@@ -146,7 +146,7 @@ No modifica ningún archivo sin confirmación explícita del usuario.
 3. **Dividir el trabajo**: no usar un único prompt masivo. Generar por fases: mapeo funcional, técnica, ejemplos, Mermaid y revisión final.
 4. **Generar contenido**: aplicar el prompt correspondiente usando solo información verificable.
 5. **Actualizar navegación**: añadir, mover o corregir la entrada en `mkdocs.yml` bajo la sección adecuada.
-6. **Validar**: comprobar Markdown, enlaces relativos y sintaxis Mermaid; recomendar o ejecutar `mkdocs build` cuando el entorno lo permita.
+6. **Validar**: comprobar Markdown, enlaces relativos y sintaxis Mermaid; recomendar o ejecutar el build (`python scripts/build_docs_zip.py`) cuando el entorno lo permita.
 
 ### Paso 7 — Verificación de build (opcional, activar con `--verify-build`)
 
@@ -155,13 +155,13 @@ Ejecutar tras la fase de generación y validación cuando el usuario solicite co
 #### Modo A — build (por defecto dentro de `--verify-build`)
 
 ```bash
-python -m mkdocs build --strict   # Generador = zensical: ver nota
+python scripts/build_docs_zip.py   # pipeline: sync de ficheros raíz + zensical build --strict + ZIP latest
 ```
 
-> **Zensical**: no ejecuta `hooks:` de `mkdocs.yml` ni avisa. Si el destino tiene pipeline
-> (`HOOKLESS_BUILDERS` en `scripts/build_docs_zip.py`): `python scripts/build_docs_zip.py --builder zensical`.
-> Si no: `python -m zensical build --strict` + advertir que los hooks no corren (Gap A4). Reglas
-> completas: `document_project.prompt.md` § *Reglas por generador: Zensical*.
+> **Zensical** (único generador, ADR-003): no ejecuta `hooks:` de `mkdocs.yml` ni avisa. Sin
+> pipeline en el destino: `python -m zensical build --strict` + advertir que no hay
+> sincronización ni ZIP latest (Gap A4). Reglas completas y migración de destinos MkDocs:
+> `document_project.prompt.md` § *Generador: Zensical y migración de destinos MkDocs*.
 
 Leer páginas clave de `site/` con el tool `Read` y comprobar:
 
@@ -179,7 +179,7 @@ Páginas a inspeccionar: priorizar las que contienen directivas `:::`, bloques M
 #### Modo B — serve (activar con `--verify-build --serve`)
 
 ```bash
-python -m mkdocs serve   # alternativa: python -m zensical serve (no ejecuta hooks)
+python -m zensical serve   # no sincroniza ficheros raíz ni genera el ZIP latest
 # lanza en background; confirmar con el usuario antes de arrancar el servidor
 ```
 
@@ -296,7 +296,7 @@ Cuando el usuario pida documentar o actualizar todo el proyecto, usa este flujo 
 - Detectar si existe `scripts/build_docs_zip.py` en el ORIGEN → `TIENE_ZIP_SCRIPT`.
 - **Variante A** (`TIENE_ZIP_SCRIPT = true`): tabla de descarga real con versión/tamaño/SHA256/fecha,
   sección de validación de integridad, instrucciones de build local, nota sobre búsqueda offline.
-- **Variante B** (`TIENE_ZIP_SCRIPT = false`): instrucciones de build local con MkDocs (requisitos,
+- **Variante B** (`TIENE_ZIP_SCRIPT = false`): instrucciones de build local con Zensical (requisitos,
   comandos, cómo comprimir site/), tabla placeholder con fila `| — | — | — | — |`,
   nota sobre búsqueda offline y enlaces relacionados.
 - Visualizar el ZIP: extraerlo completo y doble clic en `index.html` (sin Python ni servidor:
@@ -335,7 +335,9 @@ Cuando el usuario pida documentar o actualizar todo el proyecto, usa este flujo 
 - `plugins`: `search` con `lang` del idioma del proyecto + `offline`.
 - `use_directory_urls: false` y `extra.polyfills: [assets/vendor/iframe-worker/iframe-worker-shim-1.0.4.min.js]`:
   sin el shim local, el tema lo descarga de unpkg y la búsqueda por `file://` falla sin red.
-- `mkdocs_hooks.py` con `on_post_build.mkdocs_priority = -200` (después de `offline`).
+- Sin `hooks:`: `mkdocs_hooks.py` (ZIP latest) lo ejecuta `scripts/build_docs_zip.py` tras un
+  build correcto. Destino aún en MkDocs → migrar con guarda de plugins (si un plugin no está en
+  `ZENSICAL_SUPPORTED_PLUGINS`, la migración se detiene y se informa).
 
 **Assets** — si alguno de los seis recursos no existe en `docs/assets/` del destino, o su
 librería Mermaid o su shim es de otra versión, indicarlo explícitamente en el RESUMEN con la acción:
@@ -356,7 +358,7 @@ librería Mermaid o su shim es de otra versión, indicarlo explícitamente en el
   frontmatter con `fuentes` y deja las huellas como `pendiente`.
 - Si existe `docs/decisiones/`: ejecuta `decisions` (exit 0 esperado) y lista en la entrega las
   decisiones aplicadas y las fichas pendientes de decisión humana.
-- Ejecuta o recomienda `mkdocs build` para detectar errores de navegación.
+- Ejecuta o recomienda el build (`python scripts/build_docs_zip.py`) para detectar errores de navegación.
 - Entrega inventario final: páginas creadas, actualizadas, sin cambios y pendientes de verificación humana.
 
 ### 4. Documentación normativa (`docs/normativa/`) — Condicional
@@ -411,7 +413,7 @@ en la revisión final. Nunca la URL del entorno. Contraste con el código → fi
 - Valida que el Mermaid generado es sintácticamente correcto antes de escribir.
 - Si el módulo ya tiene documentación en `docs/`, actualízala conservando contenido vigente; no borres secciones útiles sin razón explícita.
 - No uses APIs de IA externas para generar contenido documental.
-- Puedes consultar webs de referencia oficial (MkDocs, Zensical, PyPI) cuando el usuario activa `--verify-tools`.
+- Puedes consultar webs de referencia oficial (Zensical, PyPI) cuando el usuario activa `--verify-tools`.
 
 ## Formato de salida al usuario
 
@@ -464,7 +466,7 @@ Revisa el proyecto completo y actualiza la documentación pública en 6 fases:
 3. Documentación técnica con technical_doc.prompt.md y diagrama Mermaid apropiado por módulo.
 4. Ejemplos verificables en docs/examples/ para módulos sin ejemplo reproducible.
 5. Sincronizar mkdocs.yml: añadir/mover/retirar entradas de navegación.
-6. Revisión final: validar Markdown, enlaces y Mermaid; recomendar mkdocs build.
+6. Revisión final: validar Markdown, enlaces y Mermaid; recomendar el build con Zensical.
 
 No inventes módulos ni capacidades; marca como pendiente lo no verificable.
 No uses APIs externas por el momento.

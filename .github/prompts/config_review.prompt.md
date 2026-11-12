@@ -47,7 +47,7 @@ Antes de proponer, clasifica cada sección de ambos ficheros en una de estas cat
 | `copilot-only` | Específico de Copilot Chat (agentes VS Code, `#file:`, prompts `.prompt.md`) |
 | `claude-only` | Específico de Claude Code (slash commands, hooks, settings.json, ejecución offline) |
 | `duplicado` | Presente en ambos ficheros con variaciones menores — candidato a unificar |
-| `docs-shared` | Regla documental común: MkDocs, Mermaid, no invención, ejemplos, actualización completa |
+| `docs-shared` | Regla documental común: Zensical, Mermaid, no invención, ejemplos, actualización completa |
 
 ## Estrategias disponibles
 

@@ -76,7 +76,7 @@ Solo plataformas realmente configuradas (Claude Code, Gemini, Copilot, Cursor, C
 
 ## 4. Verificación
 Comando ejecutable (`python scripts/check_env.py`) + output esperado exacto en comentario.
-Incluye además la verificación del build de docs (`python -m mkdocs build --strict`).
+Incluye además la verificación del build de docs (`python scripts/build_docs_zip.py`, que ejecuta `zensical build --strict`).
 
 ## 5. Solución de Problemas
 Tabla: | Error / Síntoma | Causa probable | Solución |
@@ -118,7 +118,7 @@ de módulos cuando el proyecto tiene más de 6 áreas funcionales (no sustituye 
 
 ### Runtime
 Diagrama Mermaid (`flowchart TD` o `sequenceDiagram`, máx. 8 nodos) que resuma cómo fluye
-una operación típica (p. ej. usuario → chat IA → prompts de arquetipo → docs/ → mkdocs build → site/).
+una operación típica (p. ej. usuario → chat IA → prompts de arquetipo → docs/ → zensical build → site/).
 Solo componentes que existan en el repositorio. Si una página funcional o técnica ya detalla
 ese flujo, aquí va el resumen y un enlace a ella, no una copia.
 

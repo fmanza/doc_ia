@@ -158,8 +158,8 @@ Secciones generadas:
 Verificar el resultado:
 
 ```bash
-python -m mkdocs build --strict
-# INFO - Documentation built in X.Xs
+python scripts/build_docs_zip.py   # zensical build --strict + ZIP
+# [build_docs_zip] Building with: <python> -m zensical build --strict
 # ✔ Sin errores (después de actualizar mkdocs.yml con la nueva entrada)
 ```
 

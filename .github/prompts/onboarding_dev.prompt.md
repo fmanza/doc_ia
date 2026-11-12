@@ -18,10 +18,10 @@ solo información verificable del código, configuración real y ficheros del re
 - **Proyecto**: doc_ia — instrucciones IA + tooling determinista para documentar proyectos de desarrollo
 - **Rol del modelo**: Senior Developer Experience Engineer especializado en tooling de documentación
 - **Tipo de proyecto**: tooling Python (scripts + docs; sin librería de negocio ni servidor propio)
-- **Stack**: Python 3.12+, MkDocs Material (compatible Zensical), pyproject.toml, pip + requirements.txt
-- **Build tool**: `pip install -r requirements.txt` / `python -m mkdocs build --strict`
+- **Stack**: Python 3.12+, Zensical (generador único, lee `mkdocs.yml`; ADR-003), pyproject.toml, pip + requirements.txt
+- **Build tool**: `pip install -r requirements.txt` / `python scripts/build_docs_zip.py` (pipeline: sync + `zensical build --strict` + ZIP)
 - **Infraestructura local §5**: *No aplica* — los tests son unitarios y deterministas; no requiere BD ni Docker
-- **Ejecutar en local §6**: `python -m mkdocs serve` (sitio de docs) y `python scripts/check_env.py` (verificación de entorno)
+- **Ejecutar en local §6**: `python -m zensical serve` (sitio de docs; no sincroniza `CHANGELOG.md`/`CONTRIBUTING.md`) y `python scripts/check_env.py` (verificación de entorno)
 - **Herramientas de calidad**: ruff (lint + format), mypy strict (type-check), pytest (tests)
 - **Audiencia**: desarrolladores que mantienen el tooling o ejecutan las instrucciones IA en los chats
 - **Tiempo estimado**: 15–30 minutos para tener el entorno operativo

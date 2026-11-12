@@ -83,4 +83,4 @@ No edites `.doc_ia/` ni los lanzadores: se sobrescriben. Lo propio del proyecto 
 | `kit.py check` termina con 1 | Hay ficheros del kit editados o desfasados: `kit.py sync` desde doc_ia (o `--force` si los cambios locales sobran) |
 | La sesión pasa a modo completo | Cambió la versión de doc_ia o el baseline no sirve; es normal tras actualizar el kit |
 | Un origen no se encuentra | Revisa rutas y accesos del prompt de instancia (red, OneDrive, `glab auth status`) |
-| `mkdocs build --strict` falla | Lo indica la sesión en REVISIÓN; `/documentar verificar` lo reproduce |
+| El build (`python scripts/build_docs_zip.py`) falla | Lo indica la sesión en REVISIÓN; `/documentar verificar` lo reproduce |

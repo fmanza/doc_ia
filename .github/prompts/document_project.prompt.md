@@ -19,8 +19,11 @@ sueltos para documentar un proyecto completo: invoca este flujo y deja que orque
   **Raíz del destino** = la carpeta que contiene (o contendrá) `mkdocs.yml`: si el usuario da
   `…\docs`, la raíz es su padre; si da una carpeta vacía o sin `docs/`, la raíz es esa carpeta.
   `.ai/`, `_fuentes/`, `_staging/` y `mkdocs.yml` viven siempre en la raíz del destino
-- [ ] **Generador**: `mkdocs-material` (por defecto en doc_ia) | `zensical`
 - [ ] **Idioma**: `es` | `en` | otro
+
+**Generador**: siempre **Zensical** (ADR-003); no es un campo: no se pregunta ni se elige. Un
+destino que hoy construye con MkDocs se migra en su Fase 0b (§ Generador: Zensical y migración
+de destinos MkDocs).
 
 Opcionales:
 
@@ -49,16 +52,17 @@ Opcionales:
 
 ## ⚠️ VALIDACIÓN (bloqueante)
 
-Si **alguno** de los 4 campos obligatorios está vacío, es ambiguo o no es verificable,
+Si **alguno** de los 3 campos obligatorios está vacío, es ambiguo o no es verificable,
 **DETENTE AHORA**. Pide los datos al usuario antes de continuar. **No inventes rutas, no asumas
-destino, no elijas generador ni idioma por el usuario.** Mismo patrón de validación que
+destino, no elijas idioma por el usuario.** Mismo patrón de validación que
 `new_feature`: sin contexto completo no se emite ninguna fase.
 
 Ejemplos de detención:
 
 - "Falta **Destino** → preguntar: ¿la documentación se escribe en `docs/` del propio origen o en otro repositorio?"
 - "Origen `c:\repos\mi_api` no existe o no es legible → preguntar ruta correcta antes de inventariar."
-- "Generador no indicado → preguntar: ¿MkDocs Material (por defecto) o Zensical?"
+- "El usuario pide MkDocs → responder que doc_ia ya no lo soporta (ADR-003: Zensical es el único
+  generador) y ofrecer la migración del destino (Fase 0b). No se detiene el flujo por esto."
 
 ## Kit de documentación en el destino y `<doc_ia>`
 
@@ -333,6 +337,12 @@ Fase 0b — Sincronización visual del destino (OBLIGATORIO en toda sesión, cre
              sin red). Si el destino ya publica la web con URLs de carpeta, avisar en RESUMEN: los
              enlaces profundos pasan a *.html
            · custom_fences mermaid presente; sin CDN de Mermaid ni assets/js/mermaid.js
+           · Generador Zensical: si el destino construye con MkDocs (clave `hooks:` en mkdocs.yml,
+             build o serve de MkDocs en scripts/CI, paquetes de MkDocs o de su tema Material en
+             requisitos) → MIGRAR
+             según § Generador: Zensical y migración de destinos MkDocs, anunciándolo antes de
+             escribir y registrándolo en RESUMEN. Plugin no soportado por Zensical → la migración
+             SE DETIENE y se informa (nunca se degrada en silencio)
          (La Fase 5 vuelve a verificar la configuración estándar al final.)
 Fase 0c — Conversión de documentos no legibles y uso de documentos pre-convertidos:
          Orígenes adquiridos en la Fase 0-pre: todos los pasos se ejecutan sobre
@@ -495,17 +505,19 @@ Fase 1 — Inventariar y clasificar:
            fuera del alcance documentado. Sin señales → `docs/integraciones/` no se crea.
          Detección de patrón ZIP offline — comprobar en el ORIGEN (tres señales independientes):
            · Si existe `scripts/build_docs_zip.py`                                → TIENE_ZIP_SCRIPT = true
-           · Si mkdocs.yml del ORIGEN tiene `hooks: [mkdocs_hooks.py]`              → TIENE_MKDOCS_PLUGIN = true
-             (señales alternativas: plugin `*_documentation_zip` en mkdocs.yml,
-              o directorio `{nombre}_docs/` con `docs_build_plugin.py`)
+           · Si existe `mkdocs_hooks.py` (módulo post-build del ZIP latest)       → TIENE_MKDOCS_PLUGIN = true
+             (señales heredadas de MkDocs: `hooks: [mkdocs_hooks.py]` en mkdocs.yml, plugin
+              `*_documentation_zip` o directorio `{nombre}_docs/` con `docs_build_plugin.py`;
+              con Zensical ninguna se ejecuta: reportar `hooks:` como no efectivo)
            · Si existe `.github/workflows/docs-zip-release.yml` (o equivalente)   → TIENE_WORKFLOW_GITHUB = true
              Equivalente en GitLab: `.gitlab-ci.yml` con un job que ejecute `build_docs_zip.py`.
              Destino sin remoto (decisión del usuario) → Gap A3 se reporta como "No aplica".
-           · Solo con Generador = zensical: TIENE_PIPELINE_SIN_HOOKS y Gap A4 (ver § Reglas por generador: Zensical)
+           · TIENE_PIPELINE_SIN_HOOKS y Gap A4 (ver § Generador: Zensical y migración de destinos MkDocs):
+             el ZIP latest solo existe si el script de build ejecuta el post-build
            Variante aplicable en Fase 7b:
              Al menos TIENE_ZIP_SCRIPT=true o TIENE_MKDOCS_PLUGIN=true            → Variante A
                · TIENE_ZIP_SCRIPT=false     → Gap A1: proponer crear script (patrón: doc_ia/scripts/build_docs_zip.py)
-               · TIENE_MKDOCS_PLUGIN=false  → Gap A2: crear hook MkDocs (patrón: socyalpro/mkdocs_hooks.py)
+               · TIENE_MKDOCS_PLUGIN=false  → Gap A2: crear el módulo post-build (patrón: doc_ia/mkdocs_hooks.py)
                · TIENE_WORKFLOW_GITHUB=false → Gap A3: proponer crear workflow (patrón: doc_ia/.github/workflows/docs-zip-release.yml)
              Las tres señales = false                                              → Variante B: proponer crear los tres
              TIENE_ZIP_SCRIPT=false + TIENE_WORKFLOW_GITHUB=true (con o sin plugin) → inconsistencia — investigar y reportar
@@ -562,7 +574,8 @@ Fase 5 — Sincronizar navegación y verificar configuración estándar del gene
             · use_directory_urls: false y extra.polyfills:
               [assets/vendor/iframe-worker/iframe-worker-shim-1.0.4.min.js] — sin unpkg: el ZIP se
               abre con doble clic en index.html, con búsqueda, sin servidor ni red
-            · Generador = zensical: plugins soportados y `hooks:` (ver § Reglas por generador: Zensical)
+            · Zensical: plugins soportados y sin `hooks:` (ver § Generador: Zensical y migración
+              de destinos MkDocs)
          c. Assets: si alguno de los seis recursos de docs/assets/ (js/sidebar-toggle.js,
             css/mermaid.css, css/nav.css, vendor/mermaid/ con la librería, LICENSE y SOURCE.txt,
             js/mermaid-theme.js, vendor/iframe-worker/ con el shim, LICENSE y SOURCE.txt) no existe
@@ -575,8 +588,9 @@ Fase 6 — Revisión final: Markdown, enlaces relativos, sintaxis y conformidad 
          scripts/doc_trace.py → `stamp` + `drift` + `matrix` + `llms` (todos con exit 0)
          + `decisions` si hay `docs/decisiones/` (exit 0; las fichas Pendiente no cuentan).
          Con origen WEB: `web_captures.py --root <raíz destino> check` (exit 0).
-Fase 7 — Verificación de build (solo con --verify-build): build --strict del generador + lectura del HTML.
-         Generador = zensical: comando según § Reglas por generador: Zensical.
+Fase 7 — Verificación de build (solo con --verify-build): `python -m zensical build --strict` a
+         través del pipeline (`python scripts/build_docs_zip.py`) + lectura del HTML. Sin pipeline:
+         `python -m zensical build --strict`, advirtiendo de que no hay ZIP latest ni sincronización.
 Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
          Crear o actualizar `docs/downloads.md` en el destino según la variante:
 
@@ -597,16 +611,16 @@ Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
                 Reportar en RESUMEN: "⚠️ Falta `scripts/build_docs_zip.py`. Crear siguiendo el
                 patrón de `doc_ia/scripts/build_docs_zip.py` para generar artefactos versionados en dist/."
            2. Verificar TIENE_MKDOCS_PLUGIN:
-                · true  → reportar en RESUMEN: "✅ Hook MkDocs presente — ZIP generado
-                    automáticamente en site/ en cada `mkdocs build`. Sin instalación requerida."
-                  Verificar que el hook se ejecuta después del plugin `offline`
-                  (`on_post_build.mkdocs_priority = -200`, como `doc_ia/mkdocs_hooks.py`); si no
-                  (Gap V3), añadirlo: sin él, el ZIP latest sale sin índice de búsqueda en JS.
+                · true  → reportar en RESUMEN: "✅ Módulo post-build presente — el pipeline genera
+                    el ZIP en site/ tras cada build correcto. Sin instalación requerida."
+                  Gap V3 (`on_post_build.mkdocs_priority`) ya no aplica: el pipeline llama al
+                  post-build cuando Zensical ha terminado (índice `search.js` incluido). Si el
+                  destino aún lo declara, puede quedarse (es inocuo) o retirarse.
                   Verificar que `docs/downloads.md` usa la estructura normalizada con enlace HTML:
                     `<a href="{nombre}-docs-latest.zip">{nombre}-docs-latest.zip</a>`
                     `<a href="{nombre}-docs-latest.zip.sha256">.sha256</a>`
                   Si la tabla no tiene estos enlaces → actualizar siguiendo la estructura del Paso B3.
-                · false (Gap A2) → ⚠️ ACCIÓN OBLIGATORIA: CREAR el hook antes de cerrar sesión.
+                · false (Gap A2) → ⚠️ ACCIÓN OBLIGATORIA: CREAR el módulo post-build antes de cerrar sesión.
 
                   **Paso A2-0 — Crear `scripts/start-server.py`** (obligatorio):
                     Adaptar `doc_ia/scripts/start-server.py` cambiando solo el nombre del proyecto
@@ -621,19 +635,15 @@ Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
                       ```python
                       EXTRA_FILES = ("scripts/start-server.py", "VER_DOCUMENTACION.md")
                       ```
-                    Mantener `on_post_build.mkdocs_priority = -200`: el hook debe ir después del
-                    plugin `offline`, que escribe el índice de búsqueda en JS.
                     Hook existente sin `EXTRA_FILES` (Gap V2) → actualizarlo siguiendo
                     `doc_ia/mkdocs_hooks.py`; igual con `EXTRA_FILES` en `build_docs_zip.py`.
                     No crear `{nombre}_docs/` ni `pyproject.toml` — el hook no requiere instalación.
 
-                  **Paso A2-2 — Registrar en `mkdocs.yml`**:
-                    Añadir antes de `plugins:`:
-                    ```yaml
-                    hooks:
-                      - mkdocs_hooks.py
-                    ```
-                    Verificar el build: `python -m mkdocs build --strict` desde el directorio del destino.
+                  **Paso A2-2 — Conectarlo al pipeline** (no a `mkdocs.yml`):
+                    `scripts/build_docs_zip.py` lo carga por ruta y lo ejecuta tras un build correcto
+                    (`_post_build`, Gap A4). **No** añadir `hooks:` a `mkdocs.yml`: Zensical no lo
+                    ejecuta. Verificar el build: `python scripts/build_docs_zip.py` desde la raíz del
+                    destino.
            3. Verificar TIENE_WORKFLOW_GITHUB:
                 · true  → reportar en RESUMEN: "✅ Workflow GitHub presente".
                 · false (Gap A3) → reportar Gap en RESUMEN:
@@ -699,13 +709,13 @@ Fase 7b — downloads.md (SIEMPRE obligatorio — no condicional)
              Añadir entrada `- Descargas: downloads.md` en el nav de mkdocs.yml dentro de la sección
              «Inicio», tras "Instalación" (§4.1); si ya está en el primer nivel, moverla allí.
 
-           **Paso B4 — CREAR plugin MkDocs** (ejecutar pasos A2-1 a A2-4 del Gap A2).
-             El plugin genera `{nombre}-docs-latest.zip` automáticamente en `site/`
-             en cada `mkdocs build` o `mkdocs serve`.
+           **Paso B4 — CREAR el módulo post-build** (ejecutar los pasos A2-0 a A2-2 del Gap A2).
+             El pipeline genera `{nombre}-docs-latest.zip` en `site/` tras cada build correcto
+             (`python -m zensical serve` no lo genera).
 
            **Paso B5 — Reportar en RESUMEN:**
              ✅ `scripts/build_docs_zip.py` creado y ejecutado.
-             ✅ Plugin MkDocs creado e instalado (ZIP en site/ automático).
+             ✅ Módulo post-build creado y conectado al pipeline (ZIP latest en site/).
              Si el repositorio usa GitHub Actions y falta workflow:
                "⚠️ Falta `.github/workflows/docs-zip-release.yml`. Crear siguiendo el
                 patrón de `doc_ia/.github/workflows/docs-zip-release.yml`."
@@ -720,7 +730,7 @@ Fase 7c — Instrucciones de visualización (SIEMPRE obligatorio — no condicio
          `doc_ia/.github/templates/VER_DOCUMENTACION.template.md`: requisitos y pasos para ver
          la documentación desde cero en Windows, macOS y Linux, aunque no haya Python instalado.
          1. Extraer del destino los valores de los marcadores (nunca inventarlos):
-              · generador → `{generador}` (mkdocs | zensical)
+              · generador → `{generador}` = zensical (único; ADR-003)
               · `requires-python` (pyproject.toml) → `{python_min}`; si no hay, el mínimo del generador
               · fichero de dependencias de docs → `{deps_file}`
                 Falta (Gap V1) → CREAR `requirements-docs.txt` con versiones fijadas siguiendo
@@ -732,52 +742,62 @@ Fase 7c — Instrucciones de visualización (SIEMPRE obligatorio — no condicio
                 (Pages, gh-deploy, servidor interno documentado); si no → "No aplica" + motivo.
          2. Secciones fijas 0-7 de la plantilla: no omitir ni renumerar; vacías → "No aplica".
          3. Incluirlo en el ZIP: `EXTRA_FILES` de `mkdocs_hooks.py` y de `build_docs_zip.py`
-            (Gap V2 si el hook/script del destino no lo incluye → actualizarlo).
+            (Gap V2 si el módulo post-build o el script del destino no lo incluye → actualizarlo).
          4. No enlazarlo desde `docs/` (está fuera de `docs_dir`: rompe `--strict`): en
             `docs/downloads.md` citarlo como `código inline`.
          5. Estado: A si no existe; B si algún valor (versión de Python, dependencias, nombre
             del ZIP, generador, URL) no coincide con el destino; C si coincide.
 ```
 
-### Reglas por generador: Zensical
+### Generador: Zensical y migración de destinos MkDocs
 
-Aplican cuando **Generador = `zensical`**. Con `mkdocs-material` no cambia nada de lo anterior.
-Patrón de referencia: el propio doc_ia (`scripts/build_docs_zip.py`, `tests/test_zensical_compat.py`,
-ADR-003).
+**Zensical es el único generador** de doc_ia, también para los destinos (ADR-003). MkDocs no se
+soporta: si el usuario lo pide, responder que doc_ia ya no lo soporta y ofrecer la migración.
+Patrón de referencia: el propio doc_ia (`scripts/build_docs_zip.py`, `mkdocs_hooks.py`,
+`tests/test_zensical_compat.py`, ADR-003).
 
-- **Configuración**: Zensical lee el `mkdocs.yml` del destino de forma nativa. **No crear
-  `zensical.toml`** (fuente única) y aplicar la misma configuración estándar y los mismos assets
-  (Fase 0b / Fase 5): el DOM generado es el de Material.
+- **Configuración**: Zensical lee el `mkdocs.yml` del destino de forma nativa; el fichero
+  **conserva su nombre**. **No crear `zensical.toml`** (fuente única) y aplicar la misma
+  configuración estándar y los mismos assets (Fase 0b / Fase 5): el DOM generado es el de Material.
 - **`hooks:` no se ejecuta, y Zensical no avisa** (`.claude/EDGE_CASES.md` § Zensical). Todo lo
-  que el destino haga en hooks (sincronizar ficheros raíz, ZIP `latest`) debe ejecutarlo el
-  script de build. Por eso, con Zensical:
-  - **Fase 1** — señal adicional `TIENE_PIPELINE_SIN_HOOKS = true` si el
-    `scripts/build_docs_zip.py` del origen define `HOOKLESS_BUILDERS` (o ejecuta los hooks antes y
-    después del build). `TIENE_MKDOCS_PLUGIN` se sigue detectando, pero **no basta**: sin el
-    pipeline, el ZIP `latest` no se genera.
+  que el destino haga en hooks (sincronizar ficheros raíz, ZIP `latest`) lo ejecuta el script de
+  build, que es el pipeline:
+  - **Fase 1** — señal `TIENE_PIPELINE_SIN_HOOKS = true` si el `scripts/build_docs_zip.py` del
+    origen ejecuta un pre-build y el post-build alrededor de `zensical build` (en doc_ia:
+    `_pre_build`, `_build`, `_post_build`). `TIENE_MKDOCS_PLUGIN` se sigue detectando, pero **no
+    basta**: sin el pipeline, el ZIP `latest` no se genera.
   - **Gap A4** (`TIENE_ZIP_SCRIPT = true` y `TIENE_PIPELINE_SIN_HOOKS = false`) → actualizar el
-    script siguiendo `doc_ia/scripts/build_docs_zip.py`: `HOOKLESS_BUILDERS`, `_load_hook`,
-    `_pre_build` (hooks de pre-build del destino), `_post_build` (`mkdocs_hooks.on_post_build`, solo
-    si el build termina con 0) e invocación `python -m <builder>`.
-  - **Gap A2 / Paso B4** — `mkdocs_hooks.py` se crea igual: es la plantilla que invoca el script.
-    Registrarlo en `hooks:` (Paso A2-2) solo si el destino también construye con MkDocs.
-  - **Paso B1** — al adaptar `build_docs_zip.py`, poner `default="zensical"` en `--builder`.
-- **Fase 5 — plugins**: cada plugin de `mkdocs.yml` debe figurar en
-  `https://zensical.org/compatibility/plugins/`; los demás **se ignoran en silencio** → reportarlos
-  en RESUMEN como hallazgo, nunca darlos por funcionando. `hooks:` presente sin pipeline → mismo
+    script siguiendo `doc_ia/scripts/build_docs_zip.py`: `_load_hook`, `_pre_build` (pasos de
+    pre-build del destino), `_post_build` (`mkdocs_hooks.on_post_build`, solo si el build termina
+    con 0) e invocación `python -m zensical build`.
+  - **Gap A2 / Paso B4** — `mkdocs_hooks.py` es el módulo post-build que invoca el script; nunca
+    se registra en `hooks:`.
+- **Migración de un destino MkDocs** (Fase 0b; anunciarla antes de escribir):
+  1. **Guarda de plugins** (primero, antes de tocar nada): cada plugin de `mkdocs.yml` debe estar
+     en `ZENSICAL_SUPPORTED_PLUGINS` (`doc_ia/tests/test_zensical_compat.py`). Si alguno no lo
+     está, **la migración SE DETIENE**: informar en RESUMEN del plugin, de su efecto y de las
+     opciones (sustituirlo, retirarlo o esperar a que Zensical lo soporte) y no cambiar el
+     generador del destino. Nunca se degrada en silencio.
+  2. Quitar la clave `hooks:` de `mkdocs.yml` y llevar sus pasos al pipeline (Gap A4).
+  3. Dependencias: `zensical` y `zensical-ui` con **versión exacta** (las de
+     `doc_ia/requirements-docs.txt`); retirar MkDocs, su tema Material y sus dependencias propias.
+  4. Comandos: scripts, CI y workflows de release construyen con `python scripts/build_docs_zip.py`
+     (sin `--builder`); los build y serve de MkDocs pasan a `build_docs_zip.py` /
+     `python -m zensical serve`.
+  5. Verificar con `python scripts/build_docs_zip.py` (Fase 7) y registrar la migración en RESUMEN
+     y en el commit de CIERRE.
+- **Fase 5 — plugins**: misma guarda que la migración en cada sesión; un plugin fuera de la lista
+  se reporta en RESUMEN como hallazgo, nunca se da por funcionando. `hooks:` presente → mismo
   tratamiento.
 - **Fase 7 — build**:
-  - Con pipeline: `python scripts/build_docs_zip.py --builder zensical`.
-  - Sin pipeline: `python -m zensical build --strict`, advirtiendo de que no se ejecutan los hooks.
-  - Serve: `python -m zensical serve` (no ejecuta hooks: los ficheros sincronizados pueden estar
-    desfasados).
-- **Fase 7b — `downloads.md`**: "Para Desarrolladores" usa `python scripts/build_docs_zip.py
-  --builder zensical`; "Información de versión" indica Zensical. Los enlaces son
-  `{nombre}-docs-latest.zip`, sin `../` (Paso B3): Zensical también aplica `offline` y
-  `use_directory_urls: false`. Su índice JS es `search.js` en la raíz de `site/` (MkDocs:
-  `search/search_index.js`); `build_docs_zip.py` acepta los dos.
-- **Dependencias del destino**: `zensical` con **versión exacta** (está en alfa); en DOWNLOADS y
-  RESUMEN, recordar que el workflow de release debe llamar a `build_docs_zip.py --builder zensical`.
+  - Con pipeline: `python scripts/build_docs_zip.py`.
+  - Sin pipeline: `python -m zensical build --strict`, advirtiendo de que no se ejecutan los pasos
+    de pre y post-build.
+  - Serve: `python -m zensical serve` (no ejecuta esos pasos: los ficheros sincronizados pueden
+    estar desfasados).
+- **Fase 7b — `downloads.md`**: "Para Desarrolladores" usa `python scripts/build_docs_zip.py`;
+  "Información de versión" indica Zensical. Los enlaces son `{nombre}-docs-latest.zip`, sin `../`
+  (Paso B3). El índice JS es `search.js` en la raíz de `site/`.
 - **Salida 8b DOWNLOADS**: añadir el estado de `TIENE_PIPELINE_SIN_HOOKS` y, si aplica, el Gap A4.
 
 **Protocolo ACTUALIZAR (estado B) — obligatorio en Fases 2-4:**
@@ -897,7 +917,6 @@ anonimiza o se excluye. `_staging/` no se versiona nunca.
 ```
 Origen(es): c:\Desarrollo\python\libs\doc_ia
 Destino: c:\Desarrollo\python\libs\doc_ia\docs
-Generador: mkdocs-material
 Idioma: es
 Alcance: scripts/ completo (check_env.py, build_docs_zip.py)
 Arquetipos: funcional, técnica, ejemplos
@@ -907,5 +926,5 @@ Verificación: --verify-build
 ## Invocación por plataforma
 
 - **Claude Code**: `/document-project` (slash command) o "Lee y aplica `.github/prompts/document_project.prompt.md`"
-- **Copilot Chat**: `/runSubagent Documentation Generator` proporcionando los 4 parámetros obligatorios
+- **Copilot Chat**: `/runSubagent Documentation Generator` proporcionando los 3 parámetros obligatorios
 - **Gemini / Cursor / Codex**: "Lee y aplica `.github/prompts/document_project.prompt.md` con [parámetros]"

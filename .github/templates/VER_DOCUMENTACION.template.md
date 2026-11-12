@@ -2,7 +2,7 @@
 PLANTILLA — Fase 7c de document_project.prompt.md (Instrucciones de visualización).
 
 Destino: <raíz del destino>/VER_DOCUMENTACION.md (idioma `en`: VIEW_DOCS.md, traducido entero).
-Raíz del destino = carpeta con mkdocs.yml / zensical.toml (la misma que usan `_fuentes/` y `.ai/`).
+Raíz del destino = carpeta con mkdocs.yml (la misma que usan `_fuentes/` y `.ai/`).
 Está FUERA de docs/: se lee sin instalar nada (editor de texto, GitHub, dentro del ZIP).
 No enlazarlo desde docs/ (rompe `--strict`); citarlo como `código inline`.
 
@@ -11,17 +11,17 @@ Rellenar cada marcador con datos VERIFICADOS en el destino (nunca inventar):
   {zip_origen}    de dónde se obtiene el ZIP: página de Releases, página de descargas publicada
                   o "te lo facilita el equipo del proyecto" si no hay publicación verificable
   {zip_nombre}    patrón real del ZIP: {nombre}-docs-<versión>.zip (build_docs_zip.py) y/o
-                  {nombre}-docs-latest.zip (hook)
+                  {nombre}-docs-latest.zip (post-build del pipeline)
   {url_publicada} URL del sitio publicado → solo si existen site_url Y un workflow/servicio que
                   lo publique; si no, §3 = "No aplica" con el motivo y se quita la fila
                   "enlace web" de la tabla de §0
   {repo_url}      URL de clonado del repositorio destino (git remote get-url origin); si no hay
                   remoto, "copia de la carpeta del proyecto"
   {python_min}    requires-python del destino; si no hay, el mínimo del generador
-                  (mkdocs-material 9.x: 3.8; zensical: el de su versión fijada)
+                  (zensical: el de su versión fijada)
   {deps_file}     fichero de dependencias de docs del destino (requirements-docs.txt). Si no
                   existe → Gap V1: crearlo antes con versiones fijadas (patrón doc_ia)
-  {generador}     mkdocs | zensical (módulo para `python -m {generador} serve`)
+  {generador}     zensical (único generador, ADR-003; módulo para `python -m {generador} serve`)
 
 Secciones fijas: no se omiten ni se renumeran; si una no aplica, "No aplica" + motivo.
 La Ruta B (doble clic en index.html) exige el plugin `offline` y el shim iframe-worker local

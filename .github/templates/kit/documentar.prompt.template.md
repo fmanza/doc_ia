@@ -19,7 +19,7 @@ ellas y se avisa al usuario.
 | Parámetro | Valor |
 |---|---|
 | Raíz del destino | {ruta} |
-| Generador | {mkdocs-material \| zensical} |
+| Generador | zensical (único; ADR-003) |
 | Idioma | {es \| en} |
 | Modo por defecto | incremental (completo si no hay baseline) |
 | Arquetipos | {lista y opt-in} |

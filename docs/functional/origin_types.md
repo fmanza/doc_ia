@@ -1,13 +1,13 @@
 ---
 arquetipo: "1"
 fuentes:
-  .github/DOCUMENTATION_STANDARD.md: f06ee8be86cd
-  .github/prompts/document_project.prompt.md: e632644bde55
+  .github/DOCUMENTATION_STANDARD.md: fdc027f24550
+  .github/prompts/document_project.prompt.md: 9ebb31d05a58
   scripts/db_trace.py: 2df471e18403
   scripts/snapshot_sources.py: f9dd29bea432
 decisiones:
   ../decisiones/origins_decisiones.md: 2aa59f9fc5e0
-revisado: 2026-11-12
+revisado: 2026-11-13
 ---
 # Catálogo de Tipos de Origen
 

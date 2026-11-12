@@ -1,11 +1,11 @@
 ---
 arquetipo: "2"
 fuentes:
-  .claude/commands/document-project.md: 4173c0948b39
-  .github/agents/documentation-generator.agent.md: 6d6fda2b5f18
-  .github/prompts/document_project.prompt.md: e632644bde55
+  .claude/commands/document-project.md: bcf7a03630c4
+  .github/agents/documentation-generator.agent.md: c803b76cbce4
+  .github/prompts/document_project.prompt.md: 9ebb31d05a58
   .github/templates/kit/AGENTS.md: f9b80f0f102b
-  .github/templates/kit/documentar.command.md: 44364ebb0ca8
+  .github/templates/kit/documentar.command.md: dd9b8ba79deb
   mkdocs.yml: 28b6b25a031d
   scripts/db_trace.py: 2df471e18403
   scripts/kit.py: 432af520016f
@@ -22,8 +22,8 @@ Punto de entrada único del producto doc_ia: orquesta los arquetipos formales so
 ```mermaid
 stateDiagram-v2
     accTitle: Fases internas de document_project
-    accDescr: Máquina de fases del flujo, desde la validación de los cuatro parámetros hasta el cierre de sesión, con las dos salidas anticipadas (parámetro faltante o ningún origen de código) y el build estricto opcional.
-    state "VALIDACIÓN · 4 parámetros + Fase 0-pre · adquisición en _staging/" as VALIDACION
+    accDescr: Máquina de fases del flujo, desde la validación de los tres parámetros hasta el cierre de sesión, con las dos salidas anticipadas (parámetro faltante o ningún origen de código) y el build estricto opcional.
+    state "VALIDACIÓN · 3 parámetros + Fase 0-pre · adquisición en _staging/" as VALIDACION
     state "Fase 0a · Clasificación" as CLASIFICACION
     state "Fase 0b · Sincronización visual y kit" as SYNC_VISUAL
     state "Fase 0 normativa · Fase 0c md/ y _fuentes/" as PREPARACION
@@ -74,7 +74,7 @@ La vista del mismo flujo desde el usuario (qué pide, qué confirma y qué recib
 |---|---|---|---|
 | `Origen(es)` | ruta(s) o forma de origen | Ruta raíz del/los proyectos a documentar, o una forma de origen de la Fase 0-pre: fichero con `{ver}` en el nombre, carpeta de red (UNC), biblioteca de SharePoint (copia sincronizada con OneDrive) o repositorio remoto con `Ref` | Obligatorio; debe existir y ser accesible. Lo que no es una carpeta local de trabajo se copia a `<raíz del destino>/_staging/<nombre>/` (ignorada por git): MATERIAL con [`snapshot_sources.py`](snapshot_sources.md) (`add` + `sync`), CÓDIGO remoto con `git fetch` + `git worktree add --detach … origin/<ref>`; el origen nunca se escribe |
 | `Destino` | ruta | Ruta donde se escriben los archivos Markdown | Obligatorio; no se asume `docs/` por defecto |
-| `Generador` | string | `mkdocs-material` (por defecto) o `zensical` | Obligatorio. Ambos usan `mkdocs.yml` (nunca `zensical.toml`); con `zensical` se aplican las *Reglas por generador: Zensical* del prompt (pipeline sin hooks, Gap A4, plugins soportados, build vía script) |
+| `Generador` | — | Siempre `zensical` (ADR-003) | No es un parámetro: no se pregunta. Usa `mkdocs.yml` (nunca `zensical.toml`) y el § *Generador: Zensical y migración de destinos MkDocs* del prompt (pipeline sin hooks, Gap A4, plugins soportados, build vía script). Si el usuario pide MkDocs, se responde que no se soporta y se ofrece migrar; un destino en MkDocs se migra en la Fase 0b con guarda de plugins (un plugin no soportado detiene la migración) |
 | `Idioma` | string | `es`, `en` u otro código ISO 639-1 | Obligatorio; aplica a todo el contenido generado |
 | `Tipo de cada origen` | string | `CÓDIGO` · `NORMATIVA` · `ESPECIFICACIÓN` · `UI/PANTALLAS` · `REFERENCIA` · `CONTRATO` · `INFRAESTRUCTURA` · `MANUAL` · `BASE DE DATOS` (con `WEB`, `UI/PANTALLAS` de la aplicación desplegada) | Opcional; autodetectado si se omite; se confirma antes de continuar. Catálogo completo en [Tipos de Origen](../functional/origin_types.md) |
 | `Estrategia` | string | `federado` · `hub+satélite` · `monorepo` | Solo con ≥2 orígenes CÓDIGO; nunca autodetectado |
@@ -100,8 +100,8 @@ Doce bloques en el chat, en este orden (más `ADQUISICIÓN` tras el primero, sol
 6. `SYNC NAV` — diff de `mkdocs.yml`; como máximo 9 entradas de primer nivel, con Inicio, Quick Start, Instalación y Descargas en «Inicio» y Configuración IA, Changelog y Contribuir en «Proyecto».
 7. `REVISIÓN` — checklist de validación.
 8. `BUILD` — resultado de `--verify-build` (solo opt-in).
-9. `DOWNLOADS` — `docs/downloads.md` creado/actualizado (siempre obligatorio); indica variante A o B; reporta huecos de las señales ZIP que falten (Gaps A1-A3 y, con Zensical, A4: script de build sin pasos pre/post).
-10. `VISUALIZACIÓN` — `VER_DOCUMENTACION.md` (idioma `en`: `VIEW_DOCS.md`) creado/actualizado en la raíz del destino desde `.github/templates/VER_DOCUMENTACION.template.md` (siempre obligatorio); tabla marcador → valor → fuente verificada; Ruta A solo con publicación verificada; Gaps V1 (sin `requirements-docs.txt`), V2 (`EXTRA_FILES` en hook/script) y V3 (hook sin `on_post_build.mkdocs_priority = -200`: el ZIP latest sale sin búsqueda). La Ruta B es el doble clic en `index.html` del ZIP extraído, que la Fase 0b hace posible (`use_directory_urls: false`, plugin `offline`, shim iframe-worker local en `extra.polyfills`); `start-server.py`, la alternativa.
+9. `DOWNLOADS` — `docs/downloads.md` creado/actualizado (siempre obligatorio); indica variante A o B; reporta huecos de las señales ZIP que falten (Gaps A1-A4; A4: script de build sin pasos pre/post).
+10. `VISUALIZACIÓN` — `VER_DOCUMENTACION.md` (idioma `en`: `VIEW_DOCS.md`) creado/actualizado en la raíz del destino desde `.github/templates/VER_DOCUMENTACION.template.md` (siempre obligatorio); tabla marcador → valor → fuente verificada; Ruta A solo con publicación verificada; Gaps V1 (sin `requirements-docs.txt`) y V2 (`EXTRA_FILES` en el módulo post-build o en el script); V3 (`mkdocs_priority`) ya no aplica: el pipeline ejecuta el post-build cuando Zensical ha terminado. La Ruta B es el doble clic en `index.html` del ZIP extraído, que la Fase 0b hace posible (`use_directory_urls: false`, plugin `offline`, shim iframe-worker local en `extra.polyfills`); `start-server.py`, la alternativa.
 11. `RESUMEN` — contadores de archivos creados/actualizados/omitidos y entradas de nav; estado
     del kit (`kit.py sync`/`check`: versión de doc_ia, cambios y conflictos); con
     registro de decisiones (Arquetipo 13), decisiones aplicadas (ID → páginas), fichas
@@ -122,7 +122,7 @@ kit, su carpeta `.doc_ia/`.
 | Destino con `docs/decisiones/` editado por personas | Fase 3: se aplican las decisiones antes de regenerar (`coverage_decisions.prompt.md`, modo aplicación); Fase 6: `doc_trace decisions` con código `0` |
 | Origen no legible o fuera del workspace | El flujo se detiene y pide confirmación de ruta |
 | Todos los orígenes son MATERIAL (sin CÓDIGO) | El flujo se detiene con mensaje orientativo hacia los prompts de arquetipo directo |
-| `--verify-build` falla | Se reportan errores del build MkDocs; el RESUMEN los lista como pendientes |
+| `--verify-build` falla | Se reportan errores del build de Zensical; el RESUMEN los lista como pendientes |
 | Estado B con secciones vigentes | Solo se actualizan las secciones afectadas; las vigentes se copian verbatim |
 | El usuario indica un documento reestructurado (otro nombre u otra ubicación) | Fase 0-pre: `snapshot_sources.py replace` + `sync`; manda aunque su versión sea menor; los `.md` antiguos de `_fuentes/<nombre>/` quedan huérfanos y se retiran con confirmación |
 | Documento convertido con credenciales | Fase 0c, Paso 4b: `redact_secrets.py` sobre `md/` antes de copiar a `_fuentes/`; CIERRE: `redact_secrets.py _fuentes --check` con código `0` antes del commit |
@@ -153,13 +153,12 @@ kit, su carpeta `.doc_ia/`.
 |---|---|---|---|
 | `.github/DOCUMENTATION_STANDARD.md` | Define los 15 arquetipos formales y sus estructuras | Sí | Las fases de generación no tienen plantilla de referencia |
 | `.github/instructions/docs.instructions.md` | Reglas operativas (resumen de Mermaid, snippets, MkDocs; reglas de diagramas en `DOCUMENTATION_STANDARD.md` §3.17) | Sí | Riesgo de inconsistencias de estilo y formato |
-| `mkdocs.yml` (destino) | Navegación que se sincroniza en Fase 5 | Sí, con cualquiera de los dos generadores | Sin él, SYNC NAV no puede actualizar la navegación |
+| `mkdocs.yml` (destino) | Navegación que se sincroniza en Fase 5; Zensical lo lee de forma nativa | Sí | Sin él, SYNC NAV no puede actualizar la navegación |
 | Prompts de arquetipo (`.github/prompts/`) | Plantillas de cada tipo de documento | Sí | Las fases 2-4 no tienen instrucciones para generar cada arquetipo |
 | `scripts/kit.py` y `.github/kit/MANIFEST.txt` | Kit de documentación en el destino (Fase 0b) | Sí | Sin kit, el destino no se puede relanzar con `/documentar` sin doc_ia |
 | `scripts/db_trace.py` | Origen BASE DE DATOS: importación, contraste, cambios y `trace_map` | Solo con `BD` | Sin él, no se puede usar una exportación de `util_bbdd` |
 | `scripts/web_captures.py` | Origen WEB: publicación de capturas revisadas y comprobación del manual | Solo con `WEB` | Sin él, las capturas no tienen registro ni control antes del commit |
-| `python -m mkdocs build` | Verificación de build (Fase 7) | Solo con `--verify-build` | Si falta, la fase 7 no se puede ejecutar |
-| `python scripts/build_docs_zip.py --builder zensical` (o `python -m zensical build --strict`) | Verificación de build con Zensical (Fase 7) | Solo con `--verify-build` y generador `zensical` | Sin el script, los hooks no se ejecutan y se reporta Gap A4 |
+| `python scripts/build_docs_zip.py` (o `python -m zensical build --strict`) | Verificación de build (Fase 7) | Solo con `--verify-build` | Sin Zensical, la fase 7 no se puede ejecutar; sin el script, los pasos pre/post no se ejecutan y se reporta Gap A4 |
 
 ## 5. Ejemplos Relacionados
 
@@ -186,7 +185,7 @@ agente o plantilla que citan.
     | `/document-project` | `.claude/commands/document-project.md` | ✅ |
     | Prompt multiplataforma | `.github/prompts/document_project.prompt.md` | ✅ |
     | Agente por fases | `.github/agents/documentation-generator.agent.md` | ✅ |
-    | 4 parámetros obligatorios y 5 opcionales | `.github/prompts/document_project.prompt.md` (sección "Contexto a completar") | ✅ |
+    | 3 parámetros obligatorios, generador fijo (Zensical) y opcionales | `.github/prompts/document_project.prompt.md` (sección "Contexto a completar") | ✅ |
     | Estrategia nunca autodetectada | `.github/prompts/document_project.prompt.md` (opcional "Estrategia") | ✅ |
     | Once bloques de salida (1–10 + 8b) | `.github/prompts/document_project.prompt.md` (sección "Devuelve en este orden") | ✅ |
     | Fase 2 con Mapa Funcional y Fase 3 con Arquetipo 12 | `.github/prompts/document_project.prompt.md` (Fases 2 y 3) | ✅ |
@@ -202,5 +201,5 @@ agente o plantilla que citan.
     | Documento reestructurado, redacción de credenciales y Arquetipo 14 | `.github/prompts/document_project.prompt.md` (Fase 0-pre «Versión vigente», Fase 0c Paso 4b, Fase 1 «Detección de integraciones», Fase 3b, CIERRE «Credenciales»), `.claude/commands/document-project.md`, `scripts/snapshot_sources.py::replace_source` | ✅ |
     | Parámetro `WEB`, origen WEB y Fase 3c | `.github/prompts/document_project.prompt.md::Origen WEB (opción WEB)`, `::Fase 3c`, `.claude/commands/document-project.md` (Inputs requeridos), `.github/agents/documentation-generator.agent.md` (§7), `scripts/web_captures.py::main` | ✅ |
     | Copia en `_fuentes/` y migración de otros nombres | `.github/prompts/document_project.prompt.md` (Fase 0c, Paso 5), `tests/test_docs_conformance.py::test_sources_folder_is_canonical` | ✅ |
-    | Generador `zensical`: `TIENE_PIPELINE_SIN_HOOKS`, Gap A4, plugins soportados, build vía script | `.github/prompts/document_project.prompt.md` (sección "Reglas por generador: Zensical") | ✅ |
-    | Dependencias: norma, `docs.instructions.md`, `mkdocs.yml`, prompts, `mkdocs build` | `.github/prompts/document_project.prompt.md`, `.github/agents/documentation-generator.agent.md` | ✅ |
+    | Zensical como único generador: `TIENE_PIPELINE_SIN_HOOKS`, Gap A4, plugins soportados, build vía script, migración de destinos MkDocs con guarda de plugins | `.github/prompts/document_project.prompt.md` (sección "Generador: Zensical y migración de destinos MkDocs") | ✅ |
+    | Dependencias: norma, `docs.instructions.md`, `mkdocs.yml`, prompts, build con Zensical | `.github/prompts/document_project.prompt.md`, `.github/agents/documentation-generator.agent.md` | ✅ |
