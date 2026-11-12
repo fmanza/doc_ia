@@ -14,6 +14,13 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
   esta versión. `check_env.py` exige `zensical` en lugar de `mkdocs`.
 - CI: el build de Zensical es bloqueante; desaparecen el build MkDocs y la paridad. Los
   workflows de release construyen con `build_docs_zip.py`.
+- **BREAKING** — `/document-project`: el generador deja de ser un campo (siempre Zensical) y
+  los campos obligatorios pasan a tres (origen(es), destino, idioma). Un destino que construye
+  con MkDocs se migra en su Fase 0b de forma explícita (sin `hooks:`, build por pipeline,
+  registro en el RESUMEN), y la migración se detiene si usa un plugin que Zensical no soporta.
+  Agentes, prompts, estándar, plantillas y kit alineados; el Gap V3 ya no aplica.
+- Instrucciones de las plataformas IA y documentación propia con los comandos de Zensical
+  (`build_docs_zip.py`, `zensical serve`). Nueva guarda `tests/test_no_mkdocs.py`.
 
 ### Removed
 

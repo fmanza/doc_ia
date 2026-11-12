@@ -57,7 +57,10 @@ recomendable la migración. Puede consultarse información en internet. PLAN y A
 | VERSION | `release: v0.2.0 - …` (`03_VERSION_CLOSURE.md`); CI run 40758754780 verde | `d619d59` | HECHO |
 | VERSION | merge `--no-ff` a `main`; CI run 40759057725 verde; release `docs-v0.2.0` (run 40759057543) | `2e8da9d` | HECHO |
 | VERSION | tag `v0.2.0` sobre `2e8da9d` → release `v0.2.0` con `doc_ia-docs-0.2.0.zip` (run 40760807978) | `2e8da9d` | HECHO |
-| F7-F10, F12 | ver `02_PLAN_FASES.md` | — | PENDIENTE (gates) |
+| F7 | `build(deps): Zensical 0.1.1 (F7)` (sesión `2026-11-12_zensical_paridad_f7`, P2) | `b63cf2d` | HECHO |
+| F8 + F13 | Sustituidas por Z1 por decisión del usuario (D4, 2026-11-12): Zensical único, MkDocs fuera; C2 y C5 retiradas | `b6ee093` | HECHO |
+| F9, F12 | Sustituidas por Z2 y Z3 (sesión `2026-11-12_zensical_paridad_f7`) | ver esa sesión | ver esa sesión |
+| F10 | Reducida a Z4: `use_directory_urls: false`, `offline` y shim local ya en `a43ebcc`; queda decidir `privacy` | — | PENDIENTE (decisión) |
 
 ### F1 — verificación
 - DoD local (`.venv`, Python 3.14): ruff, format, mypy, pytest **177**, drift 0, matrix
@@ -190,3 +193,12 @@ F7 gate Zensical 0.1 · F8 gate C2-C5 (C2 desde 2026-10-28) · F9/F10/F12 tras F
 Pendientes al cierre:
 - F7: al publicarse Zensical 0.1 en PyPI (anunciada 2026-11-05).
 - F8: no antes del 2026-11-11, con C2-C5 cumplidas y GO del usuario.
+
+## Actualización 2026-11-12 (sesión `2026-11-12_zensical_paridad_f7`)
+- La paridad estuvo en rojo del 2026-11-04 (v0.7.0) al 2026-11-12 sin que el run fallase: el logo
+  enlazaba a una carpeta con `navigation.indexes` (también con MkDocs). Corregido en `7199613`.
+- F7 hecha con Zensical 0.1.1 (`b63cf2d`); release v0.11.4 (`1599b04`).
+- **Decisión D4 del usuario**: Zensical estándar único y MkDocs fuera. F8, F9, F12 y F13 pasan a
+  Z1-Z3 de esa sesión; C2 (2 semanas de paridad) y C5 (2027-05-05) quedan retiradas. ADR-003
+  ACEPTADO y ADR-001 REEMPLAZADO en `b6ee093`.
+

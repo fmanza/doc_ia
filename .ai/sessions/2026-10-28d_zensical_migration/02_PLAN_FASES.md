@@ -337,3 +337,11 @@ fases posteriores **salvo** las que dependen de él según el grafo.
 | F9, F10, F12 | **GO_CONDICIONAL** (F8; F10 además C8) | Tras F8 |
 
 Orden de ejecución propuesto ahora: **F0 → F1 → F2 → F3 → F4 → F5 → F11 → F6**.
+
+## Actualización 2026-11-12
+Plan superado por la decisión D4 del usuario (sesión `2026-11-12_zensical_paridad_f7`): Zensical
+es el único generador y MkDocs queda fuera. F7 se hizo con 0.1.1; F8+F13 → Z1, F9 → Z2, F12 → Z3
+(destinos MkDocs migrados en la Fase 0b con guarda de plugins), F10 → Z4 (reducida). C2 y C5 se
+retiran; C3 se hizo antes de Z1 (búsqueda por `file://` y móvil real, pendientes de revisión
+humana antes de publicar).
+
