@@ -2,7 +2,7 @@
 arquetipo: "1"
 fuentes:
   .github/kit/MANIFEST.txt: ba84851d379a
-  .github/prompts/bootstrap_ai_config.prompt.md: 2c724546f2bb
+  .github/prompts/bootstrap_ai_config.prompt.md: 3980f5a9561d
   .github/prompts/document_project.prompt.md: 9ebb31d05a58
   .github/templates/kit/AGENTS.md: f9b80f0f102b
   .github/templates/kit/documentar.command.md: dd9b8ba79deb

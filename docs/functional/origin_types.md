@@ -1,7 +1,7 @@
 ---
 arquetipo: "1"
 fuentes:
-  .github/DOCUMENTATION_STANDARD.md: fdc027f24550
+  .github/DOCUMENTATION_STANDARD.md: 19a66007b81d
   .github/prompts/document_project.prompt.md: 9ebb31d05a58
   scripts/db_trace.py: 2df471e18403
   scripts/snapshot_sources.py: f9dd29bea432

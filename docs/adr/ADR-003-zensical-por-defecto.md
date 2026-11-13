@@ -41,8 +41,8 @@ proyectos destino. MkDocs queda fuera** (decisión del usuario, 2026-11-12):
 
 1. **Build**: `python scripts/build_docs_zip.py` es el pipeline: sincroniza los ficheros raíz,
    `zensical build --strict`, ZIP `latest` (`mkdocs_hooks.py`) solo si el build termina con 0,
-   y rechaza un `site/` que no se abra con doble clic en `index.html`. `--builder mkdocs` se
-   rechaza con código 2; `--builder zensical` se acepta sin efecto durante una versión.
+   y rechaza un `site/` que no se abra con doble clic en `index.html`. `--builder` se
+   mantuvo una versión (0.12.0) solo para aceptar `zensical`; se retiró en 0.13.0.
 2. **Dependencias**: `zensical` y `zensical-ui` con versión exacta; fuera MkDocs,
    Material for MkDocs y sus dependencias propias. `check_env.py` exige `zensical`.
 3. **CI**: el build de Zensical es **bloqueante**; desaparecen el build MkDocs y la paridad.

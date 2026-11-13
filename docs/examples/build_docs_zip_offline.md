@@ -51,7 +51,9 @@ Salida: `site/doc_ia-docs-latest.zip` + `.sha256`, y `dist/doc_ia-docs-<versión
 - `--no-build` falla con código `1` si no existe `site/` previo — evita empaquetar nada silenciosamente.
 - Antes de empaquetar comprueba que `site/` se abre con doble clic en `index.html`; si no, código `1` (ver §4).
 - `dist/CHECKSUMS.txt` es acumulativo: conserva el histórico de hashes con timestamp.
-- `--builder mkdocs` (llamadas antiguas) termina con código `2`; `--builder zensical` se acepta sin efecto.
+- El ZIP es reproducible: repetir el pipeline sobre el mismo commit da el mismo fichero y la
+  misma huella (fecha de las entradas = último commit, o `SOURCE_DATE_EPOCH` si se define).
+- No hay opción para elegir generador (Zensical es el único): `--builder`, de llamadas antiguas, termina con código `2`.
 
 ## 4. Ejecución y Pruebas
 
@@ -119,7 +121,7 @@ echo $?   # 1 — no se crea ningún ZIP
 
 ```bash
 python scripts/build_docs_zip.py --builder mkdocs
-# build_docs_zip.py: error: builder 'mkdocs' is no longer supported: Zensical is the only documentation generator (ADR-003). Drop --builder.
+# build_docs_zip.py: error: unrecognized arguments: --builder mkdocs
 echo $?   # 2 — no se construye nada
 ```
 

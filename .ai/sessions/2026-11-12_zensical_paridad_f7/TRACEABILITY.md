@@ -5,7 +5,7 @@
 - fecha: 2026-11-12
 - rama: develop
 - skill: new_feature (fix + build(deps))
-- fase: PLAN + AUDIT_PLAN + IMPLEMENT
+- fase: PLAN + AUDIT_PLAN + IMPLEMENT + VERSION
 
 ## Prompt issued
 1. Revisión de lo pendiente de la migración a Zensical (F7, F8, F9, F10, F12): situación actual y
@@ -45,6 +45,29 @@
   verificadas con capturas por `file://` (búsqueda y móvil real pendientes de revisión humana).
   Z4 queda como decisión (`privacy`). Todo en `develop`, sin push.
 
+## Publicación (2026-11-13)
+- `release: v0.12.0` `556c26f` en `develop`; CI run 43329911066 verde (3.12, 3.14, Mermaid; build
+  Zensical bloqueante).
+- Merge `--no-ff` a `main` `f5d9b69` (padres `79b43ca`, `556c26f`), push con confirmación del
+  usuario; CI run 43330336383 verde; release `docs-v0.12.0` (run 43330336412) con ZIP, `.sha256`
+  y `CHECKSUMS.txt`.
+- Tag `v0.12.0` sobre `f5d9b69` → release `v0.12.0` con `doc_ia-docs-0.12.0.zip` (run 43330628793).
+- v0.11.4 no tiene release propia: va incluida en v0.12.0.
+
+## Decisiones posteriores (2026-11-13)
+- COB-BUILDZIP-001: **Reclasificar → ✅** (Paco Manzano). La opción «Reclasificar → No aplica» que
+  propuso el agente no es válida para una ficha ⚠️ (§3.18, `doc_trace decisions`); se corrigió
+  antes de registrarla.
+- Z4 (`privacy`): **no se añade**.
+- C3 sobre el ZIP publicado (`v0.12.0`, extraído y abierto por `file://` con toda la red
+  bloqueada, CDP): móvil 390×844 sin desbordamiento horizontal en `index`, `api/build_docs_zip`,
+  `downloads` y `functional/index`, diagramas Mermaid dibujados, menú y buscador visibles; el
+  diálogo de búsqueda se abre. **No se pudo confirmar de forma automática que devuelva resultados**
+  (el buscador de Zensical 0.1.1 vive en un shadow DOM): queda la prueba manual de 10 segundos.
+- Observación: la release `v0.12.0` (tag) y `docs-v0.12.0` (push a `main`) llevan ZIP con el mismo
+  nombre pero de builds distintas (huellas distintas); solo `docs-v0.12.0` adjunta `.sha256`.
+  Comportamiento previo a esta sesión.
+
 ## Pendiente
-- Decidir COB-BUILDZIP-001 (¿reclasificar a `No aplica`?), Z4 (`privacy`) y revisión humana de C3.
-- VERSION v0.12.0 con `/version-closure` (merge, tag y push por separado, con confirmación).
+- Ninguno. C3 cerrada el 2026-11-13: el usuario confirmó la búsqueda por `file://` en los ZIP de
+  doc_ia y UFV. Pendientes de mantenimiento → sesión `2026-11-13_pendientes_zensical`.

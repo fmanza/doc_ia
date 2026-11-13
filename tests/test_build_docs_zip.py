@@ -16,6 +16,14 @@ import pytest
 from scripts import build_docs_zip
 
 REPO = Path(__file__).resolve().parents[1]
+# 2026-11-12T10:00:00Z: fecha fija de las entradas del ZIP en los tests (sin llamar a git).
+FIXED_EPOCH = 1794477600
+FIXED_DATE_TIME = (2026, 11, 12, 10, 0, 0)
+
+
+@pytest.fixture(autouse=True)
+def _fixed_source_date(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("SOURCE_DATE_EPOCH", str(FIXED_EPOCH))
 
 
 def _project(tmp_path: Path, version: str = "0.1.0") -> Path:
@@ -184,27 +192,20 @@ def test_zensical_build_failure_skips_post_build(tmp_path: Path) -> None:
     assert not (root / "dist").exists()
 
 
-def test_legacy_builder_flag_zensical_is_accepted(tmp_path: Path) -> None:
-    """`--builder zensical` sigue funcionando una versión (llamadas existentes)."""
-    root = _project(tmp_path)
-    log = _fake_hooks(root)
-    with patch.object(build_docs_zip.subprocess, "run", side_effect=_logging_run(log)) as run:
-        _run_main(root, "--builder", "zensical")
-    assert run.call_args.args[0][:3] == [sys.executable, "-m", "zensical"]
-    assert log.read_text().splitlines() == ["pre", "build", f"post {root / 'site'}"]
-
-
-def test_mkdocs_builder_is_rejected(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
-    """MkDocs ya no se soporta (ADR-003): exit 2 antes de construir nada."""
+@pytest.mark.parametrize("value", ["mkdocs", "zensical"])
+def test_builder_option_was_removed(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], value: str
+) -> None:
+    """`--builder` se retiró en 0.13.0 (Zensical es el único generador): exit 2 sin construir."""
     root = _project(tmp_path)
     log = _fake_hooks(root)
     with (
         patch.object(build_docs_zip.subprocess, "run", side_effect=_logging_run(log)) as run,
         pytest.raises(SystemExit) as exc,
     ):
-        _run_main(root, "--builder", "mkdocs")
+        _run_main(root, "--builder", value)
     assert exc.value.code == 2
-    assert "no longer supported" in capsys.readouterr().err
+    assert "unrecognized arguments: --builder" in capsys.readouterr().err
     run.assert_not_called()
     assert not log.exists()
 
@@ -330,3 +331,58 @@ def test_problem_report_is_truncated(tmp_path: Path, capsys: pytest.CaptureFixtu
     err = capsys.readouterr().err
     assert err.count("link to a folder") == build_docs_zip.MAX_REPORTED_PROBLEMS
     assert "... and 5 more" in err
+
+
+def _zip_from(root: Path, out: str) -> bytes:
+    _run_main(root, "--no-build", "--output-dir", out)
+    return (root / out / "doc_ia-docs-0.1.0.zip").read_bytes()
+
+
+def test_versioned_zip_is_reproducible(tmp_path: Path) -> None:
+    """Mismo site/ → mismos bytes, aunque cambien la hora del sistema y la de los ficheros."""
+    root = _project(tmp_path)
+    first = _zip_from(root, "a")
+    for path in (root / "site").rglob("*"):
+        if path.is_file():
+            path.touch()
+    with patch("time.time", return_value=4_000_000_000):
+        second = _zip_from(root, "b")
+    assert first == second
+    with zipfile.ZipFile(root / "a" / "doc_ia-docs-0.1.0.zip") as zf:
+        assert {info.date_time for info in zf.infolist()} == {FIXED_DATE_TIME}
+        assert [info.filename for info in zf.infolist()] == sorted(zf.namelist())
+
+
+def test_zip_date_falls_back_to_1980_without_epoch_or_git(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.delenv("SOURCE_DATE_EPOCH")
+    with patch.object(build_docs_zip, "ROOT", tmp_path):  # sin repositorio git
+        assert build_docs_zip._zip_date_time() == build_docs_zip.ZIP_MIN_DATE_TIME
+    assert mkdocs_hooks._zip_date_time(tmp_path) == mkdocs_hooks.ZIP_MIN_DATE_TIME
+
+
+def test_zip_date_uses_last_commit_without_epoch(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("SOURCE_DATE_EPOCH")
+    head = subprocess.run(
+        ["git", "log", "-1", "--format=%ct"], cwd=REPO, capture_output=True, text=True, check=True
+    ).stdout.strip()
+    import time  # noqa: PLC0415
+
+    expected = tuple(time.gmtime(int(head))[:6])
+    assert build_docs_zip._zip_date_time() == expected
+    assert mkdocs_hooks._zip_date_time(REPO) == expected
+
+
+def test_latest_and_versioned_zip_have_same_bytes(tmp_path: Path) -> None:
+    """El ZIP latest (post-build) y el versionado empaquetan lo mismo con el mismo formato."""
+    root = _project(tmp_path)
+    shutil.copy2(REPO / "scripts" / "start-server.py", tmp_path / "start-server.py")
+    mkdocs_hooks.on_post_build({"site_dir": str(root / "site")})
+    latest = root / "site" / "doc_ia-docs-latest.zip"
+    with zipfile.ZipFile(latest) as zf:
+        latest_entries = {i.filename: (i.date_time, zf.read(i.filename)) for i in zf.infolist()}
+    assert {d for d, _ in latest_entries.values()} == {FIXED_DATE_TIME}
+    hook_again = latest.read_bytes()
+    mkdocs_hooks.on_post_build({"site_dir": str(root / "site")})
+    assert latest.read_bytes() == hook_again

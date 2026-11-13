@@ -47,12 +47,13 @@ los re-sellados y los commits se hicieron en el hilo principal.
   criterios sin test.
 - `test_no_mkdocs.py`: sin comandos ni paquetes MkDocs fuera del histórico.
 
-## Z4 (F10 reducida) — no implementada
+## Z4 (F10 reducida) — decidido no hacerla (2026-11-13)
 
 `use_directory_urls: false`, `offline` y el shim local ya están desde `a43ebcc`; el texto de la
 release ya describe el uso sin conexión. Queda una **decisión del usuario**: añadir el plugin
 `privacy` (Zensical lo soporta) para que también las fuentes tipográficas vayan en el ZIP, a
-cambio de descargas de terceros durante el build en CI. Sin decisión no se toca.
+cambio de descargas de terceros durante el build en CI. **Decisión del usuario (2026-11-13): no se
+añade**; sin red se usan las fuentes del sistema. Z4 queda cerrada sin cambios.
 
 ## Pendientes para el usuario
 

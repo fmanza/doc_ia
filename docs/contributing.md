@@ -109,7 +109,7 @@ se vean sin conexión. Para cambiar de versión, elige una publicada hace al men
    (`extra_javascript`), en la matriz del job `mermaid` de `ci.yml` (con una versión de
    `@mermaid-js/mermaid-cli` compatible) y la huella en `tests/test_mermaid_assets.py`.
 3. Ejecuta `python -m pytest tests/test_mermaid_assets.py` (falla si algo no coincide) y revisa
-   los diagramas en claro y oscuro con los dos generadores.
+   los diagramas en claro y oscuro (`python scripts/build_docs_zip.py` y el ZIP sin red).
 
 #### Actualizar iframe-worker
 
@@ -122,15 +122,37 @@ unpkg. Para cambiar de versión, elige una publicada hace al menos dos semanas y
    revisa el contenido (no debe hacer peticiones de red) y actualiza `LICENSE` y `SOURCE.txt`.
 2. Cambia la ruta en `extra.polyfills` de `mkdocs.yml` y `.github/templates/TEMPLATE_mkdocs.yml`,
    y la huella en `tests/test_offline_assets.py`.
-3. Ejecuta `python -m pytest tests/test_offline_assets.py` y `python scripts/build_docs_zip.py`
-   con los dos generadores, y prueba la búsqueda abriendo `index.html` del ZIP extraído sin red.
+3. Ejecuta `python -m pytest tests/test_offline_assets.py` y `python scripts/build_docs_zip.py`,
+   y prueba la búsqueda abriendo `index.html` del ZIP extraído sin red.
+
+#### Actualizar Zensical
+
+Zensical es el único generador (ADR-003) y está en beta (0.1.x): se actualiza de forma
+deliberada, nunca con un rango de versiones. Elige una versión publicada hace al menos dos semanas
+y:
+
+1. Lee sus notas de versión (y las de las versiones intermedias): cambios incompatibles, plugins
+   nuevos o retirados, `hooks:`, `--strict`, `zensical.toml`.
+2. Cambia `zensical` y `zensical-ui` (versión exacta, la que instala `pip install zensical==X`)
+   en `requirements-docs.txt` y `requirements.txt`. `tests/test_zensical_compat.py` falla si
+   no coinciden.
+3. Revisa `ZENSICAL_SUPPORTED_PLUGINS` (`tests/test_zensical_compat.py`) contra las notas y la
+   página de compatibilidad de plugins; si `hooks:` pasa a soportarse, anótalo en ADR-003 y en
+   `.claude/EDGE_CASES.md` (el pipeline de `build_docs_zip.py` se mantiene igual).
+4. Construye con la versión anterior y con la nueva y compara: mismas rutas en `site/`
+   (`find site -name "*.html" | sort`), `python scripts/build_docs_zip.py` con código 0 y 0
+   enlaces a carpeta, y `python -m pytest` (incluye el cargador de Mermaid del tema).
+5. Abre el ZIP extraído con doble clic y sin red: búsqueda con resultados, diagramas Mermaid en
+   claro y oscuro, logo y navegación.
+6. Actualiza las menciones en prosa de la versión (`docs/downloads.md` § Información de versión,
+   ADR-003) y el CHANGELOG (`build(deps): Zensical X`).
 
 ### 5.1 Sincronización Visual de mkdocs.yml (para Nuevos Proyectos)
 
 #### Contexto
 
 El comando `/document-project` documenta proyectos mediante **arquetipos formales** organizados en `docs/`. 
-Usa **MkDocs Material** como generador estándar. Sin embargo, la configuración visual (`mkdocs.yml`) 
+Usa **Zensical** como único generador (ADR-003), que lee `mkdocs.yml`. Sin embargo, la configuración visual (`mkdocs.yml`) 
 debe estar **correctamente sincronizada** entre origen y destino para que theme, plugins, extensions 
 y assets personalizados funcionen.
 

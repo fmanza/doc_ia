@@ -11,11 +11,18 @@ Patrón de referencia para otros proyectos:
 
 import hashlib
 import os
+import subprocess
+import time
 import zipfile
 from pathlib import Path
 
 # Ficheros fuera de site/ que viajan en la raíz del ZIP: servidor local e instrucciones.
 EXTRA_FILES = ("scripts/start-server.py", "VER_DOCUMENTACION.md")
+
+# ZIP reproducible: mismo contenido → mismos bytes. Entradas ordenadas, fecha y permisos fijos.
+ZIP_MIN_DATE_TIME = (1980, 1, 1, 0, 0, 0)
+ZIP_MIN_EPOCH = 315532800  # 1980-01-01T00:00:00Z
+ZIP_FILE_MODE = 0o644
 
 
 def on_post_build(config, **kwargs):
@@ -28,20 +35,18 @@ def on_post_build(config, **kwargs):
 
     print(f"\n[ZIP] Generando descarga de documentacion: {zip_path}")
 
+    date_time = _zip_date_time(Path(__file__).parent)
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
-        for root, _, files in os.walk(site_dir):
-            for file in files:
-                file_path = Path(root) / file
-                if file_path.suffix in (".zip", ".sha256"):
-                    continue
-                arcname = file_path.relative_to(site_dir)
-                zipf.write(file_path, arcname=arcname)
+        for file_path in sorted(p for p in site_dir.rglob("*") if p.is_file()):
+            if file_path.suffix in (".zip", ".sha256"):
+                continue
+            _add_entry(zipf, file_path, file_path.relative_to(site_dir).as_posix(), date_time)
 
         for extra in EXTRA_FILES:
             extra_path = Path(__file__).parent / extra
             if extra_path.exists():
                 print(f"[ZIP] Incluyendo: {extra_path.name}")
-                zipf.write(extra_path, arcname=extra_path.name)
+                _add_entry(zipf, extra_path, extra_path.name, date_time)
 
     sha256_hash = _sha256(zip_path)
     sha256_file = zip_path.with_suffix(".zip.sha256")
@@ -52,6 +57,32 @@ def on_post_build(config, **kwargs):
     print(f"[OK] SHA256: {sha256_hash}")
     print(f"[OK] Checksum guardado: {sha256_file.name}")
 
+
+def _zip_date_time(root: Path) -> tuple:
+    """Fecha fija de las entradas: SOURCE_DATE_EPOCH, si no la del último commit, si no 1980."""
+    epoch = os.environ.get("SOURCE_DATE_EPOCH", "").strip()
+    if not epoch:
+        try:
+            epoch = subprocess.run(
+                ["git", "log", "-1", "--format=%ct"],
+                cwd=root,
+                capture_output=True,
+                text=True,
+                check=False,
+            ).stdout
+            epoch = (epoch or "").strip()
+        except OSError:
+            epoch = ""
+    if epoch.isdigit() and int(epoch) >= ZIP_MIN_EPOCH:
+        return tuple(time.gmtime(int(epoch))[:6])
+    return ZIP_MIN_DATE_TIME
+
+
+def _add_entry(zipf: zipfile.ZipFile, path: Path, arcname: str, date_time: tuple) -> None:
+    info = zipfile.ZipInfo(arcname, date_time=date_time)
+    info.compress_type = zipfile.ZIP_DEFLATED
+    info.external_attr = ZIP_FILE_MODE << 16
+    zipf.writestr(info, path.read_bytes())
 
 
 def _sha256(file_path: Path) -> str:

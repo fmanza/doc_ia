@@ -54,12 +54,12 @@ está el acta o la evidencia, no su contenido.
 |---|---|
 | Página | [api/build_docs_zip.md](../api/build_docs_zip.md) |
 | Estado detectado | ⚠️ |
-| Evidencia | Comportamiento de una dependencia externa: `mkdocs.commands.build::build` de MkDocs 1.6.1. Verificado en esa versión; sin test en doc_ia. Desde 2026-11-12 (ADR-003) MkDocs ya no se usa: el post-build lo ejecuta `scripts/build_docs_zip.py::_build` solo tras un build OK (`tests/test_build_docs_zip.py::test_zensical_build_failure_skips_post_build`), así que el caso ya no se da. Pendiente de que las personas decidan si se reclasifica |
-| **Decisión** | Aceptar riesgo |
-| **Contexto aportado** | Comportamiento de MkDocs 1.6.1, versión fijada en `requirements-docs.txt`; revisar al actualizar MkDocs (propuesta del agente aceptada en el chat) |
+| Evidencia | Comportamiento de una dependencia externa: `mkdocs.commands.build::build` de MkDocs 1.6.1. Verificado en esa versión; sin test en doc_ia. Desde 2026-11-12 (ADR-003) MkDocs ya no se usa: el post-build lo ejecuta `scripts/build_docs_zip.py::_build` solo tras un build OK (`tests/test_build_docs_zip.py::test_zensical_build_failure_skips_post_build`), así que el caso ya no se da |
+| **Decisión** | Reclasificar |
+| **Contexto aportado** | MkDocs retirado con ADR-003 (v0.12.0): el post-build solo se ejecuta tras un build Zensical correcto, verificado por test. Antes: Aceptar riesgo (2026-11-04) mientras MkDocs era el generador (propuesta del agente aceptada en el chat) |
 | **Responsable** | Paco Manzano |
-| **Fecha** | 2026-11-04 |
-| **Estado resultante** | ⚠️ |
+| **Fecha** | 2026-11-13 |
+| **Estado resultante** | ✅ |
 
 ### COB-BUILDZIP-002 — Zensical no ejecuta `hooks:` de `mkdocs.yml` y no avisa { #cob-buildzip-002 }
 

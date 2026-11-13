@@ -60,7 +60,7 @@ recomendable la migración. Puede consultarse información en internet. PLAN y A
 | F7 | `build(deps): Zensical 0.1.1 (F7)` (sesión `2026-11-12_zensical_paridad_f7`, P2) | `b63cf2d` | HECHO |
 | F8 + F13 | Sustituidas por Z1 por decisión del usuario (D4, 2026-11-12): Zensical único, MkDocs fuera; C2 y C5 retiradas | `b6ee093` | HECHO |
 | F9, F12 | Sustituidas por Z2 y Z3 (sesión `2026-11-12_zensical_paridad_f7`) | ver esa sesión | ver esa sesión |
-| F10 | Reducida a Z4: `use_directory_urls: false`, `offline` y shim local ya en `a43ebcc`; queda decidir `privacy` | — | PENDIENTE (decisión) |
+| F10 | Reducida a Z4: `use_directory_urls: false`, `offline` y shim local ya en `a43ebcc`; `privacy` descartado por el usuario (2026-11-13) | `a43ebcc` | CERRADA |
 
 ### F1 — verificación
 - DoD local (`.venv`, Python 3.14): ruff, format, mypy, pytest **177**, drift 0, matrix
