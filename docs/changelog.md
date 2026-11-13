@@ -11,6 +11,7 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
   fecha fija (`SOURCE_DATE_EPOCH`, si no la del último commit, si no 1980-01-01) y permisos fijos.
   El mismo commit produce el mismo ZIP y la misma huella, también en las releases `vX.Y.Z` y
   `docs-vX.Y.Z`.
+- Release del tag `vX.Y.Z` (`docs-release.yml`): adjunta también el `.sha256` del ZIP.
 
 ## [0.12.0] — 2026-11-13
 

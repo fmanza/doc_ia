@@ -123,7 +123,9 @@ búsqueda en JS, ningún script remoto, ningún enlace a carpeta); si no, termin
 ### Publicación automática (GitHub Releases)
 
 El workflow `.github/workflows/docs-zip-release.yml` publica una release `docs-vX.Y.Z`
-en cada push a `main` con cambios en `docs/`, adjuntando el ZIP y los checksums.
+en cada push a `main` con cambios en `docs/`, adjuntando el ZIP y los checksums. Al crear el tag
+`vX.Y.Z`, `.github/workflows/docs-release.yml` adjunta a esa release el mismo ZIP y su `.sha256`:
+el ZIP es reproducible, así que las dos releases publican el mismo fichero con la misma huella.
 
 Releases publicadas: [github.com/fmanza/doc_ia/releases](https://github.com/fmanza/doc_ia/releases)
 

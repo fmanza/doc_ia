@@ -43,7 +43,11 @@ jobs:
       - name: Upload ZIP to GitHub Release
         uses: softprops/action-gh-release@v3
         with:
-          files: dist/doc_ia-docs-*.zip
+          # ZIP reproducible (build_docs_zip.py): mismo fichero y misma huella que la release
+          # docs-vX.Y.Z del push a main. El .sha256 permite validarlo sin cruzar releases.
+          files: |
+            dist/doc_ia-docs-*.zip
+            dist/doc_ia-docs-*.zip.sha256
           fail_on_unmatched_files: true
           # Creates the release if it doesn't exist yet (useful for workflow_dispatch).
           tag_name: ${{ github.ref_name }}
