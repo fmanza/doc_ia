@@ -51,6 +51,8 @@ Salida: `site/doc_ia-docs-latest.zip` + `.sha256`, y `dist/doc_ia-docs-<versión
 - `--no-build` falla con código `1` si no existe `site/` previo — evita empaquetar nada silenciosamente.
 - Antes de empaquetar comprueba que `site/` se abre con doble clic en `index.html`; si no, código `1` (ver §4).
 - `dist/CHECKSUMS.txt` es acumulativo: conserva el histórico de hashes con timestamp.
+- El ZIP es reproducible: repetir el pipeline sobre el mismo commit da el mismo fichero y la
+  misma huella (fecha de las entradas = último commit, o `SOURCE_DATE_EPOCH` si se define).
 - `--builder mkdocs` (llamadas antiguas) termina con código `2`; `--builder zensical` se acepta sin efecto.
 
 ## 4. Ejecución y Pruebas

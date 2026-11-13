@@ -262,6 +262,21 @@
   `EXTRA_FILES`. Test `test_versioned_zip_matches_latest_layout`.
 - **Sesión**: .ai/sessions/2026-10-29b_ver_documentacion/
 
+## [build_docs_zip.py] — Dos releases con el mismo ZIP y huellas distintas (RESUELTO)
+
+- **Síntoma**: `vX.Y.Z` (tag) y `docs-vX.Y.Z` (push a `main`) publicaban `doc_ia-docs-X.Y.Z.zip`
+  con huellas distintas; solo `docs-v*` traía `.sha256`. Combinar el ZIP de una con la huella de la
+  otra daba un fallo de integridad (pasó al verificar v0.12.0).
+- **Causa**: cada workflow construye en su propio runner; el `site/` sale idéntico, pero
+  `zipfile.write` guarda la hora de cada fichero, y el post-build recorría `site/` con `os.walk`
+  sin ordenar.
+- **Tratamiento**: ZIP reproducible en `build_docs_zip.py::_zip` y `mkdocs_hooks.py`: entradas
+  ordenadas, `ZipInfo` con fecha fija (`SOURCE_DATE_EPOCH`, si no el último commit, si no
+  1980-01-01) y permisos `0o644`. La release del tag adjunta también el `.sha256`. Límite: la
+  compresión depende de la versión de zlib; se garantiza el mismo resultado en la misma imagen del
+  runner, no entre sistemas. Tests `test_versioned_zip_is_reproducible` y relacionados.
+- **Sesión**: .ai/sessions/2026-11-13_pendientes_zensical/
+
 ## [start-server.py] — Una conexión ociosa bloquea el servidor; en Windows dos servidores comparten puerto
 
 - **Síntoma**: con `socketserver.TCPServer`, abrir una conexión sin enviar petición (como la

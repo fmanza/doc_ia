@@ -21,9 +21,11 @@ from __future__ import annotations
 import argparse
 import hashlib
 import importlib.util
+import os
 import re
 import subprocess
 import sys
+import time
 import tomllib
 import zipfile
 from datetime import datetime
@@ -45,6 +47,11 @@ LEGACY_BUILDER_FLAG = "--builder"
 # layout is still accepted for sites built before the switch (ADR-003).
 OFFLINE_SEARCH_INDEXES = ("search/search_index.js", "search.js")
 MAX_REPORTED_PROBLEMS = 20
+# Reproducible ZIP: every entry gets the same timestamp and permissions (see _zip_date_time).
+ZipDateTime = tuple[int, int, int, int, int, int]
+ZIP_MIN_DATE_TIME: ZipDateTime = (1980, 1, 1, 0, 0, 0)
+ZIP_MIN_EPOCH = 315532800  # 1980-01-01T00:00:00Z
+ZIP_FILE_MODE = 0o644
 _SCRIPT_SRC_RE = re.compile(r'<script\b[^>]*\bsrc="([^"]+)"')
 _URL_ATTR_RE = re.compile(r'\b(?:href|src)="([^"]*)"')
 _SCHEME_RE = re.compile(r"[A-Za-z][A-Za-z0-9+.-]*:")
@@ -140,19 +147,55 @@ def _check_offline(site_dir: Path) -> None:
     sys.exit(1)
 
 
+def _zip_date_time() -> ZipDateTime:
+    """Fixed timestamp for every ZIP entry, so the same commit gives the same bytes.
+
+    ``SOURCE_DATE_EPOCH`` (reproducible-builds convention), else the date of the last commit,
+    else 1980-01-01 (the ZIP minimum). Interpreted as UTC.
+    """
+    epoch = os.environ.get("SOURCE_DATE_EPOCH", "").strip()
+    if not epoch:
+        try:
+            epoch = subprocess.run(
+                ["git", "log", "-1", "--format=%ct"],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+                check=False,
+            ).stdout
+            epoch = (epoch or "").strip()
+        except OSError:
+            epoch = ""
+    if epoch.isdigit() and int(epoch) >= ZIP_MIN_EPOCH:
+        year, month, day, hour, minute, second = time.gmtime(int(epoch))[:6]
+        return (year, month, day, hour, minute, second)
+    return ZIP_MIN_DATE_TIME
+
+
+def _add_entry(zf: zipfile.ZipFile, path: Path, arcname: str, date_time: ZipDateTime) -> None:
+    info = zipfile.ZipInfo(arcname, date_time=date_time)
+    info.compress_type = zipfile.ZIP_DEFLATED
+    info.external_attr = ZIP_FILE_MODE << 16
+    zf.writestr(info, path.read_bytes())
+
+
 def _zip(output_dir: Path, version: str) -> Path:
-    """Same layout as the latest ZIP of mkdocs_hooks.py: site/ without nested archives + extras."""
+    """Same layout as the latest ZIP of mkdocs_hooks.py: site/ without nested archives + extras.
+
+    Reproducible: sorted entries, fixed timestamp (:func:`_zip_date_time`) and fixed permissions.
+    """
     output_dir.mkdir(parents=True, exist_ok=True)
     archive = output_dir / f"{ZIP_PREFIX}-{version}.zip"
+    date_time = _zip_date_time()
     with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as zf:
         for file_path in sorted(p for p in SITE_DIR.rglob("*") if p.is_file()):
             if file_path.suffix in (".zip", ".sha256"):
                 continue
-            zf.write(file_path, arcname=file_path.relative_to(SITE_DIR).as_posix())
+            _add_entry(zf, file_path, file_path.relative_to(SITE_DIR).as_posix(), date_time)
         for extra in EXTRA_FILES:
             extra_path = ROOT / extra
             if extra_path.is_file():
-                zf.write(extra_path, arcname=extra_path.name)
+                _add_entry(zf, extra_path, extra_path.name, date_time)
     print(f"[build_docs_zip] Created: {archive}")
     return archive
 

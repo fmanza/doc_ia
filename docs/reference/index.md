@@ -9,8 +9,8 @@ fuentes:
   CLAUDE.md: 7701cd5d0ee1
   hooks/sync_root_docs.py: 361a88369b99
   mkdocs.yml: 28b6b25a031d
-  mkdocs_hooks.py: 7a5c8e6cc233
-  scripts/build_docs_zip.py: 7387f722a727
+  mkdocs_hooks.py: e791e231c394
+  scripts/build_docs_zip.py: 335c03cab9bf
   scripts/check_env.py: 43ef5cfdf4ae
   scripts/convert_to_md.py: e7e60518d96f
   scripts/db_trace.py: 2df471e18403

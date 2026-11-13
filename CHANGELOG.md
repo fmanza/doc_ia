@@ -5,6 +5,13 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+### Changed
+
+- ZIP de documentación reproducible (`build_docs_zip.py` y `mkdocs_hooks.py`): entradas ordenadas,
+  fecha fija (`SOURCE_DATE_EPOCH`, si no la del último commit, si no 1980-01-01) y permisos fijos.
+  El mismo commit produce el mismo ZIP y la misma huella, también en las releases `vX.Y.Z` y
+  `docs-vX.Y.Z`.
+
 ## [0.12.0] — 2026-11-13
 
 ### Changed

@@ -2,9 +2,9 @@
 arquetipo: "1"
 fuentes:
   mkdocs.yml: 28b6b25a031d
-  mkdocs_hooks.py: 7a5c8e6cc233
-  scripts/build_docs_zip.py: 7387f722a727
-  tests/test_build_docs_zip.py: 2082276d1c66
+  mkdocs_hooks.py: e791e231c394
+  scripts/build_docs_zip.py: 335c03cab9bf
+  tests/test_build_docs_zip.py: 027ec96f9c17
   tests/test_docs_conformance.py: 7416646e6217
   tests/test_mermaid_assets.py: 8aa97921d45f
   tests/test_offline_assets.py: 43bbc625fb8e
@@ -124,6 +124,7 @@ proyecto en el nombre, su huella y una nueva línea en el registro histórico de
 | Sin instalación | El empaquetado funciona con cualquier Python que tenga el generador; carga sus pasos por ruta y no requiere instalar el proyecto como paquete | Dependencia frágil del entorno; falla si no está activo el entorno correcto |
 | Diagramas sin conexión | El sitio sirve su propia copia de Mermaid, con versión exacta y huella fija, coherente con la configuración y con la validación de CI | Sin conexión, los diagramas aparecerían como bloques de código |
 | Abrir sin servidor | Antes de empaquetar se comprueba que el sitio se puede abrir desde ficheros locales: índice de búsqueda en JS, ningún script descargado de internet y ningún enlace a carpeta. Si no, no se crea el ZIP | Quien recibe el ZIP necesitaría Python y un servidor, o vería listados de carpetas y una búsqueda que no responde |
+| ZIP reproducible | El mismo contenido produce exactamente el mismo ZIP: entradas en orden fijo y con la misma fecha (la del último cambio publicado) | La release del tag y la de la documentación publicarían el mismo fichero con huellas distintas, y combinar el ZIP de una con la huella de la otra parecería una descarga corrupta |
 | Enlaces de descarga coherentes | Los enlaces de la página de descargas resuelven, desde la URL publicada de esa página, al ZIP "latest" y a su huella tal como los genera el empaquetado automático | El modo estricto no revisa enlaces en HTML: la descarga quedaría rota sin aviso |
 
 ## 6. Límites, Flujos Alternativos y Casos Especiales
@@ -188,6 +189,7 @@ proyecto en el nombre, su huella y una nueva línea en el registro histórico de
 | AC-14 | El empaquetado automático y el plugin `offline` en el mismo build | Se construye el sitio con el empaquetado | El ZIP "latest" se genera cuando el generador ha terminado (con el índice de búsqueda en JS ya escrito), así que lo incluye | `tests/test_build_docs_zip.py::test_zensical_runs_hooks_around_build` |
 | AC-15 | Las páginas de descargas y las instrucciones de visualización (instancia y plantilla) | Se comprueba la conformidad del repositorio | Indican extraer el ZIP y abrir `index.html` con doble clic, mantienen el servidor local como alternativa y nunca piden opciones de seguridad del navegador | `tests/test_docs_conformance.py::test_zip_opens_with_double_click_after_extracting`, `tests/test_docs_conformance.py::test_browser_security_flags_only_to_forbid_them` |
 | AC-16 | Una llamada existente que elige generador | Se solicita el empaquetado con MkDocs, o con Zensical | Con MkDocs termina con código 2 y un mensaje que remite a ADR-003, sin construir nada; con Zensical funciona igual que sin elegir | `tests/test_build_docs_zip.py::test_mkdocs_builder_is_rejected`, `tests/test_build_docs_zip.py::test_legacy_builder_flag_zensical_is_accepted` |
+| AC-17 | Un sitio ya generado | Se empaqueta dos veces, con distinta hora del sistema y de los ficheros | Los dos ZIP son idénticos byte a byte, sus entradas van ordenadas y llevan la fecha fijada | `tests/test_build_docs_zip.py::test_versioned_zip_is_reproducible`, `tests/test_build_docs_zip.py::test_latest_and_versioned_zip_have_same_bytes` |
 
 Verificación manual: `python scripts/build_docs_zip.py` (AC-01/AC-03),
 `python scripts/build_docs_zip.py --no-build` sin `site/` previo (AC-02),
@@ -239,6 +241,7 @@ fallidas (`.ai/sessions/2026-10-29d_zip_sin_servidor/smoke/`). No forma parte de
     | Shim descargado de unpkg si falta la copia local | `zensical/config.py::_apply_offline_plugin` (Zensical 0.0.73 y 0.1.1) | ✅ |
     | AC-14 | `scripts/build_docs_zip.py::_build` (`_post_build` tras el build) | ✅ |
     | AC-16 | `scripts/build_docs_zip.py::main` (`parser.error`) | ✅ |
+    | Regla «ZIP reproducible», AC-17 | `scripts/build_docs_zip.py::_zip`, `::_add_entry`, `::_zip_date_time`, `mkdocs_hooks.py::on_post_build` | ✅ |
     | AC-15 | `docs/downloads.md`, `VER_DOCUMENTACION.md`, `.github/templates/VER_DOCUMENTACION.template.md` | ✅ |
     | Navegación, búsqueda y diagramas por `file://`, sin red, en Edge y Chrome | `.ai/sessions/2026-10-29d_zip_sin_servidor/smoke/RESULTADOS.txt` (prueba con navegador sin ventana, fuera de la CI) | ✅ |
     | [COB-BUILDZIP-004](../decisiones/buildzip_decisiones.md#cob-buildzip-004) · Ídem en Firefox | Mismo fichero; sin ventana, Firefox no abre la búsqueda al enfocar el campo y la prueba la abre como el icono | ⚠️ (decisión: Aceptar riesgo) |
