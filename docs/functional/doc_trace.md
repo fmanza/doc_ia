@@ -1,10 +1,10 @@
 ---
 arquetipo: "1"
 fuentes:
-  scripts/doc_trace.py: 4679f991c61a
+  scripts/doc_trace.py: 24a2f9ec2fe3
 decisiones:
   ../decisiones/doctrace_decisiones.md: 1cc61611500e
-revisado: 2026-11-11
+revisado: 2026-11-13
 ---
 # Trazabilidad entre Documentación y Código
 
@@ -160,8 +160,9 @@ criterios y el índice para agentes IA se ejecutan como operaciones independient
   esa carpeta y con rutas relativas a ella, las mismas que usan las citas.
 - **Módulo funcional transversal**: si lo documentado se reparte entre varias carpetas de un
   repositorio, se indican esas rutas (relativas al proyecto) al guardar el baseline; también
-  los cambios pendientes al guardarlo se miran solo dentro de ellas. Las rutas se comparan tal
-  como se escriben: la misma carpeta con y sin barra final cuenta como un alcance distinto.
+  los cambios pendientes al guardarlo se miran solo dentro de ellas. Las rutas se normalizan
+  antes de guardarlas y de compararlas: `gui/vg/`, `./gui/vg`, `gui\vg` y `gui/vg` con un salto
+  de línea final (lista copiada de un fichero de Windows) son el mismo alcance.
 - **Cambios sin confirmar al tomar el baseline**: se avisa; como los cambios se comparan con
   el estado actual de los ficheros, en la sesión siguiente se vuelven a revisar.
 - **Ficheros renombrados**: se informan con la ruta anterior y la nueva, y cuentan las
@@ -208,6 +209,7 @@ criterios y el índice para agentes IA se ejecutan como operaciones independient
 | AC-32 | Un baseline guardado con un alcance de rutas, o sin él | Se piden los cambios con otras rutas, o se guarda el baseline sin rutas | Con otras rutas se indica el motivo y termina con código 3; sin rutas, el estado guardado no incluye alcance | `tests/test_doc_trace.py::test_changes_with_different_paths_falls_back`, `tests/test_doc_trace.py::test_baseline_without_paths_keeps_legacy_format` |
 | AC-33 | Un origen en un worktree con HEAD desacoplado en una rama | Se guarda el baseline, con o sin `--ref` | Sin `--ref` se registra la rama que apunta a ese commit; con `--ref` se registra la indicada | `tests/test_doc_trace.py::test_baseline_detached_head_records_the_ref_pointing_at_it`, `tests/test_doc_trace.py::test_baseline_ref_overrides_branch` |
 | AC-34 | Un registro de decisiones (con `ambito`) u otra página con claves propias en el frontmatter | Se sella | Se conservan sus claves propias y su arquetipo, también si no tenía fuentes ni registros sellados; volver a sellar no las duplica | `tests/test_doc_trace.py::test_stamp_keeps_unmanaged_keys_and_archetype` |
+| AC-35 | Una lista de rutas copiada de un fichero de Windows (cada ruta con un salto de línea final), o un baseline antiguo guardado así | Se guarda el baseline y se piden los cambios tras cambiar un fichero dentro del alcance | Las rutas se guardan sin el salto de línea y el cambio se detecta (código 1), también con el baseline antiguo sin repetirlo | `tests/test_doc_trace.py::test_paths_with_carriage_return_are_stripped`, `tests/test_doc_trace.py::test_stored_paths_with_carriage_return_still_detect_changes` |
 
 Verificación: `python -m pytest tests/test_doc_trace.py -q`.
 
@@ -240,6 +242,7 @@ Verificación: `python -m pytest tests/test_doc_trace.py -q`.
     | Página sin bloque ignorada por la comprobación | `scripts/doc_trace.py::check_drift` (`meta is None`) | ✅ |
     | AC-01 | `scripts/doc_trace.py::stamp_page`, `::check_drift` | ✅ |
     | AC-34 · claves propias del frontmatter | `scripts/doc_trace.py::_unmanaged_frontmatter`, `::STAMP_KEYS`, `::stamp_page` | ✅ |
+    | AC-35 · rutas con salto de línea final | `scripts/doc_trace.py::_normalize_path`, `::_paths_arg`, `::check_changes` | ✅ |
     | AC-02 | `scripts/doc_trace.py::check_drift` | ✅ |
     | AC-03 | `scripts/doc_trace.py::check_drift` | ✅ |
     | AC-04 | `scripts/doc_trace.py::_resolve_source`, `::check_drift` | ✅ |
