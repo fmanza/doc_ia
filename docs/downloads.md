@@ -24,7 +24,7 @@ La documentación completa está disponible como un archivo ZIP comprimido que p
 |---|---|---|---|
 | <a href="doc_ia-docs-latest.zip">doc_ia-docs-latest.zip</a> | ~2.9 MB | <a href="doc_ia-docs-latest.zip.sha256">.sha256</a> | 2026-11-13 |
 
-**doc_ia 0.12.0** — Instrucciones IA y tooling para documentar proyectos de desarrollo
+**doc_ia 0.13.0** — Instrucciones IA y tooling para documentar proyectos de desarrollo
 
 ---
 
@@ -133,6 +133,6 @@ Releases publicadas: [github.com/fmanza/doc_ia/releases](https://github.com/fman
 
 ## 📝 Información de versión
 
-- **Versión de doc_ia**: 0.12.0
+- **Versión de doc_ia**: 0.13.0
 - **Generador**: Zensical 0.1.1 (Mermaid 12.2.0 incluido en el sitio, con la integración nativa del tema; plugin `offline` con iframe-worker 1.0.4 local)
 - **Actualización**: 2026-10-29

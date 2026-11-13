@@ -5,6 +5,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+## [0.13.0] — 2026-11-13
+
 ### Added
 
 - `CONTRIBUTING.md` § «Actualizar Zensical» (procedimiento para una beta) y guarda

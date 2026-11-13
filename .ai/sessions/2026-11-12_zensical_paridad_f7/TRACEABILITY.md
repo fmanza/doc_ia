@@ -69,5 +69,5 @@
   Comportamiento previo a esta sesión.
 
 ## Pendiente
-- Prueba manual: abrir `index.html` del ZIP extraído, pulsar «Buscar», escribir `mermaid` y ver
-  resultados.
+- Ninguno. C3 cerrada el 2026-11-13: el usuario confirmó la búsqueda por `file://` en los ZIP de
+  doc_ia y UFV. Pendientes de mantenimiento → sesión `2026-11-13_pendientes_zensical`.
