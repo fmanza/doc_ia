@@ -14,7 +14,7 @@ fuentes:
   scripts/check_env.py: 43ef5cfdf4ae
   scripts/convert_to_md.py: e7e60518d96f
   scripts/db_trace.py: 2df471e18403
-  scripts/doc_trace.py: 4679f991c61a
+  scripts/doc_trace.py: 24a2f9ec2fe3
   scripts/kit.py: 432af520016f
   scripts/redact_secrets.py: d0cbb8ed3fbf
   scripts/snapshot_sources.py: f9dd29bea432
