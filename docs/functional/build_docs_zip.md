@@ -3,8 +3,8 @@ arquetipo: "1"
 fuentes:
   mkdocs.yml: 28b6b25a031d
   mkdocs_hooks.py: e791e231c394
-  scripts/build_docs_zip.py: 335c03cab9bf
-  tests/test_build_docs_zip.py: 027ec96f9c17
+  scripts/build_docs_zip.py: 31c263daed12
+  tests/test_build_docs_zip.py: 7ff11dbdb21d
   tests/test_docs_conformance.py: 7416646e6217
   tests/test_mermaid_assets.py: 8aa97921d45f
   tests/test_offline_assets.py: 43bbc625fb8e
@@ -149,9 +149,8 @@ proyecto en el nombre, su huella y una nueva línea en el registro histórico de
   del build y, solo si el build termina sin errores, genera el ZIP "latest". Construir con
   Zensical fuera del empaquetado no produce el ZIP "latest" ni actualiza las copias, y Zensical
   no avisa.
-- **Generador MkDocs**: ya no se soporta. Pedirlo al empaquetado termina con código 2 sin
-  construir nada; la opción de elegir generador se mantiene una versión solo para aceptar
-  Zensical en llamadas existentes.
+- **Elegir generador**: ya no es posible. Zensical es el único; la opción que permitía elegirlo
+  se retiró en 0.13.0 y pasarla termina con código 2 sin construir nada.
 
 ### Casos especiales
 
@@ -188,7 +187,7 @@ proyecto en el nombre, su huella y una nueva línea en el registro histórico de
 | AC-13 | Un sitio con un enlace a carpeta, un script de internet o sin índice de búsqueda en JS | Se solicita el empaquetado versionado | El proceso termina con código 1, nombra la página y el problema, y no crea ningún ZIP; con el índice de Zensical (o el de un sitio MkDocs anterior) y solo enlaces externos o a ficheros, el ZIP se crea | `tests/test_build_docs_zip.py::test_site_not_browsable_from_file_exits_1`, `tests/test_build_docs_zip.py::test_missing_search_index_js_exits_1`, `tests/test_build_docs_zip.py::test_zensical_search_index_layout_is_accepted`, `tests/test_build_docs_zip.py::test_external_and_file_links_are_not_folder_links` |
 | AC-14 | El empaquetado automático y el plugin `offline` en el mismo build | Se construye el sitio con el empaquetado | El ZIP "latest" se genera cuando el generador ha terminado (con el índice de búsqueda en JS ya escrito), así que lo incluye | `tests/test_build_docs_zip.py::test_zensical_runs_hooks_around_build` |
 | AC-15 | Las páginas de descargas y las instrucciones de visualización (instancia y plantilla) | Se comprueba la conformidad del repositorio | Indican extraer el ZIP y abrir `index.html` con doble clic, mantienen el servidor local como alternativa y nunca piden opciones de seguridad del navegador | `tests/test_docs_conformance.py::test_zip_opens_with_double_click_after_extracting`, `tests/test_docs_conformance.py::test_browser_security_flags_only_to_forbid_them` |
-| AC-16 | Una llamada existente que elige generador | Se solicita el empaquetado con MkDocs, o con Zensical | Con MkDocs termina con código 2 y un mensaje que remite a ADR-003, sin construir nada; con Zensical funciona igual que sin elegir | `tests/test_build_docs_zip.py::test_mkdocs_builder_is_rejected`, `tests/test_build_docs_zip.py::test_legacy_builder_flag_zensical_is_accepted` |
+| AC-16 | Una llamada antigua que elige generador (MkDocs o Zensical) | Se solicita el empaquetado | Termina con código 2 («opción desconocida») sin construir nada: Zensical es el único generador | `tests/test_build_docs_zip.py::test_builder_option_was_removed` |
 | AC-17 | Un sitio ya generado | Se empaqueta dos veces, con distinta hora del sistema y de los ficheros | Los dos ZIP son idénticos byte a byte, sus entradas van ordenadas y llevan la fecha fijada | `tests/test_build_docs_zip.py::test_versioned_zip_is_reproducible`, `tests/test_build_docs_zip.py::test_latest_and_versioned_zip_have_same_bytes` |
 
 Verificación manual: `python scripts/build_docs_zip.py` (AC-01/AC-03),
@@ -223,7 +222,7 @@ fallidas (`.ai/sessions/2026-10-29d_zip_sin_servidor/smoke/`). No forma parte de
     | Regla «Sin instalación» | `scripts/build_docs_zip.py::_load_hook` (`mkdocs_hooks.py` y `hooks/sync_root_docs.py` por ruta) | ✅ |
     | Regla «Enlaces de descarga coherentes» | `docs/downloads.md` (enlaces `href`), `mkdocs.yml::use_directory_urls`, `mkdocs_hooks.py::on_post_build` | ✅ |
     | ZIP automático excluye `.zip`/`.sha256` e incluye el servidor local | `mkdocs_hooks.py::on_post_build` | ✅ |
-    | Zensical como único generador; pasos previo y posterior ejecutados por el script; MkDocs rechazado | `scripts/build_docs_zip.py::main` (`--builder`), `::_build`, `::BUILDER` | ✅ |
+    | Zensical como único generador; pasos previo y posterior ejecutados por el script | `scripts/build_docs_zip.py::_build`, `::BUILDER` | ✅ |
     | [COB-BUILDZIP-002](../decisiones/buildzip_decisiones.md#cob-buildzip-002) · Zensical no ejecuta `hooks:` y no avisa | zensical.org/compatibility/configuration (Zensical 0.0.73; re-verificado con 0.1.1) | ⚠️ (decisión: Aceptar riesgo) |
     | AC-01 | `scripts/build_docs_zip.py::main`, `::_create_checksum_files` | ✅ |
     | AC-02 | `scripts/build_docs_zip.py::main` (`--no-build` + `SITE_DIR` inexistente → `sys.exit(1)`) | ✅ |
@@ -240,7 +239,7 @@ fallidas (`.ai/sessions/2026-10-29d_zip_sin_servidor/smoke/`). No forma parte de
     | AC-12 | `mkdocs.yml::use_directory_urls`, `::plugins`, `::extra` (`polyfills`), `.github/templates/TEMPLATE_mkdocs.yml`, `docs/assets/vendor/iframe-worker/SOURCE.txt` | ✅ |
     | Shim descargado de unpkg si falta la copia local | `zensical/config.py::_apply_offline_plugin` (Zensical 0.0.73 y 0.1.1) | ✅ |
     | AC-14 | `scripts/build_docs_zip.py::_build` (`_post_build` tras el build) | ✅ |
-    | AC-16 | `scripts/build_docs_zip.py::main` (`parser.error`) | ✅ |
+    | AC-16 | `scripts/build_docs_zip.py::main` (argparse sin `--builder`) | ✅ |
     | Regla «ZIP reproducible», AC-17 | `scripts/build_docs_zip.py::_zip`, `::_add_entry`, `::_zip_date_time`, `mkdocs_hooks.py::on_post_build` | ✅ |
     | AC-15 | `docs/downloads.md`, `VER_DOCUMENTACION.md`, `.github/templates/VER_DOCUMENTACION.template.md` | ✅ |
     | Navegación, búsqueda y diagramas por `file://`, sin red, en Edge y Chrome | `.ai/sessions/2026-10-29d_zip_sin_servidor/smoke/RESULTADOS.txt` (prueba con navegador sin ventana, fuera de la CI) | ✅ |

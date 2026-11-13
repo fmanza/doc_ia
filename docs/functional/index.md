@@ -3,7 +3,7 @@ arquetipo: "1-I"
 fuentes:
   docs/functional/archetypes.md: 9aac6004a611
   docs/functional/bootstrap.md: 64112e3c9247
-  docs/functional/build_docs_zip.md: 74a7a1117f98
+  docs/functional/build_docs_zip.md: 1360574168d3
   docs/functional/check_env.md: 15e6ca51e9e7
   docs/functional/convert_to_md.md: 7328fd37ca63
   docs/functional/db_trace.md: a35b8bb8bdc3

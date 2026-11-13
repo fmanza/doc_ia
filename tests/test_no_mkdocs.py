@@ -1,8 +1,7 @@
 """Guarda de ADR-003: Zensical es el único generador y MkDocs queda fuera.
 
 Falla si reaparece un comando o paquete de MkDocs en código, instrucciones, plantillas o
-documentación viva. `--builder zensical` no cuenta: es la opción obsoleta que se acepta sin
-efecto. Quedan fuera el histórico (ADR-001, CHANGELOG, sesiones `.ai/`), la sección
+documentación viva. Quedan fuera el histórico (ADR-001, CHANGELOG, sesiones `.ai/`), la sección
 «Histórico (MkDocs)» de EDGE_CASES y este propio fichero.
 """
 

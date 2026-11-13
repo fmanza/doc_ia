@@ -39,9 +39,8 @@ ZIP_PREFIX = "doc_ia-docs"
 # Files outside site/ shipped at the ZIP root: local server and viewing instructions.
 EXTRA_FILES = ("scripts/start-server.py", "VER_DOCUMENTACION.md")
 
+# The only documentation generator (ADR-003). `--builder` was removed in 0.13.0.
 BUILDER = "zensical"
-# Accepted for one version so existing calls keep working; any other value is rejected.
-LEGACY_BUILDER_FLAG = "--builder"
 
 # Search index inlined as JS by the `offline` plugin: Zensical (search.js); the MkDocs Material
 # layout is still accepted for sites built before the switch (ADR-003).
@@ -234,12 +233,6 @@ def _create_checksum_files(archive: Path) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Build docs and package as offline ZIP.")
     parser.add_argument(
-        LEGACY_BUILDER_FLAG,
-        default=BUILDER,
-        metavar="zensical",
-        help="Deprecated: Zensical is the only builder; any other value exits with code 2",
-    )
-    parser.add_argument(
         "--no-strict",
         dest="strict",
         action="store_false",
@@ -259,11 +252,6 @@ def main() -> None:
         help="Directory for the output ZIP (default: dist/)",
     )
     args = parser.parse_args()
-    if args.builder != BUILDER:
-        parser.error(
-            f"builder {args.builder!r} is no longer supported: Zensical is the only "
-            "documentation generator (ADR-003). Drop --builder."
-        )
 
     if not args.no_build:
         _build(args.strict)

@@ -192,27 +192,20 @@ def test_zensical_build_failure_skips_post_build(tmp_path: Path) -> None:
     assert not (root / "dist").exists()
 
 
-def test_legacy_builder_flag_zensical_is_accepted(tmp_path: Path) -> None:
-    """`--builder zensical` sigue funcionando una versión (llamadas existentes)."""
-    root = _project(tmp_path)
-    log = _fake_hooks(root)
-    with patch.object(build_docs_zip.subprocess, "run", side_effect=_logging_run(log)) as run:
-        _run_main(root, "--builder", "zensical")
-    assert run.call_args.args[0][:3] == [sys.executable, "-m", "zensical"]
-    assert log.read_text().splitlines() == ["pre", "build", f"post {root / 'site'}"]
-
-
-def test_mkdocs_builder_is_rejected(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
-    """MkDocs ya no se soporta (ADR-003): exit 2 antes de construir nada."""
+@pytest.mark.parametrize("value", ["mkdocs", "zensical"])
+def test_builder_option_was_removed(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], value: str
+) -> None:
+    """`--builder` se retiró en 0.13.0 (Zensical es el único generador): exit 2 sin construir."""
     root = _project(tmp_path)
     log = _fake_hooks(root)
     with (
         patch.object(build_docs_zip.subprocess, "run", side_effect=_logging_run(log)) as run,
         pytest.raises(SystemExit) as exc,
     ):
-        _run_main(root, "--builder", "mkdocs")
+        _run_main(root, "--builder", value)
     assert exc.value.code == 2
-    assert "no longer supported" in capsys.readouterr().err
+    assert "unrecognized arguments: --builder" in capsys.readouterr().err
     run.assert_not_called()
     assert not log.exists()
 

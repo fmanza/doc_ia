@@ -139,7 +139,7 @@ Clasifica **cada** activo IA del origen en una de estas cuatro capas:
     condicional: configuración, CLI, códigos de salida, eventos o interfaces publicadas)
 - **NUEVO**: `docs/downloads.md` (página de descarga offline si destino publica documentación)
 - **NUEVO**: `scripts/build_docs_zip.py` + `.github/workflows/docs-zip-release.yml` (si destino
-  publica documentación con generador estático): adaptar builder por defecto (`--builder`),
+  publica documentación con generador estático): adaptar el comando de build (`BUILDER`),
   secrets del workflow, prefijo ZIP, SHA256 y generación de checksums
 - **NUEVO**: `.github/prompts/onboarding_dev.prompt.md` (Arquetipo 7 — Onboarding Desarrolladores):
   copiar + actualizar el bloque "Especialización de dominio" con stack, herramientas, infraestructura

@@ -4,8 +4,8 @@ fuentes:
   mkdocs.yml: 28b6b25a031d
   mkdocs_hooks.py: e791e231c394
   pyproject.toml: 7f1fdc332175
-  scripts/build_docs_zip.py: 335c03cab9bf
-  tests/test_build_docs_zip.py: 027ec96f9c17
+  scripts/build_docs_zip.py: 31c263daed12
+  tests/test_build_docs_zip.py: 7ff11dbdb21d
   tests/test_offline_assets.py: 43bbc625fb8e
 decisiones:
   ../decisiones/buildzip_decisiones.md: b45d31436cf3
@@ -25,8 +25,8 @@ los ficheros raíz, construye con Zensical, genera el ZIP automático "latest" c
 ```mermaid
 flowchart TD
     accTitle: Flujo de build_docs_zip.py
-    accDescr: Rechaza un --builder distinto de zensical. Sin --no-build ejecuta el pre-build, construye con Zensical en modo estricto y, si termina con 0, el post-build. Con --no-build reutiliza site/ o falla si no existe. Después comprueba que site/ se abre sin servidor, lee la versión, crea el ZIP y los ficheros de checksum.
-    A["CLI: argparse<br/>--builder ≠ zensical → exit 2"] --> B{--no-build}
+    accDescr: Sin --no-build ejecuta el pre-build, construye con Zensical en modo estricto y, si termina con 0, el post-build. Con --no-build reutiliza site/ o falla si no existe. Después comprueba que site/ se abre sin servidor, lee la versión, crea el ZIP y los ficheros de checksum.
+    A[CLI: argparse] --> B{--no-build}
     B -- No --> PRE[_pre_build:<br/>hooks/sync_root_docs.py]
     PRE --> C[_build: python -m zensical build<br/>con --strict por defecto]
     C -- "exit != 0" --> X[sys.exit con código del builder]
@@ -45,8 +45,8 @@ código de salida explícito. Zensical ignora la clave `hooks:` (y `mkdocs.yml` 
 así que el script ejecuta él mismo `hooks/sync_root_docs.py` antes del build y `mkdocs_hooks.py`
 después, **solo si el build termina con `0`**. Ambos módulos se cargan por ruta desde la raíz del
 repositorio (`_load_hook`), porque al ejecutar `python scripts/build_docs_zip.py` la raíz no está
-en `sys.path`. `--builder` se mantiene una versión para no romper llamadas existentes: `zensical`
-se acepta sin efecto y cualquier otro valor (`mkdocs`) termina con código `2` antes de construir.
+en `sys.path`. La opción `--builder` se retiró en 0.13.0: Zensical es el único generador
+(`BUILDER`) y argparse rechaza la opción con código `2`.
 
 Antes de empaquetar, `_check_offline` exige que `site/` se pueda abrir desde `file://` (doble
 clic en `index.html`). `_offline_problems` devuelve la lista de motivos, vacía si está listo:
@@ -104,7 +104,6 @@ también son privadas.
 | `--no-strict` | flag | Omite `--strict` en el build | Por defecto el build es estricto |
 | `--no-build` | flag | Empaqueta `site/` existente sin reconstruir | Requiere que `site/` exista |
 | `--output-dir` | ruta | Carpeta de salida del ZIP | Por defecto `dist/`; relativa se resuelve contra la raíz del repo; se crea si no existe |
-| `--builder` | `zensical` | Obsoleto: se acepta una versión para llamadas existentes | Cualquier otro valor (p. ej. `mkdocs`) → código `2` sin construir |
 
 ### Contrato de entrada — Post-build
 
@@ -132,8 +131,8 @@ también son privadas.
 
 ### Errores y casos especiales
 
-- **Script** — `--builder` distinto de `zensical`: error de argparse por stderr («no longer
-  supported … ADR-003») y código `2`, sin pre-build ni build.
+- **Script** — opción desconocida (p. ej. `--builder`, retirada en 0.13.0): error de argparse
+  por stderr («unrecognized arguments») y código `2`, sin pre-build ni build.
 - **Script** — build fallido: proceso termina con el código de salida del builder (`sys.exit`).
   El pre-build ya se ha ejecutado (copias de `docs/` actualizadas) pero el post-build no: el ZIP
   "latest" de un build anterior no se sobrescribe.
@@ -157,7 +156,7 @@ también son privadas.
 El script (`build_docs_zip.py`) contiene solo funciones privadas (`_version`, `_load_hook`,
 `_pre_build`, `_build`, `_post_build`, `_is_remote`, `_is_folder`, `_offline_problems`,
 `_check_offline`, `_zip_date_time`, `_add_entry`, `_zip`, `_sha256_file`,
-`_create_checksum_files`) y las constantes `BUILDER`, `LEGACY_BUILDER_FLAG`,
+`_create_checksum_files`) y las constantes `BUILDER`,
 `OFFLINE_SEARCH_INDEXES`, `MAX_REPORTED_PROBLEMS`, `ZIP_MIN_DATE_TIME`, `ZIP_MIN_EPOCH`,
 `ZIP_FILE_MODE` y `EXTRA_FILES` (estas cuatro últimas, también en el post-build), sin clases. `mkdocs_hooks.py` es el patrón canónico de referencia para
 otros proyectos: copiar y cambiar únicamente `zip_path`.
@@ -193,8 +192,7 @@ otros proyectos: copiar y cambiar únicamente `zip_path`.
 | `test_checksums_txt_is_append_only` | `CHECKSUMS.txt` acumula una línea por build | unitario |
 | `test_zensical_runs_hooks_around_build` | Comando `python -m zensical build --strict` y orden pre → build → post | integración (CLI, build simulado) |
 | `test_zensical_build_failure_skips_post_build` | Build fallido: sin post-build ni ZIP | integración (CLI) |
-| `test_legacy_builder_flag_zensical_is_accepted` | `--builder zensical` funciona igual que sin la opción | integración (CLI, build simulado) |
-| `test_mkdocs_builder_is_rejected` | `--builder mkdocs` → código `2`, mensaje en stderr, sin pre-build ni build | integración (CLI) |
+| `test_builder_option_was_removed` | `--builder mkdocs` y `--builder zensical` → código `2` («unrecognized arguments»), sin pre-build ni build | integración (CLI, 2 casos) |
 | `test_zensical_with_real_hooks_syncs_and_creates_latest_zip` | Con los pasos reales: copia `CHANGELOG.md` a `docs/` y genera el ZIP `latest` + `.sha256` | integración (CLI, build simulado) |
 | `test_post_build_hook_creates_latest_zip` | `mkdocs_hooks.on_post_build`: ZIP `latest` + `.sha256`, incluye `start-server.py` y `VER_DOCUMENTACION.md`, excluye `.zip`/`.sha256` | unitario |
 | `test_zensical_search_index_layout_is_accepted` | Índice `search.js` en la raíz (Zensical) válido | integración (CLI) |
@@ -219,8 +217,8 @@ el pipeline real (`python scripts/build_docs_zip.py`, bloqueante) y comprueba el
 
     | Elemento | Fuente | Confianza |
     |---|---|---|
-    | `main` y opciones `--no-strict`, `--no-build`, `--output-dir`, `--builder` (obsoleto) | `scripts/build_docs_zip.py::main` | ✅ |
-    | `--builder` distinto de `zensical` → código `2` | `scripts/build_docs_zip.py::main` (`parser.error`), `::BUILDER`, `::LEGACY_BUILDER_FLAG` | ✅ |
+    | `main` y opciones `--no-strict`, `--no-build`, `--output-dir` | `scripts/build_docs_zip.py::main` | ✅ |
+    | Sin `--builder` (retirada en 0.13.0): opción desconocida → código `2` | `scripts/build_docs_zip.py::main` (argparse), `::BUILDER` | ✅ |
     | `on_post_build` | `mkdocs_hooks.py::on_post_build` | ✅ |
     | Versión desde `pyproject.toml` | `scripts/build_docs_zip.py::_version` | ✅ |
     | Build con Zensical, `--strict` y salida con el código del builder | `scripts/build_docs_zip.py::_build`, `::BUILDER` | ✅ |
