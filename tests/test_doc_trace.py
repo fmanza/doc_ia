@@ -808,6 +808,28 @@ def test_paths_are_normalized_before_comparing_with_baseline(tmp_path: Path) -> 
     assert _changes(dest, repo, "--path", "./gui/vg") == 0
 
 
+def test_paths_with_carriage_return_are_stripped(tmp_path: Path) -> None:
+    # Rutas leídas de un fichero CRLF: el "\r" final dejaba un pathspec que no coincidía con nada.
+    repo, dest = _transversal_repo(tmp_path), _dest(tmp_path)
+    _baseline(dest, repo, "--path", "gui/vg\r", "--path", " \r")
+    assert _origins_state(dest)["producto"]["rutas"] == ["gui/vg"]
+    (repo / "gui" / "vg" / "Pantalla.java").write_text("b\n", encoding="utf-8")
+    assert _changes(dest, repo) == 1
+
+
+def test_stored_paths_with_carriage_return_still_detect_changes(tmp_path: Path) -> None:
+    # Baseline guardada antes de 0.13.1 con "\r" en las rutas: changes la normaliza al leer.
+    repo, dest = _transversal_repo(tmp_path), _dest(tmp_path)
+    _baseline(dest, repo, "--path", "gui/vg")
+    state_path = dest / ".ai" / "doc_state.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    state["origenes"]["producto"]["rutas"] = ["gui/vg\r"]
+    state_path.write_text(json.dumps(state), encoding="utf-8")
+    (repo / "gui" / "vg" / "Pantalla.java").write_text("b\n", encoding="utf-8")
+    assert _changes(dest, repo) == 1
+    assert _changes(dest, repo, "--path", "gui/vg") == 1  # mismo alcance que el guardado
+
+
 def test_baseline_detached_head_records_the_ref_pointing_at_it(tmp_path: Path) -> None:
     origin, dest = _origin(tmp_path), _dest(tmp_path)
     _git(origin, "checkout", "-q", "--detach", "HEAD")

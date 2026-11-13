@@ -699,7 +699,12 @@ def check_changes(
     if _git(origin, "cat-file", "-e", f"{base}^{{commit}}") is None:
         return ChangeReport("fallback", f"el commit {base[:12]} no está en el historial", base)
     stored = entry.get("rutas")
-    stored_paths = tuple(sorted(str(p) for p in stored)) if isinstance(stored, list) else None
+    # Baselines anteriores a 0.13.1 pueden guardar rutas con "\r" final: se normalizan al leer.
+    stored_paths = (
+        tuple(sorted({_normalize_path(str(p)) for p in stored if str(p).strip()}))
+        if isinstance(stored, list)
+        else None
+    )
     baseline_paths = stored_paths or DEFAULT_PATHS
     if scope and tuple(sorted(scope)) != baseline_paths:
         reason = f"alcance --path distinto del baseline ({', '.join(baseline_paths)})"
@@ -1203,12 +1208,19 @@ def _default_llms_output(mkdocs_yml: Path) -> Path:
     return mkdocs_yml.parent / str(docs_dir) / "llms.txt"
 
 
+def _normalize_path(path: str) -> str:
+    """Pathspec normalizado: "gui/vg/", "./gui/vg", "gui\\vg" y "gui/vg\\r" son "gui/vg".
+
+    Los espacios y saltos de línea de los extremos se quitan: una lista de rutas leída de un
+    fichero CRLF dejaba un ``\\r`` final y git no encontraba nada con ese pathspec.
+    """
+    return path.strip().replace("\\", "/").removeprefix("./").rstrip("/") or "."
+
+
 def _paths_arg(args: argparse.Namespace) -> tuple[str, ...]:
-    """Pathspecs de ``--path`` (vacío si no se indicó)."""
+    """Pathspecs de ``--path`` (vacío si no se indicó); los valores en blanco se ignoran."""
     given: list[str] | None = args.path
-    # Normalizado: "gui/vg/", "./gui/vg" y "gui\vg" son el mismo alcance que "gui/vg".
-    normalized = (p.replace("\\", "/").removeprefix("./").rstrip("/") or "." for p in given or ())
-    return tuple(normalized)
+    return tuple(_normalize_path(p) for p in given or () if p.strip())
 
 
 def _origin_args(args: argparse.Namespace) -> tuple[Path, Path, Path, str]:

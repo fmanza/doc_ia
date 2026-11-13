@@ -5,6 +5,14 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+### Fixed
+
+- `doc_trace.py baseline`/`changes`: los valores de `--path` y las rutas guardadas en
+  `doc_state.json` se normalizan quitando espacios y saltos de línea de los extremos. Un ``
+  final (lista de rutas leída de un fichero CRLF) dejaba un pathspec que git no encontraba, y
+  `changes` no veía los cambios en esas rutas. Las baselines antiguas con `` se leen bien sin
+  repetirlas. Detectado en UFV (30 de 39 rutas afectadas).
+
 ## [0.13.0] — 2026-11-13
 
 ### Added
