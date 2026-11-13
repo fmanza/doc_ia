@@ -5,6 +5,12 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+### Added
+
+- `CONTRIBUTING.md` § «Actualizar Zensical» (procedimiento para una beta) y guarda
+  `test_zensical_pinned_to_the_same_version_everywhere` (`zensical` y `zensical-ui` con la misma
+  versión exacta en los dos ficheros de requisitos).
+
 ### Changed
 
 - **BREAKING** — `build_docs_zip.py`: se retira la opción `--builder` (obsoleta desde 0.12.0;

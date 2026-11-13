@@ -59,6 +59,28 @@ ZENSICAL_SUPPORTED_PLUGINS = frozenset(
     }
 )
 
+PINNED_PACKAGES = ("zensical", "zensical-ui")
+REQUIREMENT_FILES = ("requirements-docs.txt", "requirements.txt")
+
+
+def _pins(path: Path) -> dict[str, str]:
+    pins: dict[str, str] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        name, sep, version = line.split("#", 1)[0].strip().partition("==")
+        if sep:
+            pins[name.strip().lower()] = version.strip()
+    return pins
+
+
+def test_zensical_pinned_to_the_same_version_everywhere() -> None:
+    """Zensical en beta: versión exacta e igual en los dos ficheros (CONTRIBUTING § Actualizar)."""
+    found = {name: _pins(ROOT / name) for name in REQUIREMENT_FILES}
+    for package in PINNED_PACKAGES:
+        versions = {name: pins.get(package) for name, pins in found.items()}
+        assert all(versions.values()), f"{package} sin versión exacta: {versions}"
+        assert len(set(versions.values())) == 1, f"{package} con versiones distintas: {versions}"
+
+
 ZIP_LINK_RE = re.compile(r'href="([^"]+\.zip(?:\.sha256)?)"')
 
 

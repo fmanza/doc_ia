@@ -1037,9 +1037,9 @@ arquetipo y los agentes remiten a esta sección en lugar de repetirla.
 
 **Versión de Mermaid**: el sitio sirve su propia copia, con versión exacta
 (`docs/assets/vendor/mermaid/mermaid-<versión>.min.js`, hoy 12.2.0), seguida de
-`assets/js/mermaid-theme.js`. Material y Zensical solo descargan Mermaid de unpkg si no existe
-`window.mermaid`, así que con la copia local los dos generadores dibujan con la misma versión y
-el ZIP offline muestra los diagramas sin conexión. En v12 el flowchart usa por defecto el layout
+`assets/js/mermaid-theme.js`. El tema de Zensical solo descarga Mermaid de unpkg si no existe
+`window.mermaid`, así que con la copia local dibuja con la versión fijada y el ZIP offline
+muestra los diagramas sin conexión. En v12 el flowchart usa por defecto el layout
 ELK. No se añade CDN propio ni `mermaid.run()` (§4).
 
 #### Selección de tipo

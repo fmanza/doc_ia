@@ -1,7 +1,7 @@
 ---
 arquetipo: "2"
 fuentes:
-  .github/DOCUMENTATION_STANDARD.md: fdc027f24550
+  .github/DOCUMENTATION_STANDARD.md: 19a66007b81d
   .github/agents/documentation-generator.agent.md: c803b76cbce4
   .github/prompts/example_doc.prompt.md: 6041f616e0c3
   .github/prompts/user_manual_doc.prompt.md: 3ae26288bdb1
