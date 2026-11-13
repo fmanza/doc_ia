@@ -32,7 +32,7 @@
   `docs/functional/doc_trace.md` decían que las rutas se comparaban «sin normalizar» (ya era
   falso antes del hotfix); se describe `_normalize_path`, se añade AC-35 (35/35) y se re-sella
   (`e1f7f46`).
-- CHANGELOG e INDEX con un carácter CR real en lugar del texto ``: corregido en la release.
+- CHANGELOG e INDEX con un carácter CR real en lugar del texto `\r`: corregido en la release.
 
 ## VERSION
 - `release: v0.13.1` (parche): `pyproject.toml`, `.ai/product.md`, `VER_DOCUMENTACION.md`,
