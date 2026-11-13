@@ -54,6 +54,20 @@
 - Tag `v0.12.0` sobre `f5d9b69` → release `v0.12.0` con `doc_ia-docs-0.12.0.zip` (run 43330628793).
 - v0.11.4 no tiene release propia: va incluida en v0.12.0.
 
+## Decisiones posteriores (2026-11-13)
+- COB-BUILDZIP-001: **Reclasificar → ✅** (Paco Manzano). La opción «Reclasificar → No aplica» que
+  propuso el agente no es válida para una ficha ⚠️ (§3.18, `doc_trace decisions`); se corrigió
+  antes de registrarla.
+- Z4 (`privacy`): **no se añade**.
+- C3 sobre el ZIP publicado (`v0.12.0`, extraído y abierto por `file://` con toda la red
+  bloqueada, CDP): móvil 390×844 sin desbordamiento horizontal en `index`, `api/build_docs_zip`,
+  `downloads` y `functional/index`, diagramas Mermaid dibujados, menú y buscador visibles; el
+  diálogo de búsqueda se abre. **No se pudo confirmar de forma automática que devuelva resultados**
+  (el buscador de Zensical 0.1.1 vive en un shadow DOM): queda la prueba manual de 10 segundos.
+- Observación: la release `v0.12.0` (tag) y `docs-v0.12.0` (push a `main`) llevan ZIP con el mismo
+  nombre pero de builds distintas (huellas distintas); solo `docs-v0.12.0` adjunta `.sha256`.
+  Comportamiento previo a esta sesión.
+
 ## Pendiente
-- Decidir COB-BUILDZIP-001 (¿reclasificar a `No aplica`?) y Z4 (`privacy`).
-- Revisión humana de C3 sobre el ZIP publicado: búsqueda por `file://` y móvil real.
+- Prueba manual: abrir `index.html` del ZIP extraído, pulsar «Buscar», escribir `mermaid` y ver
+  resultados.

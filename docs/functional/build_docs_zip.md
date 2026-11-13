@@ -10,7 +10,7 @@ fuentes:
   tests/test_offline_assets.py: 43bbc625fb8e
   tests/test_zensical_compat.py: e206b407ff8c
 decisiones:
-  ../decisiones/buildzip_decisiones.md: c7b5670214ba
+  ../decisiones/buildzip_decisiones.md: b45d31436cf3
 revisado: 2026-11-13
 ---
 # ZIP de Documentación Offline

@@ -8,7 +8,7 @@ fuentes:
   tests/test_build_docs_zip.py: 2082276d1c66
   tests/test_offline_assets.py: 43bbc625fb8e
 decisiones:
-  ../decisiones/buildzip_decisiones.md: c7b5670214ba
+  ../decisiones/buildzip_decisiones.md: b45d31436cf3
 revisado: 2026-11-13
 ---
 # build_docs_zip
@@ -214,7 +214,7 @@ el pipeline real (`python scripts/build_docs_zip.py`, bloqueante) y comprueba el
     | Post-build: `site_dir` desde la configuración, WARN si no existe | `mkdocs_hooks.py::on_post_build` | ✅ |
     | Post-build: excluye `.zip`/`.sha256` e incluye `EXTRA_FILES` | `mkdocs_hooks.py::on_post_build`, `::EXTRA_FILES` | ✅ |
     | Script: mismo contenido que el ZIP "latest" (sin anidados + `EXTRA_FILES`) | `scripts/build_docs_zip.py::_zip`, `::EXTRA_FILES` | ✅ |
-    | [COB-BUILDZIP-001](../decisiones/buildzip_decisiones.md#cob-buildzip-001) · Hook ejecutado antes del aborto por `--strict` (solo MkDocs; desde ADR-003 el post-build va tras un build OK) | `mkdocs.commands.build::build` (MkDocs 1.6.1, retirado) | ⚠️ (decisión: Aceptar riesgo) |
+    | [COB-BUILDZIP-001](../decisiones/buildzip_decisiones.md#cob-buildzip-001) · Hook ejecutado antes del aborto por `--strict` (solo MkDocs; desde ADR-003 el post-build va tras un build OK) | `mkdocs.commands.build::build` (MkDocs 1.6.1, retirado); `scripts/build_docs_zip.py::_build`, `tests/test_build_docs_zip.py::test_zensical_build_failure_skips_post_build` | ⚠️ → ✅ (decisión: Reclasificar) |
     | `_sha256` | `mkdocs_hooks.py::_sha256` | ✅ |
     | Dependencias stdlib del script y del post-build | `scripts/build_docs_zip.py`, `mkdocs_hooks.py` (imports) | ✅ |
     | Pre/post-build siempre; post solo con build OK | `scripts/build_docs_zip.py::_build`, `::_pre_build`, `::_post_build` | ✅ |

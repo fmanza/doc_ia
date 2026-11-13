@@ -59,6 +59,6 @@ Incluye la v0.11.4 (`1599b04`), preparada en `develop` y no publicada por separa
 - Release `docs-v0.12.0` (push a `main`) y `v0.12.0` (tag): ZIP con `search.js`, abrir con doble clic.
 - Revisión humana pendiente de C3: búsqueda por `file://` y móvil real.
 
-## Pendientes de decisión (no bloquean la release)
-- COB-BUILDZIP-001: ¿reclasificar a `No aplica`?
-- Z4: plugin `privacy`.
+## Decisiones posteriores (2026-11-13)
+- COB-BUILDZIP-001: Reclasificar → ✅.
+- Z4: plugin `privacy` no se añade.
