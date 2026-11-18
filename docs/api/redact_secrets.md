@@ -1,9 +1,9 @@
 ---
 arquetipo: "2"
 fuentes:
-  scripts/redact_secrets.py: d0cbb8ed3fbf
-  tests/test_redact_secrets.py: 39af357fe68b
-revisado: 2026-11-09
+  scripts/redact_secrets.py: 374cea424533
+  tests/test_redact_secrets.py: dc52d1e3c270
+revisado: 2026-11-18
 ---
 # redact_secrets
 
@@ -40,7 +40,7 @@ saltos de línea (LF o CRLF).
 |---|---|---|---|
 | `SecretRule` | `SecretRule(name: str, pattern: re.Pattern[str])` (frozen) | Regla de detección; el grupo `value`, si existe, es lo que se redacta; si no, el patrón entero | — |
 | `Finding` | `Finding(path: str, line: int, rule: str)` (frozen) | Hallazgo **sin el valor** | — |
-| `RULES` | `tuple[SecretRule, ...]` | `private_key`, `client_secret`, `password`, `token`, `url_basic_auth`, `jwt` | — |
+| `RULES` | `tuple[SecretRule, ...]` | `private_key`, `client_secret`, `password`, `password_param`, `token`, `url_basic_auth`, `jwt` | — |
 | `find_secrets` | `find_secrets(text: str) -> list[tuple[int, str]]` | Línea (1-based) y regla de cada credencial | lista |
 | `redact` | `redact(text: str) -> tuple[str, list[tuple[int, str]]]` | Texto redactado y hallazgos | tupla |
 | `redact_tree` | `redact_tree(root: Path, check: bool = False) -> list[Finding]` | Redacta (o con `check`, solo detecta) los `.md` de un fichero o carpeta | lista |
@@ -63,7 +63,9 @@ saltos de línea (LF o CRLF).
 
 ### Errores y casos especiales
 
-- Las reglas `client_secret`, `password` y `token` exigen un valor con algún carácter que no sea
+- `password_param` cubre la palabra de contraseña seguida, en la misma línea (hasta 40
+  caracteres), de un parámetro opaco con su valor: «… y password p2=<valor>».
+- Las reglas `client_secret`, `password`, `password_param` y `token` exigen un valor con algún carácter que no sea
   letra (descarta prosa como «obligatorio» o «proporcionado»); una contraseña solo de letras no se
   detecta.
 - Se descartan marcadores (`xxxxxx`, `--`, `***`, `<…>`, `{…}`, `${VAR}`), URL y valores que ya

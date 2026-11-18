@@ -9,8 +9,10 @@ convertido se versiona en ``_fuentes/``, así que el valor debe sustituirse por 
 * Solo sustituye el **valor**, nunca la clave: el documento sigue diciendo que había un
   ``client_secret`` y dónde.
 * No toca marcadores evidentes (``xxxxxx``, ``--``, ``***``, ``<…>``, ``${VAR}``), URL ni valores
-  ya redactados: es idempotente. En las reglas por palabra clave (``client_secret``,
-  ``password``, ``token``) el valor debe tener algún carácter que no sea letra (descarta
+  ya redactados: es idempotente. ``password_param`` cubre la palabra seguida, en la misma línea,
+  de un parámetro opaco con su valor («… y password p2=<valor>»). En las reglas por palabra clave
+  (``client_secret``, ``password``, ``password_param``, ``token``) el valor debe tener algún
+  carácter que no sea letra (descarta
   «Password: obligatorio» o «client_secret: proporcionado»); una contraseña solo de letras no se
   detecta.
 * El informe da fichero, línea y regla, **nunca el valor** encontrado.
@@ -40,7 +42,7 @@ _US = r"\\?_"
 # Valor: sin espacios ni delimitadores de URL, tabla o Markdown.
 _VALUE = r"([^\s&*`\"'<>|),;\[\]]{%d,})"
 # Reglas por palabra clave en las que una palabra corriente («obligatorio», «Bearer») no es secreto.
-_NEEDS_NON_LETTER = frozenset({"client_secret", "password", "token"})
+_NEEDS_NON_LETTER = frozenset({"client_secret", "password", "password_param", "token"})
 
 
 @dataclass(frozen=True)
@@ -74,6 +76,14 @@ RULES: tuple[SecretRule, ...] = (
     SecretRule(
         "password",
         re.compile(rf"(?i)\b(?:password|passwd|pwd|pass|contraseña){_SEP}(?P<value>{_VALUE % 6})"),
+    ),
+    SecretRule(
+        # La palabra y el valor separados por un parámetro opaco: «… y password p2=<valor>».
+        "password_param",
+        re.compile(
+            rf"(?i)\b(?:password|passwd|contraseña)\s+(?:[^\n=:(]{{0,40}}?\s)?\w{{1,20}}"
+            rf"{_SEP}(?P<value>{_VALUE % 6})"
+        ),
     ),
     SecretRule(
         "token",

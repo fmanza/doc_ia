@@ -2,9 +2,9 @@
 arquetipo: "1"
 fuentes:
   .github/prompts/document_project.prompt.md: 9ebb31d05a58
-  scripts/redact_secrets.py: d0cbb8ed3fbf
-  tests/test_redact_secrets.py: 39af357fe68b
-revisado: 2026-11-13
+  scripts/redact_secrets.py: 374cea424533
+  tests/test_redact_secrets.py: dc52d1e3c270
+revisado: 2026-11-18
 ---
 # Redacción de Credenciales
 
@@ -71,6 +71,7 @@ sequenceDiagram
 | Solo el valor | Se sustituye el valor y se conserva la clave | Se perdería la constancia de que el documento contenía una credencial y dónde |
 | Nunca el valor en el informe | El informe da fichero, línea y tipo, nunca el valor encontrado | La credencial se filtraría a la consola o a los registros de la sesión |
 | Marcadores y prosa no se tocan | No se redactan marcadores (`xxxxxx`, `--`, `***`, `<…>`, `${VAR}`), URL ni palabras corrientes tras la clave («Password: obligatorio») | Documentos estropeados con falsos positivos |
+| Contraseña en un parámetro | Si la palabra «password» o «contraseña» va seguida, en la misma frase, de un parámetro con su valor («… y password p2=<valor>»), se redacta ese valor | Una contraseña pasada como parámetro de un servicio (Swagger) quedaría en `_fuentes/` |
 | Idempotente | Un valor ya redactado no se vuelve a detectar | Hallazgos repetidos en cada sesión |
 | Antes de `_fuentes/` | La redacción se ejecuta antes de copiar a `_fuentes/` y se comprueba antes del commit | La credencial quedaría en el historial del repositorio |
 | Red de seguridad | La revisión del INVENTARIO sigue siendo obligatoria | Credenciales escritas de forma no reconocida pasarían inadvertidas |
@@ -103,7 +104,7 @@ sequenceDiagram
 
 | ID | Dado | Cuando | Entonces | Test |
 |---|---|---|---|---|
-| AC-01 | Un `client_secret`, una contraseña, un token, credenciales en una URL o una clave de API | Se redacta el texto | Solo el valor se sustituye por `<REDACTADO>` y la clave se conserva | `tests/test_redact_secrets.py::test_detects_and_redacts_value_only` |
+| AC-01 | Un `client_secret`, una contraseña (también como parámetro tras la palabra: «password p2=…»), un token, credenciales en una URL o una clave de API | Se redacta el texto | Solo el valor se sustituye por `<REDACTADO>` y la clave se conserva | `tests/test_redact_secrets.py::test_detects_and_redacts_value_only` |
 | AC-02 | Un bloque de clave privada | Se redacta | El bloque entero se sustituye y la línea informada es la de inicio | `tests/test_redact_secrets.py::test_private_key_block_is_redacted_whole` |
 | AC-03 | Un token JWT | Se redacta | El token desaparece del texto | `tests/test_redact_secrets.py::test_jwt_is_redacted_whole` |
 | AC-04 | Descripciones de parámetros, marcadores, URL o prosa | Se analiza el texto | No hay hallazgos y el texto no cambia | `tests/test_redact_secrets.py::test_ignores_placeholders_and_prose` |

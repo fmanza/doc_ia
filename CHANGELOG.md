@@ -5,6 +5,17 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+## [0.13.2] — 2026-11-18
+
+### Fixed
+
+- `redact_secrets.py`: nueva regla `password_param` para la palabra de contraseña seguida, en la
+  misma frase, de un parámetro opaco con su valor («… y password p2=<valor>»). La contraseña de un
+  servicio en un manual convertido pasaba sin detectar. Detectado en UFV.
+- `doc_trace.py baseline`: sin `--path` conserva las `rutas` ya guardadas del origen (como
+  `changes`); antes las vaciaba en silencio y un alcance transversal pasaba a ser el repositorio
+  entero. `--path .` quita el alcance de forma explícita. Detectado en UFV (39 rutas → 0).
+
 ## [0.13.1] — 2026-11-13
 
 ### Fixed

@@ -801,6 +801,23 @@ def test_baseline_without_paths_keeps_legacy_format(tmp_path: Path) -> None:
     assert "rutas" not in _origins_state(dest)["producto"]
 
 
+def test_baseline_without_paths_reuses_stored_paths(tmp_path: Path) -> None:
+    # UFV 2026-11-18: repetir baseline sin --path vaciaba el alcance transversal (39 rutas → 0).
+    repo, dest = _transversal_repo(tmp_path), _dest(tmp_path)
+    _baseline(dest, repo, "--path", "service/vg", "--path", "gui/vg")
+    assert _baseline(dest, repo) == 0
+    assert _origins_state(dest)["producto"]["rutas"] == ["gui/vg", "service/vg"]
+    (repo / "service" / "otro" / "X.java").write_text("b\n", encoding="utf-8")
+    assert _changes(dest, repo) == 0  # sigue fuera del alcance
+
+
+def test_baseline_path_dot_resets_to_whole_repo(tmp_path: Path) -> None:
+    repo, dest = _transversal_repo(tmp_path), _dest(tmp_path)
+    _baseline(dest, repo, "--path", "gui/vg")
+    _baseline(dest, repo, "--path", ".")
+    assert "rutas" not in _origins_state(dest)["producto"]
+
+
 def test_paths_are_normalized_before_comparing_with_baseline(tmp_path: Path) -> None:
     repo, dest = _transversal_repo(tmp_path), _dest(tmp_path)
     _baseline(dest, repo, "--path", "gui/vg/")

@@ -8,12 +8,12 @@ fuentes:
   CLAUDE.md: 7701cd5d0ee1
   scripts/db_trace.py: 2df471e18403
   scripts/kit.py: 432af520016f
-  scripts/redact_secrets.py: d0cbb8ed3fbf
+  scripts/redact_secrets.py: 374cea424533
   scripts/snapshot_sources.py: f9dd29bea432
   scripts/web_captures.py: 53972c5aa039
 decisiones:
   ../decisiones/docproj_decisiones.md: ace9e2e187df
-revisado: 2026-11-13
+revisado: 2026-11-18
 ---
 # Documentar un Proyecto
 

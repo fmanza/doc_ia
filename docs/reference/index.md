@@ -14,13 +14,13 @@ fuentes:
   scripts/check_env.py: 43ef5cfdf4ae
   scripts/convert_to_md.py: e7e60518d96f
   scripts/db_trace.py: 2df471e18403
-  scripts/doc_trace.py: 24a2f9ec2fe3
+  scripts/doc_trace.py: ad7ce321340b
   scripts/kit.py: 432af520016f
-  scripts/redact_secrets.py: d0cbb8ed3fbf
+  scripts/redact_secrets.py: 374cea424533
   scripts/snapshot_sources.py: f9dd29bea432
   scripts/start-server.py: 5ffba28a39e0
   scripts/web_captures.py: 53972c5aa039
-revisado: 2026-11-13
+revisado: 2026-11-18
 ---
 # Referencia — doc_ia
 
@@ -33,7 +33,7 @@ línea de comandos, códigos de salida y eventos de build. La API interna de cad
 | Clave | Origen | Tipo | Por defecto | Descripción |
 |---|---|---|---|---|
 | `CUDA_VISIBLE_DEVICES` | `env` | cadena | `""` (lo fija `convert_to_md.py` al importarse si no existe) | Visibilidad de GPU para docling. `--device cpu` la fija a `""`; `--device cuda` la elimina; `--device auto` respeta un valor exportado por el usuario e ignora el que fija el propio módulo |
-| `project.version` | fichero `pyproject.toml` | cadena SemVer | `0.13.1` (valor actual) | Versión usada en el nombre del ZIP (`doc_ia-docs-{versión}.zip`) y en la release `docs-v{versión}` |
+| `project.version` | fichero `pyproject.toml` | cadena SemVer | `0.13.2` (valor actual) | Versión usada en el nombre del ZIP (`doc_ia-docs-{versión}.zip`) y en la release `docs-v{versión}` |
 | `site_dir` | fichero `mkdocs.yml` | ruta | `site` | Directorio de salida del build; `mkdocs_hooks.py` lo lee de la configuración. `build_docs_zip.py` usa `site/` fijo |
 | `use_directory_urls` | fichero `mkdocs.yml` | booleano | `false` | URLs `*.html`: el sitio y el ZIP se abren con doble clic en `index.html` (el plugin `offline` lo fuerza igualmente) |
 | `plugins: offline` | fichero `mkdocs.yml` | plugin | activo | Escribe el índice de búsqueda como JS (`search/search_index.js`; Zensical: `search.js`) para buscar desde `file://` |
@@ -160,7 +160,7 @@ python scripts/doc_trace.py [--root DIR] {drift,stamp,matrix,llms,decisions,base
 | `baseline` / `changes --name` | cadena | carpeta del origen | Clave del origen en el estado; con varios orígenes, la de `_fuentes/` |
 | `baseline` / `changes --docs` | ruta | `<--root>/docs` | Docs del destino (citas y artefactos a excluir) |
 | `baseline` / `changes --state` | ruta | `<--root>/.ai/doc_state.json` | Estado del modo incremental |
-| `baseline` / `changes --path` | pathspec de git (repetible) | `.` en `baseline`; las `rutas` guardadas en `changes` | Alcance transversal relativo al origen (p. ej. un módulo funcional repartido entre varios módulos de build); en `changes` debe coincidir con el del baseline |
+| `baseline` / `changes --path` | pathspec de git (repetible) | las `rutas` guardadas (o `.` si no hay); `--path .` las quita en `baseline` | Alcance transversal relativo al origen (p. ej. un módulo funcional repartido entre varios módulos de build); en `changes` debe coincidir con el del baseline |
 | `baseline --ref` | cadena | rama actual; con HEAD desacoplado, la única ref que apunta a él | Rama o ref documentada que se guarda en `rama` (p. ej. `origin/dev` en un worktree desacoplado) |
 | `changes --output` | ruta | stdout | Fichero Markdown del informe |
 
