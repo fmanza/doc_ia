@@ -22,6 +22,9 @@ FAKE = "Abc123FakeSecretValue9"  # valor sintético: nunca un secreto real
         (f"usuario (demo) y token({FAKE}-0000-1111)", "token"),
         (f"api_key: {FAKE}XYZ", "token"),
         (f"https://demo:{FAKE}@host.example/path", "url_basic_auth"),
+        # Parámetro opaco tras la palabra (manual de incidencias UFV): «… y password p2=<GUID>»
+        (f"p1=demo y p2= el usuario y password p2={FAKE}-0a1b-2c3d", "password_param"),
+        (f"la contraseña del servicio en p2: {FAKE}", "password_param"),
     ],
 )
 def test_detects_and_redacts_value_only(text: str, rule: str) -> None:
@@ -60,6 +63,10 @@ def test_private_key_block_is_redacted_whole() -> None:
         "password=${DB_PASSWORD}",
         f"client_secret={REDACTED}",
         "El token de acceso caduca a la hora.",
+        "en p1 y p2 introducir el usuario y password anterior.",
+        "contraseña del usuario admin: obligatorio",
+        "password (ver la sección 3)",
+        "password p2=<REDACTADO>",
     ],
 )
 def test_ignores_placeholders_and_prose(text: str) -> None:

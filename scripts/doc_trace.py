@@ -599,6 +599,17 @@ def read_state(state_path: Path) -> dict[str, Any]:
     return data if isinstance(data, dict) else {}
 
 
+def stored_paths(entry: Any) -> tuple[str, ...]:
+    """Rutas (``rutas``) del baseline de un origen, normalizadas; vacío si no tiene alcance.
+
+    Baselines anteriores a 0.13.1 pueden guardar rutas con "\\r" final: se normalizan al leer.
+    """
+    stored = entry.get("rutas") if isinstance(entry, dict) else None
+    if not isinstance(stored, list):
+        return ()
+    return tuple(sorted({_normalize_path(str(p)) for p in stored if str(p).strip()}))
+
+
 def write_baseline(state_path: Path, name: str, baseline: OriginBaseline) -> None:
     """Guarda el baseline de un origen conservando los de los demás orígenes."""
     stored = read_state(state_path).get("origenes")
@@ -698,14 +709,7 @@ def check_changes(
         return ChangeReport("fallback", reason, base)
     if _git(origin, "cat-file", "-e", f"{base}^{{commit}}") is None:
         return ChangeReport("fallback", f"el commit {base[:12]} no está en el historial", base)
-    stored = entry.get("rutas")
-    # Baselines anteriores a 0.13.1 pueden guardar rutas con "\r" final: se normalizan al leer.
-    stored_paths = (
-        tuple(sorted({_normalize_path(str(p)) for p in stored if str(p).strip()}))
-        if isinstance(stored, list)
-        else None
-    )
-    baseline_paths = stored_paths or DEFAULT_PATHS
+    baseline_paths = stored_paths(entry) or DEFAULT_PATHS
     if scope and tuple(sorted(scope)) != baseline_paths:
         reason = f"alcance --path distinto del baseline ({', '.join(baseline_paths)})"
         return ChangeReport("fallback", reason, base)
@@ -1234,7 +1238,10 @@ def _origin_args(args: argparse.Namespace) -> tuple[Path, Path, Path, str]:
 
 def _cmd_baseline(args: argparse.Namespace) -> int:
     origin, docs, state, name = _origin_args(args)
-    paths = _paths_arg(args) or DEFAULT_PATHS
+    # Sin --path se conserva el alcance guardado (como en `changes`); `--path .` lo quita.
+    origins = read_state(state).get("origenes")
+    kept = stored_paths(origins.get(name) if isinstance(origins, dict) else None)
+    paths = _paths_arg(args) or kept or DEFAULT_PATHS
     baseline = take_baseline(origin, documentation_paths(origin, docs), paths=paths)
     if args.ref and baseline.commit is not None:  # ref documentada explícita (worktree desacoplado)
         baseline = replace(baseline, branch=args.ref)
@@ -1279,7 +1286,10 @@ def _add_origin_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--path",
         action="append",
-        help="Pathspec de git relativo al origen (repetible): alcance transversal.",
+        help=(
+            "Pathspec de git relativo al origen (repetible): alcance transversal. Sin --path "
+            "se usan las rutas guardadas en el baseline; «--path .» vuelve al repositorio entero."
+        ),
     )
 
 
