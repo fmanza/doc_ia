@@ -5,6 +5,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer]
 
 ## [Unreleased]
 
+## [0.13.2] — 2026-11-18
+
 ### Fixed
 
 - `redact_secrets.py`: nueva regla `password_param` para la palabra de contraseña seguida, en la

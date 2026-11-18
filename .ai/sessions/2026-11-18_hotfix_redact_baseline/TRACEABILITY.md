@@ -5,7 +5,7 @@
 - fecha: 2026-11-18
 - rama: develop
 - skill: hotfix
-- fase: IMPLEMENT + AUDIT_CODE (fix en `develop`; release pendiente de confirmación)
+- fase: IMPLEMENT + VERSION (CLOSED, v0.13.2)
 
 ## Prompt issued
 «sí, redacta también la dirección de PRE del DTUFV y abre /hotfix para los dos fallos», tras la
@@ -52,7 +52,11 @@ sesión UFV `2026-11-18` (origen MANUAL `06_Manuales`).
 - Changelog: `[Unreleased]` → `Fixed` (2 entradas).
 - Rollback: `git revert <commit>`; en un destino afectado, repetir `baseline` con las `--path`
   originales.
-- Release (0.13.2): pendiente de confirmación del usuario (merge, tag y push por separado).
+- `release: v0.13.2` (parche, confirmado por el usuario): `pyproject.toml`, `.ai/product.md`,
+  `VER_DOCUMENTACION.md`, descargas, referencia, ejemplos del kit, `docs/api/web_captures.md`,
+  CHANGELOG (`[0.13.2]`) y `docs/changelog.md`; `docs/api/build_docs_zip.md` re-sellada.
+- Pasos por separado: commit en `develop` → push y CI → merge `--no-ff` a `main` → push → tag `v0.13.2`.
+- UFV: kit a 0.13.2 (`kit.py sync`) y baseline sin `--path` conservando las rutas.
 
 ## Veredicto
-GO_CONDICIONAL — fix verificado en `develop`; falta la release.
+CLOSED — v0.13.2.
